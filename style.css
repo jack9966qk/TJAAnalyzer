@@ -1,0 +1,41 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #e0e0e0;
+}
+
+#app {
+    max-width: 1000px;
+    margin: 0 auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+.canvas-container {
+    width: 100%;
+    /* Ensure scrolling if content is huge, though we resize canvas to fit height */
+    overflow-x: hidden; 
+}
+
+canvas {
+    display: block;
+    width: 100%; /* Initially fit container */
+    background: #fff;
+}
+
+.error {
+    color: #d32f2f;
+    background: #ffcdd2;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 20px;
+    text-align: center;
+}
