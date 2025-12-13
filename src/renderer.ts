@@ -12,10 +12,10 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement): void {
     // Scaling ratios relative to bar width
     // Adjust these to change the relative size of elements
     const RATIOS = {
-        BAR_HEIGHT: 0.15,
-        ROW_SPACING: 0.10,
-        NOTE_RADIUS_SMALL: 0.04,
-        NOTE_RADIUS_BIG: 0.055,
+        BAR_HEIGHT: 0.14,
+        ROW_SPACING: 0.09,
+        NOTE_RADIUS_SMALL: 0.035,
+        NOTE_RADIUS_BIG: 0.050,
         LINE_WIDTH_BAR_BORDER: 0.01,
         LINE_WIDTH_CENTER: 0.005,
         LINE_WIDTH_NOTE_OUTER: 0.022,
@@ -59,7 +59,9 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement): void {
     });
 
     // Layer 2: Draw Notes (so they appear on top of backgrounds, including neighboring bars)
-    bars.forEach((bar: string[], index: number) => {
+    // Iterate backwards so later bars are drawn first, putting earlier notes (from earlier bars) on top
+    for (let index = bars.length - 1; index >= 0; index--) {
+        const bar = bars[index];
         const row: number = Math.floor(index / BARS_PER_ROW);
         const col: number = index % BARS_PER_ROW;
 
@@ -67,7 +69,7 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement): void {
         const y: number = PADDING + (row * (BAR_HEIGHT + ROW_SPACING));
 
         drawBarNotes(ctx, bar, x, y, barWidth, BAR_HEIGHT, NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG, LW_NOTE_OUTER, LW_NOTE_INNER);
-    });
+    }
 }
 
 function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, borderW: number, centerW: number): void {
@@ -102,7 +104,7 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
     for (let i = noteCount - 1; i >= 0; i--) {
         const noteChar = bar[i];
         // Position calculated using the ORIGINAL index 'i'
-        const noteX: number = x + (i * noteStep) + (noteStep / 2); 
+        const noteX: number = x + (i * noteStep); 
         
         let color: string | null = null;
         let radius: number = 0;
