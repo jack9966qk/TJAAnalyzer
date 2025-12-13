@@ -25,11 +25,8 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement, viewMod
     };
     
     // Calculate layout
-    const canvasWidth: number = canvas.clientWidth || 800;
-    // Set internal resolution to match display size (assuming 1:1 for simplicity or fixed width)
-    canvas.width = canvasWidth;
-    
-    const barWidth: number = (canvasWidth - (PADDING * 2)) / BARS_PER_ROW;
+    const logicalCanvasWidth: number = canvas.clientWidth || 800;
+    const barWidth: number = (logicalCanvasWidth - (PADDING * 2)) / BARS_PER_ROW;
 
     // specific dimensions based on ratios
     const BAR_HEIGHT: number = barWidth * RATIOS.BAR_HEIGHT;
@@ -44,12 +41,20 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement, viewMod
     const BAR_NUMBER_OFFSET_Y: number = barWidth * RATIOS.BAR_NUMBER_OFFSET_Y_RATIO;
 
     const totalRows: number = Math.ceil(bars.length / BARS_PER_ROW);
-    const canvasHeight: number = (totalRows * (BAR_HEIGHT + ROW_SPACING)) + (PADDING * 2);
-    canvas.height = canvasHeight;
+    const logicalCanvasHeight: number = (totalRows * (BAR_HEIGHT + ROW_SPACING)) + (PADDING * 2);
+
+    // Adjust for device pixel ratio for sharp rendering
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = logicalCanvasWidth * dpr;
+    canvas.height = logicalCanvasHeight * dpr;
+    canvas.style.width = logicalCanvasWidth + 'px';
+    canvas.style.height = logicalCanvasHeight + 'px';
+    
+    ctx.scale(dpr, dpr);
 
     // Clear
     ctx.fillStyle = '#fff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, logicalCanvasWidth, logicalCanvasHeight);
 
     // Calculate start indices for judgeable notes per bar
     let currentNoteIndex = 0;
