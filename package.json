@@ -1,10 +1,18 @@
 {
   "type": "module",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "npm run build && playwright test",
+    "test:parser": "npm run build && node --loader ts-node/esm test-parser.ts",
+    "test:visual": "npm run build && playwright test regression.test.ts",
+    "snapshot": "npm run build && playwright test capture.spec.ts",
+    "start": "http-server ."
   },
   "devDependencies": {
+    "@playwright/test": "^1.57.0",
     "@types/node": "^25.0.1",
+    "http-server": "^14.1.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
 }

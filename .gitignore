@@ -2,3 +2,7 @@ node_modules/
 package-lock.json
 dev_instructions/
 dist/
+test-results/
+playwright-report/
+blob-report/
+snapshot.png
