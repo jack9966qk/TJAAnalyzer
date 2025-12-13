@@ -4,6 +4,7 @@ import { renderChart } from './renderer.js';
 import { exampleTJA } from './example-data.js';
 
 const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement | null;
+let parsedBars: string[][] | null = null;
 
 function init(): void {
     if (!canvas) {
@@ -13,9 +14,9 @@ function init(): void {
 
     try {
         console.log("Starting TJA Analyzer...");
-        const bars: string[][] = parseTJA(exampleTJA);
-        console.log(`Parsed ${bars.length} bars.`);
-        renderChart(bars, canvas);
+        parsedBars = parseTJA(exampleTJA);
+        console.log(`Parsed ${parsedBars.length} bars.`);
+        renderChart(parsedBars, canvas);
     } catch (e: unknown) {
         console.error("Error:", e);
         const container = document.getElementById('app');
@@ -29,11 +30,17 @@ function init(): void {
     }
 }
 
-// Handle resizing roughly
+// Handle resizing
+let resizeTimeout: number | undefined;
 window.addEventListener('resize', () => {
-   // Re-render if needed, but simple version maybe just refresh
-   // init(); 
-   // Actually, we should store bars and re-render.
+    if (resizeTimeout) {
+        clearTimeout(resizeTimeout);
+    }
+    resizeTimeout = window.setTimeout(() => {
+        if (canvas && parsedBars) {
+             renderChart(parsedBars, canvas);
+        }
+    }, 100);
 });
 
 init();

@@ -7,11 +7,20 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement): void {
     
     // Configuration
     const BARS_PER_ROW: number = 4;
-    const BAR_HEIGHT: number = 80;
     const PADDING: number = 20;
-    const ROW_SPACING: number = 40;
-    const NOTE_RADIUS_SMALL: number = 12;
-    const NOTE_RADIUS_BIG: number = 18;
+
+    // Scaling ratios relative to bar width
+    // Adjust these to change the relative size of elements
+    const RATIOS = {
+        BAR_HEIGHT: 0.15,
+        ROW_SPACING: 0.10,
+        NOTE_RADIUS_SMALL: 0.04,
+        NOTE_RADIUS_BIG: 0.055,
+        LINE_WIDTH_BAR_BORDER: 0.01,
+        LINE_WIDTH_CENTER: 0.005,
+        LINE_WIDTH_NOTE_OUTER: 0.022,
+        LINE_WIDTH_NOTE_INNER: 0.0075
+    };
     
     // Calculate layout
     const canvasWidth: number = canvas.clientWidth || 800;
@@ -19,6 +28,17 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement): void {
     canvas.width = canvasWidth;
     
     const barWidth: number = (canvasWidth - (PADDING * 2)) / BARS_PER_ROW;
+
+    // specific dimensions based on ratios
+    const BAR_HEIGHT: number = barWidth * RATIOS.BAR_HEIGHT;
+    const ROW_SPACING: number = barWidth * RATIOS.ROW_SPACING;
+    const NOTE_RADIUS_SMALL: number = barWidth * RATIOS.NOTE_RADIUS_SMALL;
+    const NOTE_RADIUS_BIG: number = barWidth * RATIOS.NOTE_RADIUS_BIG;
+    const LW_BAR: number = barWidth * RATIOS.LINE_WIDTH_BAR_BORDER;
+    const LW_CENTER: number = barWidth * RATIOS.LINE_WIDTH_CENTER;
+    const LW_NOTE_OUTER: number = barWidth * RATIOS.LINE_WIDTH_NOTE_OUTER;
+    const LW_NOTE_INNER: number = barWidth * RATIOS.LINE_WIDTH_NOTE_INNER;
+
     const totalRows: number = Math.ceil(bars.length / BARS_PER_ROW);
     const canvasHeight: number = (totalRows * (BAR_HEIGHT + ROW_SPACING)) + (PADDING * 2);
     canvas.height = canvasHeight;
@@ -35,7 +55,7 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement): void {
         const x: number = PADDING + (col * barWidth);
         const y: number = PADDING + (row * (BAR_HEIGHT + ROW_SPACING));
 
-        drawBarBackground(ctx, x, y, barWidth, BAR_HEIGHT);
+        drawBarBackground(ctx, x, y, barWidth, BAR_HEIGHT, LW_BAR, LW_CENTER);
     });
 
     // Layer 2: Draw Notes (so they appear on top of backgrounds, including neighboring bars)
@@ -46,11 +66,11 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement): void {
         const x: number = PADDING + (col * barWidth);
         const y: number = PADDING + (row * (BAR_HEIGHT + ROW_SPACING));
 
-        drawBarNotes(ctx, bar, x, y, barWidth, BAR_HEIGHT, NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG);
+        drawBarNotes(ctx, bar, x, y, barWidth, BAR_HEIGHT, NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG, LW_NOTE_OUTER, LW_NOTE_INNER);
     });
 }
 
-function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number): void {
+function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, borderW: number, centerW: number): void {
     const centerY: number = y + height / 2;
 
     // Draw Bar Background
@@ -59,19 +79,19 @@ function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, 
     
     // Draw Bar Border
     ctx.strokeStyle = '#000';
-    ctx.lineWidth = 2;
+    ctx.lineWidth = borderW;
     ctx.strokeRect(x, y, width, height);
 
     // Draw Center Line
     ctx.strokeStyle = '#ccc';
-    ctx.lineWidth = 1;
+    ctx.lineWidth = centerW;
     ctx.beginPath();
     ctx.moveTo(x, centerY);
     ctx.lineTo(x + width, centerY);
     ctx.stroke();
 }
 
-function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number): void {
+function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number): void {
     const centerY: number = y + height / 2;
     const noteCount: number = bar.length;
     if (noteCount === 0) return;
@@ -90,20 +110,20 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
 
         switch (noteChar) {
             case '1': // Don (Red Small)
-                color = '#f00';
+                color = 'rgba(255, 77, 77, 1)';
                 radius = rSmall;
                 break;
             case '2': // Ka (Blue Small)
-                color = '#00f';
+                color = 'rgba(92, 187, 255, 1)';
                 radius = rSmall;
                 break;
             case '3': // Don (Red Big)
-                color = '#f00';
+                color = 'rgba(255, 77, 77, 1)';
                 radius = rBig;
                 isBig = true;
                 break;
             case '4': // Ka (Blue Big)
-                color = '#00f';
+                color = 'rgba(92, 187, 255, 1)';
                 radius = rBig;
                 isBig = true;
                 break;
@@ -123,14 +143,14 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
             ctx.arc(noteX, centerY, radius, 0, Math.PI * 2);
 
             // Black border (outside)
-            ctx.lineWidth = 4.5;
+            ctx.lineWidth = borderOuterW;
             ctx.strokeStyle = '#000';
             ctx.stroke();
 
             ctx.fillStyle = color;
             ctx.fill();
             
-            ctx.lineWidth = 1.5;
+            ctx.lineWidth = borderInnerW;
             ctx.strokeStyle = '#fff'; // White border
             ctx.stroke();
         }
