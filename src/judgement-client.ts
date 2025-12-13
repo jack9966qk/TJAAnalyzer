@@ -5,7 +5,10 @@ export interface JudgementEvent {
 
 export interface GameplayStartEvent {
     type: 'gameplay_start';
-    tjaSummaries?: any[];
+    tjaSummaries?: {
+        player: number;
+        tjaContent: string;
+    }[];
 }
 
 export type ServerEvent = JudgementEvent | GameplayStartEvent;

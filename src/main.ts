@@ -54,10 +54,26 @@ function init(): void {
     }
 
     // Setup Judgement Client Callbacks
-    judgementClient.onMessage((event: ServerEvent) => {
+    judgementClient.onMessage(async (event: ServerEvent) => {
         if (event.type === 'gameplay_start') {
             console.log("Gameplay Start Event Received - Resetting Judgements");
             judgements = [];
+            parsedBars = null;
+
+            if (event.tjaSummaries && event.tjaSummaries.length > 0) {
+                // Sort summaries by player number to find the lowest
+                const sortedSummaries = [...event.tjaSummaries].sort((a, b) => a.player - b.player);
+                const firstSummary = sortedSummaries[0];
+
+                if (firstSummary.tjaContent) {
+                    try {
+                        parsedBars = parseTJA(firstSummary.tjaContent);
+                    } catch (e) {
+                        console.error("Error parsing TJA content:", e);
+                        alert("Failed to parse TJA content. See console for details.");
+                    }
+                }
+            }
             refreshChart();
         } else if (event.type === 'judgement') {
             // console.log("Judgement Received:", event.judgement);
@@ -72,6 +88,25 @@ function init(): void {
             connectBtn.innerText = status === 'Connected' ? 'Connected' : 'Connect';
         }
     });
+
+    // Setup file pickers
+    const tjaFilePicker = document.getElementById('tja-file-picker') as HTMLInputElement;
+    if (tjaFilePicker) {
+        tjaFilePicker.addEventListener('change', async (event) => {
+            const files = (event.target as HTMLInputElement).files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                try {
+                    const content = await file.text();
+                    parsedBars = parseTJA(content);
+                    refreshChart();
+                } catch (e) {
+                    console.error("Error parsing TJA file:", e);
+                    alert("Failed to parse TJA file. See console for details.");
+                }
+            }
+        });
+    }
 
     // Expose for testing
     (window as any).setJudgements = (newJudgements: string[]) => {
