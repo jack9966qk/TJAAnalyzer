@@ -1,3 +1,5 @@
+import { exampleTJA } from "./example-data.js";
+
 export interface JudgementEvent {
     type: 'judgement';
     judgement: string;
@@ -8,6 +10,7 @@ export interface GameplayStartEvent {
     tjaSummaries?: {
         player: number;
         tjaContent: string;
+        difficulty: string;
     }[];
 }
 
@@ -89,11 +92,21 @@ export class JudgementClient {
     startSimulation() {
         this.disconnect();
         console.log("Starting simulation...");
-        if (this.onStatusChangeCallback) this.onStatusChangeCallback("Simulating");
+        
+        if (this.onStatusChangeCallback) this.onStatusChangeCallback("Connected");
 
-        // Simulate a "game start" first?
         if (this.onMessageCallback) {
-            this.onMessageCallback({ type: 'gameplay_start' });
+            const gameplayStartEvent: GameplayStartEvent = {
+                type: 'gameplay_start',
+                tjaSummaries: [
+                    {
+                        player: 1,
+                        tjaContent: exampleTJA,
+                        difficulty: 'oni'
+                    }
+                ]
+            };
+            this.onMessageCallback(gameplayStartEvent);
         }
 
         this.simulateInterval = window.setInterval(() => {

@@ -1,11 +1,19 @@
-import { test } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 
 test('capture judgements state', async ({ page }) => {
     // Navigate to the app
     await page.goto('/');
 
+    // Start the test stream to enable the judgements view
+    await page.click('#test-stream-btn');
+    await page.waitForTimeout(500); // Give frontend time to process the event
+    
+    // Wait for the judgements radio button to be enabled
+    const judgementsRadio = page.locator('input[name="viewMode"][value="judgements"]');
+    await expect(judgementsRadio).toBeEnabled();
+
     // Switch to Judgements view
-    await page.check('input[name="viewMode"][value="judgements"]');
+    await judgementsRadio.check();
 
     // Simple seeded PRNG (Linear Congruential Generator)
     // using glibc parameters: m = 2^31, a = 1103515245, c = 12345

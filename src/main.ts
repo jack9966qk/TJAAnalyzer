@@ -4,7 +4,8 @@ import { exampleTJA } from './example-data.js';
 import { JudgementClient, ServerEvent } from './judgement-client.js';
 
 const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement | null;
-let parsedBars: string[][] | null = null;
+let parsedTJACharts: Record<string, string[][]> | null = null;
+let currentChart: string[][] | null = null;
 let currentViewMode: 'original' | 'judgements' = 'original';
 
 // Judgement State
@@ -15,6 +16,9 @@ let judgements: string[] = [];
 const statusDisplay = document.getElementById('status-display') as HTMLDivElement;
 const judgementsRadio = document.getElementById('judgements-radio') as HTMLInputElement;
 const originalRadio = document.querySelector('input[name="viewMode"][value="original"]') as HTMLInputElement;
+const difficultySelectorContainer = document.getElementById('difficulty-selector-container') as HTMLDivElement;
+const difficultySelector = document.getElementById('difficulty-selector') as HTMLSelectElement;
+
 
 function updateStatus(message: string) {
     if (statusDisplay) {
@@ -73,7 +77,7 @@ function init(): void {
         if (event.type === 'gameplay_start') {
             console.log("Gameplay Start Event Received - Resetting Judgements");
             judgements = [];
-            parsedBars = null;
+            currentChart = null;
 
             updateStatus('Receiving data from event stream');
 
@@ -84,7 +88,14 @@ function init(): void {
 
                 if (firstSummary.tjaContent) {
                     try {
-                        parsedBars = parseTJA(firstSummary.tjaContent);
+                        const charts = parseTJA(firstSummary.tjaContent);
+                        const difficulty = firstSummary.difficulty.toLowerCase();
+                        if (charts[difficulty]) {
+                            currentChart = charts[difficulty];
+                        } else {
+                            console.error(`Difficulty '${difficulty}' not found in TJA content.`);
+                            alert(`Difficulty '${difficulty}' not found. See console for details.`);
+                        }
                     } catch (e) {
                         console.error("Error parsing TJA content:", e);
                         alert("Failed to parse TJA content. See console for details.");
@@ -130,7 +141,30 @@ function init(): void {
                 const file = files[0];
                 try {
                     const content = await file.text();
-                    parsedBars = parseTJA(content);
+                    parsedTJACharts = parseTJA(content);
+
+                    difficultySelector.innerHTML = ''; // Clear previous options
+                    const difficulties = Object.keys(parsedTJACharts);
+                    difficulties.forEach(diff => {
+                        const option = document.createElement('option');
+                        option.value = diff;
+                        option.innerText = diff.charAt(0).toUpperCase() + diff.slice(1);
+                        difficultySelector.appendChild(option);
+                    });
+
+                    difficultySelectorContainer.hidden = false;
+
+                    let defaultDifficulty = 'edit';
+                    if (!parsedTJACharts[defaultDifficulty]) {
+                        defaultDifficulty = 'oni';
+                    }
+                    if (!parsedTJACharts[defaultDifficulty]) {
+                        defaultDifficulty = difficulties[0];
+                    }
+
+                    difficultySelector.value = defaultDifficulty;
+                    currentChart = parsedTJACharts[defaultDifficulty];
+
                     updateStatus('Displaying manually loaded TJA file');
                     refreshChart();
                 } catch (e) {
@@ -141,6 +175,14 @@ function init(): void {
         });
     }
 
+    difficultySelector.addEventListener('change', () => {
+        if (parsedTJACharts) {
+            const selectedDifficulty = difficultySelector.value;
+            currentChart = parsedTJACharts[selectedDifficulty];
+            refreshChart();
+        }
+    });
+
     // Expose for testing
     (window as any).setJudgements = (newJudgements: string[]) => {
         judgements = newJudgements;
@@ -149,8 +191,18 @@ function init(): void {
 
     try {
         console.log("Starting TJA Analyzer...");
-        parsedBars = parseTJA(exampleTJA);
-        console.log(`Parsed ${parsedBars.length} bars.`);
+        parsedTJACharts = parseTJA(exampleTJA);
+        
+        let defaultDifficulty = 'edit';
+        if (!parsedTJACharts[defaultDifficulty]) {
+            defaultDifficulty = 'oni';
+        }
+        if (!parsedTJACharts[defaultDifficulty]) {
+            defaultDifficulty = Object.keys(parsedTJACharts)[0];
+        }
+        currentChart = parsedTJACharts[defaultDifficulty];
+
+        console.log(`Parsed ${Object.keys(parsedTJACharts).length} difficulties.`);
         refreshChart();
     } catch (e: unknown) {
         console.error("Error:", e);
@@ -166,8 +218,8 @@ function init(): void {
 }
 
 function refreshChart() {
-    if (parsedBars && canvas) {
-        renderChart(parsedBars, canvas, currentViewMode, judgements);
+    if (currentChart && canvas) {
+        renderChart(currentChart, canvas, currentViewMode, judgements);
     }
 }
 

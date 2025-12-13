@@ -1,4 +1,4 @@
-export function parseTJA(content: string): string[][] {
+export function parseTJA(content: string): Record<string, string[][]> {
     const lines: string[] = content.split(/\r?\n/);
     const courses: Record<string, string[]> = {};
     let currentCourse: string | null = null;
@@ -39,34 +39,33 @@ export function parseTJA(content: string): string[][] {
         }
     }
 
-    // Select course: Edit > Oni > others (not required but good fallback)
-    let selectedData: string[] | undefined = courses['edit'];
-    if (!selectedData) {
-        selectedData = courses['oni'];
+    const parsedCourses: Record<string, string[][]> = {};
+
+    for (const courseName in courses) {
+        if (Object.prototype.hasOwnProperty.call(courses, courseName)) {
+            const courseData = courses[courseName];
+            // Combine lines into one string
+            const fullString: string = courseData.join('');
+            
+            // Split by comma to get bars
+            // Note: The last bar might have a trailing comma, resulting in an empty string at the end.
+            const rawBars: string[] = fullString.split(',');
+
+            const bars: string[][] = rawBars.map((rawBar: string) => {
+                const cleanedBar: string = rawBar.trim();
+                // A bar containing only '0's is a rest bar, but still a bar.
+                // An empty string might be an artifact of splitting.
+                // However, standard TJA ends with a comma, so the last element is empty.
+                // We should filter out empty strings if they are truly empty (length 0).
+                if (cleanedBar.length === 0) return null;
+                
+                // Convert string to array of notes (chars)
+                return cleanedBar.split('');
+            }).filter((bar): bar is string[] => bar !== null);
+
+            parsedCourses[courseName] = bars;
+        }
     }
 
-    if (!selectedData) {
-        throw new Error("No 'Edit' or 'Oni' course found in TJA file.");
-    }
-
-    // Combine lines into one string
-    const fullString: string = selectedData.join('');
-    
-    // Split by comma to get bars
-    // Note: The last bar might have a trailing comma, resulting in an empty string at the end.
-    const rawBars: string[] = fullString.split(',');
-
-    const bars: string[][] = rawBars.map((rawBar: string) => {
-        const cleanedBar: string = rawBar.trim();
-        // A bar containing only '0's is a rest bar, but still a bar.
-        // An empty string might be an artifact of splitting.
-        // However, standard TJA ends with a comma, so the last element is empty.
-        // We should filter out empty strings if they are truly empty (length 0).
-        if (cleanedBar.length === 0) return null;
-        
-        // Convert string to array of notes (chars)
-        return cleanedBar.split('');
-    }).filter((bar): bar is string[] => bar !== null);
-
-    return bars;
+    return parsedCourses;
 }

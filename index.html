@@ -8,7 +8,7 @@
 </head>
 <body>
     <div id="app">
-        <h1>TJA Analyzer - Edit/Oni Chart</h1>
+        <h1>TJA Analyzer</h1>
         <fieldset>
             <legend>Display Mode</legend>
             <div class="controls">
@@ -26,6 +26,10 @@
             <div class="controls">
                 <label for="tja-file-picker">Load TJA File:</label>
                 <input type="file" id="tja-file-picker" accept=".tja">
+            </div>
+            <div id="difficulty-selector-container" class="controls" hidden>
+                <label for="difficulty-selector">Difficulty:</label>
+                <select id="difficulty-selector"></select>
             </div>
         </fieldset>
         <fieldset id="event-stream-fieldset">
