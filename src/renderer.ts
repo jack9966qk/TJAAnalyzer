@@ -12,14 +12,16 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement, viewMod
     // Scaling ratios relative to bar width
     // Adjust these to change the relative size of elements
     const RATIOS = {
-        BAR_HEIGHT: 0.15,
-        ROW_SPACING: 0.10,
-        NOTE_RADIUS_SMALL: 0.04,
-        NOTE_RADIUS_BIG: 0.055,
+        BAR_HEIGHT: 0.14,
+        ROW_SPACING: 0.11,
+        NOTE_RADIUS_SMALL: 0.035,
+        NOTE_RADIUS_BIG: 0.05,
         LINE_WIDTH_BAR_BORDER: 0.01,
         LINE_WIDTH_CENTER: 0.005,
         LINE_WIDTH_NOTE_OUTER: 0.022,
-        LINE_WIDTH_NOTE_INNER: 0.0075
+        LINE_WIDTH_NOTE_INNER: 0.0075,
+        BAR_NUMBER_FONT_SIZE_RATIO: 0.06,
+        BAR_NUMBER_OFFSET_Y_RATIO: -0.0015 // Reduced offset for less spacing
     };
     
     // Calculate layout
@@ -38,6 +40,8 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement, viewMod
     const LW_CENTER: number = barWidth * RATIOS.LINE_WIDTH_CENTER;
     const LW_NOTE_OUTER: number = barWidth * RATIOS.LINE_WIDTH_NOTE_OUTER;
     const LW_NOTE_INNER: number = barWidth * RATIOS.LINE_WIDTH_NOTE_INNER;
+    const BAR_NUMBER_FONT_SIZE: number = barWidth * RATIOS.BAR_NUMBER_FONT_SIZE_RATIO;
+    const BAR_NUMBER_OFFSET_Y: number = barWidth * RATIOS.BAR_NUMBER_OFFSET_Y_RATIO;
 
     const totalRows: number = Math.ceil(bars.length / BARS_PER_ROW);
     const canvasHeight: number = (totalRows * (BAR_HEIGHT + ROW_SPACING)) + (PADDING * 2);
@@ -68,6 +72,7 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement, viewMod
         const y: number = PADDING + (row * (BAR_HEIGHT + ROW_SPACING));
 
         drawBarBackground(ctx, x, y, barWidth, BAR_HEIGHT, LW_BAR, LW_CENTER);
+        drawBarNumber(ctx, index + 1, x, y, BAR_NUMBER_FONT_SIZE, BAR_NUMBER_OFFSET_Y);
     });
 
     // Layer 1.5: Draw Drumrolls (behind notes)
@@ -417,4 +422,14 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
             ctx.stroke();
         }
     }
+}
+
+function drawBarNumber(ctx: CanvasRenderingContext2D, barNumber: number, x: number, y: number, fontSize: number, offsetY: number): void {
+    ctx.save();
+    ctx.font = `bold ${fontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
+    ctx.fillStyle = '#333';
+    ctx.textAlign = 'left'; // Align to the left bar line
+    ctx.textBaseline = 'bottom'; // Position above the bar
+    ctx.fillText(barNumber.toString(), x, y - offsetY);
+    ctx.restore();
 }
