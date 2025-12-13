@@ -44,3 +44,25 @@ canvas {
     margin-top: 20px;
     text-align: center;
 }
+
+#status-display {
+    text-align: center;
+    padding: 10px;
+    background: #f0f0f0;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    color: #333;
+}
+
+fieldset {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+legend {
+    font-weight: bold;
+    color: #555;
+}
+

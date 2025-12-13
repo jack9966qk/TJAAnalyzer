@@ -11,11 +11,26 @@ let currentViewMode: 'original' | 'judgements' = 'original';
 const judgementClient = new JudgementClient();
 let judgements: string[] = [];
 
+// UI Elements
+const statusDisplay = document.getElementById('status-display') as HTMLDivElement;
+const judgementsRadio = document.getElementById('judgements-radio') as HTMLInputElement;
+const originalRadio = document.querySelector('input[name="viewMode"][value="original"]') as HTMLInputElement;
+
+function updateStatus(message: string) {
+    if (statusDisplay) {
+        statusDisplay.innerText = message;
+    }
+}
+
 function init(): void {
     if (!canvas) {
         console.error("Canvas element with ID 'chart-canvas' not found.");
         return;
     }
+
+    // Initial UI State
+    judgementsRadio.disabled = true;
+    updateStatus('Using placeholder chart');
 
     // Setup view mode controls
     const viewModeRadios = document.querySelectorAll('input[name="viewMode"]');
@@ -60,6 +75,8 @@ function init(): void {
             judgements = [];
             parsedBars = null;
 
+            updateStatus('Receiving data from event stream');
+
             if (event.tjaSummaries && event.tjaSummaries.length > 0) {
                 // Sort summaries by player number to find the lowest
                 const sortedSummaries = [...event.tjaSummaries].sort((a, b) => a.player - b.player);
@@ -87,6 +104,21 @@ function init(): void {
         if (connectBtn) {
             connectBtn.innerText = status === 'Connected' ? 'Connected' : 'Connect';
         }
+
+        if (status === 'Connected') {
+            judgementsRadio.disabled = false;
+            updateStatus('Connected to event stream. Waiting for data...');
+        } else if (status === 'Connecting...') {
+            updateStatus('Connecting to event stream...');
+        } else { // Disconnected
+            judgementsRadio.disabled = true;
+            if (currentViewMode === 'judgements') {
+                originalRadio.checked = true;
+                currentViewMode = 'original';
+                refreshChart();
+            }
+            updateStatus('Disconnected from event stream');
+        }
     });
 
     // Setup file pickers
@@ -99,6 +131,7 @@ function init(): void {
                 try {
                     const content = await file.text();
                     parsedBars = parseTJA(content);
+                    updateStatus('Displaying manually loaded TJA file');
                     refreshChart();
                 } catch (e) {
                     console.error("Error parsing TJA file:", e);
