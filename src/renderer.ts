@@ -1,23 +1,27 @@
 
-export function renderChart(bars, canvas) {
+export function renderChart(bars: string[][], canvas: HTMLCanvasElement): void {
     const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error("2D rendering context not found for canvas.");
+        return;
+    }
     
     // Configuration
-    const BARS_PER_ROW = 4;
-    const BAR_HEIGHT = 80;
-    const PADDING = 20;
-    const ROW_SPACING = 40;
-    const NOTE_RADIUS_SMALL = 12;
-    const NOTE_RADIUS_BIG = 18;
+    const BARS_PER_ROW: number = 4;
+    const BAR_HEIGHT: number = 80;
+    const PADDING: number = 20;
+    const ROW_SPACING: number = 40;
+    const NOTE_RADIUS_SMALL: number = 12;
+    const NOTE_RADIUS_BIG: number = 18;
     
     // Calculate layout
-    const canvasWidth = canvas.clientWidth || 800;
+    const canvasWidth: number = canvas.clientWidth || 800;
     // Set internal resolution to match display size (assuming 1:1 for simplicity or fixed width)
     canvas.width = canvasWidth;
     
-    const barWidth = (canvasWidth - (PADDING * 2)) / BARS_PER_ROW;
-    const totalRows = Math.ceil(bars.length / BARS_PER_ROW);
-    const canvasHeight = (totalRows * (BAR_HEIGHT + ROW_SPACING)) + (PADDING * 2);
+    const barWidth: number = (canvasWidth - (PADDING * 2)) / BARS_PER_ROW;
+    const totalRows: number = Math.ceil(bars.length / BARS_PER_ROW);
+    const canvasHeight: number = (totalRows * (BAR_HEIGHT + ROW_SPACING)) + (PADDING * 2);
     canvas.height = canvasHeight;
 
     // Clear
@@ -25,19 +29,19 @@ export function renderChart(bars, canvas) {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw
-    bars.forEach((bar, index) => {
-        const row = Math.floor(index / BARS_PER_ROW);
-        const col = index % BARS_PER_ROW;
+    bars.forEach((bar: string[], index: number) => {
+        const row: number = Math.floor(index / BARS_PER_ROW);
+        const col: number = index % BARS_PER_ROW;
 
-        const x = PADDING + (col * barWidth);
-        const y = PADDING + (row * (BAR_HEIGHT + ROW_SPACING));
+        const x: number = PADDING + (col * barWidth);
+        const y: number = PADDING + (row * (BAR_HEIGHT + ROW_SPACING));
 
         drawBar(ctx, bar, x, y, barWidth, BAR_HEIGHT, NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG);
     });
 }
 
-function drawBar(ctx, bar, x, y, width, height, rSmall, rBig) {
-    const centerY = y + height / 2;
+function drawBar(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number): void {
+    const centerY: number = y + height / 2;
 
     // Draw Bar Background/Border
     ctx.strokeStyle = '#000';
@@ -53,17 +57,17 @@ function drawBar(ctx, bar, x, y, width, height, rSmall, rBig) {
     ctx.stroke();
 
     // Draw Notes
-    const noteCount = bar.length;
+    const noteCount: number = bar.length;
     if (noteCount === 0) return;
 
-    const noteStep = width / noteCount;
+    const noteStep: number = width / noteCount;
 
-    bar.forEach((noteChar, noteIndex) => {
-        const noteX = x + (noteIndex * noteStep) + (noteStep / 2); // Center of the time slot
+    bar.forEach((noteChar: string, noteIndex: number) => {
+        const noteX: number = x + (noteIndex * noteStep) + (noteStep / 2); // Center of the time slot
         
-        let color = null;
-        let radius = 0;
-        let isBig = false;
+        let color: string | null = null;
+        let radius: number = 0;
+        let isBig: boolean = false;
 
         switch (noteChar) {
             case '1': // Don (Red Small)

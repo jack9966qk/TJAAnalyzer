@@ -1,6 +1,10 @@
 {
   "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
   "devDependencies": {
+    "@types/node": "^25.0.1",
     "typescript": "^5.9.3"
   }
 }

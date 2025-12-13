@@ -1,8 +1,8 @@
-export function parseTJA(content) {
-    const lines = content.split(/\r?\n/);
-    const courses = {};
-    let currentCourse = null;
-    let isParsingChart = false;
+export function parseTJA(content: string): string[][] {
+    const lines: string[] = content.split(/\r?\n/);
+    const courses: Record<string, string[]> = {};
+    let currentCourse: string | null = null;
+    let isParsingChart: boolean = false;
 
     // First pass: extract raw chart data for each course
     for (let line of lines) {
@@ -23,7 +23,7 @@ export function parseTJA(content) {
             currentCourse = null;
         } else if (isParsingChart && currentCourse) {
             // Remove comments
-            const commentIndex = line.indexOf('//');
+            const commentIndex: number = line.indexOf('//');
             if (commentIndex !== -1) {
                 line = line.substring(0, commentIndex).trim();
             }
@@ -40,7 +40,7 @@ export function parseTJA(content) {
     }
 
     // Select course: Edit > Oni > others (not required but good fallback)
-    let selectedData = courses['edit'];
+    let selectedData: string[] | undefined = courses['edit'];
     if (!selectedData) {
         selectedData = courses['oni'];
     }
@@ -50,14 +50,14 @@ export function parseTJA(content) {
     }
 
     // Combine lines into one string
-    const fullString = selectedData.join('');
+    const fullString: string = selectedData.join('');
     
     // Split by comma to get bars
     // Note: The last bar might have a trailing comma, resulting in an empty string at the end.
-    const rawBars = fullString.split(',');
+    const rawBars: string[] = fullString.split(',');
 
-    const bars = rawBars.map(rawBar => {
-        const cleanedBar = rawBar.trim();
+    const bars: string[][] = rawBars.map((rawBar: string) => {
+        const cleanedBar: string = rawBar.trim();
         // A bar containing only '0's is a rest bar, but still a bar.
         // An empty string might be an artifact of splitting.
         // However, standard TJA ends with a comma, so the last element is empty.
@@ -66,7 +66,7 @@ export function parseTJA(content) {
         
         // Convert string to array of notes (chars)
         return cleanedBar.split('');
-    }).filter(bar => bar !== null);
+    }).filter((bar): bar is string[] => bar !== null);
 
     return bars;
 }

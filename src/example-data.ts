@@ -1,4 +1,4 @@
-export const exampleTJA = `//TJADB Project
+export const exampleTJA: string = `//TJADB Project
 TITLE:Kakashi-Hime: Princess Scarecrow
 TITLEJA:案山子姫 -Princess Scarecrow-
 SUBTITLE:--Harunaba feat. Chihiro Ishiguro
