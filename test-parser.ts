@@ -3,7 +3,7 @@ import { exampleTJA } from './src/example-data.js';
 
 try {
     console.log("Testing TJA Parser...");
-    const charts: Record<string, string[][]> = parseTJA(exampleTJA);
+    const charts = parseTJA(exampleTJA);
     const difficulties = Object.keys(charts);
     console.log(`Successfully parsed ${difficulties.length} difficulties: ${difficulties.join(', ')}`);
 
@@ -11,10 +11,11 @@ try {
         throw new Error("Parsed 0 difficulties. Something is wrong.");
     }
 
-    const bars = charts['edit'];
-    if (!bars) {
+    const chart = charts['edit'];
+    if (!chart || !chart.bars) {
         throw new Error("'edit' difficulty not found in parsed charts.");
     }
+    const bars = chart.bars;
 
     console.log(`'edit' difficulty has ${bars.length} bars.`);
 

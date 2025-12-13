@@ -1,12 +1,13 @@
-import { parseTJA } from './tja-parser.js';
+import { parseTJA, ParsedChart } from './tja-parser.js';
 import { renderChart } from './renderer.js';
 import { exampleTJA } from './example-data.js';
 import { JudgementClient, ServerEvent } from './judgement-client.js';
 
 const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement | null;
-let parsedTJACharts: Record<string, string[][]> | null = null;
-let currentChart: string[][] | null = null;
+let parsedTJACharts: Record<string, ParsedChart> | null = null;
+let currentChart: ParsedChart | null = null;
 let currentViewMode: 'original' | 'judgements' = 'original';
+let collapsedLoop: boolean = false;
 
 // Judgement State
 const judgementClient = new JudgementClient();
@@ -18,7 +19,7 @@ const judgementsRadio = document.getElementById('judgements-radio') as HTMLInput
 const originalRadio = document.querySelector('input[name="viewMode"][value="original"]') as HTMLInputElement;
 const difficultySelectorContainer = document.getElementById('difficulty-selector-container') as HTMLDivElement;
 const difficultySelector = document.getElementById('difficulty-selector') as HTMLSelectElement;
-
+const collapseLoopCheckbox = document.getElementById('collapse-loop-checkbox') as HTMLInputElement;
 
 function updateStatus(message: string) {
     if (statusDisplay) {
@@ -47,6 +48,13 @@ function init(): void {
             }
         });
     });
+
+    if (collapseLoopCheckbox) {
+        collapseLoopCheckbox.addEventListener('change', (event) => {
+            collapsedLoop = (event.target as HTMLInputElement).checked;
+            refreshChart();
+        });
+    }
 
     // Setup Judgement Connection Controls
     const hostInput = document.getElementById('host-input') as HTMLInputElement;
@@ -219,7 +227,7 @@ function init(): void {
 
 function refreshChart() {
     if (currentChart && canvas) {
-        renderChart(currentChart, canvas, currentViewMode, judgements);
+        renderChart(currentChart, canvas, currentViewMode, judgements, collapsedLoop);
     }
 }
 

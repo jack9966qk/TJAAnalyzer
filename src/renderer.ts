@@ -1,9 +1,13 @@
-export function renderChart(bars: string[][], canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' = 'original', judgements: string[] = []): void {
+import { ParsedChart, LoopInfo } from './tja-parser.js';
+
+export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' = 'original', judgements: string[] = [], collapsed: boolean = false): void {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
         console.error("2D rendering context not found for canvas.");
         return;
     }
+
+    const { bars, loop } = chart;
     
     // Configuration
     const BARS_PER_ROW: number = 4;
@@ -40,7 +44,100 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement, viewMod
     const BAR_NUMBER_FONT_SIZE: number = barWidth * RATIOS.BAR_NUMBER_FONT_SIZE_RATIO;
     const BAR_NUMBER_OFFSET_Y: number = barWidth * RATIOS.BAR_NUMBER_OFFSET_Y_RATIO;
 
-    const totalRows: number = Math.ceil(bars.length / BARS_PER_ROW);
+    // Pre-calculate global start indices for ALL bars in the original chart
+    const globalBarStartIndices: number[] = [];
+    let currentGlobalNoteIndex = 0;
+    for (const bar of bars) {
+        globalBarStartIndices.push(currentGlobalNoteIndex);
+        if (bar) {
+            for (const char of bar) {
+                if (['1', '2', '3', '4'].includes(char)) {
+                    currentGlobalNoteIndex++;
+                }
+            }
+        }
+    }
+
+    // Determine Virtual Bars to Render
+    interface RenderBarInfo {
+        bar: string[];
+        originalIndex: number;
+        isLoopStart?: boolean;
+        isLoopEnd?: boolean;
+        overrideStartIndex?: number; // If set, use this instead of looking up globalBarStartIndices
+    }
+
+    let virtualBars: RenderBarInfo[] = [];
+
+    if (collapsed && loop) {
+        // Pre-loop
+        for (let i = 0; i < loop.startBarIndex; i++) {
+            virtualBars.push({ bar: bars[i], originalIndex: i });
+        }
+
+        // Calculate loop logic for judgements
+        let currentIter = 0;
+        let notesPerLoop = 0;
+        let preLoopNotes = globalBarStartIndices[loop.startBarIndex];
+        
+        // Calculate notes in one loop iteration
+        for (let k = 0; k < loop.period; k++) {
+            const bar = bars[loop.startBarIndex + k];
+            if (bar) {
+                 for (const char of bar) {
+                    if (['1', '2', '3', '4'].includes(char)) notesPerLoop++;
+                }
+            }
+        }
+
+        if (viewMode === 'judgements' && judgements.length > 0) {
+            const lastJudgedIndex = judgements.length - 1;
+            if (lastJudgedIndex >= preLoopNotes && notesPerLoop > 0) {
+                const relativeIndex = lastJudgedIndex - preLoopNotes;
+                currentIter = Math.floor(relativeIndex / notesPerLoop);
+                // Clamp to max iterations? 
+                // If we exceed, we might want to show the last one, or just let it overflow (and show nothing if out of range)
+                // But let's just use it to shift the window.
+            }
+        }
+
+        // Loop Body
+        for (let i = 0; i < loop.period; i++) {
+            const originalIdx = loop.startBarIndex + i;
+            const baseStartIndex = globalBarStartIndices[originalIdx];
+            
+            // Shift start index based on current iteration
+            // The note at local offset X in this bar corresponds to:
+            // BaseStart + (CurrentIter * NotesPerLoop) + LocalOffset?
+            // Wait. globalBarStartIndices[originalIdx] is the start index of the bar in the FIRST iteration.
+            // If we want the start index of the bar in the CURRENT iteration:
+            // It is baseStartIndex + (currentIter * notesPerLoop).
+            
+            const effectiveStartIndex = baseStartIndex + (currentIter * notesPerLoop);
+
+            virtualBars.push({
+                bar: bars[originalIdx],
+                originalIndex: originalIdx,
+                isLoopStart: i === 0,
+                isLoopEnd: i === loop.period - 1,
+                overrideStartIndex: effectiveStartIndex
+            });
+        }
+
+        // Post-loop
+        // Start from the end of the full loop sequence
+        const postLoopStartIndex = loop.startBarIndex + (loop.period * loop.iterations);
+        for (let i = postLoopStartIndex; i < bars.length; i++) {
+            virtualBars.push({ bar: bars[i], originalIndex: i });
+        }
+
+    } else {
+        // Standard View
+        virtualBars = bars.map((b, i) => ({ bar: b, originalIndex: i }));
+    }
+
+
+    const totalRows: number = Math.ceil(virtualBars.length / BARS_PER_ROW);
     const logicalCanvasHeight: number = (totalRows * (BAR_HEIGHT + ROW_SPACING)) + (PADDING * 2);
 
     // Adjust for device pixel ratio for sharp rendering
@@ -56,20 +153,8 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement, viewMod
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, logicalCanvasWidth, logicalCanvasHeight);
 
-    // Calculate start indices for judgeable notes per bar
-    let currentNoteIndex = 0;
-    const barStartIndices: number[] = [];
-    for (const bar of bars) {
-        barStartIndices.push(currentNoteIndex);
-        for (const char of bar) {
-            if (['1', '2', '3', '4'].includes(char)) {
-                currentNoteIndex++;
-            }
-        }
-    }
-
-    // Layer 1: Draw Bar Backgrounds/Borders and Center Lines
-    bars.forEach((bar: string[], index: number) => {
+    // Layer 1: Backgrounds
+    virtualBars.forEach((info, index) => {
         const row: number = Math.floor(index / BARS_PER_ROW);
         const col: number = index % BARS_PER_ROW;
 
@@ -77,23 +162,42 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement, viewMod
         const y: number = PADDING + (row * (BAR_HEIGHT + ROW_SPACING));
 
         drawBarBackground(ctx, x, y, barWidth, BAR_HEIGHT, LW_BAR, LW_CENTER);
-        drawBarNumber(ctx, index + 1, x, y, BAR_NUMBER_FONT_SIZE, BAR_NUMBER_OFFSET_Y);
+        
+        // Draw Bar Number
+        drawBarNumber(ctx, info.originalIndex + 1, x, y, BAR_NUMBER_FONT_SIZE, BAR_NUMBER_OFFSET_Y);
+
+        // Draw Loop Indicator
+        if (info.isLoopStart && loop) {
+            ctx.fillStyle = '#000';
+            ctx.font = `bold ${BAR_NUMBER_FONT_SIZE}px sans-serif`;
+            ctx.textAlign = 'right';
+            ctx.fillText(`Loop x${loop.iterations}`, x + barWidth, y - BAR_NUMBER_OFFSET_Y);
+        }
     });
 
-    // Layer 1.5: Draw Drumrolls (behind notes)
-    drawDrumrolls(ctx, bars, barWidth, BAR_HEIGHT, PADDING, ROW_SPACING, BARS_PER_ROW, NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG, LW_NOTE_OUTER, LW_NOTE_INNER, viewMode);
+    // Layer 1.5: Drumrolls
+    // We need to pass the "virtual" structure or handle it.
+    // drawDrumrolls iterates `bars`. We can reconstruct a simple 2D array of bars for it?
+    // But drawDrumrolls needs to span correctly.
+    // If we pass `virtualBars.map(v => v.bar)`, it will draw drumrolls within that sequence.
+    // Correct.
+    const virtualBarsData = virtualBars.map(v => v.bar);
+    drawDrumrolls(ctx, virtualBarsData, barWidth, BAR_HEIGHT, PADDING, ROW_SPACING, BARS_PER_ROW, NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG, LW_NOTE_OUTER, LW_NOTE_INNER, viewMode);
 
-    // Layer 2: Draw Notes (so they appear on top of backgrounds and drumrolls)
-    // Iterate backwards so later bars are drawn first, putting earlier notes (from earlier bars) on top
-    for (let index = bars.length - 1; index >= 0; index--) {
-        const bar = bars[index];
+    // Layer 2: Notes
+    for (let index = virtualBars.length - 1; index >= 0; index--) {
+        const info = virtualBars[index];
         const row: number = Math.floor(index / BARS_PER_ROW);
         const col: number = index % BARS_PER_ROW;
 
         const x: number = PADDING + (col * barWidth);
         const y: number = PADDING + (row * (BAR_HEIGHT + ROW_SPACING));
 
-        drawBarNotes(ctx, bar, x, y, barWidth, BAR_HEIGHT, NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG, LW_NOTE_OUTER, LW_NOTE_INNER, viewMode, barStartIndices[index], judgements);
+        const startIndex = info.overrideStartIndex !== undefined 
+            ? info.overrideStartIndex 
+            : globalBarStartIndices[info.originalIndex];
+
+        drawBarNotes(ctx, info.bar, x, y, barWidth, BAR_HEIGHT, NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG, LW_NOTE_OUTER, LW_NOTE_INNER, viewMode, startIndex, judgements);
     }
 }
 
@@ -285,50 +389,6 @@ function drawDrumrollSegment(ctx: CanvasRenderingContext2D, startX: number, endX
     
     if (startCap) {
         ctx.arc(startX, centerY, radius, Math.PI * 0.5, Math.PI, false); // 6 o'clock to 9 o'clock
-    }
-    
-    // Now Stroke this open path
-    // Re-apply Black Border (Outer) to this open path?
-    // If we stroked the closed path before, we drew vertical lines at the breaks. This is wrong for multi-bar rolls.
-    // So we should have used this open path for the Black Border too.
-    
-    // Let's restart drawing sequence with this correct logic.
-    
-    // --- Correct Sequence ---
-    
-    // A. Define Closed Path for Filling (includes vertical edges at cuts to close the shape for fill)
-    ctx.beginPath();
-    ctx.moveTo(startX, centerY + radius); // Bottom-Left
-    if (startCap) ctx.arc(startX, centerY, radius, Math.PI * 0.5, Math.PI * 1.5, false);
-    else ctx.lineTo(startX, centerY - radius);
-    ctx.lineTo(endX, centerY - radius);
-    if (endCap) ctx.arc(endX, centerY, radius, Math.PI * 1.5, Math.PI * 2.5, false);
-    else ctx.lineTo(endX, centerY + radius);
-    ctx.lineTo(startX, centerY + radius);
-    ctx.closePath();
-    
-    // Fill it
-    ctx.fillStyle = fillColor;
-    ctx.fill();
-    
-    // B. Define Open Path for Stroking (Skips vertical edges at cuts)
-    ctx.beginPath();
-    
-    // Top part
-    if (startCap) {
-        ctx.arc(startX, centerY, radius, Math.PI, Math.PI * 1.5, false); // Left-Mid to Top-Mid
-    } else {
-        ctx.moveTo(startX, centerY - radius);
-    }
-    ctx.lineTo(endX, centerY - radius);
-    if (endCap) {
-        ctx.arc(endX, centerY, radius, Math.PI * 1.5, Math.PI * 2.5, false); // Top-Mid to Bottom-Mid
-    } else {
-        ctx.moveTo(endX, centerY + radius);
-    }
-    ctx.lineTo(startX, centerY + radius);
-    if (startCap) {
-        ctx.arc(startX, centerY, radius, Math.PI * 0.5, Math.PI, false); // Bottom-Mid to Left-Mid
     }
     
     // Stroke White (Inner)
