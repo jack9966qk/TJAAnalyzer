@@ -9,6 +9,21 @@
 <body>
     <div id="app">
         <h1>TJA Analyzer - Edit/Oni Chart</h1>
+        <div class="controls">
+            <label>View Mode: </label>
+            <label>
+                <input type="radio" name="viewMode" value="original" checked> Original
+            </label>
+            <label>
+                <input type="radio" name="viewMode" value="judgements"> Judgements
+            </label>
+        </div>
+        <div class="controls">
+            <label>Host: <input type="text" id="host-input" value="127.0.0.1"></label>
+            <label>Port: <input type="number" id="port-input" value="10086"></label>
+            <button id="connect-btn">Connect</button>
+            <button id="test-stream-btn">Test Stream</button>
+        </div>
         <div class="canvas-container">
             <canvas id="chart-canvas"></canvas>
         </div>
