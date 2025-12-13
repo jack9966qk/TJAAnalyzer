@@ -105,7 +105,7 @@ export class JudgementClient {
             if (this.onMessageCallback) {
                 this.onMessageCallback(event);
             }
-        }, 500 + Math.random() * 500); // 0.5 - 1s
+        }, 100 + Math.random() * 200); // 0.1 - 0.3s
     }
 
     onMessage(callback: EventCallback) {

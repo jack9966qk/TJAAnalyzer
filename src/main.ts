@@ -73,6 +73,12 @@ function init(): void {
         }
     });
 
+    // Expose for testing
+    (window as any).setJudgements = (newJudgements: string[]) => {
+        judgements = newJudgements;
+        refreshChart();
+    };
+
     try {
         console.log("Starting TJA Analyzer...");
         parsedBars = parseTJA(exampleTJA);

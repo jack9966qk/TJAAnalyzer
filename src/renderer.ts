@@ -182,15 +182,17 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
             let borderColor = '#fff'; // Default white border
 
             if (viewMode === 'judgements') {
-                color = '#999'; // Keep the grey fill from previous task
-                borderColor = '#ccc'; // Default grey border for unreached notes ("grey boarder instead of a white one")
+                color = '#999'; // Default unjudged fill color (Grey)
+                borderColor = '#ccc'; // Default unjudged border color (Grey)
                 
                 const globalIndex = judgeableIndicesInBar[i];
                 if (globalIndex !== null && globalIndex < judgements.length) {
                     const judge = judgements[globalIndex];
-                    if (judge === 'Perfect') borderColor = 'orange';
-                    else if (judge === 'Good') borderColor = 'white';
-                    else if (judge === 'Poor') borderColor = 'blue';
+                    borderColor = '#fff'; // Revert to standard white border for judged notes
+                    
+                    if (judge === 'Perfect') color = 'orange';
+                    else if (judge === 'Good') color = 'white';
+                    else if (judge === 'Poor') color = 'blue';
                 }
             }
 
