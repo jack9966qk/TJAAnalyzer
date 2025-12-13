@@ -1,4 +1,3 @@
-
 export function renderChart(bars: string[][], canvas: HTMLCanvasElement): void {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
@@ -28,7 +27,7 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement): void {
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw
+    // Layer 1: Draw Bar Backgrounds/Borders and Center Lines
     bars.forEach((bar: string[], index: number) => {
         const row: number = Math.floor(index / BARS_PER_ROW);
         const col: number = index % BARS_PER_ROW;
@@ -36,14 +35,29 @@ export function renderChart(bars: string[][], canvas: HTMLCanvasElement): void {
         const x: number = PADDING + (col * barWidth);
         const y: number = PADDING + (row * (BAR_HEIGHT + ROW_SPACING));
 
-        drawBar(ctx, bar, x, y, barWidth, BAR_HEIGHT, NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG);
+        drawBarBackground(ctx, x, y, barWidth, BAR_HEIGHT);
+    });
+
+    // Layer 2: Draw Notes (so they appear on top of backgrounds, including neighboring bars)
+    bars.forEach((bar: string[], index: number) => {
+        const row: number = Math.floor(index / BARS_PER_ROW);
+        const col: number = index % BARS_PER_ROW;
+
+        const x: number = PADDING + (col * barWidth);
+        const y: number = PADDING + (row * (BAR_HEIGHT + ROW_SPACING));
+
+        drawBarNotes(ctx, bar, x, y, barWidth, BAR_HEIGHT, NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG);
     });
 }
 
-function drawBar(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number): void {
+function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number): void {
     const centerY: number = y + height / 2;
 
-    // Draw Bar Background/Border
+    // Draw Bar Background
+    ctx.fillStyle = '#999'; // Darker grey background
+    ctx.fillRect(x, y, width, height);
+    
+    // Draw Bar Border
     ctx.strokeStyle = '#000';
     ctx.lineWidth = 2;
     ctx.strokeRect(x, y, width, height);
@@ -55,15 +69,20 @@ function drawBar(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: num
     ctx.moveTo(x, centerY);
     ctx.lineTo(x + width, centerY);
     ctx.stroke();
+}
 
-    // Draw Notes
+function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number): void {
+    const centerY: number = y + height / 2;
     const noteCount: number = bar.length;
     if (noteCount === 0) return;
 
     const noteStep: number = width / noteCount;
 
-    bar.forEach((noteChar: string, noteIndex: number) => {
-        const noteX: number = x + (noteIndex * noteStep) + (noteStep / 2); // Center of the time slot
+    // Iterate backwards so later notes are drawn first (appearing behind earlier notes)
+    for (let i = noteCount - 1; i >= 0; i--) {
+        const noteChar = bar[i];
+        // Position calculated using the ORIGINAL index 'i'
+        const noteX: number = x + (i * noteStep) + (noteStep / 2); 
         
         let color: string | null = null;
         let radius: number = 0;
@@ -102,15 +121,18 @@ function drawBar(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: num
         if (color) {
             ctx.beginPath();
             ctx.arc(noteX, centerY, radius, 0, Math.PI * 2);
-            ctx.fillStyle = color;
-            ctx.fill();
-            ctx.lineWidth = 1.5;
+
+            // Black border (outside)
+            ctx.lineWidth = 4.5;
             ctx.strokeStyle = '#000';
             ctx.stroke();
 
-            // Inner white circle for "face" of the drum? 
-            // Standard Taiko notes are solid, but let's stick to simple circles.
-            // Maybe a white center for 'face' style is too much detail for "simple".
+            ctx.fillStyle = color;
+            ctx.fill();
+            
+            ctx.lineWidth = 1.5;
+            ctx.strokeStyle = '#fff'; // White border
+            ctx.stroke();
         }
-    });
+    }
 }
