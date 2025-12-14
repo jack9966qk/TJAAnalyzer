@@ -231,3 +231,56 @@ test.describe('UI Logic', () => {
         await expect(connectBtn).toHaveText('Connect');
     });
 });
+
+test.describe('Loop Controls Interaction', () => {
+    test('Loop controls visibility and interaction', async ({ page }) => {
+        await page.goto('/');
+        const canvas = page.locator('#chart-canvas');
+        await expect(canvas).toBeVisible();
+
+        // 1. Upload Loop Chart
+        const filePath = path.join(process.cwd(), 'dev_instructions', 'loop_example.tja');
+        await page.setInputFiles('#tja-file-picker', filePath);
+        await page.waitForTimeout(1000);
+
+        // 2. Collapse Loop
+        await page.check('#collapse-loop-checkbox');
+        await page.waitForTimeout(500);
+
+        // 3. Verify Controls Visible
+        const loopControls = page.locator('#loop-controls');
+        await expect(loopControls).toBeVisible();
+
+        const loopCounter = page.locator('#loop-counter');
+        const autoCheckbox = page.locator('#loop-auto');
+        const prevBtn = page.locator('#loop-prev');
+        const nextBtn = page.locator('#loop-next');
+
+        // Initial state: Auto checked, 1/10 (assuming 10 iterations)
+        await expect(autoCheckbox).toBeChecked();
+        await expect(loopCounter).toContainText('1 / 10');
+        await expect(prevBtn).toBeDisabled();
+        await expect(nextBtn).toBeDisabled();
+
+        // 4. Click Next (should do nothing if disabled, but logic says disabled if auto)
+        // Uncheck Auto
+        await autoCheckbox.uncheck();
+        await expect(prevBtn).toBeDisabled(); // Still at 0, so prev disabled
+        await expect(nextBtn).toBeEnabled();
+
+        // 5. Click Next
+        await nextBtn.click();
+        await expect(loopCounter).toContainText('2 / 10');
+        await expect(prevBtn).toBeEnabled();
+        
+        // 6. Click Prev
+        await prevBtn.click();
+        await expect(loopCounter).toContainText('1 / 10');
+        await expect(prevBtn).toBeDisabled();
+
+        // 7. Re-check Auto
+        await autoCheckbox.check();
+        await expect(prevBtn).toBeDisabled();
+        await expect(nextBtn).toBeDisabled();
+    });
+});

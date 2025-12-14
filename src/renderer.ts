@@ -32,7 +32,7 @@ const RATIOS = {
     BAR_NUMBER_OFFSET_Y_RATIO: -0.0015
 };
 
-function getVirtualBars(chart: ParsedChart, collapsed: boolean, viewMode: 'original' | 'judgements', judgements: string[], globalBarStartIndices: number[]): RenderBarInfo[] {
+function getVirtualBars(chart: ParsedChart, collapsed: boolean, viewMode: 'original' | 'judgements', judgements: string[], globalBarStartIndices: number[], targetLoopIteration?: number): RenderBarInfo[] {
     const { bars, loop } = chart;
     let virtualBars: RenderBarInfo[] = [];
 
@@ -57,13 +57,21 @@ function getVirtualBars(chart: ParsedChart, collapsed: boolean, viewMode: 'origi
             }
         }
 
-        if (viewMode === 'judgements' && judgements.length > 0) {
+        if (targetLoopIteration !== undefined) {
+            currentIter = targetLoopIteration;
+        } else if (viewMode === 'judgements' && judgements.length > 0) {
             const lastJudgedIndex = judgements.length - 1;
             if (lastJudgedIndex >= preLoopNotes && notesPerLoop > 0) {
                 const relativeIndex = lastJudgedIndex - preLoopNotes;
                 currentIter = Math.floor(relativeIndex / notesPerLoop);
             }
         }
+        
+        // Clamp currentIter to valid range [0, loop.iterations - 1]
+        // This handles cases where targetLoopIteration might be out of bounds (though main.ts should prevent this)
+        // or if judgements go beyond the chart (though that's an edge case)
+        if (currentIter < 0) currentIter = 0;
+        if (currentIter >= loop.iterations) currentIter = loop.iterations - 1;
 
         // Loop Body
         for (let i = 0; i < loop.period; i++) {
@@ -192,11 +200,11 @@ export interface HitInfo {
     scroll: number;
 }
 
-export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, collapsed: boolean = false, viewMode: 'original' | 'judgements' = 'original', judgements: string[] = []): HitInfo | null {
+export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, collapsed: boolean = false, viewMode: 'original' | 'judgements' = 'original', judgements: string[] = [], targetLoopIteration?: number): HitInfo | null {
     const logicalCanvasWidth: number = canvas.clientWidth || 800;
     
     const globalBarStartIndices = calculateGlobalBarStartIndices(chart.bars);
-    const virtualBars = getVirtualBars(chart, collapsed, viewMode, judgements, globalBarStartIndices);
+    const virtualBars = getVirtualBars(chart, collapsed, viewMode, judgements, globalBarStartIndices, targetLoopIteration);
     
     const { layouts, constants } = calculateLayout(virtualBars, chart, logicalCanvasWidth);
     const { NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG } = constants;
@@ -285,7 +293,7 @@ export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTML
     return null;
 }
 
-export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' = 'original', judgements: string[] = [], collapsed: boolean = false): void {
+export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' = 'original', judgements: string[] = [], collapsed: boolean = false, targetLoopIteration?: number): void {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
         console.error("2D rendering context not found for canvas.");
@@ -296,7 +304,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewM
     const logicalCanvasWidth: number = canvas.clientWidth || 800;
 
     const globalBarStartIndices = calculateGlobalBarStartIndices(bars);
-    const virtualBars = getVirtualBars(chart, collapsed, viewMode, judgements, globalBarStartIndices);
+    const virtualBars = getVirtualBars(chart, collapsed, viewMode, judgements, globalBarStartIndices, targetLoopIteration);
     
     const { layouts, constants, totalHeight } = calculateLayout(virtualBars, chart, logicalCanvasWidth);
     

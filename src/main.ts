@@ -8,6 +8,7 @@ let parsedTJACharts: Record<string, ParsedChart> | null = null;
 let currentChart: ParsedChart | null = null;
 let currentViewMode: 'original' | 'judgements' = 'original';
 let collapsedLoop: boolean = false;
+let selectedLoopIteration: number | undefined = undefined;
 let loadedTJAContent: string = exampleTJA;
 
 // Application State
@@ -28,6 +29,12 @@ const difficultySelectorContainer = document.getElementById('difficulty-selector
 const difficultySelector = document.getElementById('difficulty-selector') as HTMLSelectElement;
 const collapseLoopCheckbox = document.getElementById('collapse-loop-checkbox') as HTMLInputElement;
 
+const loopControls = document.getElementById('loop-controls') as HTMLSpanElement;
+const loopAutoCheckbox = document.getElementById('loop-auto') as HTMLInputElement;
+const loopPrevBtn = document.getElementById('loop-prev') as HTMLButtonElement;
+const loopNextBtn = document.getElementById('loop-next') as HTMLButtonElement;
+const loopCounter = document.getElementById('loop-counter') as HTMLSpanElement;
+
 const manualLoadFieldset = document.getElementById('manual-load-fieldset') as HTMLFieldSetElement;
 const eventStreamFieldset = document.getElementById('event-stream-fieldset') as HTMLFieldSetElement;
 const clearManualBtn = document.getElementById('clear-manual-btn') as HTMLButtonElement;
@@ -47,6 +54,8 @@ function updateNoteStats(html: string) {
         noteStatsDisplay.innerHTML = html;
     }
 }
+
+
 
 function updateMode(newMode: 'manual' | 'stream' | 'none') {
     appMode = newMode;
@@ -150,19 +159,48 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
                         for (const c of bar) if (['1', '2', '3', '4'].includes(c)) notesPerLoop++;
                     }
                 }
+
+                // Determine current iteration index for bolding
+                let currentIterationIdx = -1;
                 
+                // If manual selection, use it. Else calculate like renderer
+                if (selectedLoopIteration !== undefined) {
+                    currentIterationIdx = selectedLoopIteration;
+                } else {
+                     let preLoopNotes = 0;
+                     for(let i=0; i<loop.startBarIndex; i++) {
+                         const bar = chart.bars[i];
+                         if(bar) for(const c of bar) if(['1','2','3','4'].includes(c)) preLoopNotes++;
+                     }
+                     const lastJudgedIndex = judgements.length - 1;
+                     if (lastJudgedIndex >= preLoopNotes && notesPerLoop > 0) {
+                         const relativeIndex = lastJudgedIndex - preLoopNotes;
+                         currentIterationIdx = Math.floor(relativeIndex / notesPerLoop);
+                     }
+                }
+                if (currentIterationIdx < 0) currentIterationIdx = 0;
+                
+                let deltasStrings: string[] = [];
                 for (let iter = 0; iter < loop.iterations; iter++) {
                     const globalIdx = noteIndexInFirstIter + (iter * notesPerLoop);
                     if (globalIdx < judgementDeltas.length) {
                         const delta = judgementDeltas[globalIdx];
                         if (delta !== undefined) deltas.push(delta);
+                        
+                        let s = delta !== undefined ? delta.toString() : '?';
+                        if (iter === currentIterationIdx) {
+                            s = `<b>${s}</b>`;
+                        }
+                        deltasStrings.push(s);
+                    } else {
+                         // unreached
                     }
                 }
                 
                 if (deltas.length > 0) {
                     const avg = deltas.reduce((a, b) => a + b, 0) / deltas.length;
                     avgDeltaVal = `${avg.toFixed(1)}ms`;
-                    allDeltasStr = deltas.join(', ');
+                    allDeltasStr = deltasStrings.join(', ');
                 }
                 
             } else {
@@ -226,6 +264,44 @@ function init(): void {
             renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements);
         });
     }
+
+    // Loop Controls
+    if (loopAutoCheckbox) {
+        loopAutoCheckbox.addEventListener('change', (e) => {
+            if (loopAutoCheckbox.checked) {
+                selectedLoopIteration = undefined;
+            } else {
+                // When unchecking auto, default to current logic's "latest" or 0
+                // For now, just set to what was displayed or 0
+                const matches = loopCounter.innerText.match(/(\d+) \/ (\d+)/);
+                if (matches) {
+                     selectedLoopIteration = parseInt(matches[1]) - 1;
+                } else {
+                     selectedLoopIteration = 0;
+                }
+            }
+            refreshChart();
+        });
+    }
+    
+    if (loopPrevBtn) {
+        loopPrevBtn.addEventListener('click', () => {
+             if (selectedLoopIteration !== undefined && selectedLoopIteration > 0) {
+                 selectedLoopIteration--;
+                 refreshChart();
+             }
+        });
+    }
+
+    if (loopNextBtn) {
+        loopNextBtn.addEventListener('click', () => {
+             // We need max iterations. Retrieve from loop counter or chart
+             if (currentChart && currentChart.loop && selectedLoopIteration !== undefined && selectedLoopIteration < currentChart.loop.iterations - 1) {
+                 selectedLoopIteration++;
+                 refreshChart();
+             }
+        });
+    }
     
     // Canvas Interaction
     const handleCanvasInteraction = (event: MouseEvent) => {
@@ -236,7 +312,7 @@ function init(): void {
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
         
-        const hit = getNoteAt(x, y, currentChart, canvas, collapsedLoop, currentViewMode, judgements);
+        const hit = getNoteAt(x, y, currentChart, canvas, collapsedLoop, currentViewMode, judgements, selectedLoopIteration);
         
         if (hit) {
             renderStats(hit, currentChart, collapsedLoop, currentViewMode, judgements);
@@ -461,9 +537,68 @@ function init(): void {
     }
 }
 
+function updateLoopControls() {
+    if (!loopControls || !currentChart) return;
+
+    if (collapsedLoop && currentChart.loop) {
+        loopControls.style.display = 'inline-block';
+        
+        const loop = currentChart.loop;
+        let displayedIter = 0;
+
+        // Calculate what renderer would choose if auto
+        if (selectedLoopIteration === undefined) {
+             loopAutoCheckbox.checked = true;
+             loopPrevBtn.disabled = true;
+             loopNextBtn.disabled = true;
+
+             // Logic duplicated from renderer for display purpose
+             if (currentViewMode === 'judgements' && judgements.length > 0) {
+                let notesPerLoop = 0;
+                let preLoopNotes = 0;
+                // Pre-loop note count
+                for(let i=0; i<loop.startBarIndex; i++) {
+                     const bar = currentChart.bars[i];
+                     if(bar) {
+                         for(const c of bar) if(['1','2','3','4'].includes(c)) preLoopNotes++;
+                     }
+                }
+                
+                // Notes per loop
+                for(let k=0; k<loop.period; k++) {
+                     const bar = currentChart.bars[loop.startBarIndex+k];
+                     if(bar) {
+                         for(const c of bar) if(['1','2','3','4'].includes(c)) notesPerLoop++;
+                     }
+                }
+
+                const lastJudgedIndex = judgements.length - 1;
+                if (lastJudgedIndex >= preLoopNotes && notesPerLoop > 0) {
+                     const relativeIndex = lastJudgedIndex - preLoopNotes;
+                     displayedIter = Math.floor(relativeIndex / notesPerLoop);
+                }
+             }
+        } else {
+             loopAutoCheckbox.checked = false;
+             displayedIter = selectedLoopIteration;
+             loopPrevBtn.disabled = (displayedIter <= 0);
+             loopNextBtn.disabled = (displayedIter >= loop.iterations - 1);
+        }
+
+        // Clamp display
+        if (displayedIter < 0) displayedIter = 0;
+        if (displayedIter >= loop.iterations) displayedIter = loop.iterations - 1;
+
+        loopCounter.innerText = `${displayedIter + 1} / ${loop.iterations}`;
+    } else {
+        loopControls.style.display = 'none';
+    }
+}
+
 function refreshChart() {
     if (currentChart && canvas) {
-        renderChart(currentChart, canvas, currentViewMode, judgements, collapsedLoop);
+        renderChart(currentChart, canvas, currentViewMode, judgements, collapsedLoop, selectedLoopIteration);
+        updateLoopControls();
     }
 }
 
