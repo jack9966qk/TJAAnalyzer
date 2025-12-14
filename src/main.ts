@@ -10,6 +10,10 @@ let currentViewMode: 'original' | 'judgements' = 'original';
 let collapsedLoop: boolean = false;
 let loadedTJAContent: string = exampleTJA;
 
+// Application State
+let appMode: 'manual' | 'stream' | 'none' = 'none';
+let isSimulating: boolean = false;
+
 // Judgement State
 const judgementClient = new JudgementClient();
 let judgements: string[] = [];
@@ -24,6 +28,14 @@ const difficultySelectorContainer = document.getElementById('difficulty-selector
 const difficultySelector = document.getElementById('difficulty-selector') as HTMLSelectElement;
 const collapseLoopCheckbox = document.getElementById('collapse-loop-checkbox') as HTMLInputElement;
 
+const manualLoadFieldset = document.getElementById('manual-load-fieldset') as HTMLFieldSetElement;
+const eventStreamFieldset = document.getElementById('event-stream-fieldset') as HTMLFieldSetElement;
+const clearManualBtn = document.getElementById('clear-manual-btn') as HTMLButtonElement;
+const hostInput = document.getElementById('host-input') as HTMLInputElement;
+const portInput = document.getElementById('port-input') as HTMLInputElement;
+const connectBtn = document.getElementById('connect-btn') as HTMLButtonElement;
+const testStreamBtn = document.getElementById('test-stream-btn') as HTMLButtonElement;
+
 function updateStatus(message: string) {
     if (statusDisplay) {
         statusDisplay.innerText = message;
@@ -33,6 +45,34 @@ function updateStatus(message: string) {
 function updateNoteStats(html: string) {
     if (noteStatsDisplay) {
         noteStatsDisplay.innerHTML = html;
+    }
+}
+
+function updateMode(newMode: 'manual' | 'stream' | 'none') {
+    appMode = newMode;
+    console.log(`Switching mode to: ${appMode}`);
+
+    if (appMode === 'manual') {
+        manualLoadFieldset.classList.remove('disabled');
+        eventStreamFieldset.classList.add('disabled');
+        if (clearManualBtn) clearManualBtn.disabled = false;
+        
+        if (connectBtn) connectBtn.disabled = true;
+        if (testStreamBtn) testStreamBtn.disabled = true;
+    } else if (appMode === 'stream') {
+        manualLoadFieldset.classList.add('disabled');
+        eventStreamFieldset.classList.remove('disabled');
+        if (clearManualBtn) clearManualBtn.disabled = true;
+
+        if (connectBtn) connectBtn.disabled = false;
+        // testStreamBtn logic handled separately based on connection type
+    } else { // none
+        manualLoadFieldset.classList.remove('disabled');
+        eventStreamFieldset.classList.remove('disabled');
+        if (clearManualBtn) clearManualBtn.disabled = true;
+        
+        if (connectBtn) connectBtn.disabled = false;
+        if (testStreamBtn) testStreamBtn.disabled = false;
     }
 }
 
@@ -87,11 +127,6 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
         
         if (collapsed && chart.loop) {
             const loop = chart.loop;
-            // Check if we are in the visual loop range? 
-            // Actually, if we are in collapsed mode, the user is looking at the single loop iteration.
-            // Any note in that range is part of the loop.
-            // But we need to be careful: getNoteAt returns originalBarIndex.
-            // If the note is within the loop definition:
             if (hit.originalBarIndex >= loop.startBarIndex && hit.originalBarIndex < loop.startBarIndex + loop.period) {
                 // Loop Logic
                 let baseIndex = 0;
@@ -131,15 +166,9 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
                 }
                 
             } else {
-                 // Outside loop in collapsed mode (e.g. intro/outro)
                  if (hit.judgeableNoteIndex < judgementDeltas.length) {
                      const delta = judgementDeltas[hit.judgeableNoteIndex];
                      if (delta !== undefined) {
-                         // Map single value to Avg/Delta depending on where it displays?
-                         // If collapsed mode is on, we show Avg Delta box.
-                         // So we put this single value in Avg Delta? Or just Delta?
-                         // The structure is fixed.
-                         // Let's put it in Avg Delta (it is the average of 1 value).
                          avgDeltaVal = `${delta}ms`;
                          allDeltasStr = delta.toString();
                      }
@@ -157,11 +186,9 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
     }
 
     if (collapsed) {
-        // Collapsed Mode Layout
         html += createStatBox('Avg Delta', avgDeltaVal); // No highlight
         html += `<div class="stat-full-line">Deltas: ${allDeltasStr}</div>`;
     } else {
-        // Standard Mode Layout
         html += createStatBox('Delta', deltaVal);
     }
 
@@ -178,6 +205,7 @@ function init(): void {
     judgementsRadio.disabled = true;
     updateStatus('Using placeholder chart');
     renderStats(null, null, false, 'original', []);
+    updateMode('none');
 
     // Setup view mode controls
     const viewModeRadios = document.querySelectorAll('input[name="viewMode"]');
@@ -195,6 +223,7 @@ function init(): void {
         collapseLoopCheckbox.addEventListener('change', (event) => {
             collapsedLoop = (event.target as HTMLInputElement).checked;
             refreshChart();
+            renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements);
         });
     }
     
@@ -221,27 +250,37 @@ function init(): void {
     canvas.addEventListener('mousemove', handleCanvasInteraction);
     canvas.addEventListener('click', handleCanvasInteraction);
 
-    // Setup Judgement Connection Controls
-    const hostInput = document.getElementById('host-input') as HTMLInputElement;
-    const portInput = document.getElementById('port-input') as HTMLInputElement;
-    const connectBtn = document.getElementById('connect-btn') as HTMLButtonElement;
-    const testStreamBtn = document.getElementById('test-stream-btn') as HTMLButtonElement;
-
     if (connectBtn && hostInput && portInput) {
         connectBtn.addEventListener('click', () => {
-            const host = hostInput.value;
-            const port = parseInt(portInput.value, 10);
-            if (host && port) {
-                judgementClient.connect(host, port);
+            if (connectBtn.innerText === 'Disconnect' || connectBtn.innerText === 'Connected') {
+                judgementClient.disconnect();
             } else {
-                alert("Please enter valid Host and Port.");
+                const host = hostInput.value;
+                const port = parseInt(portInput.value, 10);
+                if (host && port) {
+                    judgementClient.connect(host, port);
+                } else {
+                    alert("Please enter valid Host and Port.");
+                }
             }
         });
     }
 
     if (testStreamBtn) {
         testStreamBtn.addEventListener('click', () => {
+            isSimulating = true;
+            // When simulation starts, it will trigger status change to Connected
             judgementClient.startSimulation(loadedTJAContent, difficultySelector.value);
+        });
+    }
+    
+    // Setup Clear Button
+    if (clearManualBtn) {
+        clearManualBtn.addEventListener('click', () => {
+            const tjaFilePicker = document.getElementById('tja-file-picker') as HTMLInputElement;
+            if (tjaFilePicker) tjaFilePicker.value = '';
+            updateMode('none');
+            updateStatus('Manual load cleared. Select a file or connect to stream.');
         });
     }
 
@@ -256,7 +295,6 @@ function init(): void {
             updateStatus('Receiving data from event stream');
 
             if (event.tjaSummaries && event.tjaSummaries.length > 0) {
-                // Sort summaries by player number to find the lowest
                 const sortedSummaries = [...event.tjaSummaries].sort((a, b) => a.player - b.player);
                 const firstSummary = sortedSummaries[0];
 
@@ -268,11 +306,10 @@ function init(): void {
                             currentChart = charts[difficulty];
                         } else {
                             console.error(`Difficulty '${difficulty}' not found in TJA content.`);
-                            alert(`Difficulty '${difficulty}' not found. See console for details.`);
+                            // Don't alert in loop
                         }
                     } catch (e) {
                         console.error("Error parsing TJA content:", e);
-                        alert("Failed to parse TJA content. See console for details.");
                     }
                 }
             }
@@ -287,22 +324,38 @@ function init(): void {
     judgementClient.onStatusChange((status: string) => {
         console.log("Judgement Client Status:", status);
         if (connectBtn) {
-            connectBtn.innerText = status === 'Connected' ? 'Connected' : 'Connect';
+            connectBtn.innerText = status === 'Connected' ? 'Disconnect' : 'Connect';
         }
 
         if (status === 'Connected') {
             judgementsRadio.disabled = false;
-            updateStatus('Connected to event stream. Waiting for data...');
+            updateMode('stream');
+            
+            if (isSimulating) {
+                updateStatus('Simulating event stream...');
+            } else {
+                updateStatus('Connected to event stream. Waiting for data...');
+                if (testStreamBtn) testStreamBtn.disabled = true;
+            }
         } else if (status === 'Connecting...') {
             updateStatus('Connecting to event stream...');
+            if (testStreamBtn) testStreamBtn.disabled = true;
+            if (connectBtn) connectBtn.disabled = true;
         } else { // Disconnected
             judgementsRadio.disabled = true;
+            
+            // Only switch to 'none' if we were in stream mode, to avoid resetting manual logic if called unexpectedly
+            if (appMode === 'stream') {
+                updateMode('none');
+            }
+            
             if (currentViewMode === 'judgements') {
                 originalRadio.checked = true;
                 currentViewMode = 'original';
                 refreshChart();
             }
             updateStatus('Disconnected from event stream');
+            isSimulating = false;
         }
     });
 
@@ -341,6 +394,7 @@ function init(): void {
                     currentChart = parsedTJACharts[defaultDifficulty];
 
                     updateStatus('Displaying manually loaded TJA file');
+                    updateMode('manual'); // Switch to manual mode
                     refreshChart();
                 } catch (e) {
                     console.error("Error parsing TJA file:", e);

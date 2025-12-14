@@ -1,39 +1,266 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
-    padding: 20px;
+    padding: 0;
     background: #e0e0e0;
 }
 
 #app {
     max-width: 1000px;
-    margin: 0 auto;
+    margin: 20px auto;
     background: #fff;
-    padding: 20px;
+    padding: 0; /* Padding moved to children or removed for sticky header */
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    /* overflow: hidden; Removed to fix sticky header */
 }
 
 h1 {
     text-align: center;
     color: #333;
-}
-
-.controls {
-    text-align: center;
+    margin-top: 0;
     margin-bottom: 20px;
+    font-size: 1.8em;
+    padding: 20px 20px 0 20px; /* Add padding */
 }
 
+#sticky-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: #fff;
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Source Controls Layout */
+#source-controls {
+    display: flex;
+    flex-wrap: wrap; /* Allow wrapping */
+    align-items: stretch;
+    justify-content: center; /* Center when wrapped */
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 0 20px;
+}
+
+.source-fieldset {
+    flex: 1 1 300px; /* Grow, shrink, base width 300px */
+    margin: 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 15px; /* Increased padding */
+    transition: background-color 0.3s, opacity 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.source-fieldset.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+    background-color: #f9f9f9;
+}
+
+.separator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #888;
+    font-size: 0.9em;
+    padding: 10px;
+}
+
+@media (max-width: 650px) {
+    .separator {
+        width: 100%;
+        padding: 5px 0;
+    }
+    .separator::before, .separator::after {
+        content: "";
+        flex: 1;
+        border-bottom: 1px solid #ddd;
+        margin: 0 10px;
+    }
+}
+
+/* General Controls */
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 15px; /* Increased gap */
+    margin-bottom: 0;
+}
+
+/* Stack controls vertically in source panels */
+.source-fieldset .controls {
+    flex-direction: column;
+    align-items: stretch; /* Stretch to fill or center? Let's keep center but maybe stretch looks better for inputs? Let's stick to center for now or stretch control-groups? */
+    align-items: center;
+    gap: 10px;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.controls label {
+    margin-right: 0;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px; /* Gap between text and input if nested */
+}
+
+input[type="text"], input[type="number"], select {
+    padding: 6px 8px; /* Larger padding */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+input[type="file"] {
+    padding: 4px;
+}
+
+button {
+    padding: 8px 16px; /* Larger button */
+    border: none;
+    border-radius: 4px;
+    background-color: #1976d2;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-weight: 500;
+}
+
+button:hover {
+    background-color: #1565c0;
+}
+
+button:disabled {
+    background-color: #b0bec5;
+    cursor: not-allowed;
+}
+
+fieldset {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 15px;
+}
+
+legend {
+    font-weight: 600;
+    color: #555;
+    padding: 0 5px;
+    font-size: 0.95em;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Display Controls */
+#display-controls {
+    margin-bottom: 0; /* Handled by sticky header padding */
+    border: none; /* Remove border for cleaner look in header? Or keep it? Keep for grouping. */
+    padding: 5px; /* Reduce padding in header */
+}
+
+#display-controls .controls {
+    gap: 20px;
+}
+
+/* Status & Stats */
+#status-display {
+    text-align: center;
+    padding: 12px;
+    background: #f1f8e9; /* Light green/grey for status */
+    border-bottom: 1px solid #e0e0e0;
+    color: #33691e;
+    font-size: 0.95em;
+    font-weight: 500;
+}
+
+#note-stats-display {
+    min-height: 80px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 15px;
+    background-color: #f5f5f5;
+    /* border-radius: 8px; Removed radius to flush with header? No, it's inside sticky-header which has padding. */
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e0e0e0;
+    margin-top: 15px;
+    border-radius: 6px;
+}
+
+.stat-box {
+    background-color: #37474f; /* Blue-grey */
+    color: #eceff1;
+    padding: 6px 12px;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 90px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.stat-label {
+    font-size: 0.7em;
+    color: #b0bec5;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.stat-value {
+    font-size: 1.2em;
+    font-weight: bold;
+    font-family: 'Consolas', monospace;
+}
+
+.stat-full-line {
+    flex-basis: 100%;
+    background-color: #37474f;
+    color: #eceff1;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-top: 5px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.9em;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    word-wrap: break-word;
+    height: 4.5em;
+    overflow-y: auto;
+}
+
+/* Canvas */
 .canvas-container {
     width: 100%;
-    /* Ensure scrolling if content is huge, though we resize canvas to fit height */
     overflow-x: hidden; 
+    padding: 20px; /* Padding for canvas area */
+    box-sizing: border-box;
+    background-color: #fafafa;
 }
 
 canvas {
     display: block;
-    width: 100%; /* Initially fit container */
+    width: 100%;
     background: #fff;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
 }
 
 .error {
@@ -43,83 +270,4 @@ canvas {
     border-radius: 4px;
     margin-top: 20px;
     text-align: center;
-}
-
-#status-display {
-    text-align: center;
-    padding: 10px;
-    background: #f0f0f0;
-    margin-bottom: 20px;
-    border-radius: 4px;
-    color: #333;
-}
-
-fieldset {
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 10px;
-}
-
-legend {
-    font-weight: bold;
-    color: #555;
-}
-
-/* Note Stats UI */
-#note-stats-display {
-    min-height: 80px;
-    margin-bottom: 10px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    padding: 10px;
-    background-color: #eee;
-    border-radius: 8px;
-    align-items: center;
-    justify-content: center;
-}
-
-.stat-box {
-    background-color: #444;
-    color: #eee;
-    padding: 5px 10px;
-    border-radius: 4px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 85px;
-    box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-}
-
-.stat-label {
-    font-size: 0.8em;
-    color: #aaa;
-    text-transform: uppercase;
-    margin-bottom: 2px;
-}
-
-.stat-value {
-    font-size: 1.2em;
-    font-weight: bold;
-    font-family: 'Consolas', monospace;
-}
-
-.stat-value-highlight {
-    /* No highlight color */
-}
-
-.stat-full-line {
-    flex-basis: 100%;
-    background-color: #444;
-    color: #eee;
-    padding: 8px 10px;
-    border-radius: 4px;
-    margin-top: 10px;
-    font-family: 'Consolas', monospace;
-    font-size: 0.9em;
-    box-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-    word-wrap: break-word;
-    height: 4.5em;
-    overflow-y: auto;
 }

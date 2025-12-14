@@ -79,14 +79,20 @@ export class JudgementClient {
     }
 
     disconnect() {
+        let wasConnected = false;
         if (this.eventSource) {
             this.eventSource.close();
             this.eventSource = null;
-            if (this.onStatusChangeCallback) this.onStatusChangeCallback("Disconnected");
+            wasConnected = true;
         }
         if (this.simulateInterval) {
             clearInterval(this.simulateInterval);
             this.simulateInterval = null;
+            wasConnected = true;
+        }
+        
+        if (wasConnected && this.onStatusChangeCallback) {
+            this.onStatusChangeCallback("Disconnected");
         }
     }
 
