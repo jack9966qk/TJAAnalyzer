@@ -101,6 +101,52 @@ test.describe('Visual Regression', () => {
         await expect(canvas).toHaveScreenshot('judgements-view.png');
     });
 
+    test('Judgements Underline View', async ({ page }) => {
+        await page.goto('/');
+
+        // Mock setInterval
+        await page.evaluate(() => {
+            window.setInterval = () => 0 as any;
+        });
+
+        // Start the test stream
+        await page.click('#test-stream-btn');
+        await page.waitForTimeout(500); 
+        
+        const judgementsUnderlineRadio = page.locator('input[name="viewMode"][value="judgements-underline"]');
+        await expect(judgementsUnderlineRadio).toBeEnabled();
+        await judgementsUnderlineRadio.check();
+
+        // Inject deterministic judgements
+        await page.evaluate(() => {
+            let seed = 12345;
+            const nextRandom = () => {
+                seed = (1103515245 * seed + 12345) % 2147483648;
+                return seed / 2147483648;
+            };
+
+            const judgements: string[] = [];
+            for (let i = 0; i < 300; i++) {
+                const rand = nextRandom();
+                if (rand < 0.90) {
+                    judgements.push('Perfect');
+                } else if (rand < 0.99) {
+                    judgements.push('Good');
+                } else {
+                    judgements.push('Poor');
+                }
+            }
+            (window as any).setJudgements(judgements);
+        });
+
+        const canvas = page.locator('#chart-canvas');
+        await expect(canvas).toBeVisible();
+        // Wait for render
+        await page.waitForTimeout(500);
+
+        await expect(canvas).toHaveScreenshot('judgements-underline-view.png');
+    });
+
     test('Loop Collapsed', async ({ page }) => {
         await page.goto('/');
         const canvas = page.locator('#chart-canvas');

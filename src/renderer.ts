@@ -28,11 +28,12 @@ const RATIOS = {
     LINE_WIDTH_CENTER: 0.005,
     LINE_WIDTH_NOTE_OUTER: 0.022,
     LINE_WIDTH_NOTE_INNER: 0.0075,
+    LINE_WIDTH_UNDERLINE_BORDER: 0.008,
     BAR_NUMBER_FONT_SIZE_RATIO: 0.06,
     BAR_NUMBER_OFFSET_Y_RATIO: -0.0015
 };
 
-function getVirtualBars(chart: ParsedChart, collapsed: boolean, viewMode: 'original' | 'judgements', judgements: string[], globalBarStartIndices: number[], targetLoopIteration?: number): RenderBarInfo[] {
+function getVirtualBars(chart: ParsedChart, collapsed: boolean, viewMode: 'original' | 'judgements' | 'judgements-underline', judgements: string[], globalBarStartIndices: number[], targetLoopIteration?: number): RenderBarInfo[] {
     const { bars, loop } = chart;
     let virtualBars: RenderBarInfo[] = [];
 
@@ -59,7 +60,7 @@ function getVirtualBars(chart: ParsedChart, collapsed: boolean, viewMode: 'origi
 
         if (targetLoopIteration !== undefined) {
             currentIter = targetLoopIteration;
-        } else if (viewMode === 'judgements' && judgements.length > 0) {
+        } else if ((viewMode === 'judgements' || viewMode === 'judgements-underline') && judgements.length > 0) {
             const lastJudgedIndex = judgements.length - 1;
             if (lastJudgedIndex >= preLoopNotes && notesPerLoop > 0) {
                 const relativeIndex = lastJudgedIndex - preLoopNotes;
@@ -138,6 +139,7 @@ function calculateLayout(virtualBars: RenderBarInfo[], chart: ParsedChart, logic
         LW_CENTER: baseBarWidth * RATIOS.LINE_WIDTH_CENTER,
         LW_NOTE_OUTER: baseBarWidth * RATIOS.LINE_WIDTH_NOTE_OUTER,
         LW_NOTE_INNER: baseBarWidth * RATIOS.LINE_WIDTH_NOTE_INNER,
+        LW_UNDERLINE_BORDER: baseBarWidth * RATIOS.LINE_WIDTH_UNDERLINE_BORDER,
         BAR_NUMBER_FONT_SIZE: baseBarWidth * RATIOS.BAR_NUMBER_FONT_SIZE_RATIO,
         BAR_NUMBER_OFFSET_Y: baseBarWidth * RATIOS.BAR_NUMBER_OFFSET_Y_RATIO
     };
@@ -200,7 +202,7 @@ export interface HitInfo {
     scroll: number;
 }
 
-export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, collapsed: boolean = false, viewMode: 'original' | 'judgements' = 'original', judgements: string[] = [], targetLoopIteration?: number): HitInfo | null {
+export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, collapsed: boolean = false, viewMode: 'original' | 'judgements' | 'judgements-underline' = 'original', judgements: string[] = [], targetLoopIteration?: number): HitInfo | null {
     const logicalCanvasWidth: number = canvas.clientWidth || 800;
     
     const globalBarStartIndices = calculateGlobalBarStartIndices(chart.bars);
@@ -293,7 +295,7 @@ export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTML
     return null;
 }
 
-export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' = 'original', judgements: string[] = [], collapsed: boolean = false, targetLoopIteration?: number): void {
+export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' | 'judgements-underline' = 'original', judgements: string[] = [], collapsed: boolean = false, targetLoopIteration?: number): void {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
         console.error("2D rendering context not found for canvas.");
@@ -352,7 +354,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewM
             ? info.overrideStartIndex 
             : globalBarStartIndices[info.originalIndex];
 
-        drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, viewMode, startIndex, judgements);
+        drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, viewMode, startIndex, judgements);
     }
 }
 
@@ -394,7 +396,7 @@ function calculateBalloonIndices(bars: string[][]): Map<string, number> {
     return map;
 }
 
-function drawLongNotes(ctx: CanvasRenderingContext2D, virtualBars: RenderBarInfo[], layouts: BarLayout[], constants: any, viewMode: 'original' | 'judgements', balloonCounts: number[], balloonIndices: Map<string, number>): void {
+function drawLongNotes(ctx: CanvasRenderingContext2D, virtualBars: RenderBarInfo[], layouts: BarLayout[], constants: any, viewMode: 'original' | 'judgements' | 'judgements-underline', balloonCounts: number[], balloonIndices: Map<string, number>): void {
     const { NOTE_RADIUS_SMALL: rSmall, NOTE_RADIUS_BIG: rBig, LW_NOTE_OUTER: borderOuterW, LW_NOTE_INNER: borderInnerW } = constants;
     
     let currentLongNote: { type: string, startBarIdx: number, startNoteIdx: number, originalBarIdx: number, originalNoteIdx: number } | null = null;
@@ -471,7 +473,7 @@ function drawLongNotes(ctx: CanvasRenderingContext2D, virtualBars: RenderBarInfo
     }
 }
 
-function drawDrumrollSegment(ctx: CanvasRenderingContext2D, startX: number, endX: number, centerY: number, radius: number, startCap: boolean, endCap: boolean, borderOuterW: number, borderInnerW: number, viewMode: 'original' | 'judgements', type: string): void {
+function drawDrumrollSegment(ctx: CanvasRenderingContext2D, startX: number, endX: number, centerY: number, radius: number, startCap: boolean, endCap: boolean, borderOuterW: number, borderInnerW: number, viewMode: 'original' | 'judgements' | 'judgements-underline', type: string): void {
     let fillColor = '#ff0';
     let innerBorderColor = '#fff';
 
@@ -483,7 +485,7 @@ function drawDrumrollSegment(ctx: CanvasRenderingContext2D, startX: number, endX
     drawCapsule(ctx, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, fillColor, innerBorderColor);
 }
 
-function drawBalloonSegment(ctx: CanvasRenderingContext2D, startX: number, endX: number, centerY: number, radius: number, startCap: boolean, endCap: boolean, borderOuterW: number, borderInnerW: number, viewMode: 'original' | 'judgements', count: number, isKusudama: boolean): void {
+function drawBalloonSegment(ctx: CanvasRenderingContext2D, startX: number, endX: number, centerY: number, radius: number, startCap: boolean, endCap: boolean, borderOuterW: number, borderInnerW: number, viewMode: 'original' | 'judgements' | 'judgements-underline', count: number, isKusudama: boolean): void {
     let fillColor = '#ffa500'; // Orangeish for balloon body
     let innerBorderColor = '#fff';
 
@@ -600,7 +602,7 @@ function drawCapsule(ctx: CanvasRenderingContext2D, startX: number, endX: number
 }
 
 
-function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, viewMode: 'original' | 'judgements', startIndex: number, judgements: string[]): void {
+function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, viewMode: 'original' | 'judgements' | 'judgements-underline', startIndex: number, judgements: string[]): void {
     const centerY: number = y + height / 2;
     const noteCount: number = bar.length;
     if (noteCount === 0) return;
@@ -617,6 +619,73 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
         }
     }
 
+    // Phase 1: Draw Underlines (Judgements Underline Mode only)
+    if (viewMode === 'judgements-underline') {
+        const barBottom = y + height;
+        const lineY = barBottom + (height * 0.1); // Slightly below bar
+        const lineWidth = height * 0.15; // Visible thickness
+        
+        // Pass 1.1: Draw Black Borders (Backwards iteration to match requested layering)
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = lineWidth + (borderUnderlineW * 2);
+        
+        for (let i = noteCount - 1; i >= 0; i--) {
+            const noteChar = bar[i];
+            // Only for judgeable notes
+            if (!['1', '2', '3', '4'].includes(noteChar)) continue;
+            
+            const globalIndex = judgeableIndicesInBar[i];
+            if (globalIndex !== null && globalIndex < judgements.length) {
+                const noteX: number = x + (i * noteStep);
+                let radius = (['3', '4'].includes(noteChar)) ? rBig : rSmall;
+
+                const judge = judgements[globalIndex];
+                // Only draw if valid judge
+                if (judge === 'Perfect' || judge === 'Good' || judge === 'Poor') {
+                    ctx.beginPath();
+                    ctx.moveTo(noteX - radius, lineY);
+                    ctx.lineTo(noteX + radius, lineY);
+                    ctx.stroke();
+                }
+            }
+        }
+        ctx.restore();
+
+        // Pass 1.2: Draw Colored Lines (Backwards iteration)
+        ctx.save();
+        ctx.lineCap = 'round';
+        ctx.lineWidth = lineWidth;
+
+        for (let i = noteCount - 1; i >= 0; i--) {
+            const noteChar = bar[i];
+            if (!['1', '2', '3', '4'].includes(noteChar)) continue;
+
+            const globalIndex = judgeableIndicesInBar[i];
+            if (globalIndex !== null && globalIndex < judgements.length) {
+                const noteX: number = x + (i * noteStep);
+                let radius = (['3', '4'].includes(noteChar)) ? rBig : rSmall;
+
+                const judge = judgements[globalIndex];
+                let underlineColor: string | null = null;
+                if (judge === 'Perfect') underlineColor = '#ffa500';
+                else if (judge === 'Good') underlineColor = '#fff';
+                else if (judge === 'Poor') underlineColor = '#00f';
+
+                if (underlineColor) {
+                    ctx.strokeStyle = underlineColor;
+                    ctx.beginPath();
+                    ctx.moveTo(noteX - radius, lineY);
+                    ctx.lineTo(noteX + radius, lineY);
+                    ctx.stroke();
+                }
+            }
+        }
+        ctx.restore();
+    }
+
+    // Phase 2: Draw Note Heads
     // Iterate backwards so later notes are drawn first (appearing behind earlier notes)
     for (let i = noteCount - 1; i >= 0; i--) {
         const noteChar = bar[i];

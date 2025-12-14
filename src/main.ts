@@ -6,7 +6,7 @@ import { JudgementClient, ServerEvent } from './judgement-client.js';
 const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement | null;
 let parsedTJACharts: Record<string, ParsedChart> | null = null;
 let currentChart: ParsedChart | null = null;
-let currentViewMode: 'original' | 'judgements' = 'original';
+let currentViewMode: 'original' | 'judgements' | 'judgements-underline' = 'original';
 let collapsedLoop: boolean = false;
 let selectedLoopIteration: number | undefined = undefined;
 let loadedTJAContent: string = exampleTJA;
@@ -24,6 +24,7 @@ let judgementDeltas: (number | undefined)[] = []; // Store deltas
 const statusDisplay = document.getElementById('status-display') as HTMLDivElement;
 const noteStatsDisplay = document.getElementById('note-stats-display') as HTMLDivElement;
 const judgementsRadio = document.getElementById('judgements-radio') as HTMLInputElement;
+const judgementsUnderlineRadio = document.getElementById('judgements-underline-radio') as HTMLInputElement;
 const originalRadio = document.querySelector('input[name="viewMode"][value="original"]') as HTMLInputElement;
 const difficultySelectorContainer = document.getElementById('difficulty-selector-container') as HTMLDivElement;
 const difficultySelector = document.getElementById('difficulty-selector') as HTMLSelectElement;
@@ -131,7 +132,7 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
     let avgDeltaVal = def;
     let allDeltasStr = '';
     
-    if (hit && viewMode === 'judgements' && hit.judgeableNoteIndex !== null && chart) {
+    if (hit && (viewMode === 'judgements' || viewMode === 'judgements-underline') && hit.judgeableNoteIndex !== null && chart) {
         const deltas: number[] = [];
         
         if (collapsed && chart.loop) {
@@ -241,6 +242,7 @@ function init(): void {
 
     // Initial UI State
     judgementsRadio.disabled = true;
+    judgementsUnderlineRadio.disabled = true;
     updateStatus('Using placeholder chart');
     renderStats(null, null, false, 'original', []);
     updateMode('none');
@@ -251,7 +253,7 @@ function init(): void {
         radio.addEventListener('change', (event) => {
             const target = event.target as HTMLInputElement;
             if (target.checked) {
-                currentViewMode = target.value as 'original' | 'judgements';
+                currentViewMode = target.value as 'original' | 'judgements' | 'judgements-underline';
                 refreshChart();
             }
         });
@@ -405,6 +407,7 @@ function init(): void {
 
         if (status === 'Connected') {
             judgementsRadio.disabled = false;
+            judgementsUnderlineRadio.disabled = false;
             updateMode('stream');
             
             if (isSimulating) {
@@ -419,13 +422,14 @@ function init(): void {
             if (connectBtn) connectBtn.disabled = true;
         } else { // Disconnected
             judgementsRadio.disabled = true;
+            judgementsUnderlineRadio.disabled = true;
             
             // Only switch to 'none' if we were in stream mode, to avoid resetting manual logic if called unexpectedly
             if (appMode === 'stream') {
                 updateMode('none');
             }
             
-            if (currentViewMode === 'judgements') {
+            if (currentViewMode === 'judgements' || currentViewMode === 'judgements-underline') {
                 originalRadio.checked = true;
                 currentViewMode = 'original';
                 refreshChart();
@@ -553,7 +557,7 @@ function updateLoopControls() {
              loopNextBtn.disabled = true;
 
              // Logic duplicated from renderer for display purpose
-             if (currentViewMode === 'judgements' && judgements.length > 0) {
+             if ((currentViewMode === 'judgements' || currentViewMode === 'judgements-underline') && judgements.length > 0) {
                 let notesPerLoop = 0;
                 let preLoopNotes = 0;
                 // Pre-loop note count
