@@ -1,72 +1,32 @@
 import { ParsedChart, LoopInfo } from './tja-parser.js';
 
-export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' = 'original', judgements: string[] = [], collapsed: boolean = false): void {
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-        console.error("2D rendering context not found for canvas.");
-        return;
-    }
+// Helper types for renderer and hit testing
+interface RenderBarInfo {
+    bar: string[];
+    originalIndex: number;
+    isLoopStart?: boolean;
+    isLoopEnd?: boolean;
+    overrideStartIndex?: number; // If set, use this instead of looking up globalBarStartIndices
+}
 
+// Configuration Constants
+const BARS_PER_ROW: number = 4;
+const PADDING: number = 20;
+const RATIOS = {
+    BAR_HEIGHT: 0.14,
+    ROW_SPACING: 0.11,
+    NOTE_RADIUS_SMALL: 0.035,
+    NOTE_RADIUS_BIG: 0.05,
+    LINE_WIDTH_BAR_BORDER: 0.01,
+    LINE_WIDTH_CENTER: 0.005,
+    LINE_WIDTH_NOTE_OUTER: 0.022,
+    LINE_WIDTH_NOTE_INNER: 0.0075,
+    BAR_NUMBER_FONT_SIZE_RATIO: 0.06,
+    BAR_NUMBER_OFFSET_Y_RATIO: -0.0015
+};
+
+function getVirtualBars(chart: ParsedChart, collapsed: boolean, viewMode: 'original' | 'judgements', judgements: string[], globalBarStartIndices: number[]): RenderBarInfo[] {
     const { bars, loop } = chart;
-    
-    // Configuration
-    const BARS_PER_ROW: number = 4;
-    const PADDING: number = 20;
-
-    // Scaling ratios relative to bar width
-    // Adjust these to change the relative size of elements
-    const RATIOS = {
-        BAR_HEIGHT: 0.14,
-        ROW_SPACING: 0.11,
-        NOTE_RADIUS_SMALL: 0.035,
-        NOTE_RADIUS_BIG: 0.05,
-        LINE_WIDTH_BAR_BORDER: 0.01,
-        LINE_WIDTH_CENTER: 0.005,
-        LINE_WIDTH_NOTE_OUTER: 0.022,
-        LINE_WIDTH_NOTE_INNER: 0.0075,
-        BAR_NUMBER_FONT_SIZE_RATIO: 0.06,
-        BAR_NUMBER_OFFSET_Y_RATIO: -0.0015 // Reduced offset for less spacing
-    };
-    
-    // Calculate layout
-    const logicalCanvasWidth: number = canvas.clientWidth || 800;
-    const barWidth: number = (logicalCanvasWidth - (PADDING * 2)) / BARS_PER_ROW;
-
-    // specific dimensions based on ratios
-    const BAR_HEIGHT: number = barWidth * RATIOS.BAR_HEIGHT;
-    const ROW_SPACING: number = barWidth * RATIOS.ROW_SPACING;
-    const NOTE_RADIUS_SMALL: number = barWidth * RATIOS.NOTE_RADIUS_SMALL;
-    const NOTE_RADIUS_BIG: number = barWidth * RATIOS.NOTE_RADIUS_BIG;
-    const LW_BAR: number = barWidth * RATIOS.LINE_WIDTH_BAR_BORDER;
-    const LW_CENTER: number = barWidth * RATIOS.LINE_WIDTH_CENTER;
-    const LW_NOTE_OUTER: number = barWidth * RATIOS.LINE_WIDTH_NOTE_OUTER;
-    const LW_NOTE_INNER: number = barWidth * RATIOS.LINE_WIDTH_NOTE_INNER;
-    const BAR_NUMBER_FONT_SIZE: number = barWidth * RATIOS.BAR_NUMBER_FONT_SIZE_RATIO;
-    const BAR_NUMBER_OFFSET_Y: number = barWidth * RATIOS.BAR_NUMBER_OFFSET_Y_RATIO;
-
-    // Pre-calculate global start indices for ALL bars in the original chart
-    const globalBarStartIndices: number[] = [];
-    let currentGlobalNoteIndex = 0;
-    for (const bar of bars) {
-        globalBarStartIndices.push(currentGlobalNoteIndex);
-        if (bar) {
-            for (const char of bar) {
-                if (['1', '2', '3', '4'].includes(char)) {
-                    currentGlobalNoteIndex++;
-                }
-            }
-        }
-    }
-
-    // Determine Virtual Bars to Render
-    interface RenderBarInfo {
-        bar: string[];
-        originalIndex: number;
-        isLoopStart?: boolean;
-        isLoopEnd?: boolean;
-        overrideStartIndex?: number; // If set, use this instead of looking up globalBarStartIndices
-    }
-
     let virtualBars: RenderBarInfo[] = [];
 
     if (collapsed && loop) {
@@ -79,7 +39,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewM
         let currentIter = 0;
         let notesPerLoop = 0;
         let preLoopNotes = globalBarStartIndices[loop.startBarIndex];
-        
+
         // Calculate notes in one loop iteration
         for (let k = 0; k < loop.period; k++) {
             const bar = bars[loop.startBarIndex + k];
@@ -135,7 +95,134 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewM
         // Standard View
         virtualBars = bars.map((b, i) => ({ bar: b, originalIndex: i }));
     }
+    return virtualBars;
+}
 
+function calculateGlobalBarStartIndices(bars: string[][]): number[] {
+    const indices: number[] = [];
+    let currentGlobalNoteIndex = 0;
+    for (const bar of bars) {
+        indices.push(currentGlobalNoteIndex);
+        if (bar) {
+            for (const char of bar) {
+                if (['1', '2', '3', '4'].includes(char)) {
+                    currentGlobalNoteIndex++;
+                }
+            }
+        }
+    }
+    return indices;
+}
+
+export interface HitInfo {
+    originalBarIndex: number;
+    charIndex: number;
+    type: string;
+    judgeableNoteIndex: number | null; // Global index for judgeable notes (1,2,3,4)
+}
+
+export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, collapsed: boolean = false, viewMode: 'original' | 'judgements' = 'original', judgements: string[] = []): HitInfo | null {
+    const logicalCanvasWidth: number = canvas.clientWidth || 800;
+    const barWidth: number = (logicalCanvasWidth - (PADDING * 2)) / BARS_PER_ROW;
+
+    const BAR_HEIGHT: number = barWidth * RATIOS.BAR_HEIGHT;
+    const ROW_SPACING: number = barWidth * RATIOS.ROW_SPACING;
+    const NOTE_RADIUS_SMALL: number = barWidth * RATIOS.NOTE_RADIUS_SMALL;
+    const NOTE_RADIUS_BIG: number = barWidth * RATIOS.NOTE_RADIUS_BIG;
+
+    const globalBarStartIndices = calculateGlobalBarStartIndices(chart.bars);
+    const virtualBars = getVirtualBars(chart, collapsed, viewMode, judgements, globalBarStartIndices);
+
+    // Hit testing loop
+    // Iterate backwards as per rendering order (notes on top)
+    for (let index = virtualBars.length - 1; index >= 0; index--) {
+        const info = virtualBars[index];
+        const row: number = Math.floor(index / BARS_PER_ROW);
+        const col: number = index % BARS_PER_ROW;
+
+        const barX: number = PADDING + (col * barWidth);
+        const barY: number = PADDING + (row * (BAR_HEIGHT + ROW_SPACING));
+        const centerY: number = barY + BAR_HEIGHT / 2;
+
+        const bar = info.bar;
+        if (!bar || bar.length === 0) continue;
+
+        const noteStep: number = barWidth / bar.length;
+        
+        // Calculate start index for this bar
+        const startIndex = info.overrideStartIndex !== undefined 
+            ? info.overrideStartIndex 
+            : globalBarStartIndices[info.originalIndex];
+
+        let localJudgeCount = 0;
+
+        for (let i = 0; i < bar.length; i++) {
+            const char = bar[i];
+            // Only hit test visual notes
+            if (!['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(char)) continue;
+
+            const noteX: number = barX + (i * noteStep);
+            
+            // Check distance
+            const dx = x - noteX;
+            const dy = y - centerY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            // Determine radius
+            let radius = NOTE_RADIUS_SMALL;
+            if (['3', '4', '6', '9'].includes(char)) radius = NOTE_RADIUS_BIG;
+
+            if (dist <= radius) {
+                // Hit!
+                let judgeableIndex: number | null = null;
+                if (['1', '2', '3', '4'].includes(char)) {
+                    judgeableIndex = startIndex + localJudgeCount;
+                }
+                
+                return {
+                    originalBarIndex: info.originalIndex,
+                    charIndex: i,
+                    type: char,
+                    judgeableNoteIndex: judgeableIndex
+                };
+            }
+
+            if (['1', '2', '3', '4'].includes(char)) {
+                localJudgeCount++;
+            }
+        }
+    }
+
+    return null;
+}
+
+export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' = 'original', judgements: string[] = [], collapsed: boolean = false): void {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error("2D rendering context not found for canvas.");
+        return;
+    }
+
+    const { bars, loop } = chart;
+    
+    // Calculate layout
+    const logicalCanvasWidth: number = canvas.clientWidth || 800;
+    const barWidth: number = (logicalCanvasWidth - (PADDING * 2)) / BARS_PER_ROW;
+
+    // specific dimensions based on ratios
+    const BAR_HEIGHT: number = barWidth * RATIOS.BAR_HEIGHT;
+    const ROW_SPACING: number = barWidth * RATIOS.ROW_SPACING;
+    const NOTE_RADIUS_SMALL: number = barWidth * RATIOS.NOTE_RADIUS_SMALL;
+    const NOTE_RADIUS_BIG: number = barWidth * RATIOS.NOTE_RADIUS_BIG;
+    const LW_BAR: number = barWidth * RATIOS.LINE_WIDTH_BAR_BORDER;
+    const LW_CENTER: number = barWidth * RATIOS.LINE_WIDTH_CENTER;
+    const LW_NOTE_OUTER: number = barWidth * RATIOS.LINE_WIDTH_NOTE_OUTER;
+    const LW_NOTE_INNER: number = barWidth * RATIOS.LINE_WIDTH_NOTE_INNER;
+    const BAR_NUMBER_FONT_SIZE: number = barWidth * RATIOS.BAR_NUMBER_FONT_SIZE_RATIO;
+    const BAR_NUMBER_OFFSET_Y: number = barWidth * RATIOS.BAR_NUMBER_OFFSET_Y_RATIO;
+
+    const globalBarStartIndices = calculateGlobalBarStartIndices(bars);
+    const virtualBars = getVirtualBars(chart, collapsed, viewMode, judgements, globalBarStartIndices);
 
     const totalRows: number = Math.ceil(virtualBars.length / BARS_PER_ROW);
     const logicalCanvasHeight: number = (totalRows * (BAR_HEIGHT + ROW_SPACING)) + (PADDING * 2);

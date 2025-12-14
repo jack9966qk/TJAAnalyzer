@@ -1,5 +1,5 @@
 import { parseTJA, ParsedChart } from './tja-parser.js';
-import { renderChart } from './renderer.js';
+import { renderChart, getNoteAt, HitInfo } from './renderer.js';
 import { exampleTJA } from './example-data.js';
 import { JudgementClient, ServerEvent } from './judgement-client.js';
 
@@ -12,9 +12,11 @@ let collapsedLoop: boolean = false;
 // Judgement State
 const judgementClient = new JudgementClient();
 let judgements: string[] = [];
+let judgementDeltas: (number | undefined)[] = []; // Store deltas
 
 // UI Elements
 const statusDisplay = document.getElementById('status-display') as HTMLDivElement;
+const noteStatsDisplay = document.getElementById('note-stats-display') as HTMLDivElement;
 const judgementsRadio = document.getElementById('judgements-radio') as HTMLInputElement;
 const originalRadio = document.querySelector('input[name="viewMode"][value="original"]') as HTMLInputElement;
 const difficultySelectorContainer = document.getElementById('difficulty-selector-container') as HTMLDivElement;
@@ -24,6 +26,12 @@ const collapseLoopCheckbox = document.getElementById('collapse-loop-checkbox') a
 function updateStatus(message: string) {
     if (statusDisplay) {
         statusDisplay.innerText = message;
+    }
+}
+
+function updateNoteStats(info: string) {
+    if (noteStatsDisplay) {
+        noteStatsDisplay.innerText = info;
     }
 }
 
@@ -55,6 +63,120 @@ function init(): void {
             refreshChart();
         });
     }
+    
+    // Canvas Interaction
+    const handleCanvasInteraction = (event: MouseEvent) => {
+        if (!currentChart) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        // Handle DPI scaling
+        const dpr = window.devicePixelRatio || 1;
+        // The canvas width/height attributes are scaled by dpr, but logic uses client size
+        // getNoteAt uses logical size derived from clientWidth, so we pass logical coordinates (relative to client rect)
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        
+        const hit = getNoteAt(x, y, currentChart, canvas, collapsedLoop, currentViewMode, judgements);
+        
+        if (hit) {
+            const name = getNoteName(hit.type);
+            let stats = `Type: ${name}`;
+            
+            const gap = getGapInfo(currentChart, hit.originalBarIndex, hit.charIndex);
+            if (gap) {
+                stats += `, Gap: ${gap}`;
+            }
+
+            if (currentViewMode === 'judgements' && hit.judgeableNoteIndex !== null) {
+                // If collapsed and loop, we might have multiple judgements for this visual note
+                // Need to find all iterations
+                const deltas: string[] = [];
+                
+                // Identify if this note is part of a loop and we are collapsed
+                if (collapsedLoop && currentChart.loop) {
+                    const loop = currentChart.loop;
+                    if (hit.originalBarIndex >= loop.startBarIndex && hit.originalBarIndex < loop.startBarIndex + loop.period) {
+                        // Is inside loop
+                        // Iterate all iterations
+                        // Note: hit.judgeableNoteIndex returned by getNoteAt is the index for the CURRENT iteration being rendered?
+                        // No, getNoteAt calculates visual position. In collapsed mode, `virtualBars` sets `overrideStartIndex`.
+                        // `getNoteAt` uses `overrideStartIndex` to return `judgeableNoteIndex`.
+                        // So `hit.judgeableNoteIndex` is the index of the note currently VISIBLE (the specific iteration).
+                        
+                        // BUT, we want ALL deltas for this visual note across all iterations.
+                        // We need to calculate the base index (first iteration) and stride.
+                        
+                        // Calculate base index
+                        // We need global start index of the bar in the FIRST iteration.
+                        // That logic is in `renderer.ts` but not exposed.
+                        // Let's re-calculate or assume we can derive it.
+                        
+                        // We know `hit.originalBarIndex`. We can count how many notes are before it in the whole chart.
+                        let baseIndex = 0;
+                        for (let b = 0; b < hit.originalBarIndex; b++) {
+                            const bar = currentChart.bars[b];
+                            if (bar) {
+                                for(const c of bar) if (['1', '2', '3', '4'].includes(c)) baseIndex++;
+                            }
+                        }
+                        // Add offset in current bar
+                        let offsetInBar = 0;
+                        const targetBar = currentChart.bars[hit.originalBarIndex];
+                        for(let c = 0; c < hit.charIndex; c++) {
+                             if (['1', '2', '3', '4'].includes(targetBar[c])) offsetInBar++;
+                        }
+                        
+                        const noteIndexInFirstIter = baseIndex + offsetInBar;
+                        
+                        // Calculate stride (notes per loop)
+                        let notesPerLoop = 0;
+                        for (let k = 0; k < loop.period; k++) {
+                            const bar = currentChart.bars[loop.startBarIndex + k];
+                            if (bar) {
+                                for (const c of bar) if (['1', '2', '3', '4'].includes(c)) notesPerLoop++;
+                            }
+                        }
+                        
+                        // Collect deltas
+                        for (let iter = 0; iter < loop.iterations; iter++) {
+                            const globalIdx = noteIndexInFirstIter + (iter * notesPerLoop);
+                            if (globalIdx < judgementDeltas.length) {
+                                const delta = judgementDeltas[globalIdx];
+                                if (delta !== undefined) {
+                                    deltas.push(`${delta}ms`);
+                                }
+                            }
+                        }
+                    } else {
+                         // Not in loop or not collapsed
+                         if (hit.judgeableNoteIndex < judgementDeltas.length) {
+                             const delta = judgementDeltas[hit.judgeableNoteIndex];
+                             if (delta !== undefined) deltas.push(`${delta}ms`);
+                         }
+                    }
+                } else {
+                     // Standard
+                     if (hit.judgeableNoteIndex < judgementDeltas.length) {
+                         const delta = judgementDeltas[hit.judgeableNoteIndex];
+                         if (delta !== undefined) deltas.push(`${delta}ms`);
+                     }
+                }
+
+                if (deltas.length > 0) {
+                    stats += `, Delta: ${deltas.join(', ')}`;
+                }
+            }
+
+            updateNoteStats(stats);
+            canvas.style.cursor = 'pointer';
+        } else {
+            updateNoteStats('');
+            canvas.style.cursor = 'default';
+        }
+    };
+
+    canvas.addEventListener('mousemove', handleCanvasInteraction);
+    canvas.addEventListener('click', handleCanvasInteraction);
 
     // Setup Judgement Connection Controls
     const hostInput = document.getElementById('host-input') as HTMLInputElement;
@@ -85,6 +207,7 @@ function init(): void {
         if (event.type === 'gameplay_start') {
             console.log("Gameplay Start Event Received - Resetting Judgements");
             judgements = [];
+            judgementDeltas = []; // Reset deltas
             currentChart = null;
 
             updateStatus('Receiving data from event stream');
@@ -112,8 +235,8 @@ function init(): void {
             }
             refreshChart();
         } else if (event.type === 'judgement') {
-            // console.log("Judgement Received:", event.judgement);
             judgements.push(event.judgement);
+            judgementDeltas.push(event.msDelta); // Store delta
             refreshChart();
         }
     });
@@ -211,6 +334,21 @@ function init(): void {
         currentChart = parsedTJACharts[defaultDifficulty];
 
         console.log(`Parsed ${Object.keys(parsedTJACharts).length} difficulties.`);
+
+        // Populate and show difficulty selector
+        difficultySelector.innerHTML = '';
+        const difficulties = Object.keys(parsedTJACharts);
+        difficulties.forEach(diff => {
+            const option = document.createElement('option');
+            option.value = diff;
+            option.innerText = diff.charAt(0).toUpperCase() + diff.slice(1);
+            difficultySelector.appendChild(option);
+        });
+        if (difficulties.length > 0) {
+            difficultySelector.value = defaultDifficulty;
+            difficultySelectorContainer.hidden = false;
+        }
+
         refreshChart();
     } catch (e: unknown) {
         console.error("Error:", e);
@@ -229,6 +367,84 @@ function refreshChart() {
     if (currentChart && canvas) {
         renderChart(currentChart, canvas, currentViewMode, judgements, collapsedLoop);
     }
+}
+
+function getGapInfo(chart: ParsedChart, currentBarIdx: number, currentCharIdx: number): string | null {
+    const currentBar = chart.bars[currentBarIdx];
+    const currentTotal = currentBar.length;
+    
+    // Look backwards in current bar
+    for (let i = currentCharIdx - 1; i >= 0; i--) {
+        if (['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(currentBar[i])) {
+            const prevPos = i / currentTotal;
+            const curPos = currentCharIdx / currentTotal;
+            const diff = curPos - prevPos;
+            return formatGap(diff);
+        }
+    }
+    
+    // Look in previous bars
+    for (let b = currentBarIdx - 1; b >= 0; b--) {
+        const prevBar = chart.bars[b];
+        if (!prevBar || prevBar.length === 0) {
+            // Check if accumulated gap > 1.0 (approximated)
+            // Just counting empty bars for now, but really need to track total time.
+            // Since we iterate, we can calculate precisely.
+            
+            // Distance = (Pos in Current) + (Empty Bars) + (1 - Pos in Prev)?
+            const minGap = (currentCharIdx / currentTotal) + (currentBarIdx - b); 
+            // If prevBar is empty, we effectively added 1.0. 
+            // If minGap > 1.0, stop.
+            // Actually, if prevBar is empty, we continue to check the one before it.
+            if (minGap > 1.0 + 0.001) return null;
+            continue;
+        }
+        
+        const prevTotal = prevBar.length;
+        
+        for (let i = prevTotal - 1; i >= 0; i--) {
+            if (['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(prevBar[i])) {
+                const distInCurrent = currentCharIdx / currentTotal;
+                const distBetween = (currentBarIdx - b - 1) * 1.0; 
+                const distInPrev = (prevTotal - i) / prevTotal; // Remaining part
+                
+                const totalGap = distInCurrent + distBetween + distInPrev;
+                
+                if (totalGap <= 1.0 + 0.0001) { 
+                     return formatGap(totalGap);
+                } else {
+                    return null; 
+                }
+            }
+        }
+        
+        const minGap = (currentCharIdx / currentTotal) + (currentBarIdx - b);
+        if (minGap > 1.0) return null;
+    }
+    
+    return null;
+}
+
+function formatGap(gap: number): string {
+    const commonDenominators = [4, 8, 12, 16, 24, 32, 48, 64];
+    for (const d of commonDenominators) {
+        const val = gap * d;
+        if (Math.abs(val - Math.round(val)) < 0.001) {
+             const num = Math.round(val);
+             const gcd = (a: number, b: number): number => b ? gcd(b, a % b) : a;
+             const divisor = gcd(num, d);
+             return `${num/divisor}/${d/divisor}`;
+        }
+    }
+    return gap.toFixed(3);
+}
+
+function getNoteName(char: string): string {
+    const map: Record<string, string> = {
+        '1': 'don', '2': 'ka', '3': 'DON', '4': 'KA',
+        '5': 'roll', '6': 'ROLL', '7': 'balloon', '9': 'Kusudama'
+    };
+    return map[char] || 'unknown';
 }
 
 // Handle resizing

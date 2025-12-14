@@ -3,6 +3,7 @@ import { exampleTJA } from "./example-data.js";
 export interface JudgementEvent {
     type: 'judgement';
     judgement: string;
+    msDelta?: number;
 }
 
 export interface GameplayStartEvent {
@@ -113,9 +114,13 @@ export class JudgementClient {
             const types = ['Perfect', 'Good', 'Poor'];
             const randomType = types[Math.floor(Math.random() * types.length)];
             
+            // Random delta between -50 and 50 ms
+            const randomDelta = Math.floor(Math.random() * 100) - 50;
+
             const event: JudgementEvent = {
                 type: 'judgement',
-                judgement: randomType
+                judgement: randomType,
+                msDelta: randomDelta
             };
             
             if (this.onMessageCallback) {
