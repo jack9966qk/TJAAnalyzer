@@ -8,6 +8,7 @@ let parsedTJACharts: Record<string, ParsedChart> | null = null;
 let currentChart: ParsedChart | null = null;
 let currentViewMode: 'original' | 'judgements' = 'original';
 let collapsedLoop: boolean = false;
+let loadedTJAContent: string = exampleTJA;
 
 // Judgement State
 const judgementClient = new JudgementClient();
@@ -29,10 +30,142 @@ function updateStatus(message: string) {
     }
 }
 
-function updateNoteStats(info: string) {
+function updateNoteStats(html: string) {
     if (noteStatsDisplay) {
-        noteStatsDisplay.innerText = info;
+        noteStatsDisplay.innerHTML = html;
     }
+}
+
+function createStatBox(label: string, value: string, highlight: boolean = false): string {
+    return `
+        <div class="stat-box">
+            <div class="stat-label">${label}</div>
+            <div class="stat-value ${highlight ? 'stat-value-highlight' : ''}">${value}</div>
+        </div>
+    `;
+}
+
+function formatBPM(val: number): string {
+    return val % 1 === 0 ? val.toFixed(0) : val.toFixed(2);
+}
+
+function formatHS(val: number): string {
+    return val % 1 === 0 ? val.toFixed(1) : val.toFixed(2);
+}
+
+function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: boolean, viewMode: string, judgements: string[]) {
+    let html = '';
+    const def = '-';
+
+    // 1. Type
+    html += createStatBox('Type', hit ? getNoteName(hit.type) : def);
+    
+    // 2. Gap
+    let gap = def;
+    if (hit && chart) {
+        const g = getGapInfo(chart, hit.originalBarIndex, hit.charIndex);
+        if (g) gap = g;
+    }
+    html += createStatBox('Gap', gap);
+    
+    // 3. BPM
+    html += createStatBox('BPM', hit ? formatBPM(hit.bpm) : def);
+    
+    // 4. HS
+    html += createStatBox('HS', hit ? formatHS(hit.scroll) : def);
+    
+    // 5. Perceived BPM
+    html += createStatBox('Seen BPM', hit ? formatBPM(hit.bpm * hit.scroll) : def);
+
+    // 6. Judgements (Deltas)
+    let deltaVal = def;
+    let avgDeltaVal = def;
+    let allDeltasStr = '';
+    
+    if (hit && viewMode === 'judgements' && hit.judgeableNoteIndex !== null && chart) {
+        const deltas: number[] = [];
+        
+        if (collapsed && chart.loop) {
+            const loop = chart.loop;
+            // Check if we are in the visual loop range? 
+            // Actually, if we are in collapsed mode, the user is looking at the single loop iteration.
+            // Any note in that range is part of the loop.
+            // But we need to be careful: getNoteAt returns originalBarIndex.
+            // If the note is within the loop definition:
+            if (hit.originalBarIndex >= loop.startBarIndex && hit.originalBarIndex < loop.startBarIndex + loop.period) {
+                // Loop Logic
+                let baseIndex = 0;
+                for (let b = 0; b < hit.originalBarIndex; b++) {
+                    const bar = chart.bars[b];
+                    if (bar) {
+                        for(const c of bar) if (['1', '2', '3', '4'].includes(c)) baseIndex++;
+                    }
+                }
+                let offsetInBar = 0;
+                const targetBar = chart.bars[hit.originalBarIndex];
+                for(let c = 0; c < hit.charIndex; c++) {
+                        if (['1', '2', '3', '4'].includes(targetBar[c])) offsetInBar++;
+                }
+                const noteIndexInFirstIter = baseIndex + offsetInBar;
+                
+                let notesPerLoop = 0;
+                for (let k = 0; k < loop.period; k++) {
+                    const bar = chart.bars[loop.startBarIndex + k];
+                    if (bar) {
+                        for (const c of bar) if (['1', '2', '3', '4'].includes(c)) notesPerLoop++;
+                    }
+                }
+                
+                for (let iter = 0; iter < loop.iterations; iter++) {
+                    const globalIdx = noteIndexInFirstIter + (iter * notesPerLoop);
+                    if (globalIdx < judgementDeltas.length) {
+                        const delta = judgementDeltas[globalIdx];
+                        if (delta !== undefined) deltas.push(delta);
+                    }
+                }
+                
+                if (deltas.length > 0) {
+                    const avg = deltas.reduce((a, b) => a + b, 0) / deltas.length;
+                    avgDeltaVal = `${avg.toFixed(1)}ms`;
+                    allDeltasStr = deltas.join(', ');
+                }
+                
+            } else {
+                 // Outside loop in collapsed mode (e.g. intro/outro)
+                 if (hit.judgeableNoteIndex < judgementDeltas.length) {
+                     const delta = judgementDeltas[hit.judgeableNoteIndex];
+                     if (delta !== undefined) {
+                         // Map single value to Avg/Delta depending on where it displays?
+                         // If collapsed mode is on, we show Avg Delta box.
+                         // So we put this single value in Avg Delta? Or just Delta?
+                         // The structure is fixed.
+                         // Let's put it in Avg Delta (it is the average of 1 value).
+                         avgDeltaVal = `${delta}ms`;
+                         allDeltasStr = delta.toString();
+                     }
+                 }
+            }
+        } else {
+                // Standard Mode
+                if (hit.judgeableNoteIndex < judgementDeltas.length) {
+                    const delta = judgementDeltas[hit.judgeableNoteIndex];
+                    if (delta !== undefined) {
+                         deltaVal = `${delta}ms`;
+                    }
+                }
+        }
+    }
+
+    if (collapsed) {
+        // Collapsed Mode Layout
+        html += createStatBox('Avg Delta', avgDeltaVal); // No highlight
+        html += `<div class="stat-full-line">Deltas: ${allDeltasStr}</div>`;
+    } else {
+        // Standard Mode Layout
+        html += createStatBox('Delta', deltaVal);
+    }
+
+    updateNoteStats(html);
 }
 
 function init(): void {
@@ -44,6 +177,7 @@ function init(): void {
     // Initial UI State
     judgementsRadio.disabled = true;
     updateStatus('Using placeholder chart');
+    renderStats(null, null, false, 'original', []);
 
     // Setup view mode controls
     const viewModeRadios = document.querySelectorAll('input[name="viewMode"]');
@@ -69,108 +203,17 @@ function init(): void {
         if (!currentChart) return;
         
         const rect = canvas.getBoundingClientRect();
-        // Handle DPI scaling
         const dpr = window.devicePixelRatio || 1;
-        // The canvas width/height attributes are scaled by dpr, but logic uses client size
-        // getNoteAt uses logical size derived from clientWidth, so we pass logical coordinates (relative to client rect)
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
         
         const hit = getNoteAt(x, y, currentChart, canvas, collapsedLoop, currentViewMode, judgements);
         
         if (hit) {
-            const name = getNoteName(hit.type);
-            let stats = `Type: ${name}`;
-            
-            const gap = getGapInfo(currentChart, hit.originalBarIndex, hit.charIndex);
-            if (gap) {
-                stats += `, Gap: ${gap}`;
-            }
-
-            if (currentViewMode === 'judgements' && hit.judgeableNoteIndex !== null) {
-                // If collapsed and loop, we might have multiple judgements for this visual note
-                // Need to find all iterations
-                const deltas: string[] = [];
-                
-                // Identify if this note is part of a loop and we are collapsed
-                if (collapsedLoop && currentChart.loop) {
-                    const loop = currentChart.loop;
-                    if (hit.originalBarIndex >= loop.startBarIndex && hit.originalBarIndex < loop.startBarIndex + loop.period) {
-                        // Is inside loop
-                        // Iterate all iterations
-                        // Note: hit.judgeableNoteIndex returned by getNoteAt is the index for the CURRENT iteration being rendered?
-                        // No, getNoteAt calculates visual position. In collapsed mode, `virtualBars` sets `overrideStartIndex`.
-                        // `getNoteAt` uses `overrideStartIndex` to return `judgeableNoteIndex`.
-                        // So `hit.judgeableNoteIndex` is the index of the note currently VISIBLE (the specific iteration).
-                        
-                        // BUT, we want ALL deltas for this visual note across all iterations.
-                        // We need to calculate the base index (first iteration) and stride.
-                        
-                        // Calculate base index
-                        // We need global start index of the bar in the FIRST iteration.
-                        // That logic is in `renderer.ts` but not exposed.
-                        // Let's re-calculate or assume we can derive it.
-                        
-                        // We know `hit.originalBarIndex`. We can count how many notes are before it in the whole chart.
-                        let baseIndex = 0;
-                        for (let b = 0; b < hit.originalBarIndex; b++) {
-                            const bar = currentChart.bars[b];
-                            if (bar) {
-                                for(const c of bar) if (['1', '2', '3', '4'].includes(c)) baseIndex++;
-                            }
-                        }
-                        // Add offset in current bar
-                        let offsetInBar = 0;
-                        const targetBar = currentChart.bars[hit.originalBarIndex];
-                        for(let c = 0; c < hit.charIndex; c++) {
-                             if (['1', '2', '3', '4'].includes(targetBar[c])) offsetInBar++;
-                        }
-                        
-                        const noteIndexInFirstIter = baseIndex + offsetInBar;
-                        
-                        // Calculate stride (notes per loop)
-                        let notesPerLoop = 0;
-                        for (let k = 0; k < loop.period; k++) {
-                            const bar = currentChart.bars[loop.startBarIndex + k];
-                            if (bar) {
-                                for (const c of bar) if (['1', '2', '3', '4'].includes(c)) notesPerLoop++;
-                            }
-                        }
-                        
-                        // Collect deltas
-                        for (let iter = 0; iter < loop.iterations; iter++) {
-                            const globalIdx = noteIndexInFirstIter + (iter * notesPerLoop);
-                            if (globalIdx < judgementDeltas.length) {
-                                const delta = judgementDeltas[globalIdx];
-                                if (delta !== undefined) {
-                                    deltas.push(`${delta}ms`);
-                                }
-                            }
-                        }
-                    } else {
-                         // Not in loop or not collapsed
-                         if (hit.judgeableNoteIndex < judgementDeltas.length) {
-                             const delta = judgementDeltas[hit.judgeableNoteIndex];
-                             if (delta !== undefined) deltas.push(`${delta}ms`);
-                         }
-                    }
-                } else {
-                     // Standard
-                     if (hit.judgeableNoteIndex < judgementDeltas.length) {
-                         const delta = judgementDeltas[hit.judgeableNoteIndex];
-                         if (delta !== undefined) deltas.push(`${delta}ms`);
-                     }
-                }
-
-                if (deltas.length > 0) {
-                    stats += `, Delta: ${deltas.join(', ')}`;
-                }
-            }
-
-            updateNoteStats(stats);
+            renderStats(hit, currentChart, collapsedLoop, currentViewMode, judgements);
             canvas.style.cursor = 'pointer';
         } else {
-            updateNoteStats('');
+            renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements);
             canvas.style.cursor = 'default';
         }
     };
@@ -198,7 +241,7 @@ function init(): void {
 
     if (testStreamBtn) {
         testStreamBtn.addEventListener('click', () => {
-            judgementClient.startSimulation();
+            judgementClient.startSimulation(loadedTJAContent, difficultySelector.value);
         });
     }
 
@@ -272,6 +315,7 @@ function init(): void {
                 const file = files[0];
                 try {
                     const content = await file.text();
+                    loadedTJAContent = content;
                     parsedTJACharts = parseTJA(content);
 
                     difficultySelector.innerHTML = ''; // Clear previous options

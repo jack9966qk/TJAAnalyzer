@@ -119,6 +119,8 @@ export interface HitInfo {
     charIndex: number;
     type: string;
     judgeableNoteIndex: number | null; // Global index for judgeable notes (1,2,3,4)
+    bpm: number;
+    scroll: number;
 }
 
 export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, collapsed: boolean = false, viewMode: 'original' | 'judgements' = 'original', judgements: string[] = []): HitInfo | null {
@@ -179,11 +181,15 @@ export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTML
                     judgeableIndex = startIndex + localJudgeCount;
                 }
                 
+                const params = chart.barParams[info.originalIndex];
+                
                 return {
                     originalBarIndex: info.originalIndex,
                     charIndex: i,
                     type: char,
-                    judgeableNoteIndex: judgeableIndex
+                    judgeableNoteIndex: judgeableIndex,
+                    bpm: params ? params.bpm : 120, // Default fallback
+                    scroll: params ? params.scroll : 1.0 // Default fallback
                 };
             }
 

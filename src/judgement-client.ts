@@ -90,7 +90,7 @@ export class JudgementClient {
         }
     }
 
-    startSimulation() {
+    startSimulation(tjaContent?: string, difficulty?: string) {
         this.disconnect();
         console.log("Starting simulation...");
         
@@ -102,8 +102,8 @@ export class JudgementClient {
                 tjaSummaries: [
                     {
                         player: 1,
-                        tjaContent: exampleTJA,
-                        difficulty: 'oni'
+                        tjaContent: tjaContent || exampleTJA,
+                        difficulty: difficulty || 'oni'
                     }
                 ]
             };

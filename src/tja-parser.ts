@@ -4,28 +4,35 @@ export interface LoopInfo {
     iterations: number;
 }
 
+export interface BarParams {
+    bpm: number;
+    scroll: number;
+}
+
 export interface ParsedChart {
     bars: string[][];
+    barParams: BarParams[];
     loop?: LoopInfo;
 }
 
 export function parseTJA(content: string): Record<string, ParsedChart> {
     const lines: string[] = content.split(/\r?\n/);
     const courses: Record<string, string[]> = {};
+    const courseHeaders: Record<string, Record<string, string>> = {};
+    
     let currentCourse: string | null = null;
     let isParsingChart: boolean = false;
+    let globalHeader: Record<string, string> = {};
 
-    // First pass: extract raw chart data for each course
+    // First pass: extract raw chart data for each course and headers
     for (let line of lines) {
         line = line.trim();
         if (!line) continue;
 
         if (line.startsWith('COURSE:')) {
             currentCourse = line.substring(7).trim();
-            // Normalize common course names if needed, but strict matching is usually fine
-            // except for case sensitivity.
-            // Let's store by lower case for easier lookup.
             courses[currentCourse.toLowerCase()] = [];
+            courseHeaders[currentCourse.toLowerCase()] = {};
             isParsingChart = false;
         } else if (line.startsWith('#START')) {
             isParsingChart = true;
@@ -39,14 +46,21 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                 line = line.substring(0, commentIndex).trim();
             }
             
-            // Ignore commands (lines starting with #)
-            if (line.startsWith('#')) {
-                continue;
-            }
-
             if (line) {
                 courses[currentCourse.toLowerCase()].push(line);
             }
+        } else if (!isParsingChart) {
+            // Header parsing
+             const parts = line.split(':');
+             if (parts.length >= 2) {
+                 const key = parts[0].trim();
+                 const val = parts[1].trim();
+                 if (currentCourse) {
+                     courseHeaders[currentCourse.toLowerCase()][key] = val;
+                 } else {
+                     globalHeader[key] = val;
+                 }
+             }
         }
     }
 
@@ -55,34 +69,75 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
     for (const courseName in courses) {
         if (Object.prototype.hasOwnProperty.call(courses, courseName)) {
             const courseData = courses[courseName];
-            // Combine lines into one string
-            const fullString: string = courseData.join('');
             
-            // Split by comma to get bars
-            // Note: The last bar might have a trailing comma, resulting in an empty string at the end.
-            const rawBars: string[] = fullString.split(',');
+            // Determine initial BPM
+            let currentBpm = 120;
+            const headers = courseHeaders[courseName] || {};
+            if (headers['BPM']) currentBpm = parseFloat(headers['BPM']);
+            else if (globalHeader['BPM']) currentBpm = parseFloat(globalHeader['BPM']);
+            
+            let currentScroll = 1.0;
 
-            // Remove the last element if it's empty (result of trailing comma)
-            if (rawBars.length > 0 && rawBars[rawBars.length - 1].trim() === '') {
-                rawBars.pop();
+            const bars: string[][] = [];
+            const barParams: BarParams[] = [];
+            
+            let currentBarBuffer: string = '';
+
+            for (const line of courseData) {
+                if (line.startsWith('#')) {
+                    // Command processing
+                    if (line.startsWith('#BPM:')) {
+                        const val = parseFloat(line.substring(5));
+                        if (!isNaN(val)) currentBpm = val;
+                    } else if (line.startsWith('#SCROLL:')) {
+                        const val = parseFloat(line.substring(8));
+                        if (!isNaN(val)) currentScroll = val;
+                    }
+                    continue;
+                }
+
+                // Process note data
+                // Split by comma. Everything up to comma is part of current bar.
+                // If comma exists, we push current bar and start new.
+                // We must handle multiple commas in one line.
+                
+                let tempLine = line;
+                while (true) {
+                    const commaIdx = tempLine.indexOf(',');
+                    if (commaIdx === -1) {
+                        currentBarBuffer += tempLine;
+                        break;
+                    } else {
+                        // Found a bar end
+                        const segment = tempLine.substring(0, commaIdx);
+                        currentBarBuffer += segment;
+                        
+                        // Push bar
+                        const cleanedBar = currentBarBuffer.trim();
+                        // See logic about empty string vs empty bar.
+                        // Standard parser: empty string between commas is empty bar.
+                        if (cleanedBar.length === 0) {
+                             bars.push([]);
+                        } else {
+                             bars.push(cleanedBar.split(''));
+                        }
+                        barParams.push({ bpm: currentBpm, scroll: currentScroll });
+                        
+                        currentBarBuffer = '';
+                        tempLine = tempLine.substring(commaIdx + 1);
+                    }
+                }
+            }
+            
+            // Handle any remaining buffer?
+            // Usually valid TJA ends with comma. If there is leftover text without comma, strict parsers might ignore or warn.
+            // We'll ignore it to avoid partial bars unless it's just whitespace.
+            if (currentBarBuffer.trim().length > 0) {
+                // If we want to be robust, we could treat it as a bar if non-empty, but standard is comma-terminated.
             }
 
-            const bars: string[][] = rawBars.map((rawBar: string) => {
-                const cleanedBar: string = rawBar.trim();
-                // A bar containing only '0's is a rest bar, but still a bar.
-                // An empty string might be an artifact of splitting.
-                // However, standard TJA ends with a comma, so the last element is empty.
-                // We should filter out empty strings if they are truly empty (length 0).
-                // Empty string means empty bar (rest) in our new logic? 
-                // Wait, if it's empty, we return empty array, which is "empty bar".
-                if (cleanedBar.length === 0) return [];
-                
-                // Convert string to array of notes (chars)
-                return cleanedBar.split('');
-            });
-
             const loop = detectLoop(bars);
-            parsedCourses[courseName] = { bars, loop };
+            parsedCourses[courseName] = { bars, barParams, loop };
         }
     }
 
