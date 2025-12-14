@@ -86,12 +86,24 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
             for (const line of courseData) {
                 if (line.startsWith('#')) {
                     // Command processing
-                    if (line.startsWith('#BPM:')) {
+                    const upperLine = line.toUpperCase();
+                    if (upperLine.startsWith('#BPMCHANGE')) {
+                         // Can be space or colon separator
+                         const parts = line.split(/[:\s]+/);
+                         if (parts.length >= 2) {
+                             const val = parseFloat(parts[1]);
+                             if (!isNaN(val)) currentBpm = val;
+                         }
+                    } else if (upperLine.startsWith('#BPM:')) {
                         const val = parseFloat(line.substring(5));
                         if (!isNaN(val)) currentBpm = val;
-                    } else if (line.startsWith('#SCROLL:')) {
-                        const val = parseFloat(line.substring(8));
-                        if (!isNaN(val)) currentScroll = val;
+                    } else if (upperLine.startsWith('#SCROLL')) {
+                        // SCROLL can be #SCROLL:1.0 or #SCROLL 1.0
+                         const parts = line.split(/[:\s]+/);
+                         if (parts.length >= 2) {
+                             const val = parseFloat(parts[1]);
+                             if (!isNaN(val)) currentScroll = val;
+                         }
                     }
                     continue;
                 }

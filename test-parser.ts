@@ -26,6 +26,23 @@ try {
     const firstBar: string[] = bars[0];
     console.log("First bar of 'edit' difficulty:", firstBar);
     
+    // Check BPM/Scroll
+    const params0 = chart.barParams[0];
+    console.log(`Bar 0 Params: BPM=${params0.bpm}, Scroll=${params0.scroll}`);
+    if (params0.bpm !== 125) throw new Error(`Expected Bar 0 BPM to be 125, got ${params0.bpm}`);
+    
+    // Check Bar 4 (after BPMCHANGE 250 and SCROLL 0.75)
+    // Counting bars in exampleTJA:
+    // Bar 0: 2200...
+    // Bar 1: 2200...
+    // Bar 2: 5000...
+    // Bar 3: 0 (measure 2/4)
+    // Bar 4: 3000... (measure 4/4, after change)
+    const params4 = chart.barParams[4];
+    console.log(`Bar 4 Params: BPM=${params4.bpm}, Scroll=${params4.scroll}`);
+    if (params4.bpm !== 250) throw new Error(`Expected Bar 4 BPM to be 250, got ${params4.bpm}`);
+    if (params4.scroll !== 0.75) throw new Error(`Expected Bar 4 Scroll to be 0.75, got ${params4.scroll}`);
+
     // Check if notes are valid characters
     const validNotes: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     const invalidNote: string | undefined = firstBar.find((n: string) => !validNotes.includes(n));
