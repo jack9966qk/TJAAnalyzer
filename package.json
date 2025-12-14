@@ -2,10 +2,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "test": "npm run build && playwright test",
-    "test:parser": "npm run build && node --loader ts-node/esm test-parser.ts",
-    "test:visual": "npm run build && playwright test regression.test.ts",
-    "snapshot": "npm run build && playwright test capture.spec.ts",
+    "test": "npm run build && node --loader ts-node/esm test-parser.ts && playwright test",
     "start": "npm run build && http-server ."
   },
   "devDependencies": {
