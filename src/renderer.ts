@@ -304,6 +304,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewM
     const logicalCanvasWidth: number = canvas.clientWidth || 800;
 
     const globalBarStartIndices = calculateGlobalBarStartIndices(bars);
+    const balloonIndices = calculateBalloonIndices(bars);
     const virtualBars = getVirtualBars(chart, collapsed, viewMode, judgements, globalBarStartIndices, targetLoopIteration);
     
     const { layouts, constants, totalHeight } = calculateLayout(virtualBars, chart, logicalCanvasWidth);
@@ -339,8 +340,8 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewM
         }
     });
 
-    // Layer 1.5: Drumrolls
-    drawDrumrolls(ctx, virtualBars, layouts, constants, viewMode);
+    // Layer 1.5: Drumrolls and Balloons
+    drawLongNotes(ctx, virtualBars, layouts, constants, viewMode, chart.balloonCounts, balloonIndices);
 
     // Layer 2: Notes
     for (let index = virtualBars.length - 1; index >= 0; index--) {
@@ -376,16 +377,34 @@ function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, 
     ctx.stroke();
 }
 
-function drawDrumrolls(ctx: CanvasRenderingContext2D, virtualBars: RenderBarInfo[], layouts: BarLayout[], constants: any, viewMode: 'original' | 'judgements'): void {
+function calculateBalloonIndices(bars: string[][]): Map<string, number> {
+    const map = new Map<string, number>();
+    let balloonCount = 0;
+    
+    for (let i = 0; i < bars.length; i++) {
+        const bar = bars[i];
+        if (!bar) continue;
+        for (let j = 0; j < bar.length; j++) {
+            if (bar[j] === '7' || bar[j] === '9') {
+                map.set(`${i}_${j}`, balloonCount);
+                balloonCount++;
+            }
+        }
+    }
+    return map;
+}
+
+function drawLongNotes(ctx: CanvasRenderingContext2D, virtualBars: RenderBarInfo[], layouts: BarLayout[], constants: any, viewMode: 'original' | 'judgements', balloonCounts: number[], balloonIndices: Map<string, number>): void {
     const { NOTE_RADIUS_SMALL: rSmall, NOTE_RADIUS_BIG: rBig, LW_NOTE_OUTER: borderOuterW, LW_NOTE_INNER: borderInnerW } = constants;
     
-    let currentDrumroll: { type: string, startBarIdx: number, startNoteIdx: number } | null = null;
+    let currentLongNote: { type: string, startBarIdx: number, startNoteIdx: number, originalBarIdx: number, originalNoteIdx: number } | null = null;
     
     // Iterate all bars
     for (let i = 0; i < virtualBars.length; i++) {
         const bar = virtualBars[i].bar;
         if (!bar) continue;
         const layout = layouts[i];
+        const originalBarIdx = virtualBars[i].originalIndex;
         
         const noteCount = bar.length;
         if (noteCount === 0) continue;
@@ -394,51 +413,65 @@ function drawDrumrolls(ctx: CanvasRenderingContext2D, virtualBars: RenderBarInfo
         const barX = layout.x;
         const centerY = layout.y + layout.height / 2;
         
-        // Track the starting index of the drumroll segment in THIS bar
+        // Track the starting index of the segment in THIS bar
         let segmentStartIdx = 0;
-        let segmentActive = !!currentDrumroll;
+        let segmentActive = !!currentLongNote;
         
         for (let j = 0; j < noteCount; j++) {
             const char = bar[j];
             
-            if (char === '5' || char === '6') {
-                // Start a new drumroll
-                currentDrumroll = { type: char, startBarIdx: i, startNoteIdx: j };
+            if (char === '5' || char === '6' || char === '7' || char === '9') {
+                // Start a new long note
+                currentLongNote = { type: char, startBarIdx: i, startNoteIdx: j, originalBarIdx, originalNoteIdx: j };
                 segmentActive = true;
                 segmentStartIdx = j;
             } else if (char === '8') {
-                if (currentDrumroll) {
-                    // End the drumroll
-                    const radius = currentDrumroll.type === '6' ? rBig : rSmall;
+                if (currentLongNote) {
+                    // End the long note
+                    const radius = (currentLongNote.type === '6' || currentLongNote.type === '9') ? rBig : rSmall;
                     const startX = barX + (segmentStartIdx * noteStep);
                     const endX = barX + (j * noteStep);
                     
-                    const hasStartCap = (segmentStartIdx === currentDrumroll.startNoteIdx && i === currentDrumroll.startBarIdx);
+                    const hasStartCap = (segmentStartIdx === currentLongNote.startNoteIdx && i === currentLongNote.startBarIdx);
                     const hasEndCap = true;
                     
-                    drawDrumrollSegment(ctx, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode);
+                    if (currentLongNote.type === '7' || currentLongNote.type === '9') {
+                        // Balloon
+                        const balloonIdx = balloonIndices.get(`${currentLongNote.originalBarIdx}_${currentLongNote.originalNoteIdx}`);
+                        const count = balloonIdx !== undefined && balloonCounts[balloonIdx] !== undefined ? balloonCounts[balloonIdx] : 5;
+                        drawBalloonSegment(ctx, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, count, currentLongNote.type === '9');
+                    } else {
+                        // Drumroll
+                        drawDrumrollSegment(ctx, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, currentLongNote.type);
+                    }
                     
-                    currentDrumroll = null;
+                    currentLongNote = null;
                     segmentActive = false;
                 }
             }
         }
         
         // If still active at end of bar, draw segment to end
-        if (segmentActive && currentDrumroll) {
-            const radius = currentDrumroll.type === '6' ? rBig : rSmall;
+        if (segmentActive && currentLongNote) {
+            const radius = (currentLongNote.type === '6' || currentLongNote.type === '9') ? rBig : rSmall;
             const startX = barX + (segmentStartIdx * noteStep);
             const endX = barX + layout.width; // Visual end of bar
             
-            const hasStartCap = (segmentStartIdx === currentDrumroll.startNoteIdx && i === currentDrumroll.startBarIdx);
+            const hasStartCap = (segmentStartIdx === currentLongNote.startNoteIdx && i === currentLongNote.startBarIdx);
             const hasEndCap = false; // Continuation
             
-            drawDrumrollSegment(ctx, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode);
+            if (currentLongNote.type === '7' || currentLongNote.type === '9') {
+                const balloonIdx = balloonIndices.get(`${currentLongNote.originalBarIdx}_${currentLongNote.originalNoteIdx}`);
+                const count = balloonIdx !== undefined && balloonCounts[balloonIdx] !== undefined ? balloonCounts[balloonIdx] : 5;
+                drawBalloonSegment(ctx, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, count, currentLongNote.type === '9');
+            } else {
+                drawDrumrollSegment(ctx, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, currentLongNote.type);
+            }
         }
     }
 }
 
-function drawDrumrollSegment(ctx: CanvasRenderingContext2D, startX: number, endX: number, centerY: number, radius: number, startCap: boolean, endCap: boolean, borderOuterW: number, borderInnerW: number, viewMode: 'original' | 'judgements'): void {
+function drawDrumrollSegment(ctx: CanvasRenderingContext2D, startX: number, endX: number, centerY: number, radius: number, startCap: boolean, endCap: boolean, borderOuterW: number, borderInnerW: number, viewMode: 'original' | 'judgements', type: string): void {
     let fillColor = '#ff0';
     let innerBorderColor = '#fff';
 
@@ -447,6 +480,61 @@ function drawDrumrollSegment(ctx: CanvasRenderingContext2D, startX: number, endX
         innerBorderColor = '#ccc';
     }
 
+    drawCapsule(ctx, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, fillColor, innerBorderColor);
+}
+
+function drawBalloonSegment(ctx: CanvasRenderingContext2D, startX: number, endX: number, centerY: number, radius: number, startCap: boolean, endCap: boolean, borderOuterW: number, borderInnerW: number, viewMode: 'original' | 'judgements', count: number, isKusudama: boolean): void {
+    let fillColor = '#ffa500'; // Orangeish for balloon body
+    let innerBorderColor = '#fff';
+
+    if (viewMode === 'judgements') {
+        fillColor = '#999';
+        innerBorderColor = '#ccc';
+    }
+
+    // Draw the tail (body)
+    // The tail usually starts a bit after the head, but for simplicity we draw it as a capsule behind the head.
+    // However, if we draw it as a capsule, the head will be drawn on top of it.
+    // If startCap is true, we are drawing the head segment.
+    
+    drawCapsule(ctx, startX, endX, centerY, radius * 0.8, startCap, endCap, borderOuterW, borderInnerW, fillColor, innerBorderColor);
+
+    // If this is the start segment, draw the balloon head
+    if (startCap) {
+        let headColor = '#ffa500'; // Orange
+        if (isKusudama) headColor = '#ffd700'; // Gold
+        
+        if (viewMode === 'judgements') {
+            headColor = '#999';
+        }
+
+        // Draw Head
+        ctx.beginPath();
+        ctx.arc(startX, centerY, radius, 0, Math.PI * 2);
+        
+        ctx.lineWidth = borderOuterW;
+        ctx.strokeStyle = '#000';
+        ctx.stroke();
+
+        ctx.fillStyle = headColor;
+        ctx.fill();
+
+        ctx.lineWidth = borderInnerW;
+        ctx.strokeStyle = innerBorderColor;
+        ctx.stroke();
+
+        // Draw Count
+        if (viewMode !== 'judgements') {
+            ctx.fillStyle = '#000';
+            ctx.font = `bold ${radius * 1.5}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(count.toString(), startX, centerY + (radius * 0.1));
+        }
+    }
+}
+
+function drawCapsule(ctx: CanvasRenderingContext2D, startX: number, endX: number, centerY: number, radius: number, startCap: boolean, endCap: boolean, borderOuterW: number, borderInnerW: number, fillColor: string, innerBorderColor: string): void {
     // Create Path
     ctx.beginPath();
     ctx.moveTo(startX, centerY + radius);
@@ -511,6 +599,7 @@ function drawDrumrollSegment(ctx: CanvasRenderingContext2D, startX: number, endX
     ctx.stroke();
 }
 
+
 function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, viewMode: 'original' | 'judgements', startIndex: number, judgements: string[]): void {
     const centerY: number = y + height / 2;
     const noteCount: number = bar.length;
@@ -557,12 +646,8 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
                 radius = rBig;
                 isBig = true;
                 break;
-            // '5' and '6' (Drumrolls) are handled in drawDrumrolls, so ignored here
-            case '7': // Balloon
-            case '9': // Kusudama
-                color = '#ff0'; // Yellow
-                radius = (noteChar === '9') ? rBig : rSmall;
-                break;
+            // '5' and '6' (Drumrolls) are handled in drawDrumrolls/drawLongNotes
+            // '7' (Balloon) and '9' (Kusudama) are handled in drawLongNotes
             // '0' is space
             // '8' is end of roll (ignore for point rendering)
         }

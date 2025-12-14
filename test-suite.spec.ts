@@ -121,6 +121,32 @@ test.describe('Visual Regression', () => {
 
         await expect(canvas).toHaveScreenshot('loop-collapsed.png');
     });
+
+    test('Balloon Render', async ({ page }) => {
+        await page.goto('/');
+        const canvas = page.locator('#chart-canvas');
+        await expect(canvas).toBeVisible();
+
+        // Load TJA with balloons
+        const tjaContent = `TITLE:Balloon Test
+BPM:120
+COURSE:Oni
+LEVEL:10
+BALLOON:5,10
+#START
+100000000000700000000800,
+700000000000000000000008,
+#END`;
+        
+        await page.locator('#tja-file-picker').setInputFiles({
+            name: 'balloon.tja',
+            mimeType: 'text/plain',
+            buffer: Buffer.from(tjaContent)
+        });
+
+        await page.waitForTimeout(1000);
+        await expect(canvas).toHaveScreenshot('balloon-render.png');
+    });
 });
 
 test.describe('Interaction', () => {

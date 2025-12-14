@@ -26,6 +26,7 @@ export interface ParsedChart {
     bars: string[][];
     barParams: BarParams[];
     loop?: LoopInfo;
+    balloonCounts: number[];
 }
 
 export function parseTJA(content: string): Record<string, ParsedChart> {
@@ -89,6 +90,13 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
             if (headers['BPM']) currentBpm = parseFloat(headers['BPM']);
             else if (globalHeader['BPM']) currentBpm = parseFloat(globalHeader['BPM']);
             
+            // Parse BALLOON counts
+            let balloonCounts: number[] = [];
+            const balloonStr = headers['BALLOON'] || globalHeader['BALLOON'];
+            if (balloonStr) {
+                balloonCounts = balloonStr.split(/[,]+/).map(s => parseInt(s.trim())).filter(n => !isNaN(n));
+            }
+
             let barStartBpm = currentBpm;
             
             let currentScroll = 1.0;
@@ -230,7 +238,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
             }
 
             const loop = detectLoop(bars);
-            parsedCourses[courseName] = { bars, barParams, loop };
+            parsedCourses[courseName] = { bars, barParams, loop, balloonCounts };
         }
     }
 
