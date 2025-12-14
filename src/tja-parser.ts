@@ -17,6 +17,7 @@ export interface ScrollChange {
 export interface BarParams {
     bpm: number;
     scroll: number;
+    measureRatio: number;
     bpmChanges?: BPMChange[];
     scrollChanges?: ScrollChange[];
 }
@@ -93,6 +94,9 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
             let currentScroll = 1.0;
             let barStartScroll = currentScroll;
 
+            let currentMeasureRatio = 1.0;
+            let barStartMeasureRatio = currentMeasureRatio;
+
             const bars: string[][] = [];
             const barParams: BarParams[] = [];
             
@@ -130,6 +134,27 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                                  currentBarScrollChanges.push({ index: currentBarBuffer.length, scroll: val });
                              }
                          }
+                    } else if (upperLine.startsWith('#MEASURE')) {
+                        // #MEASURE x/y
+                        const parts = line.split(/[:\s]+/);
+                        if (parts.length >= 2) {
+                            const fraction = parts[1].split('/');
+                            if (fraction.length === 2) {
+                                const num = parseFloat(fraction[0]);
+                                const den = parseFloat(fraction[1]);
+                                if (!isNaN(num) && !isNaN(den) && den !== 0) {
+                                    // 4/4 is 1.0.  x/y is (x/y) / (4/4) = x/y * 1 = x/y?
+                                    // No, standard bar is 4/4.
+                                    // So ratio = (num/den) / (4/4) = num/den.
+                                    currentMeasureRatio = num / den;
+                                    // If we are in the middle of a bar, does it apply immediately?
+                                    // Usually commands apply to the NEXT bar unless inside.
+                                    // But TJA commands are stream-processed.
+                                    // For simplicity, we assume #MEASURE is usually at the start of a line/bar.
+                                    // We'll update the 'current' which will be latched at the end of the bar.
+                                }
+                            }
+                        }
                     }
                     continue;
                 }
@@ -160,9 +185,27 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                              bars.push(cleanedBar.split(''));
                         }
                         
+                        // Use the measure ratio that was active at the start of this bar (or during?)
+                        // Typically #MEASURE is placed before the bar data.
+                        // If we encountered #MEASURE inside this bar's lines, `currentMeasureRatio` is updated.
+                        // Ideally we should use the value active for this bar. 
+                        // If it changed mid-bar, that's rare/undefined behavior for TJA usually. 
+                        // We will use the `currentMeasureRatio` as it stands when we finish the bar.
+                        // Wait, if I have:
+                        // #MEASURE 4/4
+                        // 1111,
+                        // #MEASURE 3/4
+                        // 111,
+                        // The first bar gets 4/4 (1.0). The second gets 3/4.
+                        // Our `barStartMeasureRatio` isn't tracking updates properly if we just use `current`.
+                        // But we don't really have `barStartMeasureRatio` logic fully fleshed out above for commands mid-bar.
+                        // However, standard TJA commands are between lines.
+                        // So `currentMeasureRatio` should be correct when we hit the comma.
+                        
                         barParams.push({ 
                             bpm: barStartBpm, 
                             scroll: barStartScroll,
+                            measureRatio: currentMeasureRatio,
                             bpmChanges: currentBarBpmChanges.length > 0 ? [...currentBarBpmChanges] : undefined,
                             scrollChanges: currentBarScrollChanges.length > 0 ? [...currentBarScrollChanges] : undefined
                         });
@@ -170,6 +213,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                         // Prepare for next bar
                         barStartBpm = currentBpm;
                         barStartScroll = currentScroll;
+                        // measure ratio persists until changed
                         currentBarBpmChanges = [];
                         currentBarScrollChanges = [];
                         currentBarBuffer = '';

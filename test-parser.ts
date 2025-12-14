@@ -59,6 +59,18 @@ try {
         throw new Error(`Expected Bar 4 to have Scroll Change to 0.75 at index 0, got ${JSON.stringify(params4.scrollChanges)}`);
     }
 
+    // Check Measure Ratio
+    const params3 = chart.barParams[3];
+    console.log(`Bar 3 Params: Measure=${params3.measureRatio}`);
+    if (Math.abs(params3.measureRatio - 0.5) > 0.001) {
+        throw new Error(`Expected Bar 3 Measure Ratio to be 0.5 (2/4), got ${params3.measureRatio}`);
+    }
+
+    console.log(`Bar 4 Params: Measure=${params4.measureRatio}`);
+    if (Math.abs(params4.measureRatio - 1.0) > 0.001) {
+        throw new Error(`Expected Bar 4 Measure Ratio to be 1.0 (4/4), got ${params4.measureRatio}`);
+    }
+
     // Check if notes are valid characters
     const validNotes: string[] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
     const invalidNote: string | undefined = firstBar.find((n: string) => !validNotes.includes(n));
