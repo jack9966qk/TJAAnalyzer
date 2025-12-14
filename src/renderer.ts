@@ -183,13 +183,31 @@ export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTML
                 
                 const params = chart.barParams[info.originalIndex];
                 
+                let effectiveBpm = params ? params.bpm : 120;
+                if (params && params.bpmChanges) {
+                    for (const change of params.bpmChanges) {
+                        if (i >= change.index) {
+                            effectiveBpm = change.bpm;
+                        }
+                    }
+                }
+
+                let effectiveScroll = params ? params.scroll : 1.0;
+                if (params && params.scrollChanges) {
+                    for (const change of params.scrollChanges) {
+                        if (i >= change.index) {
+                            effectiveScroll = change.scroll;
+                        }
+                    }
+                }
+                
                 return {
                     originalBarIndex: info.originalIndex,
                     charIndex: i,
                     type: char,
                     judgeableNoteIndex: judgeableIndex,
-                    bpm: params ? params.bpm : 120, // Default fallback
-                    scroll: params ? params.scroll : 1.0 // Default fallback
+                    bpm: effectiveBpm,
+                    scroll: effectiveScroll
                 };
             }
 

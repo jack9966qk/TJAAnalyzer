@@ -4,9 +4,21 @@ export interface LoopInfo {
     iterations: number;
 }
 
+export interface BPMChange {
+    index: number;
+    bpm: number;
+}
+
+export interface ScrollChange {
+    index: number;
+    scroll: number;
+}
+
 export interface BarParams {
     bpm: number;
     scroll: number;
+    bpmChanges?: BPMChange[];
+    scrollChanges?: ScrollChange[];
 }
 
 export interface ParsedChart {
@@ -76,12 +88,17 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
             if (headers['BPM']) currentBpm = parseFloat(headers['BPM']);
             else if (globalHeader['BPM']) currentBpm = parseFloat(globalHeader['BPM']);
             
+            let barStartBpm = currentBpm;
+            
             let currentScroll = 1.0;
+            let barStartScroll = currentScroll;
 
             const bars: string[][] = [];
             const barParams: BarParams[] = [];
             
             let currentBarBuffer: string = '';
+            let currentBarBpmChanges: BPMChange[] = [];
+            let currentBarScrollChanges: ScrollChange[] = [];
 
             for (const line of courseData) {
                 if (line.startsWith('#')) {
@@ -92,17 +109,26 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                          const parts = line.split(/[:\s]+/);
                          if (parts.length >= 2) {
                              const val = parseFloat(parts[1]);
-                             if (!isNaN(val)) currentBpm = val;
+                             if (!isNaN(val)) {
+                                 currentBpm = val;
+                                 currentBarBpmChanges.push({ index: currentBarBuffer.length, bpm: val });
+                             }
                          }
                     } else if (upperLine.startsWith('#BPM:')) {
                         const val = parseFloat(line.substring(5));
-                        if (!isNaN(val)) currentBpm = val;
+                        if (!isNaN(val)) {
+                            currentBpm = val;
+                            currentBarBpmChanges.push({ index: currentBarBuffer.length, bpm: val });
+                        }
                     } else if (upperLine.startsWith('#SCROLL')) {
                         // SCROLL can be #SCROLL:1.0 or #SCROLL 1.0
                          const parts = line.split(/[:\s]+/);
                          if (parts.length >= 2) {
                              const val = parseFloat(parts[1]);
-                             if (!isNaN(val)) currentScroll = val;
+                             if (!isNaN(val)) {
+                                 currentScroll = val;
+                                 currentBarScrollChanges.push({ index: currentBarBuffer.length, scroll: val });
+                             }
                          }
                     }
                     continue;
@@ -133,8 +159,19 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                         } else {
                              bars.push(cleanedBar.split(''));
                         }
-                        barParams.push({ bpm: currentBpm, scroll: currentScroll });
                         
+                        barParams.push({ 
+                            bpm: barStartBpm, 
+                            scroll: barStartScroll,
+                            bpmChanges: currentBarBpmChanges.length > 0 ? [...currentBarBpmChanges] : undefined,
+                            scrollChanges: currentBarScrollChanges.length > 0 ? [...currentBarScrollChanges] : undefined
+                        });
+                        
+                        // Prepare for next bar
+                        barStartBpm = currentBpm;
+                        barStartScroll = currentScroll;
+                        currentBarBpmChanges = [];
+                        currentBarScrollChanges = [];
                         currentBarBuffer = '';
                         tempLine = tempLine.substring(commaIdx + 1);
                     }
