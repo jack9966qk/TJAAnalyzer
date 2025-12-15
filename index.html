@@ -67,33 +67,48 @@
         </div>
 
         <div id="sticky-header">
-            <fieldset id="display-controls">
-                <legend>Display Mode</legend>
-                <div class="controls">
-                    <label>View Mode: </label>
-                    <label>
-                        <input type="radio" name="viewMode" value="original" checked> Original
-                    </label>
-                    <label>
-                        <input type="radio" id="judgements-radio" name="viewMode" value="judgements"> Judgements
-                    </label>
-                    <label>
-                        <input type="radio" id="judgements-underline-radio" name="viewMode" value="judgements-underline"> Judgements (Underline)
-                    </label>
-                    <label style="margin-left: 10px; border-left: 1px solid #888; padding-left: 10px;">
-                        <input type="checkbox" id="gradient-coloring-checkbox"> Gradient Coloring
-                    </label>
-                    <label style="margin-left: 20px;">
-                        <input type="checkbox" id="collapse-loop-checkbox"> Collapse Loops
-                    </label>
-                    <span id="loop-controls" style="display:none; margin-left: 10px; padding-left: 10px; border-left: 1px solid #888;">
-                         <label style="margin-right: 5px;"><input type="checkbox" id="loop-auto" checked> Auto</label>
-                         <button id="loop-prev" style="width: 24px; padding: 0;">&lt;</button>
-                         <span id="loop-counter" style="margin: 0 5px; font-family: monospace;">-</span>
-                         <button id="loop-next" style="width: 24px; padding: 0;">&gt;</button>
-                    </span>
+            <div id="display-options-panel" class="options-panel">
+                <div class="options-header">
+                    <h3>Display Options</h3>
                 </div>
-            </fieldset>
+                <div class="options-content">
+                    <!-- Judgements Section -->
+                    <div class="option-section">
+                        <div class="section-main">
+                            <label><input type="checkbox" id="show-judgements-checkbox"> Show Judgements</label>
+                        </div>
+                        <div id="judgement-subcontrols" class="section-subs">
+                            <div class="sub-group">
+                                <span class="sub-label">Style:</span>
+                                <label><input type="radio" name="judgementStyle" value="color" checked> Color</label>
+                                <label><input type="radio" name="judgementStyle" value="underline"> Underline</label>
+                            </div>
+                            <div class="sub-group">
+                                <span class="sub-label">Coloring:</span>
+                                <label><input type="radio" name="judgementColoring" value="categorical" checked> Class</label>
+                                <label><input type="radio" name="judgementColoring" value="gradient"> Delta</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loop Section -->
+                    <div class="option-section border-left">
+                        <div class="section-main">
+                            <label><input type="checkbox" id="collapse-loop-checkbox"> Collapse Loops</label>
+                        </div>
+                        <!-- Loop controls are inline/dynamic. They don't take much height so hiding them is fine, 
+                             but let's wrap them nicely. -->
+                        <div id="loop-controls" class="loop-subs" style="display:none;">
+                             <label class="auto-check"><input type="checkbox" id="loop-auto" checked> Auto</label>
+                             <div class="loop-stepper">
+                                 <button id="loop-prev" class="tiny-btn">&lt;</button>
+                                 <span id="loop-counter">-</span>
+                                 <button id="loop-next" class="tiny-btn">&gt;</button>
+                             </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <div id="note-stats-display"></div>
         </div>

@@ -24,15 +24,17 @@ let judgementDeltas: (number | undefined)[] = []; // Store deltas
 // UI Elements
 const statusDisplay = document.getElementById('status-display') as HTMLElement;
 const noteStatsDisplay = document.getElementById('note-stats-display') as HTMLDivElement;
-const judgementsRadio = document.getElementById('judgements-radio') as HTMLInputElement;
-const judgementsUnderlineRadio = document.getElementById('judgements-underline-radio') as HTMLInputElement;
-const gradientColoringCheckbox = document.getElementById('gradient-coloring-checkbox') as HTMLInputElement;
-const originalRadio = document.querySelector('input[name="viewMode"][value="original"]') as HTMLInputElement;
+
+const showJudgementsCheckbox = document.getElementById('show-judgements-checkbox') as HTMLInputElement;
+const judgementSubcontrols = document.getElementById('judgement-subcontrols') as HTMLDivElement;
+const judgementStyleRadios = document.querySelectorAll('input[name="judgementStyle"]');
+const judgementColoringRadios = document.querySelectorAll('input[name="judgementColoring"]');
+
 const difficultySelectorContainer = document.getElementById('difficulty-selector-container') as HTMLDivElement;
 const difficultySelector = document.getElementById('difficulty-selector') as HTMLSelectElement;
 const collapseLoopCheckbox = document.getElementById('collapse-loop-checkbox') as HTMLInputElement;
 
-const loopControls = document.getElementById('loop-controls') as HTMLSpanElement;
+const loopControls = document.getElementById('loop-controls') as HTMLDivElement; // Changed to Div in HTML
 const loopAutoCheckbox = document.getElementById('loop-auto') as HTMLInputElement;
 const loopPrevBtn = document.getElementById('loop-prev') as HTMLButtonElement;
 const loopNextBtn = document.getElementById('loop-next') as HTMLButtonElement;
@@ -318,302 +320,724 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
     updateNoteStats(html);
 }
 
-function init(): void {
-    if (!canvas) {
-        console.error("Canvas element with ID 'chart-canvas' not found.");
-        return;
-    }
+function updateDisplayState() {
 
-    // Initial State
-    judgementsRadio.disabled = true;
-    judgementsUnderlineRadio.disabled = true;
-    if (gradientColoringCheckbox) gradientColoringCheckbox.disabled = true;
-    
-    // Setup Data Source Tabs
-    dsTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const mode = tab.getAttribute('data-mode');
-            if (mode) switchDataSourceMode(mode);
-        });
-    });
+    // 1. Determine base View Mode
 
-    // Setup Collapse Button
-    if (dsCollapseBtn && dsBody) {
-        dsCollapseBtn.addEventListener('click', () => {
-            if (dsBody.classList.contains('collapsed')) {
-                dsBody.classList.remove('collapsed');
-                dsCollapseBtn.innerText = "Hide Controls";
-            } else {
-                dsBody.classList.add('collapsed');
-                dsCollapseBtn.innerText = "Show Controls";
-            }
-        });
-    }
+    if (showJudgementsCheckbox && showJudgementsCheckbox.checked && !showJudgementsCheckbox.disabled) {
 
-    // Setup Load Example Button
-    if (loadExampleBtn) {
-        loadExampleBtn.addEventListener('click', () => {
-            loadedTJAContent = exampleTJA;
-            updateParsedCharts(loadedTJAContent);
-            updateStatus('Example chart loaded');
-        });
-    }
+        // Look at style radios
 
-    // Setup File Picker
-    if (tjaFilePicker) {
-        tjaFilePicker.addEventListener('change', async (event) => {
-            const files = (event.target as HTMLInputElement).files;
-            if (files && files.length > 0) {
-                const file = files[0];
-                try {
-                    const content = await file.text();
-                    loadedTJAContent = content;
-                    updateParsedCharts(content);
-                    updateStatus('Loaded local TJA file');
-                } catch (e) {
-                    console.error("Error parsing TJA file:", e);
-                    alert("Failed to parse TJA file. See console for details.");
-                }
-            }
-        });
-    }
+        const style = document.querySelector('input[name="judgementStyle"]:checked') as HTMLInputElement;
 
-    // Setup Stream Controls
-    if (connectBtn && hostInput && portInput) {
-        connectBtn.addEventListener('click', () => {
-            if (connectBtn.innerText === 'Disconnect' || connectBtn.innerText === 'Connected') {
-                judgementClient.disconnect();
-            } else {
-                const host = hostInput.value;
-                const port = parseInt(portInput.value, 10);
-                if (host && port) {
-                    judgementClient.connect(host, port);
-                } else {
-                    alert("Please enter valid Host and Port.");
-                }
-            }
-        });
-    }
+        if (style && style.value === 'underline') {
 
-    if (testStreamBtn) {
-        testStreamBtn.addEventListener('click', () => {
-            isSimulating = true;
-            // Use currently loaded content and selected difficulty
-            judgementClient.startSimulation(loadedTJAContent, difficultySelector.value);
-        });
-    }
+            currentViewMode = 'judgements-underline';
 
-    // View Mode Controls
-    const viewModeRadios = document.querySelectorAll('input[name="viewMode"]');
-    viewModeRadios.forEach(radio => {
-        radio.addEventListener('change', (event) => {
-            const target = event.target as HTMLInputElement;
-            if (target.checked) {
-                currentViewMode = target.value as 'original' | 'judgements' | 'judgements-underline';
-                refreshChart();
-            }
-        });
-    });
-
-    if (gradientColoringCheckbox) {
-        gradientColoringCheckbox.checked = false;
-        gradientColoringCheckbox.addEventListener('change', (event) => {
-            judgementColoringMode = (event.target as HTMLInputElement).checked ? 'gradient' : 'categorical';
-            refreshChart();
-        });
-    }
-
-    if (collapseLoopCheckbox) {
-        collapseLoopCheckbox.addEventListener('change', (event) => {
-            collapsedLoop = (event.target as HTMLInputElement).checked;
-            refreshChart();
-            renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
-        });
-    }
-
-    // Loop Controls
-    if (loopAutoCheckbox) {
-        loopAutoCheckbox.addEventListener('change', (e) => {
-            if (loopAutoCheckbox.checked) {
-                selectedLoopIteration = undefined;
-            } else {
-                const matches = loopCounter.innerText.match(/(\d+) \/ (\d+)/);
-                if (matches) {
-                     selectedLoopIteration = parseInt(matches[1]) - 1;
-                } else {
-                     selectedLoopIteration = 0;
-                }
-            }
-            refreshChart();
-        });
-    }
-    
-    if (loopPrevBtn) {
-        loopPrevBtn.addEventListener('click', () => {
-             if (selectedLoopIteration !== undefined && selectedLoopIteration > 0) {
-                 selectedLoopIteration--;
-                 refreshChart();
-             }
-        });
-    }
-
-    if (loopNextBtn) {
-        loopNextBtn.addEventListener('click', () => {
-             if (currentChart && currentChart.loop && selectedLoopIteration !== undefined && selectedLoopIteration < currentChart.loop.iterations - 1) {
-                 selectedLoopIteration++;
-                 refreshChart();
-             }
-        });
-    }
-    
-    // Canvas Interaction
-    const handleCanvasInteraction = (event: MouseEvent) => {
-        if (!currentChart) return;
-        
-        const rect = canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        
-        const hit = getNoteAt(x, y, currentChart, canvas, collapsedLoop, currentViewMode, judgements, selectedLoopIteration, judgementColoringMode);
-        
-        if (hit) {
-            renderStats(hit, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
-            canvas.style.cursor = 'pointer';
         } else {
-            renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
-            canvas.style.cursor = 'default';
-        }
-    };
 
-    canvas.addEventListener('mousemove', handleCanvasInteraction);
-    canvas.addEventListener('click', handleCanvasInteraction);
+            currentViewMode = 'judgements';
 
-    difficultySelector.addEventListener('change', () => {
-        if (parsedTJACharts) {
-            const selectedDifficulty = difficultySelector.value;
-            currentChart = parsedTJACharts[selectedDifficulty];
-            refreshChart();
-        }
-    });
-
-    // Judgement Client Callbacks
-    judgementClient.onMessage(async (event: ServerEvent) => {
-        if (event.type === 'gameplay_start') {
-            console.log("Gameplay Start Event Received");
-            judgements = [];
-            judgementDeltas = [];
-            currentChart = null;
-            updateStatus('Receiving data...');
-
-            if (event.tjaSummaries && event.tjaSummaries.length > 0) {
-                const sortedSummaries = [...event.tjaSummaries].sort((a, b) => a.player - b.player);
-                const firstSummary = sortedSummaries[0];
-
-                if (firstSummary.tjaContent) {
-                    try {
-                        const charts = parseTJA(firstSummary.tjaContent);
-                        const difficulty = firstSummary.difficulty.toLowerCase();
-                        if (charts[difficulty]) {
-                            currentChart = charts[difficulty];
-                            parsedTJACharts = charts; // Update global parsed for reference
-                        } else {
-                            console.error(`Difficulty '${difficulty}' not found.`);
-                        }
-                    } catch (e) {
-                        console.error("Error parsing TJA content:", e);
-                    }
-                }
-            }
-            refreshChart();
-        } else if (event.type === 'judgement') {
-            judgements.push(event.judgement);
-            judgementDeltas.push(event.msDelta);
-            refreshChart();
-        }
-    });
-
-    judgementClient.onStatusChange((status: string) => {
-        if (connectBtn) {
-            connectBtn.innerText = status === 'Connected' ? 'Disconnect' : 'Connect';
         }
 
-        if (status === 'Connected') {
-            judgementsRadio.disabled = false;
-            judgementsUnderlineRadio.disabled = false;
-            if (gradientColoringCheckbox) gradientColoringCheckbox.disabled = false;
-            
-            if (isSimulating) {
-                updateStatus('Simulating Stream: Connected');
-            } else {
-                updateStatus('Stream: Connected');
-                if (testStreamBtn) testStreamBtn.disabled = true;
-            }
-        } else if (status === 'Connecting...') {
-            updateStatus('Connecting...');
-            if (testStreamBtn) testStreamBtn.disabled = true;
-            if (connectBtn) connectBtn.disabled = true;
-        } else { // Disconnected
-            judgementsRadio.disabled = true;
-            judgementsUnderlineRadio.disabled = true;
-            if (gradientColoringCheckbox) gradientColoringCheckbox.disabled = true;
-            
-            // Re-enable controls if we were in test mode
-             if (testStreamBtn) testStreamBtn.disabled = false;
-             if (connectBtn) connectBtn.disabled = false;
 
-            if (currentViewMode === 'judgements' || currentViewMode === 'judgements-underline') {
-                originalRadio.checked = true;
-                currentViewMode = 'original';
-                refreshChart();
-            }
-            
-            updateStatus(isSimulating ? 'Simulation Stopped' : 'Disconnected');
-            isSimulating = false;
+
+        // Enable subcontrols
+
+        if (judgementSubcontrols) {
+
+            judgementSubcontrols.classList.remove('disabled');
+
         }
-    });
 
-    // Initial Load
-    switchDataSourceMode('example');
-    // Load example by default
-    updateStatus('Ready');
-    // We don't auto-click load-example, but maybe we should to show something?
-    // The previous code loaded example on start.
-    loadExampleBtn.click();
-}
 
-function updateParsedCharts(content: string) {
-    parsedTJACharts = parseTJA(content);
-    
-    difficultySelector.innerHTML = '';
-    const difficulties = Object.keys(parsedTJACharts);
-    difficulties.forEach(diff => {
-        const option = document.createElement('option');
-        option.value = diff;
-        option.innerText = diff.charAt(0).toUpperCase() + diff.slice(1);
-        difficultySelector.appendChild(option);
-    });
 
-    if (difficulties.length > 0) {
-        let defaultDifficulty = 'edit';
-        if (!parsedTJACharts[defaultDifficulty]) defaultDifficulty = 'oni';
-        if (!parsedTJACharts[defaultDifficulty]) defaultDifficulty = difficulties[0];
-        
-        difficultySelector.value = defaultDifficulty;
-        currentChart = parsedTJACharts[defaultDifficulty];
-        difficultySelectorContainer.hidden = false;
     } else {
-        difficultySelectorContainer.hidden = true;
+
+        currentViewMode = 'original';
+
+        // Disable subcontrols (visually)
+
+        if (judgementSubcontrols) {
+
+            judgementSubcontrols.classList.add('disabled');
+
+        }
+
     }
+
+
+
+    // 2. Determine Coloring Mode
+
+    const coloring = document.querySelector('input[name="judgementColoring"]:checked') as HTMLInputElement;
+
+    if (coloring && coloring.value === 'gradient') {
+
+        judgementColoringMode = 'gradient';
+
+    } else {
+
+        judgementColoringMode = 'categorical';
+
+    }
+
+
 
     refreshChart();
+
+}
+
+
+
+function updateCollapseLoopState() {
+
+    if (!collapseLoopCheckbox) return;
+
+
+
+    const hasLoop = currentChart && currentChart.loop;
+
+    
+
+    if (hasLoop) {
+
+        collapseLoopCheckbox.disabled = false;
+
+        if (collapseLoopCheckbox.parentElement) {
+
+            collapseLoopCheckbox.parentElement.classList.remove('disabled-text');
+
+        }
+
+    } else {
+
+        collapseLoopCheckbox.disabled = true;
+
+        collapseLoopCheckbox.checked = false;
+
+        collapsedLoop = false;
+
+        if (collapseLoopCheckbox.parentElement) {
+
+            collapseLoopCheckbox.parentElement.classList.add('disabled-text');
+
+        }
+
+    }
+
+    // Note: refreshChart() is usually called after this or before this in the flow. 
+
+    // If we changed 'collapsedLoop' state here, we might need to ensure refresh happens.
+
+}
+
+
+
+function init(): void {
+
+    if (!canvas) {
+
+        console.error("Canvas element with ID 'chart-canvas' not found.");
+
+        return;
+
+    }
+
+
+
+    // Initial State
+
+    if (showJudgementsCheckbox) {
+
+        showJudgementsCheckbox.disabled = true;
+
+        showJudgementsCheckbox.checked = false;
+
+        if (showJudgementsCheckbox.parentElement) {
+
+            showJudgementsCheckbox.parentElement.classList.add('disabled-text');
+
+        }
+
+        showJudgementsCheckbox.addEventListener('change', updateDisplayState);
+
+    }
+
+    
+
+    // Ensure subcontrols are disabled initially
+
+    if (judgementSubcontrols) {
+
+        judgementSubcontrols.classList.add('disabled');
+
+    }
+
+    
+
+    // Initial Loop State
+
+    if (collapseLoopCheckbox) {
+
+        collapseLoopCheckbox.disabled = true;
+
+        if (collapseLoopCheckbox.parentElement) {
+
+            collapseLoopCheckbox.parentElement.classList.add('disabled-text');
+
+        }
+
+    }
+
+
+
+    judgementStyleRadios.forEach(r => r.addEventListener('change', updateDisplayState));
+
+    judgementColoringRadios.forEach(r => r.addEventListener('change', updateDisplayState));
+
+    
+
+    // Setup Data Source Tabs
+
+    dsTabs.forEach(tab => {
+
+        tab.addEventListener('click', () => {
+
+            const mode = tab.getAttribute('data-mode');
+
+            if (mode) switchDataSourceMode(mode);
+
+        });
+
+    });
+
+
+
+    // Setup Collapse Button
+
+    if (dsCollapseBtn && dsBody) {
+
+        dsCollapseBtn.addEventListener('click', () => {
+
+            if (dsBody.classList.contains('collapsed')) {
+
+                dsBody.classList.remove('collapsed');
+
+                dsCollapseBtn.innerText = "Hide Controls";
+
+            } else {
+
+                dsBody.classList.add('collapsed');
+
+                dsCollapseBtn.innerText = "Show Controls";
+
+            }
+
+        });
+
+    }
+
+
+
+    // Setup Load Example Button
+
+    if (loadExampleBtn) {
+
+        loadExampleBtn.addEventListener('click', () => {
+
+            loadedTJAContent = exampleTJA;
+
+            updateParsedCharts(loadedTJAContent);
+
+            updateStatus('Example chart loaded');
+
+        });
+
+    }
+
+
+
+    // Setup File Picker
+
+    if (tjaFilePicker) {
+
+        tjaFilePicker.addEventListener('change', async (event) => {
+
+            const files = (event.target as HTMLInputElement).files;
+
+            if (files && files.length > 0) {
+
+                const file = files[0];
+
+                try {
+
+                    const content = await file.text();
+
+                    loadedTJAContent = content;
+
+                    updateParsedCharts(content);
+
+                    updateStatus('Loaded local TJA file');
+
+                } catch (e) {
+
+                    console.error("Error parsing TJA file:", e);
+
+                    alert("Failed to parse TJA file. See console for details.");
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+
+    // Setup Stream Controls
+
+    if (connectBtn && hostInput && portInput) {
+
+        connectBtn.addEventListener('click', () => {
+
+            if (connectBtn.innerText === 'Disconnect' || connectBtn.innerText === 'Connected') {
+
+                judgementClient.disconnect();
+
+            } else {
+
+                const host = hostInput.value;
+
+                const port = parseInt(portInput.value, 10);
+
+                if (host && port) {
+
+                    judgementClient.connect(host, port);
+
+                } else {
+
+                    alert("Please enter valid Host and Port.");
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+
+    if (testStreamBtn) {
+
+        testStreamBtn.addEventListener('click', () => {
+
+            isSimulating = true;
+
+            // Use currently loaded content and selected difficulty
+
+            judgementClient.startSimulation(loadedTJAContent, difficultySelector.value);
+
+        });
+
+    }
+
+
+
+    if (collapseLoopCheckbox) {
+
+        collapseLoopCheckbox.addEventListener('change', (event) => {
+
+            collapsedLoop = (event.target as HTMLInputElement).checked;
+
+            refreshChart();
+
+            renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
+
+        });
+
+    }
+
+
+
+    // Loop Controls
+
+    if (loopAutoCheckbox) {
+
+        loopAutoCheckbox.addEventListener('change', (e) => {
+
+            if (loopAutoCheckbox.checked) {
+
+                selectedLoopIteration = undefined;
+
+            } else {
+
+                const matches = loopCounter.innerText.match(/(\d+) \/ (\d+)/);
+
+                if (matches) {
+
+                     selectedLoopIteration = parseInt(matches[1]) - 1;
+
+                } else {
+
+                     selectedLoopIteration = 0;
+
+                }
+
+            }
+
+            refreshChart();
+
+        });
+
+    }
+
+    
+
+    if (loopPrevBtn) {
+
+        loopPrevBtn.addEventListener('click', () => {
+
+             if (selectedLoopIteration !== undefined && selectedLoopIteration > 0) {
+
+                 selectedLoopIteration--;
+
+                 refreshChart();
+
+             }
+
+        });
+
+    }
+
+
+
+    if (loopNextBtn) {
+
+        loopNextBtn.addEventListener('click', () => {
+
+             if (currentChart && currentChart.loop && selectedLoopIteration !== undefined && selectedLoopIteration < currentChart.loop.iterations - 1) {
+
+                 selectedLoopIteration++;
+
+                 refreshChart();
+
+             }
+
+        });
+
+    }
+
+    
+
+    // Canvas Interaction
+
+    const handleCanvasInteraction = (event: MouseEvent) => {
+
+        if (!currentChart) return;
+
+        
+
+        const rect = canvas.getBoundingClientRect();
+
+        const x = event.clientX - rect.left;
+
+        const y = event.clientY - rect.top;
+
+        
+
+        const hit = getNoteAt(x, y, currentChart, canvas, collapsedLoop, currentViewMode, judgements, selectedLoopIteration, judgementColoringMode);
+
+        
+
+        if (hit) {
+
+            renderStats(hit, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
+
+            canvas.style.cursor = 'pointer';
+
+        } else {
+
+            renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
+
+            canvas.style.cursor = 'default';
+
+        }
+
+    };
+
+
+
+    canvas.addEventListener('mousemove', handleCanvasInteraction);
+
+    canvas.addEventListener('click', handleCanvasInteraction);
+
+
+
+    difficultySelector.addEventListener('change', () => {
+
+        if (parsedTJACharts) {
+
+            const selectedDifficulty = difficultySelector.value;
+
+            currentChart = parsedTJACharts[selectedDifficulty];
+
+            updateCollapseLoopState(); // Check if new difficulty has loops
+
+            refreshChart();
+
+        }
+
+    });
+
+
+
+    // Judgement Client Callbacks
+
+    judgementClient.onMessage(async (event: ServerEvent) => {
+
+        if (event.type === 'gameplay_start') {
+
+            console.log("Gameplay Start Event Received");
+
+            judgements = [];
+
+            judgementDeltas = [];
+
+            currentChart = null;
+
+            updateStatus('Receiving data...');
+
+
+
+            if (event.tjaSummaries && event.tjaSummaries.length > 0) {
+
+                const sortedSummaries = [...event.tjaSummaries].sort((a, b) => a.player - b.player);
+
+                const firstSummary = sortedSummaries[0];
+
+
+
+                if (firstSummary.tjaContent) {
+
+                    try {
+
+                        const charts = parseTJA(firstSummary.tjaContent);
+
+                        const difficulty = firstSummary.difficulty.toLowerCase();
+
+                        if (charts[difficulty]) {
+
+                            currentChart = charts[difficulty];
+
+                            parsedTJACharts = charts; // Update global parsed for reference
+
+                        } else {
+
+                            console.error(`Difficulty '${difficulty}' not found.`);
+
+                        }
+
+                    } catch (e) {
+
+                        console.error("Error parsing TJA content:", e);
+
+                    }
+
+                }
+
+            }
+
+            updateCollapseLoopState();
+
+            refreshChart();
+
+        } else if (event.type === 'judgement') {
+
+            judgements.push(event.judgement);
+
+            judgementDeltas.push(event.msDelta);
+
+            refreshChart();
+
+        }
+
+    });
+
+
+
+    judgementClient.onStatusChange((status: string) => {
+
+        if (connectBtn) {
+
+            connectBtn.innerText = status === 'Connected' ? 'Disconnect' : 'Connect';
+
+        }
+
+
+
+        if (status === 'Connected') {
+
+            if (showJudgementsCheckbox) {
+
+                showJudgementsCheckbox.disabled = false;
+
+                if (showJudgementsCheckbox.parentElement) {
+
+                    showJudgementsCheckbox.parentElement.classList.remove('disabled-text');
+
+                }
+
+                // Auto-enable judgements on connect for convenience, but only if not explicitly unchecked?
+
+                // The requirements say "judgement view mode is only available when the connection is active".
+
+                // Let's just enable the control.
+
+            }
+
+            
+
+            if (isSimulating) {
+
+                updateStatus('Simulating Stream: Connected');
+
+            } else {
+
+                updateStatus('Stream: Connected');
+
+                if (testStreamBtn) testStreamBtn.disabled = true;
+
+            }
+
+        } else if (status === 'Connecting...') {
+
+            updateStatus('Connecting...');
+
+            if (testStreamBtn) testStreamBtn.disabled = true;
+
+            if (connectBtn) connectBtn.disabled = true;
+
+        } else { // Disconnected
+
+            if (showJudgementsCheckbox) {
+
+                showJudgementsCheckbox.disabled = true;
+
+                showJudgementsCheckbox.checked = false;
+
+                if (showJudgementsCheckbox.parentElement) {
+
+                    showJudgementsCheckbox.parentElement.classList.add('disabled-text');
+
+                }
+
+            }
+
+            updateDisplayState(); // Will reset to 'original'
+
+
+
+            // Re-enable controls if we were in test mode
+
+             if (testStreamBtn) testStreamBtn.disabled = false;
+
+             if (connectBtn) connectBtn.disabled = false;
+
+            
+
+            updateStatus(isSimulating ? 'Simulation Stopped' : 'Disconnected');
+
+            isSimulating = false;
+
+        }
+
+    });
+
+
+
+    // Initial Load
+
+    switchDataSourceMode('example');
+
+    // Load example by default
+
+    updateStatus('Ready');
+
+    // We don't auto-click load-example, but maybe we should to show something?
+
+    // The previous code loaded example on start.
+
+    loadExampleBtn.click();
+
+}
+
+
+
+function updateParsedCharts(content: string) {
+
+    parsedTJACharts = parseTJA(content);
+
+    
+
+    difficultySelector.innerHTML = '';
+
+    const difficulties = Object.keys(parsedTJACharts);
+
+    difficulties.forEach(diff => {
+
+        const option = document.createElement('option');
+
+        option.value = diff;
+
+        option.innerText = diff.charAt(0).toUpperCase() + diff.slice(1);
+
+        difficultySelector.appendChild(option);
+
+    });
+
+
+
+    if (difficulties.length > 0) {
+
+        let defaultDifficulty = 'edit';
+
+        if (!parsedTJACharts[defaultDifficulty]) defaultDifficulty = 'oni';
+
+        if (!parsedTJACharts[defaultDifficulty]) defaultDifficulty = difficulties[0];
+
+        
+
+        difficultySelector.value = defaultDifficulty;
+
+        currentChart = parsedTJACharts[defaultDifficulty];
+
+        difficultySelectorContainer.hidden = false;
+
+    } else {
+
+        difficultySelectorContainer.hidden = true;
+
+    }
+
+
+
+    updateCollapseLoopState();
+
+    refreshChart();
+
     renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
+
 }
 
 function updateLoopControls() {
     if (!loopControls || !currentChart) return;
 
+    // Use .style.display for loop controls as they are dynamic and shouldn't take space if irrelevant
     if (collapsedLoop && currentChart.loop) {
-        loopControls.style.display = 'inline-block';
+        loopControls.style.display = 'flex'; // Changed to flex to match CSS
         
         const loop = currentChart.loop;
         let displayedIter = 0;

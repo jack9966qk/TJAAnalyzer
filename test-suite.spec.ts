@@ -55,9 +55,9 @@ test.describe('Visual Regression', () => {
         await page.click('#test-stream-btn');
         await page.waitForTimeout(500); 
         
-        const judgementsRadio = page.locator('input[name="viewMode"][value="judgements"]');
-        await expect(judgementsRadio).toBeEnabled();
-        await judgementsRadio.check();
+        const judgementsCheckbox = page.locator('#show-judgements-checkbox');
+        await expect(judgementsCheckbox).toBeEnabled();
+        await judgementsCheckbox.check();
 
         await page.evaluate(() => {
             let seed = 12345;
@@ -100,9 +100,14 @@ test.describe('Visual Regression', () => {
         await page.click('#test-stream-btn');
         await page.waitForTimeout(500); 
         
-        const judgementsUnderlineRadio = page.locator('input[name="viewMode"][value="judgements-underline"]');
-        await expect(judgementsUnderlineRadio).toBeEnabled();
-        await judgementsUnderlineRadio.check();
+        // 1. Enable Judgements
+        const judgementsCheckbox = page.locator('#show-judgements-checkbox');
+        await expect(judgementsCheckbox).toBeEnabled();
+        await judgementsCheckbox.check();
+        
+        // 2. Select Underline Style
+        const underlineRadio = page.locator('input[name="judgementStyle"][value="underline"]');
+        await underlineRadio.check();
 
         await page.evaluate(() => {
             let seed = 12345;
@@ -145,13 +150,14 @@ test.describe('Visual Regression', () => {
         await page.click('#test-stream-btn');
         await page.waitForTimeout(500); 
         
-        const judgementsRadio = page.locator('input[name="viewMode"][value="judgements"]');
-        await expect(judgementsRadio).toBeEnabled();
-        await judgementsRadio.check();
+        // 1. Enable Judgements
+        const judgementsCheckbox = page.locator('#show-judgements-checkbox');
+        await expect(judgementsCheckbox).toBeEnabled();
+        await judgementsCheckbox.check();
         
-        const gradientCheckbox = page.locator('#gradient-coloring-checkbox');
-        await expect(gradientCheckbox).toBeEnabled();
-        await gradientCheckbox.check();
+        // 2. Select Gradient Coloring
+        const gradientRadio = page.locator('input[name="judgementColoring"][value="gradient"]');
+        await gradientRadio.check();
 
         await page.evaluate(() => {
             let seed = 12345;
