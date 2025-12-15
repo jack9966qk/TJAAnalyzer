@@ -121,9 +121,12 @@ function calculateGlobalBarStartIndices(bars: string[][]): number[] {
 }
 
 function calculateLayout(virtualBars: RenderBarInfo[], chart: ParsedChart, logicalCanvasWidth: number): { layouts: BarLayout[], constants: any, totalHeight: number } {
-    // 1. Determine Base Dimensions (Reference 4/4 Bar)
-    // We treat the "standard" width as if 4 bars fit in the row.
-    const baseBarWidth: number = (logicalCanvasWidth - (PADDING * 2)) / BARS_PER_ROW;
+    // 1. Determine Base Dimensions
+    // The full canvas width (minus padding) represents 16 beats (4 bars of 4/4).
+    const availableWidth = logicalCanvasWidth - (PADDING * 2);
+    // Base width is width of one 4/4 bar (4 beats). 16 beats fit in availableWidth.
+    // So 4 base bars fit in availableWidth.
+    const baseBarWidth: number = availableWidth / BARS_PER_ROW;
     
     // Ratios apply to the BASE width to ensure consistent height and note sizes
     const BAR_HEIGHT: number = baseBarWidth * RATIOS.BAR_HEIGHT;
@@ -148,13 +151,20 @@ function calculateLayout(virtualBars: RenderBarInfo[], chart: ParsedChart, logic
     const layouts: BarLayout[] = [];
     let currentRowX = 0;
     let rowIndex = 0;
-    let colIndex = 0; // Count in current row
 
     for (const info of virtualBars) {
         // Determine width based on measure
         const params = chart.barParams[info.originalIndex];
         const measureRatio = params ? params.measureRatio : 1.0;
         const actualBarWidth = baseBarWidth * measureRatio;
+
+        // Wrap logic:
+        // If current row is NOT empty, and adding this bar exceeds available width...
+        // Use a small epsilon for float comparison safety
+        if (currentRowX > 0 && (currentRowX + actualBarWidth > availableWidth + 1.0)) {
+            rowIndex++;
+            currentRowX = 0;
+        }
 
         const x = PADDING + currentRowX;
         const y = PADDING + (rowIndex * (BAR_HEIGHT + ROW_SPACING));
@@ -167,25 +177,8 @@ function calculateLayout(virtualBars: RenderBarInfo[], chart: ParsedChart, logic
         });
 
         currentRowX += actualBarWidth;
-        colIndex++;
-
-        // Wrap every 4 bars (strict count wrapping)
-        if (colIndex >= BARS_PER_ROW) {
-            colIndex = 0;
-            currentRowX = 0;
-            rowIndex++;
-        }
     }
 
-    const totalRows = Math.ceil(virtualBars.length / BARS_PER_ROW);
-    // If the last row was just started (colIndex=0), we might have incremented rowIndex?
-    // The loop increments rowIndex AFTER filling the row.
-    // If we ended exactly at end of row, colIndex=0, rowIndex incremented. totalRows should be rowIndex.
-    // If we have remaining items (colIndex > 0), totalRows should be rowIndex + 1.
-    // Actually, simple calculation:
-    // If virtualBars is empty, 0 height.
-    // Layout logic:
-    // y max is based on the LAST item's y + height.
     const totalHeight = layouts.length > 0 
         ? layouts[layouts.length - 1].y + BAR_HEIGHT + PADDING 
         : PADDING * 2;
