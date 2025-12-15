@@ -13,7 +13,7 @@ let selectedLoopIteration: number | undefined = undefined;
 let loadedTJAContent: string = exampleTJA;
 
 // Application State
-let appMode: 'manual' | 'stream' | 'none' = 'none';
+let activeDataSourceMode: string = 'example';
 let isSimulating: boolean = false;
 
 // Judgement State
@@ -22,7 +22,7 @@ let judgements: string[] = [];
 let judgementDeltas: (number | undefined)[] = []; // Store deltas
 
 // UI Elements
-const statusDisplay = document.getElementById('status-display') as HTMLDivElement;
+const statusDisplay = document.getElementById('status-display') as HTMLElement;
 const noteStatsDisplay = document.getElementById('note-stats-display') as HTMLDivElement;
 const judgementsRadio = document.getElementById('judgements-radio') as HTMLInputElement;
 const judgementsUnderlineRadio = document.getElementById('judgements-underline-radio') as HTMLInputElement;
@@ -38,9 +38,14 @@ const loopPrevBtn = document.getElementById('loop-prev') as HTMLButtonElement;
 const loopNextBtn = document.getElementById('loop-next') as HTMLButtonElement;
 const loopCounter = document.getElementById('loop-counter') as HTMLSpanElement;
 
-const manualLoadFieldset = document.getElementById('manual-load-fieldset') as HTMLFieldSetElement;
-const eventStreamFieldset = document.getElementById('event-stream-fieldset') as HTMLFieldSetElement;
-const clearManualBtn = document.getElementById('clear-manual-btn') as HTMLButtonElement;
+// Data Source UI
+const dsTabs = document.querySelectorAll('.ds-tab');
+const dsPanes = document.querySelectorAll('.ds-pane');
+const dsCollapseBtn = document.getElementById('ds-collapse-btn') as HTMLButtonElement;
+const dsBody = document.getElementById('ds-body') as HTMLDivElement;
+const loadExampleBtn = document.getElementById('load-example-btn') as HTMLButtonElement;
+
+const tjaFilePicker = document.getElementById('tja-file-picker') as HTMLInputElement;
 const hostInput = document.getElementById('host-input') as HTMLInputElement;
 const portInput = document.getElementById('port-input') as HTMLInputElement;
 const connectBtn = document.getElementById('connect-btn') as HTMLButtonElement;
@@ -58,33 +63,46 @@ function updateNoteStats(html: string) {
     }
 }
 
+function switchDataSourceMode(mode: string) {
+    activeDataSourceMode = mode;
+    console.log(`Switching data source mode to: ${mode}`);
 
+    // Update Tabs
+    dsTabs.forEach(t => {
+        if (t.getAttribute('data-mode') === mode) t.classList.add('active');
+        else t.classList.remove('active');
+    });
 
-function updateMode(newMode: 'manual' | 'stream' | 'none') {
-    appMode = newMode;
-    console.log(`Switching mode to: ${appMode}`);
+    // Update Panes
+    dsPanes.forEach(p => {
+        if (p.id === `tab-${mode}`) {
+             (p as HTMLElement).style.display = 'block';
+        } else {
+             (p as HTMLElement).style.display = 'none';
+        }
+    });
 
-    if (appMode === 'manual') {
-        manualLoadFieldset.classList.remove('disabled');
-        eventStreamFieldset.classList.add('disabled');
-        if (clearManualBtn) clearManualBtn.disabled = false;
-        
-        if (connectBtn) connectBtn.disabled = true;
-        if (testStreamBtn) testStreamBtn.disabled = true;
-    } else if (appMode === 'stream') {
-        manualLoadFieldset.classList.add('disabled');
-        eventStreamFieldset.classList.remove('disabled');
-        if (clearManualBtn) clearManualBtn.disabled = true;
+    // Logic: Disconnect if moving away from stream/test and currently connected
+    if (mode !== 'stream' && mode !== 'test') {
+        // Check if connected
+        if (connectBtn && (connectBtn.innerText === 'Disconnect' || isSimulating)) {
+            judgementClient.disconnect();
+        }
+    }
 
-        if (connectBtn) connectBtn.disabled = false;
-        // testStreamBtn logic handled separately based on connection type
-    } else { // none
-        manualLoadFieldset.classList.remove('disabled');
-        eventStreamFieldset.classList.remove('disabled');
-        if (clearManualBtn) clearManualBtn.disabled = true;
-        
-        if (connectBtn) connectBtn.disabled = false;
-        if (testStreamBtn) testStreamBtn.disabled = false;
+    // Difficulty Selector Visibility
+    if (difficultySelectorContainer) {
+        if (mode === 'stream') {
+            difficultySelectorContainer.hidden = true;
+        } else {
+            // Show only if charts are parsed
+            difficultySelectorContainer.hidden = !parsedTJACharts;
+        }
+    }
+    
+    // Clear picker if leaving file mode? Optional.
+    if (mode !== 'file' && tjaFilePicker) {
+        // tjaFilePicker.value = ''; // Maybe keep it for convenience
     }
 }
 
@@ -215,8 +233,6 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
                             s = `<b>${s}</b>`;
                         }
                         deltasStrings.push(s);
-                    } else {
-                         // unreached
                     }
                 }
                 
@@ -308,15 +324,86 @@ function init(): void {
         return;
     }
 
-    // Initial UI State
+    // Initial State
     judgementsRadio.disabled = true;
     judgementsUnderlineRadio.disabled = true;
     if (gradientColoringCheckbox) gradientColoringCheckbox.disabled = true;
-    updateStatus('Using placeholder chart');
-    renderStats(null, null, false, 'original', [], 'categorical');
-    updateMode('none');
+    
+    // Setup Data Source Tabs
+    dsTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const mode = tab.getAttribute('data-mode');
+            if (mode) switchDataSourceMode(mode);
+        });
+    });
 
-    // Setup view mode controls
+    // Setup Collapse Button
+    if (dsCollapseBtn && dsBody) {
+        dsCollapseBtn.addEventListener('click', () => {
+            if (dsBody.classList.contains('collapsed')) {
+                dsBody.classList.remove('collapsed');
+                dsCollapseBtn.innerText = "Hide Controls";
+            } else {
+                dsBody.classList.add('collapsed');
+                dsCollapseBtn.innerText = "Show Controls";
+            }
+        });
+    }
+
+    // Setup Load Example Button
+    if (loadExampleBtn) {
+        loadExampleBtn.addEventListener('click', () => {
+            loadedTJAContent = exampleTJA;
+            updateParsedCharts(loadedTJAContent);
+            updateStatus('Example chart loaded');
+        });
+    }
+
+    // Setup File Picker
+    if (tjaFilePicker) {
+        tjaFilePicker.addEventListener('change', async (event) => {
+            const files = (event.target as HTMLInputElement).files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                try {
+                    const content = await file.text();
+                    loadedTJAContent = content;
+                    updateParsedCharts(content);
+                    updateStatus('Loaded local TJA file');
+                } catch (e) {
+                    console.error("Error parsing TJA file:", e);
+                    alert("Failed to parse TJA file. See console for details.");
+                }
+            }
+        });
+    }
+
+    // Setup Stream Controls
+    if (connectBtn && hostInput && portInput) {
+        connectBtn.addEventListener('click', () => {
+            if (connectBtn.innerText === 'Disconnect' || connectBtn.innerText === 'Connected') {
+                judgementClient.disconnect();
+            } else {
+                const host = hostInput.value;
+                const port = parseInt(portInput.value, 10);
+                if (host && port) {
+                    judgementClient.connect(host, port);
+                } else {
+                    alert("Please enter valid Host and Port.");
+                }
+            }
+        });
+    }
+
+    if (testStreamBtn) {
+        testStreamBtn.addEventListener('click', () => {
+            isSimulating = true;
+            // Use currently loaded content and selected difficulty
+            judgementClient.startSimulation(loadedTJAContent, difficultySelector.value);
+        });
+    }
+
+    // View Mode Controls
     const viewModeRadios = document.querySelectorAll('input[name="viewMode"]');
     viewModeRadios.forEach(radio => {
         radio.addEventListener('change', (event) => {
@@ -333,17 +420,6 @@ function init(): void {
         gradientColoringCheckbox.addEventListener('change', (event) => {
             judgementColoringMode = (event.target as HTMLInputElement).checked ? 'gradient' : 'categorical';
             refreshChart();
-            // Re-render stats if a note is currently selected?
-            // The mousemove handler will trigger re-render on next move. 
-            // We can trigger it manually if needed, but it's fine.
-        });
-    }
-
-    if (collapseLoopCheckbox) {
-        collapseLoopCheckbox.addEventListener('change', (event) => {
-            collapsedLoop = (event.target as HTMLInputElement).checked;
-            refreshChart();
-            renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
         });
     }
 
@@ -361,8 +437,6 @@ function init(): void {
             if (loopAutoCheckbox.checked) {
                 selectedLoopIteration = undefined;
             } else {
-                // When unchecking auto, default to current logic's "latest" or 0
-                // For now, just set to what was displayed or 0
                 const matches = loopCounter.innerText.match(/(\d+) \/ (\d+)/);
                 if (matches) {
                      selectedLoopIteration = parseInt(matches[1]) - 1;
@@ -385,7 +459,6 @@ function init(): void {
 
     if (loopNextBtn) {
         loopNextBtn.addEventListener('click', () => {
-             // We need max iterations. Retrieve from loop counter or chart
              if (currentChart && currentChart.loop && selectedLoopIteration !== undefined && selectedLoopIteration < currentChart.loop.iterations - 1) {
                  selectedLoopIteration++;
                  refreshChart();
@@ -398,7 +471,6 @@ function init(): void {
         if (!currentChart) return;
         
         const rect = canvas.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
         
@@ -416,49 +488,22 @@ function init(): void {
     canvas.addEventListener('mousemove', handleCanvasInteraction);
     canvas.addEventListener('click', handleCanvasInteraction);
 
-    if (connectBtn && hostInput && portInput) {
-        connectBtn.addEventListener('click', () => {
-            if (connectBtn.innerText === 'Disconnect' || connectBtn.innerText === 'Connected') {
-                judgementClient.disconnect();
-            } else {
-                const host = hostInput.value;
-                const port = parseInt(portInput.value, 10);
-                if (host && port) {
-                    judgementClient.connect(host, port);
-                } else {
-                    alert("Please enter valid Host and Port.");
-                }
-            }
-        });
-    }
+    difficultySelector.addEventListener('change', () => {
+        if (parsedTJACharts) {
+            const selectedDifficulty = difficultySelector.value;
+            currentChart = parsedTJACharts[selectedDifficulty];
+            refreshChart();
+        }
+    });
 
-    if (testStreamBtn) {
-        testStreamBtn.addEventListener('click', () => {
-            isSimulating = true;
-            // When simulation starts, it will trigger status change to Connected
-            judgementClient.startSimulation(loadedTJAContent, difficultySelector.value);
-        });
-    }
-    
-    // Setup Clear Button
-    if (clearManualBtn) {
-        clearManualBtn.addEventListener('click', () => {
-            const tjaFilePicker = document.getElementById('tja-file-picker') as HTMLInputElement;
-            if (tjaFilePicker) tjaFilePicker.value = '';
-            updateMode('none');
-            updateStatus('Manual load cleared. Select a file or connect to stream.');
-        });
-    }
-
-    // Setup Judgement Client Callbacks
+    // Judgement Client Callbacks
     judgementClient.onMessage(async (event: ServerEvent) => {
         if (event.type === 'gameplay_start') {
-            console.log("Gameplay Start Event Received - Resetting Judgements");
+            console.log("Gameplay Start Event Received");
             judgements = [];
-            judgementDeltas = []; // Reset deltas
+            judgementDeltas = [];
             currentChart = null;
-
-            updateStatus('Receiving data from event stream');
+            updateStatus('Receiving data...');
 
             if (event.tjaSummaries && event.tjaSummaries.length > 0) {
                 const sortedSummaries = [...event.tjaSummaries].sort((a, b) => a.player - b.player);
@@ -470,9 +515,9 @@ function init(): void {
                         const difficulty = firstSummary.difficulty.toLowerCase();
                         if (charts[difficulty]) {
                             currentChart = charts[difficulty];
+                            parsedTJACharts = charts; // Update global parsed for reference
                         } else {
-                            console.error(`Difficulty '${difficulty}' not found in TJA content.`);
-                            // Don't alert in loop
+                            console.error(`Difficulty '${difficulty}' not found.`);
                         }
                     } catch (e) {
                         console.error("Error parsing TJA content:", e);
@@ -482,13 +527,12 @@ function init(): void {
             refreshChart();
         } else if (event.type === 'judgement') {
             judgements.push(event.judgement);
-            judgementDeltas.push(event.msDelta); // Store delta
+            judgementDeltas.push(event.msDelta);
             refreshChart();
         }
     });
 
     judgementClient.onStatusChange((status: string) => {
-        console.log("Judgement Client Status:", status);
         if (connectBtn) {
             connectBtn.innerText = status === 'Connected' ? 'Disconnect' : 'Connect';
         }
@@ -497,16 +541,15 @@ function init(): void {
             judgementsRadio.disabled = false;
             judgementsUnderlineRadio.disabled = false;
             if (gradientColoringCheckbox) gradientColoringCheckbox.disabled = false;
-            updateMode('stream');
             
             if (isSimulating) {
-                updateStatus('Simulating event stream...');
+                updateStatus('Simulating Stream: Connected');
             } else {
-                updateStatus('Connected to event stream. Waiting for data...');
+                updateStatus('Stream: Connected');
                 if (testStreamBtn) testStreamBtn.disabled = true;
             }
         } else if (status === 'Connecting...') {
-            updateStatus('Connecting to event stream...');
+            updateStatus('Connecting...');
             if (testStreamBtn) testStreamBtn.disabled = true;
             if (connectBtn) connectBtn.disabled = true;
         } else { // Disconnected
@@ -514,122 +557,56 @@ function init(): void {
             judgementsUnderlineRadio.disabled = true;
             if (gradientColoringCheckbox) gradientColoringCheckbox.disabled = true;
             
-            // Only switch to 'none' if we were in stream mode, to avoid resetting manual logic if called unexpectedly
-            if (appMode === 'stream') {
-                updateMode('none');
-            }
-            
+            // Re-enable controls if we were in test mode
+             if (testStreamBtn) testStreamBtn.disabled = false;
+             if (connectBtn) connectBtn.disabled = false;
+
             if (currentViewMode === 'judgements' || currentViewMode === 'judgements-underline') {
                 originalRadio.checked = true;
                 currentViewMode = 'original';
                 refreshChart();
             }
-            updateStatus('Disconnected from event stream');
+            
+            updateStatus(isSimulating ? 'Simulation Stopped' : 'Disconnected');
             isSimulating = false;
         }
     });
 
-    // Setup file pickers
-    const tjaFilePicker = document.getElementById('tja-file-picker') as HTMLInputElement;
-    if (tjaFilePicker) {
-        tjaFilePicker.addEventListener('change', async (event) => {
-            const files = (event.target as HTMLInputElement).files;
-            if (files && files.length > 0) {
-                const file = files[0];
-                try {
-                    const content = await file.text();
-                    loadedTJAContent = content;
-                    parsedTJACharts = parseTJA(content);
+    // Initial Load
+    switchDataSourceMode('example');
+    // Load example by default
+    updateStatus('Ready');
+    // We don't auto-click load-example, but maybe we should to show something?
+    // The previous code loaded example on start.
+    loadExampleBtn.click();
+}
 
-                    difficultySelector.innerHTML = ''; // Clear previous options
-                    const difficulties = Object.keys(parsedTJACharts);
-                    difficulties.forEach(diff => {
-                        const option = document.createElement('option');
-                        option.value = diff;
-                        option.innerText = diff.charAt(0).toUpperCase() + diff.slice(1);
-                        difficultySelector.appendChild(option);
-                    });
-
-                    difficultySelectorContainer.hidden = false;
-
-                    let defaultDifficulty = 'edit';
-                    if (!parsedTJACharts[defaultDifficulty]) {
-                        defaultDifficulty = 'oni';
-                    }
-                    if (!parsedTJACharts[defaultDifficulty]) {
-                        defaultDifficulty = difficulties[0];
-                    }
-
-                    difficultySelector.value = defaultDifficulty;
-                    currentChart = parsedTJACharts[defaultDifficulty];
-
-                    updateStatus('Displaying manually loaded TJA file');
-                    updateMode('manual'); // Switch to manual mode
-                    refreshChart();
-                } catch (e) {
-                    console.error("Error parsing TJA file:", e);
-                    alert("Failed to parse TJA file. See console for details.");
-                }
-            }
-        });
-    }
-
-    difficultySelector.addEventListener('change', () => {
-        if (parsedTJACharts) {
-            const selectedDifficulty = difficultySelector.value;
-            currentChart = parsedTJACharts[selectedDifficulty];
-            refreshChart();
-        }
+function updateParsedCharts(content: string) {
+    parsedTJACharts = parseTJA(content);
+    
+    difficultySelector.innerHTML = '';
+    const difficulties = Object.keys(parsedTJACharts);
+    difficulties.forEach(diff => {
+        const option = document.createElement('option');
+        option.value = diff;
+        option.innerText = diff.charAt(0).toUpperCase() + diff.slice(1);
+        difficultySelector.appendChild(option);
     });
 
-    // Expose for testing
-    (window as any).setJudgements = (newJudgements: string[], newDeltas?: (number | undefined)[]) => {
-        judgements = newJudgements;
-        judgementDeltas = newDeltas || [];
-        refreshChart();
-    };
-
-    try {
-        console.log("Starting TJA Analyzer...");
-        parsedTJACharts = parseTJA(exampleTJA);
-        
+    if (difficulties.length > 0) {
         let defaultDifficulty = 'edit';
-        if (!parsedTJACharts[defaultDifficulty]) {
-            defaultDifficulty = 'oni';
-        }
-        if (!parsedTJACharts[defaultDifficulty]) {
-            defaultDifficulty = Object.keys(parsedTJACharts)[0];
-        }
+        if (!parsedTJACharts[defaultDifficulty]) defaultDifficulty = 'oni';
+        if (!parsedTJACharts[defaultDifficulty]) defaultDifficulty = difficulties[0];
+        
+        difficultySelector.value = defaultDifficulty;
         currentChart = parsedTJACharts[defaultDifficulty];
-
-        console.log(`Parsed ${Object.keys(parsedTJACharts).length} difficulties.`);
-
-        // Populate and show difficulty selector
-        difficultySelector.innerHTML = '';
-        const difficulties = Object.keys(parsedTJACharts);
-        difficulties.forEach(diff => {
-            const option = document.createElement('option');
-            option.value = diff;
-            option.innerText = diff.charAt(0).toUpperCase() + diff.slice(1);
-            difficultySelector.appendChild(option);
-        });
-        if (difficulties.length > 0) {
-            difficultySelector.value = defaultDifficulty;
-            difficultySelectorContainer.hidden = false;
-        }
-
-        refreshChart();
-    } catch (e: unknown) {
-        console.error("Error:", e);
-        const container = document.getElementById('app');
-        if (container) {
-            if (e instanceof Error) {
-                container.innerHTML += `<div class="error">Error: ${e.message}</div>`;
-            } else {
-                container.innerHTML += `<div class="error">An unknown error occurred.</div>`;
-            }
-        }
+        difficultySelectorContainer.hidden = false;
+    } else {
+        difficultySelectorContainer.hidden = true;
     }
+
+    refreshChart();
+    renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
 }
 
 function updateLoopControls() {
@@ -641,30 +618,21 @@ function updateLoopControls() {
         const loop = currentChart.loop;
         let displayedIter = 0;
 
-        // Calculate what renderer would choose if auto
         if (selectedLoopIteration === undefined) {
              loopAutoCheckbox.checked = true;
              loopPrevBtn.disabled = true;
              loopNextBtn.disabled = true;
 
-             // Logic duplicated from renderer for display purpose
              if ((currentViewMode === 'judgements' || currentViewMode === 'judgements-underline') && judgements.length > 0) {
                 let notesPerLoop = 0;
                 let preLoopNotes = 0;
-                // Pre-loop note count
                 for(let i=0; i<loop.startBarIndex; i++) {
                      const bar = currentChart.bars[i];
-                     if(bar) {
-                         for(const c of bar) if(['1','2','3','4'].includes(c)) preLoopNotes++;
-                     }
+                     if(bar) for(const c of bar) if(['1','2','3','4'].includes(c)) preLoopNotes++;
                 }
-                
-                // Notes per loop
                 for(let k=0; k<loop.period; k++) {
                      const bar = currentChart.bars[loop.startBarIndex+k];
-                     if(bar) {
-                         for(const c of bar) if(['1','2','3','4'].includes(c)) notesPerLoop++;
-                     }
+                     if(bar) for(const c of bar) if(['1','2','3','4'].includes(c)) notesPerLoop++;
                 }
 
                 const lastJudgedIndex = judgements.length - 1;
@@ -680,7 +648,6 @@ function updateLoopControls() {
              loopNextBtn.disabled = (displayedIter >= loop.iterations - 1);
         }
 
-        // Clamp display
         if (displayedIter < 0) displayedIter = 0;
         if (displayedIter >= loop.iterations) displayedIter = loop.iterations - 1;
 
@@ -701,7 +668,6 @@ function getGapInfo(chart: ParsedChart, currentBarIdx: number, currentCharIdx: n
     const currentBar = chart.bars[currentBarIdx];
     const currentTotal = currentBar.length;
     
-    // Look backwards in current bar
     for (let i = currentCharIdx - 1; i >= 0; i--) {
         if (['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(currentBar[i])) {
             const prevPos = i / currentTotal;
@@ -711,19 +677,10 @@ function getGapInfo(chart: ParsedChart, currentBarIdx: number, currentCharIdx: n
         }
     }
     
-    // Look in previous bars
     for (let b = currentBarIdx - 1; b >= 0; b--) {
         const prevBar = chart.bars[b];
         if (!prevBar || prevBar.length === 0) {
-            // Check if accumulated gap > 1.0 (approximated)
-            // Just counting empty bars for now, but really need to track total time.
-            // Since we iterate, we can calculate precisely.
-            
-            // Distance = (Pos in Current) + (Empty Bars) + (1 - Pos in Prev)?
             const minGap = (currentCharIdx / currentTotal) + (currentBarIdx - b); 
-            // If prevBar is empty, we effectively added 1.0. 
-            // If minGap > 1.0, stop.
-            // Actually, if prevBar is empty, we continue to check the one before it.
             if (minGap > 1.0 + 0.001) return null;
             continue;
         }
@@ -734,7 +691,7 @@ function getGapInfo(chart: ParsedChart, currentBarIdx: number, currentCharIdx: n
             if (['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(prevBar[i])) {
                 const distInCurrent = currentCharIdx / currentTotal;
                 const distBetween = (currentBarIdx - b - 1) * 1.0; 
-                const distInPrev = (prevTotal - i) / prevTotal; // Remaining part
+                const distInPrev = (prevTotal - i) / prevTotal; 
                 
                 const totalGap = distInCurrent + distBetween + distInPrev;
                 
@@ -785,5 +742,13 @@ window.addEventListener('resize', () => {
         refreshChart();
     }, 100);
 });
+
+// Expose for testing
+(window as any).setJudgements = (newJudgements: string[], newDeltas?: (number | undefined)[]) => {
+    judgements = newJudgements;
+    judgementDeltas = newDeltas || [];
+    refreshChart();
+    renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
+};
 
 init();

@@ -10,44 +10,61 @@
     <div id="app">
         <h1>TJA Analyzer</h1>
         
-        <div id="source-controls">
-            <fieldset id="manual-load-fieldset" class="source-fieldset">
-                <legend>Manual Chart Load</legend>
-                <div class="controls">
-                    <div class="control-group">
-                        <label for="tja-file-picker">Load TJA File:</label>
-                        <input type="file" id="tja-file-picker" accept=".tja">
-                        <button id="clear-manual-btn" disabled>Clear</button>
+        <div id="data-source-panel">
+            <div class="ds-header">
+                <div class="ds-header-left">
+                    <h2>Data Source</h2>
+                    <span id="status-display">Initializing...</span>
+                </div>
+                <button id="ds-collapse-btn">Hide Controls</button>
+            </div>
+            
+            <div id="ds-body">
+                <div class="ds-tabs">
+                    <button class="ds-tab" data-mode="example">Example</button>
+                    <button class="ds-tab" data-mode="file">Local File</button>
+                    <button class="ds-tab" data-mode="stream">Remote Stream</button>
+                    <button class="ds-tab" data-mode="test">Test Stream</button>
+                </div>
+
+                <div class="ds-content">
+                    <!-- Example Mode -->
+                    <div id="tab-example" class="ds-pane">
+                        <p>Load the built-in example chart for demonstration.</p>
+                        <button id="load-example-btn">Load Example Data</button>
                     </div>
-                    <div id="difficulty-selector-container" hidden>
+
+                    <!-- File Mode -->
+                    <div id="tab-file" class="ds-pane" style="display:none;">
                         <div class="control-group">
-                            <label for="difficulty-selector">Difficulty:</label>
-                            <select id="difficulty-selector"></select>
+                            <label for="tja-file-picker">Select TJA File:</label>
+                            <input type="file" id="tja-file-picker" accept=".tja">
                         </div>
                     </div>
-                </div>
-            </fieldset>
 
-            <div class="separator">OR</div>
+                    <!-- Stream Mode -->
+                    <div id="tab-stream" class="ds-pane" style="display:none;">
+                        <div class="control-group">
+                            <label>Host: <input type="text" id="host-input" value="127.0.0.1"></label>
+                            <label>Port: <input type="number" id="port-input" value="2354"></label>
+                            <button id="connect-btn">Connect</button>
+                        </div>
+                    </div>
 
-            <fieldset id="event-stream-fieldset" class="source-fieldset">
-                <legend>Event Stream</legend>
-                <div class="controls">
-                    <div class="control-group">
-                        <label>Host: <input type="text" id="host-input" value="127.0.0.1"></label>
+                    <!-- Test Mode -->
+                    <div id="tab-test" class="ds-pane" style="display:none;">
+                        <p>Simulate incoming judgement events on the currently loaded chart.</p>
+                        <button id="test-stream-btn">Start Test Stream</button>
                     </div>
-                    <div class="control-group">
-                        <label>Port: <input type="number" id="port-input" value="2354"></label>
-                    </div>
-                    <div class="control-group">
-                        <button id="connect-btn">Connect</button>
-                        <button id="test-stream-btn">Test Stream</button>
+
+                    <!-- Shared Difficulty Selector -->
+                    <div id="difficulty-selector-container" class="control-group" hidden style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                        <label for="difficulty-selector">Difficulty:</label>
+                        <select id="difficulty-selector"></select>
                     </div>
                 </div>
-            </fieldset>
+            </div>
         </div>
-
-        <div id="status-display"></div>
 
         <div id="sticky-header">
             <fieldset id="display-controls">
