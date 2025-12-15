@@ -186,9 +186,21 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
                     const globalIdx = noteIndexInFirstIter + (iter * notesPerLoop);
                     if (globalIdx < judgementDeltas.length) {
                         const delta = judgementDeltas[globalIdx];
+                        const judge = judgements[globalIdx];
+
                         if (delta !== undefined) deltas.push(delta);
                         
                         let s = delta !== undefined ? delta.toString() : '?';
+
+                        let color = '';
+                        if (judge === 'Perfect') color = '#ffa500';
+                        else if (judge === 'Good') color = '#fff';
+                        else if (judge === 'Poor') color = '#00f';
+
+                        if (color) {
+                            s = `<span style="color: ${color}">${s}</span>`;
+                        }
+
                         if (iter === currentIterationIdx) {
                             s = `<b>${s}</b>`;
                         }
@@ -207,9 +219,20 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
             } else {
                  if (hit.judgeableNoteIndex < judgementDeltas.length) {
                      const delta = judgementDeltas[hit.judgeableNoteIndex];
+                     const judge = judgements[hit.judgeableNoteIndex];
+
                      if (delta !== undefined) {
                          avgDeltaVal = `${delta}ms`;
-                         allDeltasStr = delta.toString();
+                         
+                         let s = delta.toString();
+                         let color = '';
+                         if (judge === 'Perfect') color = '#ffa500';
+                         else if (judge === 'Good') color = '#fff';
+                         else if (judge === 'Poor') color = '#00f';
+
+                         if (color) s = `<span style="color: ${color}">${s}</span>`;
+
+                         allDeltasStr = s;
                      }
                  }
             }
@@ -217,8 +240,17 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
                 // Standard Mode
                 if (hit.judgeableNoteIndex < judgementDeltas.length) {
                     const delta = judgementDeltas[hit.judgeableNoteIndex];
+                    const judge = judgements[hit.judgeableNoteIndex];
+                    
                     if (delta !== undefined) {
                          deltaVal = `${delta}ms`;
+
+                         let color = '';
+                         if (judge === 'Perfect') color = '#ffa500';
+                         else if (judge === 'Good') color = '#fff';
+                         else if (judge === 'Poor') color = '#00f';
+
+                         if (color) deltaVal = `<span style="color: ${color}">${deltaVal}</span>`;
                     }
                 }
         }
