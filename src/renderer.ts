@@ -202,7 +202,7 @@ export interface HitInfo {
     scroll: number;
 }
 
-export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, collapsed: boolean = false, viewMode: 'original' | 'judgements' | 'judgements-underline' = 'original', judgements: string[] = [], targetLoopIteration?: number): HitInfo | null {
+export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, collapsed: boolean = false, viewMode: 'original' | 'judgements' | 'judgements-underline' = 'original', judgements: string[] = [], targetLoopIteration?: number, coloringMode: 'categorical' | 'gradient' = 'categorical'): HitInfo | null {
     const logicalCanvasWidth: number = canvas.clientWidth || 800;
     
     const globalBarStartIndices = calculateGlobalBarStartIndices(chart.bars);
@@ -295,7 +295,33 @@ export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTML
     return null;
 }
 
-export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' | 'judgements-underline' = 'original', judgements: string[] = [], collapsed: boolean = false, targetLoopIteration?: number): void {
+export function getGradientColor(delta: number): string {
+    const clamped = Math.max(-100, Math.min(100, delta));
+    let r, g, b;
+
+    if (clamped < 0) {
+        // -100 (#B0CC35: 176, 204, 53) -> 0 (White: 255, 255, 255)
+        // t: 0 (at -100) -> 1 (at 0)
+        const t = (clamped + 100) / 100;
+        
+        // Lerp from Target to White
+        r = Math.round(176 + (255 - 176) * t);
+        g = Math.round(204 + (255 - 204) * t);
+        b = Math.round(53 + (255 - 53) * t);
+    } else {
+        // 0 (White: 255, 255, 255) -> 100 (#952CD1: 149, 44, 209)
+        // t: 0 (at 0) -> 1 (at 100)
+        const t = clamped / 100;
+
+        // Lerp from White to Target
+        r = Math.round(255 + (149 - 255) * t);
+        g = Math.round(255 + (44 - 255) * t);
+        b = Math.round(255 + (209 - 255) * t);
+    }
+    return `rgb(${r}, ${g}, ${b})`;
+}
+
+export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' | 'judgements-underline' = 'original', judgements: string[] = [], collapsed: boolean = false, targetLoopIteration?: number, judgementDeltas: (number | undefined)[] = [], coloringMode: 'categorical' | 'gradient' = 'categorical'): void {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
         console.error("2D rendering context not found for canvas.");
@@ -354,7 +380,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewM
             ? info.overrideStartIndex 
             : globalBarStartIndices[info.originalIndex];
 
-        drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, viewMode, startIndex, judgements);
+        drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, viewMode, startIndex, judgements, judgementDeltas, info.originalIndex, bars, collapsed ? loop : undefined, coloringMode);
     }
 }
 
@@ -602,7 +628,12 @@ function drawCapsule(ctx: CanvasRenderingContext2D, startX: number, endX: number
 }
 
 
-function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, viewMode: 'original' | 'judgements' | 'judgements-underline', startIndex: number, judgements: string[]): void {
+function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, viewMode: 'original' | 'judgements' | 'judgements-underline', startIndex: number, judgements: string[], judgementDeltas: (number | undefined)[] = [], originalBarIndex: number = -1, bars: string[][] = [], loopInfo?: LoopInfo, coloringMode: 'categorical' | 'gradient' = 'categorical'): void {
+    // DEBUG LOG
+    if (originalBarIndex === 0 && (viewMode === 'judgements' || viewMode === 'judgements-underline')) {
+        console.log(`drawBarNotes Bar 0: mode=${coloringMode}, deltasLen=${judgementDeltas.length}, judgementsLen=${judgements.length}`);
+    }
+
     const centerY: number = y + height / 2;
     const noteCount: number = bar.length;
     if (noteCount === 0) return;
@@ -619,13 +650,107 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
         }
     }
 
+    // Pre-calculate colors for judgeable notes if needed
+    const noteColors: (string | null)[] = new Array(noteCount).fill(null);
+    
+    if (viewMode === 'judgements' || viewMode === 'judgements-underline') {
+        for(let i = 0; i < noteCount; i++) {
+            const globalIndex = judgeableIndicesInBar[i];
+            if (globalIndex === null) continue;
+
+            if (coloringMode === 'gradient') {
+                 // Gradient Logic (with Loop Averaging)
+                 let effectiveDelta: number | undefined;
+                 let isValidJudge = false;
+                 let isJudgedButMiss = false; // "None of perfect, good or poor"
+
+                 if (loopInfo && originalBarIndex >= loopInfo.startBarIndex && originalBarIndex < loopInfo.startBarIndex + loopInfo.period) {
+                      // Collapsed Loop
+                      let preLoopNotes = 0;
+                      for(let b=0; b<loopInfo.startBarIndex; b++) {
+                           const bBar = bars[b];
+                           if(bBar) for(const c of bBar) if(['1','2','3','4'].includes(c)) preLoopNotes++;
+                      }
+                      let notesPerLoop = 0;
+                      for(let k=0; k<loopInfo.period; k++) {
+                           const bBar = bars[loopInfo.startBarIndex+k];
+                           if(bBar) for(const c of bBar) if(['1','2','3','4'].includes(c)) notesPerLoop++;
+                      }
+
+                      if (globalIndex >= preLoopNotes && notesPerLoop > 0) {
+                           const offsetFromLoopStart = globalIndex - preLoopNotes;
+                           const noteIndexInLoop = offsetFromLoopStart % notesPerLoop;
+                           
+                           let sum = 0;
+                           let count = 0;
+                           let judgedCount = 0;
+
+                           for(let iter=0; iter<loopInfo.iterations; iter++) {
+                                const gIdx = preLoopNotes + noteIndexInLoop + (iter * notesPerLoop);
+                                if (gIdx < judgements.length) {
+                                     judgedCount++;
+                                     const j = judgements[gIdx];
+                                     if (j === 'Perfect' || j === 'Good' || j === 'Poor') {
+                                          const d = judgementDeltas[gIdx];
+                                          if (d !== undefined) {
+                                               sum += d;
+                                               count++;
+                                          }
+                                     }
+                                }
+                           }
+
+                           if (count > 0) {
+                                effectiveDelta = sum / count;
+                                isValidJudge = true;
+                           } else if (judgedCount > 0) {
+                                // Judged but no valid delta (e.g. all Misses)
+                                isJudgedButMiss = true;
+                           }
+                      }
+                 } else {
+                      // Standard
+                      if (globalIndex < judgements.length) {
+                           const j = judgements[globalIndex];
+                           if (j === 'Perfect' || j === 'Good' || j === 'Poor') {
+                                effectiveDelta = judgementDeltas[globalIndex];
+                                if (effectiveDelta !== undefined) isValidJudge = true;
+                           } else {
+                                isJudgedButMiss = true;
+                           }
+                      }
+                 }
+
+                 if (isValidJudge && effectiveDelta !== undefined) {
+                      noteColors[i] = getGradientColor(effectiveDelta);
+                 } else if (isJudgedButMiss) {
+                      noteColors[i] = '#555'; // Dark Grey
+                 }
+                 // Else null (Unjudged)
+
+            } else {
+                // Categorical Logic
+                // For Collapsed Loop in Categorical mode, we use the specific iteration's judgment 
+                // which corresponds to 'globalIndex' (calculated via overrideStartIndex in RenderChart)
+                // So standard lookup works.
+                if (globalIndex < judgements.length) {
+                    const judge = judgements[globalIndex];
+                    if (judge === 'Perfect') noteColors[i] = '#ffa500';
+                    else if (judge === 'Good') noteColors[i] = '#fff';
+                    else if (judge === 'Poor') noteColors[i] = '#00f';
+                    // Miss is null
+                }
+            }
+        }
+    }
+
     // Phase 1: Draw Underlines (Judgements Underline Mode only)
     if (viewMode === 'judgements-underline') {
         const barBottom = y + height;
         const lineY = barBottom + (height * 0.1); // Slightly below bar
         const lineWidth = height * 0.15; // Visible thickness
         
-        // Pass 1.1: Draw Black Borders (Backwards iteration to match requested layering)
+        // Pass 1.1: Draw Black Borders (Backwards iteration)
         ctx.save();
         ctx.lineCap = 'round';
         ctx.strokeStyle = '#000';
@@ -636,19 +761,15 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
             // Only for judgeable notes
             if (!['1', '2', '3', '4'].includes(noteChar)) continue;
             
-            const globalIndex = judgeableIndicesInBar[i];
-            if (globalIndex !== null && globalIndex < judgements.length) {
+            // Only draw if we have a valid color
+            if (noteColors[i]) {
                 const noteX: number = x + (i * noteStep);
                 let radius = (['3', '4'].includes(noteChar)) ? rBig : rSmall;
 
-                const judge = judgements[globalIndex];
-                // Only draw if valid judge
-                if (judge === 'Perfect' || judge === 'Good' || judge === 'Poor') {
-                    ctx.beginPath();
-                    ctx.moveTo(noteX - radius, lineY);
-                    ctx.lineTo(noteX + radius, lineY);
-                    ctx.stroke();
-                }
+                ctx.beginPath();
+                ctx.moveTo(noteX - radius, lineY);
+                ctx.lineTo(noteX + radius, lineY);
+                ctx.stroke();
             }
         }
         ctx.restore();
@@ -662,34 +783,24 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
             const noteChar = bar[i];
             if (!['1', '2', '3', '4'].includes(noteChar)) continue;
 
-            const globalIndex = judgeableIndicesInBar[i];
-            if (globalIndex !== null && globalIndex < judgements.length) {
+            const color = noteColors[i];
+            if (color) {
                 const noteX: number = x + (i * noteStep);
                 let radius = (['3', '4'].includes(noteChar)) ? rBig : rSmall;
 
-                const judge = judgements[globalIndex];
-                let underlineColor: string | null = null;
-                if (judge === 'Perfect') underlineColor = '#ffa500';
-                else if (judge === 'Good') underlineColor = '#fff';
-                else if (judge === 'Poor') underlineColor = '#00f';
-
-                if (underlineColor) {
-                    ctx.strokeStyle = underlineColor;
-                    ctx.beginPath();
-                    ctx.moveTo(noteX - radius, lineY);
-                    ctx.lineTo(noteX + radius, lineY);
-                    ctx.stroke();
-                }
+                ctx.strokeStyle = color;
+                ctx.beginPath();
+                ctx.moveTo(noteX - radius, lineY);
+                ctx.lineTo(noteX + radius, lineY);
+                ctx.stroke();
             }
         }
         ctx.restore();
     }
 
     // Phase 2: Draw Note Heads
-    // Iterate backwards so later notes are drawn first (appearing behind earlier notes)
     for (let i = noteCount - 1; i >= 0; i--) {
         const noteChar = bar[i];
-        // Position calculated using the ORIGINAL index 'i'
         const noteX: number = x + (i * noteStep); 
         
         let color: string | null = null;
@@ -715,10 +826,6 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
                 radius = rBig;
                 isBig = true;
                 break;
-            // '5' and '6' (Drumrolls) are handled in drawDrumrolls/drawLongNotes
-            // '7' (Balloon) and '9' (Kusudama) are handled in drawLongNotes
-            // '0' is space
-            // '8' is end of roll (ignore for point rendering)
         }
 
         if (color) {
@@ -728,16 +835,15 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
                 color = '#999'; // Default unjudged fill color (Grey)
                 borderColor = '#ccc'; // Default unjudged border color (Grey)
                 
-                const globalIndex = judgeableIndicesInBar[i];
-                if (globalIndex !== null && globalIndex < judgements.length) {
-                    const judge = judgements[globalIndex];
+                const assignedColor = noteColors[i];
+                if (assignedColor) {
+                    color = assignedColor;
                     borderColor = '#fff'; // Revert to standard white border for judged notes
-                    
-                    if (judge === 'Perfect') color = 'orange';
-                    else if (judge === 'Good') color = 'white';
-                    else if (judge === 'Poor') color = 'blue';
                 }
             }
+            
+            // Note: In judgements-underline mode, we keep original colors (Red/Blue) and white border
+            // The underline is drawn in Phase 1.
 
             ctx.beginPath();
             ctx.arc(noteX, centerY, radius, 0, Math.PI * 2);

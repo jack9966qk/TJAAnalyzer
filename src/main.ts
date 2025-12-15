@@ -1,5 +1,5 @@
 import { parseTJA, ParsedChart } from './tja-parser.js';
-import { renderChart, getNoteAt, HitInfo } from './renderer.js';
+import { renderChart, getNoteAt, HitInfo, getGradientColor } from './renderer.js';
 import { exampleTJA } from './example-data.js';
 import { JudgementClient, ServerEvent } from './judgement-client.js';
 
@@ -7,6 +7,7 @@ const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement | nu
 let parsedTJACharts: Record<string, ParsedChart> | null = null;
 let currentChart: ParsedChart | null = null;
 let currentViewMode: 'original' | 'judgements' | 'judgements-underline' = 'original';
+let judgementColoringMode: 'categorical' | 'gradient' = 'categorical';
 let collapsedLoop: boolean = false;
 let selectedLoopIteration: number | undefined = undefined;
 let loadedTJAContent: string = exampleTJA;
@@ -25,6 +26,7 @@ const statusDisplay = document.getElementById('status-display') as HTMLDivElemen
 const noteStatsDisplay = document.getElementById('note-stats-display') as HTMLDivElement;
 const judgementsRadio = document.getElementById('judgements-radio') as HTMLInputElement;
 const judgementsUnderlineRadio = document.getElementById('judgements-underline-radio') as HTMLInputElement;
+const gradientColoringCheckbox = document.getElementById('gradient-coloring-checkbox') as HTMLInputElement;
 const originalRadio = document.querySelector('input[name="viewMode"][value="original"]') as HTMLInputElement;
 const difficultySelectorContainer = document.getElementById('difficulty-selector-container') as HTMLDivElement;
 const difficultySelector = document.getElementById('difficulty-selector') as HTMLSelectElement;
@@ -103,7 +105,7 @@ function formatHS(val: number): string {
     return val % 1 === 0 ? val.toFixed(1) : val.toFixed(2);
 }
 
-function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: boolean, viewMode: string, judgements: string[]) {
+function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: boolean, viewMode: string, judgements: string[], coloringMode: 'categorical' | 'gradient') {
     let html = '';
     const def = '-';
 
@@ -193,9 +195,17 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
                         let s = delta !== undefined ? delta.toString() : '?';
 
                         let color = '';
-                        if (judge === 'Perfect') color = '#ffa500';
-                        else if (judge === 'Good') color = '#fff';
-                        else if (judge === 'Poor') color = '#00f';
+                        if (coloringMode === 'gradient') {
+                            if ((judge === 'Perfect' || judge === 'Good' || judge === 'Poor') && delta !== undefined) {
+                                color = getGradientColor(delta);
+                            } else {
+                                color = '#555'; // Dark Grey for non-standard
+                            }
+                        } else {
+                            if (judge === 'Perfect') color = '#ffa500';
+                            else if (judge === 'Good') color = '#fff';
+                            else if (judge === 'Poor') color = '#00f';
+                        }
 
                         if (color) {
                             s = `<span style="color: ${color}">${s}</span>`;
@@ -213,6 +223,12 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
                 if (deltas.length > 0) {
                     const avg = deltas.reduce((a, b) => a + b, 0) / deltas.length;
                     avgDeltaVal = `${avg.toFixed(1)}ms`;
+                    
+                    if (coloringMode === 'gradient') {
+                        const avgColor = getGradientColor(avg);
+                        avgDeltaVal = `<span style="color: ${avgColor}">${avgDeltaVal}</span>`;
+                    }
+                    
                     allDeltasStr = deltasStrings.join(', ');
                 }
                 
@@ -226,11 +242,23 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
                          
                          let s = delta.toString();
                          let color = '';
-                         if (judge === 'Perfect') color = '#ffa500';
-                         else if (judge === 'Good') color = '#fff';
-                         else if (judge === 'Poor') color = '#00f';
+                         
+                         if (coloringMode === 'gradient') {
+                             if (judge === 'Perfect' || judge === 'Good' || judge === 'Poor') {
+                                 color = getGradientColor(delta);
+                             } else {
+                                 color = '#555';
+                             }
+                         } else {
+                             if (judge === 'Perfect') color = '#ffa500';
+                             else if (judge === 'Good') color = '#fff';
+                             else if (judge === 'Poor') color = '#00f';
+                         }
 
                          if (color) s = `<span style="color: ${color}">${s}</span>`;
+                         if (coloringMode === 'gradient' && color) {
+                             avgDeltaVal = `<span style="color: ${color}">${avgDeltaVal}</span>`;
+                         }
 
                          allDeltasStr = s;
                      }
@@ -246,9 +274,17 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
                          deltaVal = `${delta}ms`;
 
                          let color = '';
-                         if (judge === 'Perfect') color = '#ffa500';
-                         else if (judge === 'Good') color = '#fff';
-                         else if (judge === 'Poor') color = '#00f';
+                         if (coloringMode === 'gradient') {
+                             if (judge === 'Perfect' || judge === 'Good' || judge === 'Poor') {
+                                 color = getGradientColor(delta);
+                             } else {
+                                 color = '#555';
+                             }
+                         } else {
+                             if (judge === 'Perfect') color = '#ffa500';
+                             else if (judge === 'Good') color = '#fff';
+                             else if (judge === 'Poor') color = '#00f';
+                         }
 
                          if (color) deltaVal = `<span style="color: ${color}">${deltaVal}</span>`;
                     }
@@ -257,7 +293,7 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
     }
 
     if (collapsed) {
-        html += createStatBox('Avg Delta', avgDeltaVal); // No highlight
+        html += createStatBox('Avg Delta', avgDeltaVal); 
         html += `<div class="stat-full-line">Deltas: ${allDeltasStr}</div>`;
     } else {
         html += createStatBox('Delta', deltaVal);
@@ -275,8 +311,9 @@ function init(): void {
     // Initial UI State
     judgementsRadio.disabled = true;
     judgementsUnderlineRadio.disabled = true;
+    if (gradientColoringCheckbox) gradientColoringCheckbox.disabled = true;
     updateStatus('Using placeholder chart');
-    renderStats(null, null, false, 'original', []);
+    renderStats(null, null, false, 'original', [], 'categorical');
     updateMode('none');
 
     // Setup view mode controls
@@ -291,11 +328,30 @@ function init(): void {
         });
     });
 
+    if (gradientColoringCheckbox) {
+        gradientColoringCheckbox.checked = false;
+        gradientColoringCheckbox.addEventListener('change', (event) => {
+            judgementColoringMode = (event.target as HTMLInputElement).checked ? 'gradient' : 'categorical';
+            refreshChart();
+            // Re-render stats if a note is currently selected?
+            // The mousemove handler will trigger re-render on next move. 
+            // We can trigger it manually if needed, but it's fine.
+        });
+    }
+
     if (collapseLoopCheckbox) {
         collapseLoopCheckbox.addEventListener('change', (event) => {
             collapsedLoop = (event.target as HTMLInputElement).checked;
             refreshChart();
-            renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements);
+            renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
+        });
+    }
+
+    if (collapseLoopCheckbox) {
+        collapseLoopCheckbox.addEventListener('change', (event) => {
+            collapsedLoop = (event.target as HTMLInputElement).checked;
+            refreshChart();
+            renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
         });
     }
 
@@ -346,13 +402,13 @@ function init(): void {
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
         
-        const hit = getNoteAt(x, y, currentChart, canvas, collapsedLoop, currentViewMode, judgements, selectedLoopIteration);
+        const hit = getNoteAt(x, y, currentChart, canvas, collapsedLoop, currentViewMode, judgements, selectedLoopIteration, judgementColoringMode);
         
         if (hit) {
-            renderStats(hit, currentChart, collapsedLoop, currentViewMode, judgements);
+            renderStats(hit, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
             canvas.style.cursor = 'pointer';
         } else {
-            renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements);
+            renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
             canvas.style.cursor = 'default';
         }
     };
@@ -440,6 +496,7 @@ function init(): void {
         if (status === 'Connected') {
             judgementsRadio.disabled = false;
             judgementsUnderlineRadio.disabled = false;
+            if (gradientColoringCheckbox) gradientColoringCheckbox.disabled = false;
             updateMode('stream');
             
             if (isSimulating) {
@@ -455,6 +512,7 @@ function init(): void {
         } else { // Disconnected
             judgementsRadio.disabled = true;
             judgementsUnderlineRadio.disabled = true;
+            if (gradientColoringCheckbox) gradientColoringCheckbox.disabled = true;
             
             // Only switch to 'none' if we were in stream mode, to avoid resetting manual logic if called unexpectedly
             if (appMode === 'stream') {
@@ -525,8 +583,9 @@ function init(): void {
     });
 
     // Expose for testing
-    (window as any).setJudgements = (newJudgements: string[]) => {
+    (window as any).setJudgements = (newJudgements: string[], newDeltas?: (number | undefined)[]) => {
         judgements = newJudgements;
+        judgementDeltas = newDeltas || [];
         refreshChart();
     };
 
@@ -633,7 +692,7 @@ function updateLoopControls() {
 
 function refreshChart() {
     if (currentChart && canvas) {
-        renderChart(currentChart, canvas, currentViewMode, judgements, collapsedLoop, selectedLoopIteration);
+        renderChart(currentChart, canvas, currentViewMode, judgements, collapsedLoop, selectedLoopIteration, judgementDeltas, judgementColoringMode);
         updateLoopControls();
     }
 }
