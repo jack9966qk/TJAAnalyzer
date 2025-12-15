@@ -11,8 +11,9 @@ fs.mkdirSync(destDir);
 
 // Files/Dirs to copy
 const files = [
-    { src: 'index.html', dest: 'index.html' },
-    { src: 'style.css', dest: 'style.css' },
+    { src: 'www/index.html', dest: 'index.html' },
+    { src: 'www/style.css', dest: 'style.css' },
+    { src: 'www/icon_simple.png', dest: 'icon_simple.png' },
     { src: 'js_out', dest: 'js_out' },
     { src: 'icon.png', dest: 'icon.png' }
 ];

@@ -1,11 +1,11 @@
 {
   "type": "module",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node prepare-dist.js",
     "test": "npm run build && node --loader ts-node/esm test-parser.ts && playwright test",
-    "start": "npm run build && http-server .",
-    "build:exe": "npm run build && node prepare-dist.js && neu build",
-    "start:exe": "npm run build && node prepare-dist.js && neu run"
+    "start": "npm run build && http-server app_package -c-1",
+    "build:exe": "npm run build && neu build",
+    "start:exe": "npm run build && neu run"
   },
   "devDependencies": {
     "@neutralinojs/neu": "^11.6.0",
