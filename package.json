@@ -3,13 +3,19 @@
   "scripts": {
     "build": "tsc",
     "test": "npm run build && node --loader ts-node/esm test-parser.ts && playwright test",
-    "start": "npm run build && http-server ."
+    "start": "npm run build && http-server .",
+    "build:exe": "npm run build && node prepare-dist.js && neu build",
+    "start:exe": "npm run build && node prepare-dist.js && neu run"
   },
   "devDependencies": {
+    "@neutralinojs/neu": "^11.6.0",
     "@playwright/test": "^1.57.0",
     "@types/node": "^25.0.1",
     "http-server": "^14.1.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@neutralinojs/lib": "^6.4.0"
   }
 }

@@ -7,3 +7,7 @@ test-results/
 playwright-report/
 blob-report/
 .blink.*
+neutralinojs.log
+bin/
+app_package/
+js_out/

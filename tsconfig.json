@@ -3,7 +3,7 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "nodenext",
-    "outDir": "./dist",
+    "outDir": "./js_out",
     "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
