@@ -137,6 +137,56 @@ test.describe('Visual Regression', () => {
         await expect(canvas).toHaveScreenshot('judgements-underline-view.png');
     });
 
+    test('Judgements Text View', async ({ page }) => {
+        await page.goto('/');
+
+        await page.evaluate(() => {
+            window.setInterval = () => 0 as any;
+        });
+
+        // Switch to Test Tab
+        await page.click('button[data-mode="test"]');
+
+        await page.click('#test-stream-btn');
+        await page.waitForTimeout(500); 
+        
+        // 1. Enable Judgements
+        const judgementsCheckbox = page.locator('#show-judgements-checkbox');
+        await expect(judgementsCheckbox).toBeEnabled();
+        await judgementsCheckbox.check();
+        
+        // 2. Select Text Style
+        const textRadio = page.locator('input[name="judgementStyle"][value="text"]');
+        await textRadio.check();
+
+        await page.evaluate(() => {
+            let seed = 12345;
+            const nextRandom = () => {
+                seed = (1103515245 * seed + 12345) % 2147483648;
+                return seed / 2147483648;
+            };
+
+            const judgements: string[] = [];
+            for (let i = 0; i < 300; i++) {
+                const rand = nextRandom();
+                if (rand < 0.90) {
+                    judgements.push('Perfect');
+                } else if (rand < 0.99) {
+                    judgements.push('Good');
+                } else {
+                    judgements.push('Poor');
+                }
+            }
+            (window as any).setJudgements(judgements);
+        });
+
+        const canvas = page.locator('#chart-canvas');
+        await expect(canvas).toBeVisible();
+        await page.waitForTimeout(500);
+
+        await expect(canvas).toHaveScreenshot('judgements-text-view.png');
+    });
+
     test('Gradient Coloring View', async ({ page }) => {
         await page.goto('/');
 

@@ -6,7 +6,7 @@ import { JudgementClient, ServerEvent } from './judgement-client.js';
 const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement | null;
 let parsedTJACharts: Record<string, ParsedChart> | null = null;
 let currentChart: ParsedChart | null = null;
-let currentViewMode: 'original' | 'judgements' | 'judgements-underline' = 'original';
+let currentViewMode: 'original' | 'judgements' | 'judgements-underline' | 'judgements-text' = 'original';
 let judgementColoringMode: 'categorical' | 'gradient' = 'categorical';
 let judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true };
 let collapsedLoop: boolean = false;
@@ -167,7 +167,7 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
     let avgDeltaVal = def;
     let allDeltasStr = '';
     
-    if (hit && (viewMode === 'judgements' || viewMode === 'judgements-underline') && hit.judgeableNoteIndex !== null && chart) {
+    if (hit && (viewMode === 'judgements' || viewMode === 'judgements-underline' || viewMode === 'judgements-text') && hit.judgeableNoteIndex !== null && chart) {
         const deltas: number[] = [];
         
         if (collapsed && chart.loop) {
@@ -363,15 +363,19 @@ function updateDisplayState() {
 
         const style = document.querySelector('input[name="judgementStyle"]:checked') as HTMLInputElement;
 
-        if (style && style.value === 'underline') {
+                if (style && style.value === 'underline') {
 
-            currentViewMode = 'judgements-underline';
+                    currentViewMode = 'judgements-underline';
 
-        } else {
+                } else if (style && style.value === 'text') {
 
-            currentViewMode = 'judgements';
+                    currentViewMode = 'judgements-text';
 
-        }
+                } else {
+
+                    currentViewMode = 'judgements';
+
+                }
 
 
 
@@ -1253,7 +1257,7 @@ function updateParsedCharts(content: string) {
              loopPrevBtn.disabled = true;
              loopNextBtn.disabled = true;
 
-             if ((currentViewMode === 'judgements' || currentViewMode === 'judgements-underline') && judgements.length > 0) {
+             if ((currentViewMode === 'judgements' || currentViewMode === 'judgements-underline' || currentViewMode === 'judgements-text') && judgements.length > 0) {
                 let notesPerLoop = 0;
                 let preLoopNotes = 0;
                 for(let i=0; i<loop.startBarIndex; i++) {

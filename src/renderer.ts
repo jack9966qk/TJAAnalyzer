@@ -39,7 +39,7 @@ const RATIOS = {
     BAR_NUMBER_OFFSET_Y_RATIO: -0.0015
 };
 
-function getVirtualBars(chart: ParsedChart, collapsed: boolean, viewMode: 'original' | 'judgements' | 'judgements-underline', judgements: string[], globalBarStartIndices: number[], targetLoopIteration?: number): RenderBarInfo[] {
+function getVirtualBars(chart: ParsedChart, collapsed: boolean, viewMode: 'original' | 'judgements' | 'judgements-underline' | 'judgements-text', judgements: string[], globalBarStartIndices: number[], targetLoopIteration?: number): RenderBarInfo[] {
     const { bars, loop } = chart;
     let virtualBars: RenderBarInfo[] = [];
 
@@ -66,7 +66,7 @@ function getVirtualBars(chart: ParsedChart, collapsed: boolean, viewMode: 'origi
 
         if (targetLoopIteration !== undefined) {
             currentIter = targetLoopIteration;
-        } else if ((viewMode === 'judgements' || viewMode === 'judgements-underline') && judgements.length > 0) {
+        } else if ((viewMode === 'judgements' || viewMode === 'judgements-underline' || viewMode === 'judgements-text') && judgements.length > 0) {
             const lastJudgedIndex = judgements.length - 1;
             if (lastJudgedIndex >= preLoopNotes && notesPerLoop > 0) {
                 const relativeIndex = lastJudgedIndex - preLoopNotes;
@@ -201,7 +201,7 @@ export interface HitInfo {
     scroll: number;
 }
 
-export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, collapsed: boolean = false, viewMode: 'original' | 'judgements' | 'judgements-underline' = 'original', judgements: string[] = [], targetLoopIteration?: number, coloringMode: 'categorical' | 'gradient' = 'categorical', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }, beatsPerLine: number = 16): HitInfo | null {
+export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, collapsed: boolean = false, viewMode: 'original' | 'judgements' | 'judgements-underline' | 'judgements-text' = 'original', judgements: string[] = [], targetLoopIteration?: number, coloringMode: 'categorical' | 'gradient' = 'categorical', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }, beatsPerLine: number = 16): HitInfo | null {
     const logicalCanvasWidth: number = canvas.clientWidth || 800;
     
     const globalBarStartIndices = calculateGlobalBarStartIndices(chart.bars);
@@ -320,7 +320,7 @@ export function getGradientColor(delta: number): string {
     return `rgb(${r}, ${g}, ${b})`;
 }
 
-export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' | 'judgements-underline' = 'original', judgements: string[] = [], collapsed: boolean = false, targetLoopIteration?: number, judgementDeltas: (number | undefined)[] = [], coloringMode: 'categorical' | 'gradient' = 'categorical', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }, beatsPerLine: number = 16): void {
+export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' | 'judgements-underline' | 'judgements-text' = 'original', judgements: string[] = [], collapsed: boolean = false, targetLoopIteration?: number, judgementDeltas: (number | undefined)[] = [], coloringMode: 'categorical' | 'gradient' = 'categorical', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }, beatsPerLine: number = 16): void {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
         console.error("2D rendering context not found for canvas.");
@@ -421,7 +421,7 @@ function calculateBalloonIndices(bars: string[][]): Map<string, number> {
     return map;
 }
 
-function drawLongNotes(ctx: CanvasRenderingContext2D, virtualBars: RenderBarInfo[], layouts: BarLayout[], constants: any, viewMode: 'original' | 'judgements' | 'judgements-underline', balloonCounts: number[], balloonIndices: Map<string, number>): void {
+function drawLongNotes(ctx: CanvasRenderingContext2D, virtualBars: RenderBarInfo[], layouts: BarLayout[], constants: any, viewMode: 'original' | 'judgements' | 'judgements-underline' | 'judgements-text', balloonCounts: number[], balloonIndices: Map<string, number>): void {
     const { NOTE_RADIUS_SMALL: rSmall, NOTE_RADIUS_BIG: rBig, LW_NOTE_OUTER: borderOuterW, LW_NOTE_INNER: borderInnerW } = constants;
     
     let currentLongNote: { type: string, startBarIdx: number, startNoteIdx: number, originalBarIdx: number, originalNoteIdx: number } | null = null;
@@ -498,7 +498,7 @@ function drawLongNotes(ctx: CanvasRenderingContext2D, virtualBars: RenderBarInfo
     }
 }
 
-function drawDrumrollSegment(ctx: CanvasRenderingContext2D, startX: number, endX: number, centerY: number, radius: number, startCap: boolean, endCap: boolean, borderOuterW: number, borderInnerW: number, viewMode: 'original' | 'judgements' | 'judgements-underline', type: string): void {
+function drawDrumrollSegment(ctx: CanvasRenderingContext2D, startX: number, endX: number, centerY: number, radius: number, startCap: boolean, endCap: boolean, borderOuterW: number, borderInnerW: number, viewMode: 'original' | 'judgements' | 'judgements-underline' | 'judgements-text', type: string): void {
     let fillColor = '#ff0';
     let innerBorderColor = '#fff';
 
@@ -510,7 +510,7 @@ function drawDrumrollSegment(ctx: CanvasRenderingContext2D, startX: number, endX
     drawCapsule(ctx, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, fillColor, innerBorderColor);
 }
 
-function drawBalloonSegment(ctx: CanvasRenderingContext2D, startX: number, endX: number, centerY: number, radius: number, startCap: boolean, endCap: boolean, borderOuterW: number, borderInnerW: number, viewMode: 'original' | 'judgements' | 'judgements-underline', count: number, isKusudama: boolean): void {
+function drawBalloonSegment(ctx: CanvasRenderingContext2D, startX: number, endX: number, centerY: number, radius: number, startCap: boolean, endCap: boolean, borderOuterW: number, borderInnerW: number, viewMode: 'original' | 'judgements' | 'judgements-underline' | 'judgements-text', count: number, isKusudama: boolean): void {
     let fillColor = '#ffa500'; // Orangeish for balloon body
     let innerBorderColor = '#fff';
 
@@ -627,9 +627,9 @@ function drawCapsule(ctx: CanvasRenderingContext2D, startX: number, endX: number
 }
 
 
-function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, viewMode: 'original' | 'judgements' | 'judgements-underline', startIndex: number, judgements: string[], judgementDeltas: (number | undefined)[] = [], originalBarIndex: number = -1, bars: string[][] = [], loopInfo?: LoopInfo, coloringMode: 'categorical' | 'gradient' = 'categorical', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }): void {
+function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, viewMode: 'original' | 'judgements' | 'judgements-underline' | 'judgements-text', startIndex: number, judgements: string[], judgementDeltas: (number | undefined)[] = [], originalBarIndex: number = -1, bars: string[][] = [], loopInfo?: LoopInfo, coloringMode: 'categorical' | 'gradient' = 'categorical', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }): void {
     // DEBUG LOG
-    if (originalBarIndex === 0 && (viewMode === 'judgements' || viewMode === 'judgements-underline')) {
+    if (originalBarIndex === 0 && (viewMode === 'judgements' || viewMode === 'judgements-underline' || viewMode === 'judgements-text')) {
         console.log(`drawBarNotes Bar 0: mode=${coloringMode}, deltasLen=${judgementDeltas.length}, judgementsLen=${judgements.length}`);
     }
 
@@ -652,7 +652,7 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
     // Pre-calculate colors for judgeable notes if needed
     const noteColors: (string | null)[] = new Array(noteCount).fill(null);
     
-    if (viewMode === 'judgements' || viewMode === 'judgements-underline') {
+    if (viewMode === 'judgements' || viewMode === 'judgements-underline' || viewMode === 'judgements-text') {
         for(let i = 0; i < noteCount; i++) {
             const globalIndex = judgeableIndicesInBar[i];
             if (globalIndex === null) continue;
@@ -805,6 +805,47 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
                 ctx.moveTo(noteX - radius, lineY);
                 ctx.lineTo(noteX + radius, lineY);
                 ctx.stroke();
+            }
+        }
+        ctx.restore();
+    }
+    
+    // Phase 1.5: Draw Text (Judgements Text Mode only)
+    if (viewMode === 'judgements-text') {
+        ctx.save();
+        ctx.font = `bold ${rBig * 1.2}px sans-serif`; 
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.lineWidth = height * 0.05; // Border width for text
+        ctx.strokeStyle = '#000';
+
+        for (let i = 0; i < noteCount; i++) {
+            const noteChar = bar[i];
+            if (!['1', '2', '3', '4'].includes(noteChar)) continue;
+            
+            const color = noteColors[i];
+            // We need to look up the judgement text. 
+            // noteColors might be gradient, but text content depends on class.
+            // We can look up judgement class again using globalIndex.
+            const globalIndex = judgeableIndicesInBar[i];
+            
+            if (color && globalIndex !== null && globalIndex < judgements.length) {
+                const judge = judgements[globalIndex];
+                let text = '';
+                if (judge === 'Perfect') text = '良';
+                else if (judge === 'Good') text = '可';
+                else if (judge === 'Poor') text = '不可';
+
+                if (text) {
+                     const noteX: number = x + (i * noteStep);
+                     const noteTopY = centerY - (['3', '4'].includes(noteChar) ? rBig : rSmall);
+                     // Slightly above note
+                     const textY = noteTopY;
+
+                     ctx.strokeText(text, noteX, textY);
+                     ctx.fillStyle = color;
+                     ctx.fillText(text, noteX, textY);
+                }
             }
         }
         ctx.restore();
