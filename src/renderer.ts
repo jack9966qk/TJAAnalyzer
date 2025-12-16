@@ -16,6 +16,12 @@ interface BarLayout {
     height: number;
 }
 
+export interface JudgementVisibility {
+    perfect: boolean;
+    good: boolean;
+    poor: boolean;
+}
+
 // Configuration Constants
 const BARS_PER_ROW: number = 4;
 const PADDING: number = 20;
@@ -195,7 +201,7 @@ export interface HitInfo {
     scroll: number;
 }
 
-export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, collapsed: boolean = false, viewMode: 'original' | 'judgements' | 'judgements-underline' = 'original', judgements: string[] = [], targetLoopIteration?: number, coloringMode: 'categorical' | 'gradient' = 'categorical'): HitInfo | null {
+export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, collapsed: boolean = false, viewMode: 'original' | 'judgements' | 'judgements-underline' = 'original', judgements: string[] = [], targetLoopIteration?: number, coloringMode: 'categorical' | 'gradient' = 'categorical', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }): HitInfo | null {
     const logicalCanvasWidth: number = canvas.clientWidth || 800;
     
     const globalBarStartIndices = calculateGlobalBarStartIndices(chart.bars);
@@ -314,7 +320,7 @@ export function getGradientColor(delta: number): string {
     return `rgb(${r}, ${g}, ${b})`;
 }
 
-export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' | 'judgements-underline' = 'original', judgements: string[] = [], collapsed: boolean = false, targetLoopIteration?: number, judgementDeltas: (number | undefined)[] = [], coloringMode: 'categorical' | 'gradient' = 'categorical'): void {
+export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' | 'judgements-underline' = 'original', judgements: string[] = [], collapsed: boolean = false, targetLoopIteration?: number, judgementDeltas: (number | undefined)[] = [], coloringMode: 'categorical' | 'gradient' = 'categorical', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }): void {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
         console.error("2D rendering context not found for canvas.");
@@ -373,7 +379,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewM
             ? info.overrideStartIndex 
             : globalBarStartIndices[info.originalIndex];
 
-        drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, viewMode, startIndex, judgements, judgementDeltas, info.originalIndex, bars, collapsed ? loop : undefined, coloringMode);
+        drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, viewMode, startIndex, judgements, judgementDeltas, info.originalIndex, bars, collapsed ? loop : undefined, coloringMode, judgementVisibility);
     }
 }
 
@@ -621,7 +627,7 @@ function drawCapsule(ctx: CanvasRenderingContext2D, startX: number, endX: number
 }
 
 
-function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, viewMode: 'original' | 'judgements' | 'judgements-underline', startIndex: number, judgements: string[], judgementDeltas: (number | undefined)[] = [], originalBarIndex: number = -1, bars: string[][] = [], loopInfo?: LoopInfo, coloringMode: 'categorical' | 'gradient' = 'categorical'): void {
+function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, viewMode: 'original' | 'judgements' | 'judgements-underline', startIndex: number, judgements: string[], judgementDeltas: (number | undefined)[] = [], originalBarIndex: number = -1, bars: string[][] = [], loopInfo?: LoopInfo, coloringMode: 'categorical' | 'gradient' = 'categorical', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }): void {
     // DEBUG LOG
     if (originalBarIndex === 0 && (viewMode === 'judgements' || viewMode === 'judgements-underline')) {
         console.log(`drawBarNotes Bar 0: mode=${coloringMode}, deltasLen=${judgementDeltas.length}, judgementsLen=${judgements.length}`);
@@ -681,8 +687,14 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
                            for(let iter=0; iter<loopInfo.iterations; iter++) {
                                 const gIdx = preLoopNotes + noteIndexInLoop + (iter * notesPerLoop);
                                 if (gIdx < judgements.length) {
-                                     judgedCount++;
                                      const j = judgements[gIdx];
+                                     
+                                     // Check visibility
+                                     if (j === 'Perfect' && !judgementVisibility.perfect) continue;
+                                     if (j === 'Good' && !judgementVisibility.good) continue;
+                                     if (j === 'Poor' && !judgementVisibility.poor) continue;
+
+                                     judgedCount++;
                                      if (j === 'Perfect' || j === 'Good' || j === 'Poor') {
                                           const d = judgementDeltas[gIdx];
                                           if (d !== undefined) {
@@ -697,7 +709,8 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
                                 effectiveDelta = sum / count;
                                 isValidJudge = true;
                            } else if (judgedCount > 0) {
-                                // Judged but no valid delta (e.g. all Misses)
+                                // Judged but no valid delta (e.g. all Misses or filtered out?)
+                                // If filtered out, judgedCount wouldn't increment.
                                 isJudgedButMiss = true;
                            }
                       }
@@ -705,11 +718,20 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
                       // Standard
                       if (globalIndex < judgements.length) {
                            const j = judgements[globalIndex];
-                           if (j === 'Perfect' || j === 'Good' || j === 'Poor') {
-                                effectiveDelta = judgementDeltas[globalIndex];
-                                if (effectiveDelta !== undefined) isValidJudge = true;
-                           } else {
-                                isJudgedButMiss = true;
+                           
+                           // Check visibility
+                           let isVisible = true;
+                           if (j === 'Perfect' && !judgementVisibility.perfect) isVisible = false;
+                           else if (j === 'Good' && !judgementVisibility.good) isVisible = false;
+                           else if (j === 'Poor' && !judgementVisibility.poor) isVisible = false;
+
+                           if (isVisible) {
+                               if (j === 'Perfect' || j === 'Good' || j === 'Poor') {
+                                    effectiveDelta = judgementDeltas[globalIndex];
+                                    if (effectiveDelta !== undefined) isValidJudge = true;
+                               } else {
+                                    isJudgedButMiss = true;
+                               }
                            }
                       }
                  }
@@ -723,14 +745,11 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
 
             } else {
                 // Categorical Logic
-                // For Collapsed Loop in Categorical mode, we use the specific iteration's judgment 
-                // which corresponds to 'globalIndex' (calculated via overrideStartIndex in RenderChart)
-                // So standard lookup works.
                 if (globalIndex < judgements.length) {
                     const judge = judgements[globalIndex];
-                    if (judge === 'Perfect') noteColors[i] = '#ffa500';
-                    else if (judge === 'Good') noteColors[i] = '#fff';
-                    else if (judge === 'Poor') noteColors[i] = '#00f';
+                    if (judge === 'Perfect' && judgementVisibility.perfect) noteColors[i] = '#ffa500';
+                    else if (judge === 'Good' && judgementVisibility.good) noteColors[i] = '#fff';
+                    else if (judge === 'Poor' && judgementVisibility.poor) noteColors[i] = '#00f';
                     // Miss is null
                 }
             }

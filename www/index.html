@@ -71,8 +71,9 @@
             <div id="display-options-panel" class="options-panel">
                 <div class="options-header">
                     <h3>Display Options</h3>
+                    <button id="options-collapse-btn">Collapse</button>
                 </div>
-                <div class="options-content">
+                <div id="options-body" class="options-content">
                     <!-- Judgements Section -->
                     <div class="option-section">
                         <div class="section-main">
@@ -88,6 +89,12 @@
                                 <span class="sub-label">Coloring:</span>
                                 <label><input type="radio" name="judgementColoring" value="categorical" checked> Class</label>
                                 <label><input type="radio" name="judgementColoring" value="gradient"> Delta</label>
+                            </div>
+                            <div class="sub-group">
+                                <span class="sub-label">Filter:</span>
+                                <label><input type="checkbox" id="show-perfect-checkbox" checked> GOOD</label>
+                                <label><input type="checkbox" id="show-good-checkbox" checked> OK</label>
+                                <label><input type="checkbox" id="show-poor-checkbox" checked> BAD</label>
                             </div>
                         </div>
                     </div>
@@ -106,6 +113,13 @@
                                  <span id="loop-counter">-</span>
                                  <button id="loop-next" class="tiny-btn">&gt;</button>
                              </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats Section -->
+                    <div class="option-section border-left">
+                        <div class="section-main">
+                            <label><input type="checkbox" id="show-stats-checkbox" checked> Show Note Stats</label>
                         </div>
                     </div>
                 </div>

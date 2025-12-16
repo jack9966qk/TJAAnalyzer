@@ -1,5 +1,5 @@
 import { parseTJA, ParsedChart } from './tja-parser.js';
-import { renderChart, getNoteAt, HitInfo, getGradientColor } from './renderer.js';
+import { renderChart, getNoteAt, HitInfo, getGradientColor, JudgementVisibility } from './renderer.js';
 import { exampleTJA } from './example-data.js';
 import { JudgementClient, ServerEvent } from './judgement-client.js';
 
@@ -8,6 +8,7 @@ let parsedTJACharts: Record<string, ParsedChart> | null = null;
 let currentChart: ParsedChart | null = null;
 let currentViewMode: 'original' | 'judgements' | 'judgements-underline' = 'original';
 let judgementColoringMode: 'categorical' | 'gradient' = 'categorical';
+let judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true };
 let collapsedLoop: boolean = false;
 let selectedLoopIteration: number | undefined = undefined;
 let loadedTJAContent: string = exampleTJA;
@@ -29,10 +30,17 @@ const showJudgementsCheckbox = document.getElementById('show-judgements-checkbox
 const judgementSubcontrols = document.getElementById('judgement-subcontrols') as HTMLDivElement;
 const judgementStyleRadios = document.querySelectorAll('input[name="judgementStyle"]');
 const judgementColoringRadios = document.querySelectorAll('input[name="judgementColoring"]');
+const showPerfectCheckbox = document.getElementById('show-perfect-checkbox') as HTMLInputElement;
+const showGoodCheckbox = document.getElementById('show-good-checkbox') as HTMLInputElement;
+const showPoorCheckbox = document.getElementById('show-poor-checkbox') as HTMLInputElement;
 
 const difficultySelectorContainer = document.getElementById('difficulty-selector-container') as HTMLDivElement;
 const difficultySelector = document.getElementById('difficulty-selector') as HTMLSelectElement;
 const collapseLoopCheckbox = document.getElementById('collapse-loop-checkbox') as HTMLInputElement;
+
+const optionsCollapseBtn = document.getElementById('options-collapse-btn') as HTMLButtonElement;
+const optionsBody = document.getElementById('options-body') as HTMLDivElement;
+const showStatsCheckbox = document.getElementById('show-stats-checkbox') as HTMLInputElement;
 
 const loopControls = document.getElementById('loop-controls') as HTMLDivElement; // Changed to Div in HTML
 const loopAutoCheckbox = document.getElementById('loop-auto') as HTMLInputElement;
@@ -125,7 +133,7 @@ function formatHS(val: number): string {
     return val % 1 === 0 ? val.toFixed(1) : val.toFixed(2);
 }
 
-function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: boolean, viewMode: string, judgements: string[], coloringMode: 'categorical' | 'gradient') {
+function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: boolean, viewMode: string, judgements: string[], coloringMode: 'categorical' | 'gradient', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }) {
     let html = '';
     const def = '-';
 
@@ -210,6 +218,14 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
                         const delta = judgementDeltas[globalIdx];
                         const judge = judgements[globalIdx];
 
+                        // Check visibility
+                        let isVisible = true;
+                        if (judge === 'Perfect' && !judgementVisibility.perfect) isVisible = false;
+                        else if (judge === 'Good' && !judgementVisibility.good) isVisible = false;
+                        else if (judge === 'Poor' && !judgementVisibility.poor) isVisible = false;
+
+                        if (!isVisible) continue;
+
                         if (delta !== undefined) deltas.push(delta);
                         
                         let s = delta !== undefined ? delta.toString() : '?';
@@ -255,7 +271,13 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
                      const delta = judgementDeltas[hit.judgeableNoteIndex];
                      const judge = judgements[hit.judgeableNoteIndex];
 
-                     if (delta !== undefined) {
+                     // Check visibility
+                     let isVisible = true;
+                     if (judge === 'Perfect' && !judgementVisibility.perfect) isVisible = false;
+                     else if (judge === 'Good' && !judgementVisibility.good) isVisible = false;
+                     else if (judge === 'Poor' && !judgementVisibility.poor) isVisible = false;
+
+                     if (isVisible && delta !== undefined) {
                          avgDeltaVal = `${delta}ms`;
                          
                          let s = delta.toString();
@@ -288,7 +310,13 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
                     const delta = judgementDeltas[hit.judgeableNoteIndex];
                     const judge = judgements[hit.judgeableNoteIndex];
                     
-                    if (delta !== undefined) {
+                    // Check visibility
+                    let isVisible = true;
+                    if (judge === 'Perfect' && !judgementVisibility.perfect) isVisible = false;
+                    else if (judge === 'Good' && !judgementVisibility.good) isVisible = false;
+                    else if (judge === 'Poor' && !judgementVisibility.poor) isVisible = false;
+
+                    if (isVisible && delta !== undefined) {
                          deltaVal = `${delta}ms`;
 
                          let color = '';
@@ -382,7 +410,14 @@ function updateDisplayState() {
 
     }
 
-
+    // 3. Determine Judgement Visibility
+    if (showPerfectCheckbox && showGoodCheckbox && showPoorCheckbox) {
+        judgementVisibility = {
+            perfect: showPerfectCheckbox.checked,
+            good: showGoodCheckbox.checked,
+            poor: showPoorCheckbox.checked
+        };
+    }
 
     refreshChart();
 
@@ -473,9 +508,13 @@ function init(): void {
         judgementSubcontrols.classList.add('disabled');
 
     }
+    
+    // Listeners for new checkboxes
+    if (showPerfectCheckbox) showPerfectCheckbox.addEventListener('change', updateDisplayState);
+    if (showGoodCheckbox) showGoodCheckbox.addEventListener('change', updateDisplayState);
+    if (showPoorCheckbox) showPoorCheckbox.addEventListener('change', updateDisplayState);
 
     
-
     // Initial Loop State
 
     if (collapseLoopCheckbox) {
@@ -514,29 +553,131 @@ function init(): void {
 
 
 
-    // Setup Collapse Button
+            // Setup Collapse Button
 
-    if (dsCollapseBtn && dsBody) {
 
-        dsCollapseBtn.addEventListener('click', () => {
 
-            if (dsBody.classList.contains('collapsed')) {
+            if (dsCollapseBtn && dsBody) {
 
-                dsBody.classList.remove('collapsed');
 
-                dsCollapseBtn.innerText = "Hide Controls";
 
-            } else {
+                dsCollapseBtn.addEventListener('click', () => {
 
-                dsBody.classList.add('collapsed');
 
-                dsCollapseBtn.innerText = "Show Controls";
+
+                    if (dsBody.classList.contains('collapsed')) {
+
+
+
+                        dsBody.classList.remove('collapsed');
+
+
+
+                        dsCollapseBtn.innerText = "Collapse";
+
+
+
+                    } else {
+
+
+
+                        dsBody.classList.add('collapsed');
+
+
+
+                        dsCollapseBtn.innerText = "Expand";
+
+
+
+                    }
+
+
+
+                });
+
+
 
             }
 
-        });
 
-    }
+
+        
+
+
+
+            // Setup Display Options Collapse Button
+
+
+
+            if (optionsCollapseBtn && optionsBody) {
+
+
+
+                optionsCollapseBtn.addEventListener('click', () => {
+
+
+
+                    if (optionsBody.classList.contains('collapsed')) {
+
+
+
+                        optionsBody.classList.remove('collapsed');
+
+
+
+                        optionsCollapseBtn.innerText = "Collapse";
+
+
+
+                    } else {
+
+
+
+                        optionsBody.classList.add('collapsed');
+
+
+
+                        optionsCollapseBtn.innerText = "Expand";
+
+
+
+                    }
+
+
+
+                });
+
+
+
+            }
+
+
+
+    
+
+
+
+        // Setup Stats Toggle
+
+
+
+        if (showStatsCheckbox && noteStatsDisplay) {
+
+
+
+            showStatsCheckbox.addEventListener('change', () => {
+
+
+
+                noteStatsDisplay.style.display = showStatsCheckbox.checked ? '' : 'none';
+
+
+
+            });
+
+
+
+        }
 
 
 
@@ -646,19 +787,31 @@ function init(): void {
 
 
 
-    if (collapseLoopCheckbox) {
+        if (collapseLoopCheckbox) {
 
-        collapseLoopCheckbox.addEventListener('change', (event) => {
 
-            collapsedLoop = (event.target as HTMLInputElement).checked;
 
-            refreshChart();
+            collapseLoopCheckbox.addEventListener('change', (event) => {
 
-            renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
 
-        });
 
-    }
+                collapsedLoop = (event.target as HTMLInputElement).checked;
+
+
+
+                refreshChart();
+
+
+
+                renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode, judgementVisibility);
+
+
+
+            });
+
+
+
+        }
 
 
 
@@ -734,39 +887,39 @@ function init(): void {
 
     // Canvas Interaction
 
-    const handleCanvasInteraction = (event: MouseEvent) => {
+        const handleCanvasInteraction = (event: MouseEvent) => {
 
-        if (!currentChart) return;
+            if (!currentChart) return;
 
-        
+            
 
-        const rect = canvas.getBoundingClientRect();
+            const rect = canvas.getBoundingClientRect();
 
-        const x = event.clientX - rect.left;
+            const x = event.clientX - rect.left;
 
-        const y = event.clientY - rect.top;
+            const y = event.clientY - rect.top;
 
-        
+            
 
-        const hit = getNoteAt(x, y, currentChart, canvas, collapsedLoop, currentViewMode, judgements, selectedLoopIteration, judgementColoringMode);
+            const hit = getNoteAt(x, y, currentChart, canvas, collapsedLoop, currentViewMode, judgements, selectedLoopIteration, judgementColoringMode, judgementVisibility);
 
-        
+            
 
-        if (hit) {
+            if (hit) {
 
-            renderStats(hit, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
+                renderStats(hit, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode, judgementVisibility);
 
-            canvas.style.cursor = 'pointer';
+                canvas.style.cursor = 'pointer';
 
-        } else {
+            } else {
 
-            renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
+                renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode, judgementVisibility);
 
-            canvas.style.cursor = 'default';
+                canvas.style.cursor = 'default';
 
-        }
+            }
 
-    };
+        };
 
 
 
@@ -1024,15 +1177,27 @@ function updateParsedCharts(content: string) {
 
 
 
-    updateCollapseLoopState();
+        updateCollapseLoopState();
 
-    refreshChart();
 
-    renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
 
-}
+        refreshChart();
 
-function updateLoopControls() {
+
+
+        renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode, judgementVisibility);
+
+
+
+    }
+
+
+
+    
+
+
+
+    function updateLoopControls() {
     if (!loopControls || !currentChart) return;
 
     // Use .style.display for loop controls as they are dynamic and shouldn't take space if irrelevant
@@ -1083,7 +1248,7 @@ function updateLoopControls() {
 
 function refreshChart() {
     if (currentChart && canvas) {
-        renderChart(currentChart, canvas, currentViewMode, judgements, collapsedLoop, selectedLoopIteration, judgementDeltas, judgementColoringMode);
+        renderChart(currentChart, canvas, currentViewMode, judgements, collapsedLoop, selectedLoopIteration, judgementDeltas, judgementColoringMode, judgementVisibility);
         updateLoopControls();
     }
 }
@@ -1172,7 +1337,7 @@ window.addEventListener('resize', () => {
     judgements = newJudgements;
     judgementDeltas = newDeltas || [];
     refreshChart();
-    renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode);
+    renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode, judgementVisibility);
 };
 
 init();
