@@ -363,3 +363,33 @@ test.describe('Loop Controls Interaction', () => {
         await expect(nextBtn).toBeDisabled();
     });
 });
+
+test.describe('Zoom Controls', () => {
+    test('Zoom In/Out/Reset', async ({ page }) => {
+        await page.goto('/');
+        await page.waitForTimeout(1000);
+
+        const zoomOutBtn = page.locator('#zoom-out-btn');
+        const zoomInBtn = page.locator('#zoom-in-btn');
+        const zoomResetBtn = page.locator('#zoom-reset-btn');
+
+        // Initial State
+        await expect(zoomResetBtn).toHaveText('100%');
+
+        // Zoom In (Decrease beats per line)
+        await zoomInBtn.click();
+        await expect(zoomResetBtn).not.toHaveText('100%');
+        
+        // Reset
+        await zoomResetBtn.click();
+        await expect(zoomResetBtn).toHaveText('100%');
+
+        // Zoom Out (Increase beats per line)
+        await zoomOutBtn.click();
+        await expect(zoomResetBtn).not.toHaveText('100%');
+
+        // Reset
+        await zoomResetBtn.click();
+        await expect(zoomResetBtn).toHaveText('100%');
+    });
+});

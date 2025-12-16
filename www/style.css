@@ -307,6 +307,10 @@ button:disabled {
     color: #aaa;
 }
 
+#zoom-out-btn, #zoom-in-btn {
+    min-width: 30px;
+}
+
 .disabled-text {
     opacity: 0.5;
     pointer-events: none;

@@ -11,6 +11,7 @@ let judgementColoringMode: 'categorical' | 'gradient' = 'categorical';
 let judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true };
 let collapsedLoop: boolean = false;
 let selectedLoopIteration: number | undefined = undefined;
+let beatsPerLine: number = 16; // Zoom State
 let loadedTJAContent: string = exampleTJA;
 
 // Application State
@@ -47,6 +48,10 @@ const loopAutoCheckbox = document.getElementById('loop-auto') as HTMLInputElemen
 const loopPrevBtn = document.getElementById('loop-prev') as HTMLButtonElement;
 const loopNextBtn = document.getElementById('loop-next') as HTMLButtonElement;
 const loopCounter = document.getElementById('loop-counter') as HTMLSpanElement;
+
+const zoomOutBtn = document.getElementById('zoom-out-btn') as HTMLButtonElement;
+const zoomInBtn = document.getElementById('zoom-in-btn') as HTMLButtonElement;
+const zoomResetBtn = document.getElementById('zoom-reset-btn') as HTMLButtonElement;
 
 // Data Source UI
 const dsTabs = document.querySelectorAll('.ds-tab');
@@ -467,7 +472,12 @@ function updateCollapseLoopState() {
 
 }
 
-
+function updateZoomDisplay() {
+    if (zoomResetBtn) {
+        const percent = Math.round((16 / beatsPerLine) * 100);
+        zoomResetBtn.innerText = `${percent}%`;
+    }
+}
 
 function init(): void {
 
@@ -882,8 +892,39 @@ function init(): void {
         });
 
     }
-
     
+    // Zoom Controls
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener('click', () => {
+             // Increase beats per line (Zoom Out)
+             if (beatsPerLine < 32) {
+                 beatsPerLine += 2;
+                 updateZoomDisplay();
+                 refreshChart();
+             }
+        });
+    }
+
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener('click', () => {
+             // Decrease beats per line (Zoom In)
+             if (beatsPerLine > 4) {
+                 beatsPerLine -= 2;
+                 updateZoomDisplay();
+                 refreshChart();
+             }
+        });
+    }
+
+    if (zoomResetBtn) {
+        zoomResetBtn.addEventListener('click', () => {
+            if (beatsPerLine !== 16) {
+                beatsPerLine = 16;
+                updateZoomDisplay();
+                refreshChart();
+            }
+        });
+    }
 
     // Canvas Interaction
 
@@ -901,7 +942,7 @@ function init(): void {
 
             
 
-            const hit = getNoteAt(x, y, currentChart, canvas, collapsedLoop, currentViewMode, judgements, selectedLoopIteration, judgementColoringMode, judgementVisibility);
+            const hit = getNoteAt(x, y, currentChart, canvas, collapsedLoop, currentViewMode, judgements, selectedLoopIteration, judgementColoringMode, judgementVisibility, beatsPerLine);
 
             
 
@@ -1248,7 +1289,7 @@ function updateParsedCharts(content: string) {
 
 function refreshChart() {
     if (currentChart && canvas) {
-        renderChart(currentChart, canvas, currentViewMode, judgements, collapsedLoop, selectedLoopIteration, judgementDeltas, judgementColoringMode, judgementVisibility);
+        renderChart(currentChart, canvas, currentViewMode, judgements, collapsedLoop, selectedLoopIteration, judgementDeltas, judgementColoringMode, judgementVisibility, beatsPerLine);
         updateLoopControls();
     }
 }

@@ -126,13 +126,13 @@ function calculateGlobalBarStartIndices(bars: string[][]): number[] {
     return indices;
 }
 
-function calculateLayout(virtualBars: RenderBarInfo[], chart: ParsedChart, logicalCanvasWidth: number): { layouts: BarLayout[], constants: any, totalHeight: number } {
+function calculateLayout(virtualBars: RenderBarInfo[], chart: ParsedChart, logicalCanvasWidth: number, beatsPerLine: number = 16): { layouts: BarLayout[], constants: any, totalHeight: number } {
     // 1. Determine Base Dimensions
-    // The full canvas width (minus padding) represents 16 beats (4 bars of 4/4).
+    // The full canvas width (minus padding) represents 'beatsPerLine' beats.
     const availableWidth = logicalCanvasWidth - (PADDING * 2);
-    // Base width is width of one 4/4 bar (4 beats). 16 beats fit in availableWidth.
-    // So 4 base bars fit in availableWidth.
-    const baseBarWidth: number = availableWidth / BARS_PER_ROW;
+    // Base width is width of one 4/4 bar (4 beats). 
+    // Number of base bars per row = beatsPerLine / 4
+    const baseBarWidth: number = availableWidth / (beatsPerLine / 4);
     
     // Ratios apply to the BASE width to ensure consistent height and note sizes
     const BAR_HEIGHT: number = baseBarWidth * RATIOS.BAR_HEIGHT;
@@ -201,13 +201,13 @@ export interface HitInfo {
     scroll: number;
 }
 
-export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, collapsed: boolean = false, viewMode: 'original' | 'judgements' | 'judgements-underline' = 'original', judgements: string[] = [], targetLoopIteration?: number, coloringMode: 'categorical' | 'gradient' = 'categorical', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }): HitInfo | null {
+export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, collapsed: boolean = false, viewMode: 'original' | 'judgements' | 'judgements-underline' = 'original', judgements: string[] = [], targetLoopIteration?: number, coloringMode: 'categorical' | 'gradient' = 'categorical', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }, beatsPerLine: number = 16): HitInfo | null {
     const logicalCanvasWidth: number = canvas.clientWidth || 800;
     
     const globalBarStartIndices = calculateGlobalBarStartIndices(chart.bars);
     const virtualBars = getVirtualBars(chart, collapsed, viewMode, judgements, globalBarStartIndices, targetLoopIteration);
     
-    const { layouts, constants } = calculateLayout(virtualBars, chart, logicalCanvasWidth);
+    const { layouts, constants } = calculateLayout(virtualBars, chart, logicalCanvasWidth, beatsPerLine);
     const { NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG } = constants;
 
     // Hit testing loop
@@ -320,7 +320,7 @@ export function getGradientColor(delta: number): string {
     return `rgb(${r}, ${g}, ${b})`;
 }
 
-export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' | 'judgements-underline' = 'original', judgements: string[] = [], collapsed: boolean = false, targetLoopIteration?: number, judgementDeltas: (number | undefined)[] = [], coloringMode: 'categorical' | 'gradient' = 'categorical', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }): void {
+export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' | 'judgements-underline' = 'original', judgements: string[] = [], collapsed: boolean = false, targetLoopIteration?: number, judgementDeltas: (number | undefined)[] = [], coloringMode: 'categorical' | 'gradient' = 'categorical', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }, beatsPerLine: number = 16): void {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
         console.error("2D rendering context not found for canvas.");
@@ -334,7 +334,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewM
     const balloonIndices = calculateBalloonIndices(bars);
     const virtualBars = getVirtualBars(chart, collapsed, viewMode, judgements, globalBarStartIndices, targetLoopIteration);
     
-    const { layouts, constants, totalHeight } = calculateLayout(virtualBars, chart, logicalCanvasWidth);
+    const { layouts, constants, totalHeight } = calculateLayout(virtualBars, chart, logicalCanvasWidth, beatsPerLine);
     
     // Adjust for device pixel ratio for sharp rendering
     const dpr = window.devicePixelRatio || 1;
