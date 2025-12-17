@@ -9,36 +9,42 @@
 </head>
 <body>
     <div id="app">
-        <h1>TJA Analyzer</h1>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-right: 20px;">
+            <h1>TJA Analyzer</h1>
+            <select id="language-selector">
+                <option value="en">English</option>
+                <option value="zh">中文</option>
+            </select>
+        </div>
         
         <div id="data-source-panel">
             <div class="panel-header">
                 <div class="panel-header-left">
-                    <h2>Data Source</h2>
-                    <span id="status-display">Initializing...</span>
+                    <h2 data-i18n="ui.dataSource">Data Source</h2>
+                    <span id="status-display" data-i18n="status.initializing">Initializing...</span>
                 </div>
-                <button id="ds-collapse-btn">Hide Controls</button>
+                <button id="ds-collapse-btn" data-i18n="ui.hideControls">Hide Controls</button>
             </div>
             
             <div id="ds-body" class="panel-body">
                 <div class="panel-tabs">
-                    <button class="panel-tab" data-mode="example">Example</button>
-                    <button class="panel-tab" data-mode="file">Local File</button>
-                    <button class="panel-tab" data-mode="stream">Remote Stream</button>
-                    <button class="panel-tab" data-mode="test">Test Stream</button>
+                    <button class="panel-tab" data-mode="example" data-i18n="ui.tab.example">Example</button>
+                    <button class="panel-tab" data-mode="file" data-i18n="ui.tab.file">Local File</button>
+                    <button class="panel-tab" data-mode="stream" data-i18n="ui.tab.stream">Remote Stream</button>
+                    <button class="panel-tab" data-mode="test" data-i18n="ui.tab.test">Test Stream</button>
                 </div>
 
                 <div class="panel-content">
                     <!-- Example Mode -->
                     <div id="tab-example" class="panel-pane">
-                        <p>Load the built-in example chart for demonstration.</p>
-                        <button id="load-example-btn">Load Example Data</button>
+                        <p data-i18n="ui.example.desc">Load the built-in example chart for demonstration.</p>
+                        <button id="load-example-btn" data-i18n="ui.example.load">Load Example Data</button>
                     </div>
 
                     <!-- File Mode -->
                     <div id="tab-file" class="panel-pane" style="display:none;">
                         <div class="control-group">
-                            <label for="tja-file-picker">Select TJA File:</label>
+                            <label for="tja-file-picker" data-i18n="ui.file.label">Select TJA File:</label>
                             <input type="file" id="tja-file-picker" accept=".tja">
                         </div>
                     </div>
@@ -46,21 +52,21 @@
                     <!-- Stream Mode -->
                     <div id="tab-stream" class="panel-pane" style="display:none;">
                         <div class="control-group">
-                            <label>Host: <input type="text" id="host-input" value="127.0.0.1"></label>
-                            <label>Port: <input type="number" id="port-input" value="2354"></label>
-                            <button id="connect-btn">Connect</button>
+                            <label><span data-i18n="ui.stream.host">Host:</span> <input type="text" id="host-input" value="127.0.0.1"></label>
+                            <label><span data-i18n="ui.stream.port">Port:</span> <input type="number" id="port-input" value="2354"></label>
+                            <button id="connect-btn" data-i18n="ui.stream.connect">Connect</button>
                         </div>
                     </div>
 
                     <!-- Test Mode -->
                     <div id="tab-test" class="panel-pane" style="display:none;">
-                        <p>Simulate incoming judgement events on the currently loaded chart.</p>
-                        <button id="test-stream-btn">Start Test Stream</button>
+                        <p data-i18n="ui.test.desc">Simulate incoming judgement events on the currently loaded chart.</p>
+                        <button id="test-stream-btn" data-i18n="ui.test.start">Start Test Stream</button>
                     </div>
 
                     <!-- Shared Difficulty Selector -->
                     <div id="difficulty-selector-container" class="control-group" hidden style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                        <label for="difficulty-selector">Difficulty:</label>
+                        <label for="difficulty-selector" data-i18n="ui.difficulty">Difficulty:</label>
                         <select id="difficulty-selector"></select>
                     </div>
                 </div>
@@ -70,13 +76,13 @@
         <div id="sticky-header">
             <div id="chart-options-panel" class="options-panel">
                 <div class="panel-header">
-                    <h3>Chart Options</h3>
-                    <button id="options-collapse-btn">Collapse</button>
+                    <h3 data-i18n="ui.chartOptions">Chart Options</h3>
+                    <button id="options-collapse-btn" data-i18n="ui.collapse">Collapse</button>
                 </div>
                 <div id="options-body" class="panel-body">
                     <div class="panel-tabs">
-                        <button class="panel-tab active" data-do-tab="view">View Options</button>
-                        <button class="panel-tab" data-do-tab="selection">Note Selection</button>
+                        <button class="panel-tab active" data-do-tab="view" data-i18n="ui.viewOptions">View Options</button>
+                        <button class="panel-tab" data-do-tab="selection" data-i18n="ui.noteSelection">Note Selection</button>
                     </div>
                     
                     <div class="panel-content">
@@ -85,25 +91,25 @@
                             <!-- Judgements Section -->
                             <div class="option-section">
                                 <div class="section-main">
-                                    <label><input type="checkbox" id="show-judgements-checkbox"> Show Judgements</label>
+                                    <label><input type="checkbox" id="show-judgements-checkbox"> <span data-i18n="ui.showJudgements">Show Judgements</span></label>
                                 </div>
                                 <div id="judgement-subcontrols" class="section-subs">
                                     <div class="sub-group">
-                                        <span class="sub-label">Style:</span>
-                                        <label><input type="radio" name="judgementStyle" value="color" checked> Color</label>
-                                        <label><input type="radio" name="judgementStyle" value="underline"> Underline</label>
-                                        <label><input type="radio" name="judgementStyle" value="text"> Text</label>
+                                        <span class="sub-label" data-i18n="ui.style">Style:</span>
+                                        <label><input type="radio" name="judgementStyle" value="color" checked> <span data-i18n="ui.style.color">Color</span></label>
+                                        <label><input type="radio" name="judgementStyle" value="underline"> <span data-i18n="ui.style.underline">Underline</span></label>
+                                        <label><input type="radio" name="judgementStyle" value="text"> <span data-i18n="ui.style.text">Text</span></label>
                                     </div>
                                     <div class="sub-group">
-                                        <span class="sub-label">Coloring:</span>
-                                        <label><input type="radio" name="judgementColoring" value="categorical" checked> Class</label>
-                                        <label><input type="radio" name="judgementColoring" value="gradient"> Delta</label>
+                                        <span class="sub-label" data-i18n="ui.coloring">Coloring:</span>
+                                        <label><input type="radio" name="judgementColoring" value="categorical" checked> <span data-i18n="ui.coloring.class">Class</span></label>
+                                        <label><input type="radio" name="judgementColoring" value="gradient"> <span data-i18n="ui.coloring.gradient">Delta</span></label>
                                     </div>
                                     <div class="sub-group">
-                                        <span class="sub-label">Filter:</span>
-                                        <label><input type="checkbox" id="show-perfect-checkbox" checked> GOOD</label>
-                                        <label><input type="checkbox" id="show-good-checkbox" checked> OK</label>
-                                        <label><input type="checkbox" id="show-poor-checkbox" checked> BAD</label>
+                                        <span class="sub-label" data-i18n="ui.filter">Filter:</span>
+                                        <label><input type="checkbox" id="show-perfect-checkbox" checked> <span data-i18n="judgement.perfect">GOOD</span></label>
+                                        <label><input type="checkbox" id="show-good-checkbox" checked> <span data-i18n="judgement.good">OK</span></label>
+                                        <label><input type="checkbox" id="show-poor-checkbox" checked> <span data-i18n="judgement.poor">BAD</span></label>
                                     </div>
                                 </div>
                             </div>
@@ -111,12 +117,12 @@
                             <!-- Loop Section -->
                             <div class="option-section border-left">
                                 <div class="section-main">
-                                    <label><input type="checkbox" id="collapse-loop-checkbox"> Collapse Loops</label>
+                                    <label><input type="checkbox" id="collapse-loop-checkbox"> <span data-i18n="ui.collapseLoops">Collapse Loops</span></label>
                                 </div>
                                 <!-- Loop controls are inline/dynamic. They don't take much height so hiding them is fine, 
                                      but let's wrap them nicely. -->
                                 <div id="loop-controls" class="loop-subs" style="display:none;">
-                                     <label class="auto-check"><input type="checkbox" id="loop-auto" checked> Auto</label>
+                                     <label class="auto-check"><input type="checkbox" id="loop-auto" checked> <span data-i18n="ui.auto">Auto</span></label>
                                      <div class="loop-stepper">
                                          <button id="loop-prev" class="tiny-btn">&lt;</button>
                                          <span id="loop-counter">-</span>
@@ -128,7 +134,7 @@
                             <!-- Zoom Section -->
                             <div class="option-section border-left">
                                 <div class="section-main">
-                                    <span class="sub-label" style="min-width: auto; margin-right: 10px;">Zoom:</span>
+                                    <span class="sub-label" style="min-width: auto; margin-right: 10px;" data-i18n="ui.zoom">Zoom:</span>
                                     <div class="zoom-controls" style="display: flex; align-items: center; gap: 5px;">
                                         <button id="zoom-out-btn" class="tiny-btn">-</button>
                                         <button id="zoom-reset-btn" class="tiny-btn" style="font-family: 'Consolas', monospace; min-width: 50px;">100%</button>
@@ -140,7 +146,7 @@
                             <!-- Stats Section -->
                             <div class="option-section border-left">
                                 <div class="section-main">
-                                    <label><input type="checkbox" id="show-stats-checkbox" checked> Show Note Stats</label>
+                                    <label><input type="checkbox" id="show-stats-checkbox" checked> <span data-i18n="ui.showStats">Show Note Stats</span></label>
                                 </div>
                             </div>
                         </div>
@@ -148,8 +154,8 @@
                         <!-- Note Selection Pane -->
                         <div id="do-tab-selection" class="panel-pane" style="display:none;">
                             <div class="control-group">
-                                <label><input type="checkbox" id="selection-toggle" checked> Enable Selection</label>
-                                <button id="clear-selection-btn" disabled>Clear Selection</button>
+                                <label><input type="checkbox" id="selection-toggle" checked> <span data-i18n="ui.enableSelection">Enable Selection</span></label>
+                                <button id="clear-selection-btn" disabled data-i18n="ui.clearSelection">Clear Selection</button>
                             </div>
                         </div>
                     </div>

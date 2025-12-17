@@ -1,7 +1,8 @@
 import { parseTJA, ParsedChart } from './tja-parser.js';
-import { renderChart, getNoteAt, HitInfo, getGradientColor, JudgementVisibility, ViewOptions } from './renderer.js';
+import { renderChart, getNoteAt, HitInfo, getGradientColor, JudgementVisibility, ViewOptions, RenderTexts } from './renderer.js';
 import { exampleTJA } from './example-data.js';
 import { JudgementClient, ServerEvent } from './judgement-client.js';
+import { i18n } from './i18n.js';
 
 const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement | null;
 let parsedTJACharts: Record<string, ParsedChart> | null = null;
@@ -32,6 +33,7 @@ let judgementDeltas: (number | undefined)[] = []; // Store deltas
 // UI Elements
 const statusDisplay = document.getElementById('status-display') as HTMLElement;
 const noteStatsDisplay = document.getElementById('note-stats-display') as HTMLDivElement;
+const languageSelector = document.getElementById('language-selector') as HTMLSelectElement;
 
 const showJudgementsCheckbox = document.getElementById('show-judgements-checkbox') as HTMLInputElement;
 const judgementSubcontrols = document.getElementById('judgement-subcontrols') as HTMLDivElement;
@@ -78,9 +80,12 @@ const portInput = document.getElementById('port-input') as HTMLInputElement;
 const connectBtn = document.getElementById('connect-btn') as HTMLButtonElement;
 const testStreamBtn = document.getElementById('test-stream-btn') as HTMLButtonElement;
 
-function updateStatus(message: string) {
+let currentStatusKey = 'status.initializing';
+
+function updateStatus(key: string) {
+    currentStatusKey = key;
     if (statusDisplay) {
-        statusDisplay.innerText = message;
+        statusDisplay.innerText = i18n.t(key);
     }
 }
 
@@ -157,6 +162,45 @@ function switchDataSourceMode(mode: string) {
     }
 }
 
+function updateUIText() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (key) {
+            if (el.tagName === 'INPUT' && (el as HTMLInputElement).placeholder) {
+                 // Handle placeholder if needed, currently none
+            } else {
+                 // For text nodes, we might have replaced content. 
+                 // If the element has children (e.g. checkbox label wrapping span), we should target the span.
+                 // In index.html I put data-i18n on the specific text container elements (spans, h2, buttons).
+                 // So innerText is safe.
+                 (el as HTMLElement).innerText = i18n.t(key);
+            }
+        }
+    });
+
+    // Dynamic Elements
+    updateStatus(currentStatusKey);
+    
+    // Update collapsible buttons text based on state
+    if (dsCollapseBtn && dsBody) {
+        dsCollapseBtn.innerText = dsBody.classList.contains('collapsed') ? i18n.t('ui.expand') : i18n.t('ui.collapse');
+    }
+    if (optionsCollapseBtn && optionsBody) {
+        optionsCollapseBtn.innerText = optionsBody.classList.contains('collapsed') ? i18n.t('ui.expand') : i18n.t('ui.collapse');
+    }
+
+    // Refresh chart (redraws text on canvas) and stats
+    refreshChart();
+    // Re-render stats if a note is selected
+    const statsHit = selectedNoteHitInfo; // || hit (but we don't have hit here)
+    // We can't easily re-render hover stats without a mouse event, but selected note stats persist.
+    // If nothing selected, stats box is usually empty or showing last hover?
+    // Actually renderStats is called on mousemove.
+    if (selectedNoteHitInfo) {
+        renderStats(selectedNoteHitInfo, currentChart, viewOptions, judgements);
+    }
+}
+
 function createStatBox(label: string, value: string, highlight: boolean = false): string {
     return `
         <div class="stat-box">
@@ -180,7 +224,7 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, options: Vi
     const { collapsedLoop: collapsed, viewMode, coloringMode, visibility: judgementVisibility } = options;
 
     // 1. Type
-    html += createStatBox('Type', hit ? getNoteName(hit.type) : def);
+    html += createStatBox(i18n.t('stats.type'), hit ? getNoteName(hit.type) : def);
     
     // 2. Gap
     let gap = def;
@@ -188,16 +232,16 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, options: Vi
         const g = getGapInfo(chart, hit.originalBarIndex, hit.charIndex);
         if (g) gap = g;
     }
-    html += createStatBox('Gap', gap);
+    html += createStatBox(i18n.t('stats.gap'), gap);
     
     // 3. BPM
-    html += createStatBox('BPM', hit ? formatBPM(hit.bpm) : def);
+    html += createStatBox(i18n.t('stats.bpm'), hit ? formatBPM(hit.bpm) : def);
     
     // 4. HS
-    html += createStatBox('HS', hit ? formatHS(hit.scroll) : def);
+    html += createStatBox(i18n.t('stats.hs'), hit ? formatHS(hit.scroll) : def);
     
     // 5. Perceived BPM
-    html += createStatBox('Seen BPM', hit ? formatBPM(hit.bpm * hit.scroll) : def);
+    html += createStatBox(i18n.t('stats.seenBpm'), hit ? formatBPM(hit.bpm * hit.scroll) : def);
 
     // 6. Judgements (Deltas)
     let deltaVal = def;
@@ -381,10 +425,10 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, options: Vi
     }
 
     if (collapsed) {
-        html += createStatBox('Avg Delta', avgDeltaVal); 
+        html += createStatBox(i18n.t('stats.avgDelta'), avgDeltaVal); 
         html += `<div class="stat-full-line">Deltas: ${allDeltasStr}</div>`;
     } else {
-        html += createStatBox('Delta', deltaVal);
+        html += createStatBox(i18n.t('stats.delta'), deltaVal);
     }
 
     updateNoteStats(html);
@@ -650,7 +694,33 @@ function init(): void {
 
 
 
-                        dsCollapseBtn.innerText = "Collapse";
+                        dsCollapseBtn.innerText = i18n.t('ui.hideControls'); // Wait, "Hide Controls" was for non-collapsed?
+                        // Original: "Hide Controls" (visible) -> click -> "Show Controls" (collapsed)
+                        // My i18n keys: ui.hideControls, ui.showControls
+                        
+                        // Wait, previous code:
+                        // if collapsed -> remove collapsed -> "Collapse" (Wait, "Collapse" != "Hide Controls")
+                        // The original code said: `dsCollapseBtn.innerText = "Collapse";` (when expanding) and `"Expand"` (when collapsing).
+                        // BUT `index.html` initial text is "Hide Controls".
+                        // Let's standardize: "Hide Controls" (expanded) vs "Show Controls" (collapsed).
+                        // Or "Collapse" vs "Expand".
+                        // The previous code had:
+                        // `dsCollapseBtn.innerText = "Collapse"`
+                        // `optionsCollapseBtn.innerText = "Collapse"`
+                        // The `index.html` had "Hide Controls" for ds and "Collapse" for options.
+                        // I will use `ui.collapse` / `ui.expand` for both to be consistent, OR use specific keys.
+                        
+                        // Let's use `ui.collapse` and `ui.expand` for simplicity as keys are generic.
+                        // For Data Source: 
+                        // Expanded state -> Button says "Collapse" (or Hide)
+                        // Collapsed state -> Button says "Expand" (or Show)
+                        
+                        // Correcting my `updateUIText` logic:
+                        // `dsCollapseBtn.innerText = dsBody.classList.contains('collapsed') ? i18n.t('ui.expand') : i18n.t('ui.collapse');`
+                        // So here:
+                        // Remove collapsed (Expand) -> Button text: 'ui.collapse'
+                        
+                        dsCollapseBtn.innerText = i18n.t('ui.collapse');
 
 
 
@@ -662,7 +732,7 @@ function init(): void {
 
 
 
-                        dsCollapseBtn.innerText = "Expand";
+                        dsCollapseBtn.innerText = i18n.t('ui.expand');
 
 
 
@@ -702,7 +772,7 @@ function init(): void {
 
 
 
-                        optionsCollapseBtn.innerText = "Collapse";
+                        optionsCollapseBtn.innerText = i18n.t('ui.collapse');
 
 
 
@@ -714,7 +784,7 @@ function init(): void {
 
 
 
-                        optionsCollapseBtn.innerText = "Expand";
+                        optionsCollapseBtn.innerText = i18n.t('ui.expand');
 
 
 
@@ -768,7 +838,7 @@ function init(): void {
 
             updateParsedCharts(loadedTJAContent);
 
-            updateStatus('Example chart loaded');
+            updateStatus('status.exampleLoaded');
 
         });
 
@@ -796,7 +866,7 @@ function init(): void {
 
                     updateParsedCharts(content);
 
-                    updateStatus('Loaded local TJA file');
+                    updateStatus('status.fileLoaded');
 
                 } catch (e) {
 
@@ -820,25 +890,36 @@ function init(): void {
 
         connectBtn.addEventListener('click', () => {
 
-            if (connectBtn.innerText === 'Disconnect' || connectBtn.innerText === 'Connected') {
-
-                judgementClient.disconnect();
-
-            } else {
-
-                const host = hostInput.value;
-
-                const port = parseInt(portInput.value, 10);
-
-                if (host && port) {
-
-                    judgementClient.connect(host, port);
-
-                } else {
-
-                    alert("Please enter valid Host and Port.");
-
-                }
+            if (connectBtn.innerText === 'Disconnect' || connectBtn.innerText === 'Connected') { // Inner text might be translated now, check status or just call disconnect
+                 // Better to check judgementClient.status or assume disconnect if not 'Connect'
+                 // But wait, innerText is now translated. 'Connect' -> '连接'.
+                 // This logic is brittle if we check innerText!
+                 // I should check `activeDataSourceMode` or use a flag.
+                 // `judgementClient` doesn't expose status property publicly easily, but it has `onStatusChange`.
+                 // Let's use `isSimulating` for sim, but for real stream?
+                 // `connectBtn` text is set in `onStatusChange`.
+                 
+                 // If the button says the translated version of 'Connect', we connect. 
+                 // If it says translated 'Disconnect', we disconnect.
+                 // This is hard to check against i18n.t('ui.stream.connect').
+                 
+                 // Alternative: Check if we are connected.
+                 // The easiest fix without exposing state is to check if text == i18n.t('ui.stream.connect').
+                 
+                 const tConnect = i18n.t('ui.stream.connect');
+                 const currentText = connectBtn.innerText;
+                 
+                 if (currentText === tConnect) {
+                      const host = hostInput.value;
+                      const port = parseInt(portInput.value, 10);
+                      if (host && port) {
+                          judgementClient.connect(host, port);
+                      } else {
+                          alert("Please enter valid Host and Port.");
+                      }
+                 } else {
+                      judgementClient.disconnect();
+                 }
 
             }
 
@@ -993,8 +1074,20 @@ function init(): void {
         });
     }
 
-    // Canvas Interaction
+    // Language Selector
+    if (languageSelector) {
+        languageSelector.value = i18n.language;
+        languageSelector.addEventListener('change', () => {
+            i18n.language = languageSelector.value;
+        });
+    }
 
+    i18n.onLanguageChange(() => {
+        updateUIText();
+    });
+
+    // Canvas Interaction
+    
         const handleCanvasInteraction = (event: MouseEvent) => {
 
             if (!currentChart) return;
@@ -1124,153 +1217,229 @@ function init(): void {
             selectedNoteHitInfo = null;
             updateSelectionUI();
 
-            updateStatus('Receiving data...');
+                        updateStatus('status.receiving');
 
+            
 
+                        if (event.tjaSummaries && event.tjaSummaries.length > 0) {
 
-            if (event.tjaSummaries && event.tjaSummaries.length > 0) {
+                            // ...
 
-                const sortedSummaries = [...event.tjaSummaries].sort((a, b) => a.player - b.player);
-
-                const firstSummary = sortedSummaries[0];
-
-
-
-                if (firstSummary.tjaContent) {
-
-                    try {
-
-                        const charts = parseTJA(firstSummary.tjaContent);
-
-                        const difficulty = firstSummary.difficulty.toLowerCase();
-
-                        if (charts[difficulty]) {
-
-                            currentChart = charts[difficulty];
-
-                            parsedTJACharts = charts; // Update global parsed for reference
-
-                        } else {
-
-                            console.error(`Difficulty '${difficulty}' not found.`);
+            // ...
 
                         }
 
-                    } catch (e) {
+            
 
-                        console.error("Error parsing TJA content:", e);
+                        updateCollapseLoopState();
+
+            
+
+                        refreshChart();
+
+            
+
+                    } else if (event.type === 'judgement') {
+
+            
+
+                        judgements.push(event.judgement);
+
+            
+
+                        judgementDeltas.push(event.msDelta);
+
+            
+
+                        refreshChart();
+
+            
 
                     }
 
-                }
+            
 
-            }
-
-            updateCollapseLoopState();
-
-            refreshChart();
-
-        } else if (event.type === 'judgement') {
-
-            judgements.push(event.judgement);
-
-            judgementDeltas.push(event.msDelta);
-
-            refreshChart();
-
-        }
-
-    });
-
-
-
-    judgementClient.onStatusChange((status: string) => {
-
-        if (connectBtn) {
-
-            connectBtn.innerText = status === 'Connected' ? 'Disconnect' : 'Connect';
-
-        }
-
-
-
-        if (status === 'Connected') {
-
-            if (showJudgementsCheckbox) {
-
-                showJudgementsCheckbox.disabled = false;
-
-                if (showJudgementsCheckbox.parentElement) {
-
-                    showJudgementsCheckbox.parentElement.classList.remove('disabled-text');
-
-                }
-
-                // Auto-enable judgements on connect for convenience, but only if not explicitly unchecked?
-
-                // The requirements say "judgement view mode is only available when the connection is active".
-
-                // Let's just enable the control.
-
-            }
+                });
 
             
 
-            if (isSimulating) {
-
-                updateStatus('Simulating Stream: Connected');
-
-            } else {
-
-                updateStatus('Stream: Connected');
-
-                if (testStreamBtn) testStreamBtn.disabled = true;
-
-            }
-
-        } else if (status === 'Connecting...') {
-
-            updateStatus('Connecting...');
-
-            if (testStreamBtn) testStreamBtn.disabled = true;
-
-            if (connectBtn) connectBtn.disabled = true;
-
-        } else { // Disconnected
-
-            if (showJudgementsCheckbox) {
-
-                showJudgementsCheckbox.disabled = true;
-
-                showJudgementsCheckbox.checked = false;
-
-                if (showJudgementsCheckbox.parentElement) {
-
-                    showJudgementsCheckbox.parentElement.classList.add('disabled-text');
-
-                }
-
-            }
-
-            updateDisplayState(); // Will reset to 'original'
-
-
-
-            // Re-enable controls if we were in test mode
-
-             if (testStreamBtn) testStreamBtn.disabled = false;
-
-             if (connectBtn) connectBtn.disabled = false;
+            
 
             
 
-            updateStatus(isSimulating ? 'Simulation Stopped' : 'Disconnected');
+                judgementClient.onStatusChange((status: string) => {
 
-            isSimulating = false;
+            
 
-        }
+                    if (connectBtn) {
 
-    });
+                        // Update button text based on status.
+
+                        // Status strings from client are 'Connected', 'Connecting...', 'Disconnected' (implied)
+
+                        // We need to map these to UI keys for the button.
+
+                        // If connected -> Show 'Disconnect' (ui.stream.disconnect)
+
+                        // If connecting -> Disable?
+
+                        // If disconnected -> Show 'Connect' (ui.stream.connect)
+
+                        
+
+                        if (status === 'Connected') {
+
+                            connectBtn.innerText = i18n.t('ui.stream.disconnect');
+
+                        } else {
+
+                            connectBtn.innerText = i18n.t('ui.stream.connect');
+
+                        }
+
+                    }
+
+            
+
+            
+
+            
+
+                    if (status === 'Connected') {
+
+            
+
+                        if (showJudgementsCheckbox) {
+
+            
+
+                            showJudgementsCheckbox.disabled = false;
+
+            
+
+                            if (showJudgementsCheckbox.parentElement) {
+
+            
+
+                                showJudgementsCheckbox.parentElement.classList.remove('disabled-text');
+
+            
+
+                            }
+
+                        }
+
+            
+
+                        
+
+                        if (isSimulating) {
+
+            
+
+                            updateStatus('status.simConnected');
+
+            
+
+                        } else {
+
+            
+
+                            updateStatus('status.connected');
+
+            
+
+                            if (testStreamBtn) testStreamBtn.disabled = true;
+
+            
+
+                        }
+
+            
+
+                    } else if (status === 'Connecting...') {
+
+            
+
+                        updateStatus('status.connecting');
+
+            
+
+                        if (testStreamBtn) testStreamBtn.disabled = true;
+
+            
+
+                        if (connectBtn) connectBtn.disabled = true;
+
+            
+
+                    } else { // Disconnected
+
+            
+
+                        if (showJudgementsCheckbox) {
+
+            
+
+                            showJudgementsCheckbox.disabled = true;
+
+            
+
+                            showJudgementsCheckbox.checked = false;
+
+            
+
+                            if (showJudgementsCheckbox.parentElement) {
+
+            
+
+                                showJudgementsCheckbox.parentElement.classList.add('disabled-text');
+
+            
+
+                            }
+
+            
+
+                        }
+
+            
+
+                        updateDisplayState(); // Will reset to 'original'
+
+            
+
+            
+
+            
+
+                        // Re-enable controls if we were in test mode
+
+            
+
+                         if (testStreamBtn) testStreamBtn.disabled = false;
+
+            
+
+                         if (connectBtn) connectBtn.disabled = false;
+
+            
+
+                        
+
+                        updateStatus(isSimulating ? 'status.simStopped' : 'status.disconnected');
+
+            
+
+                        isSimulating = false;
+
+            
+
+                    }
+
+            
+
+                });
 
 
 
@@ -1280,7 +1449,8 @@ function init(): void {
 
     // Load example by default
 
-    updateStatus('Ready');
+    updateStatus('status.ready');
+    updateUIText(); // Initialize text
 
     // We don't auto-click load-example, but maybe we should to show something?
 
@@ -1517,7 +1687,15 @@ function updateParsedCharts(content: string) {
 
 function refreshChart() {
     if (currentChart && canvas) {
-        renderChart(currentChart, canvas, judgements, judgementDeltas, viewOptions);
+        const texts: RenderTexts = {
+            loopPattern: i18n.t('renderer.loop'),
+            judgement: {
+                perfect: i18n.t('renderer.judge.perfect'),
+                good: i18n.t('renderer.judge.good'),
+                poor: i18n.t('renderer.judge.poor')
+            }
+        };
+        renderChart(currentChart, canvas, judgements, judgementDeltas, viewOptions, texts);
         updateLoopControls();
     }
 }

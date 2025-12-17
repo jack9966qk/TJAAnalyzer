@@ -52,6 +52,24 @@ const RATIOS = {
     BAR_NUMBER_OFFSET_Y_RATIO: -0.0015
 };
 
+export interface RenderTexts {
+    loopPattern: string; // e.g. "Loop x{n}"
+    judgement: {
+        perfect: string;
+        good: string;
+        poor: string;
+    };
+}
+
+const DEFAULT_TEXTS: RenderTexts = {
+    loopPattern: "Loop x{n}",
+    judgement: {
+        perfect: "良",
+        good: "可",
+        poor: "不可"
+    }
+};
+
 function isNoteSelected(barIdx: number, charIdx: number, selection: ViewOptions['selection']): boolean {
     if (!selection) return false;
     
@@ -370,7 +388,7 @@ export function getGradientColor(delta: number): string {
     return `rgb(${r}, ${g}, ${b})`;
 }
 
-export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judgements: string[] = [], judgementDeltas: (number | undefined)[] = [], options: ViewOptions): void {
+export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judgements: string[] = [], judgementDeltas: (number | undefined)[] = [], options: ViewOptions, texts: RenderTexts = DEFAULT_TEXTS): void {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
         console.error("2D rendering context not found for canvas.");
@@ -413,7 +431,8 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
             ctx.fillStyle = '#000';
             ctx.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px sans-serif`;
             ctx.textAlign = 'right';
-            ctx.fillText(`Loop x${loop.iterations}`, layout.x + layout.width, layout.y - constants.BAR_NUMBER_OFFSET_Y);
+            const text = texts.loopPattern.replace('{n}', loop.iterations.toString());
+            ctx.fillText(text, layout.x + layout.width, layout.y - constants.BAR_NUMBER_OFFSET_Y);
         }
     });
 
@@ -429,7 +448,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
             ? info.overrideStartIndex 
             : globalBarStartIndices[info.originalIndex];
 
-        drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, options, startIndex, judgements, judgementDeltas, info.originalIndex, bars, options.collapsedLoop ? loop : undefined);
+        drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, options, startIndex, judgements, judgementDeltas, texts, info.originalIndex, bars, options.collapsedLoop ? loop : undefined);
     }
 }
 
@@ -677,7 +696,7 @@ function drawCapsule(ctx: CanvasRenderingContext2D, startX: number, endX: number
 }
 
 
-function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, options: ViewOptions, startIndex: number, judgements: string[], judgementDeltas: (number | undefined)[] = [], originalBarIndex: number = -1, bars: string[][] = [], loopInfo?: LoopInfo): void {
+function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, options: ViewOptions, startIndex: number, judgements: string[], judgementDeltas: (number | undefined)[] = [], texts: RenderTexts, originalBarIndex: number = -1, bars: string[][] = [], loopInfo?: LoopInfo): void {
     const { viewMode, coloringMode, visibility: judgementVisibility, selection } = options;
     
     // DEBUG LOG
@@ -884,9 +903,9 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
             if (color && globalIndex !== null && globalIndex < judgements.length) {
                 const judge = judgements[globalIndex];
                 let text = '';
-                if (judge === 'Perfect') text = '良';
-                else if (judge === 'Good') text = '可';
-                else if (judge === 'Poor') text = '不可';
+                if (judge === 'Perfect') text = texts.judgement.perfect;
+                else if (judge === 'Good') text = texts.judgement.good;
+                else if (judge === 'Poor') text = texts.judgement.poor;
 
                 if (text) {
                      const noteX: number = x + (i * noteStep);
