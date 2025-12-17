@@ -117,8 +117,15 @@ export class JudgementClient {
         }
 
         this.simulateInterval = window.setInterval(() => {
-            const types = ['Perfect', 'Good', 'Poor'];
-            const randomType = types[Math.floor(Math.random() * types.length)];
+            const rand = Math.random();
+            let randomType = 'Perfect';
+            if (rand < 0.90) {
+                randomType = 'Perfect';
+            } else if (rand < 0.99) {
+                randomType = 'Good';
+            } else {
+                randomType = 'Poor';
+            }
             
             // Random delta between -50 and 50 ms
             const randomDelta = Math.floor(Math.random() * 100) - 50;
