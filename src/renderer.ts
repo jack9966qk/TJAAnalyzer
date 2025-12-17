@@ -405,11 +405,31 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
     const { layouts, constants, totalHeight } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options.beatsPerLine);
     
     // Adjust for device pixel ratio for sharp rendering
-    const dpr = window.devicePixelRatio || 1;
+    let dpr = window.devicePixelRatio || 1;
+    
+    // Safety check for canvas limits
+    // Most browsers have a max height/width around 32,767px.
+    const MAX_CANVAS_DIMENSION = 32000;
+
+    if (totalHeight * dpr > MAX_CANVAS_DIMENSION) {
+        console.warn(`Chart height (${totalHeight * dpr}px) exceeds canvas limit. Reducing DPR to 1.`);
+        dpr = 1;
+    }
+
+    let finalCanvasHeight = totalHeight * dpr;
+    let finalStyleHeight = totalHeight;
+
+    if (finalCanvasHeight > MAX_CANVAS_DIMENSION) {
+        console.warn(`Chart height (${finalCanvasHeight}px) still exceeds canvas limit. Clamping height.`);
+        finalCanvasHeight = MAX_CANVAS_DIMENSION;
+        finalStyleHeight = MAX_CANVAS_DIMENSION / dpr;
+    }
+
     canvas.width = logicalCanvasWidth * dpr;
-    canvas.height = totalHeight * dpr;
+    canvas.height = finalCanvasHeight;
+    
     canvas.style.width = logicalCanvasWidth + 'px';
-    canvas.style.height = totalHeight + 'px';
+    canvas.style.height = finalStyleHeight + 'px';
     
     ctx.scale(dpr, dpr);
 
