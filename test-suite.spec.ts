@@ -443,3 +443,43 @@ test.describe('Zoom Controls', () => {
         await expect(zoomResetBtn).toHaveText('100%');
     });
 });
+
+test.describe('Selection Interaction', () => {
+    test('Select note, verify visual and sticky stats', async ({ page }) => {
+        await page.goto('/');
+        const canvas = page.locator('#chart-canvas');
+        await expect(canvas).toBeVisible();
+        await page.waitForTimeout(2000);
+        await page.selectOption('#difficulty-selector', 'oni');
+        await page.waitForTimeout(500);
+
+        // Position of the first note (approximate based on previous tests)
+        const notePos = { x: 20, y: 33 };
+
+        // 1. Click on first note
+        await canvas.click({ position: notePos });
+        
+        // 2. Verify Stats
+        const stats = page.locator('#note-stats-display');
+        await expect(stats).toContainText('Type');
+        await expect(stats).toContainText('DON');
+
+        // 3. Take Snapshot of Selection
+        await expect(canvas).toHaveScreenshot('note-selected.png');
+
+        // 4. Hover away to empty space (e.g. x + 100, same y)
+        await canvas.hover({ position: { x: notePos.x + 100, y: notePos.y }, force: true });
+
+        // 5. Verify Stats are STICKY (still showing 'DON')
+        await expect(stats).toContainText('DON');
+
+        // 6. Click again to unselect
+        await canvas.click({ position: notePos, force: true });
+        
+        // 7. Move away to empty space
+        await canvas.hover({ position: { x: notePos.x + 100, y: notePos.y }, force: true });
+        
+        // 8. Stats should be cleared (showing '-')
+        await expect(stats).toContainText('-');
+    });
+});

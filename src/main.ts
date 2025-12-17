@@ -13,7 +13,8 @@ let viewOptions: ViewOptions = {
     visibility: { perfect: true, good: true, poor: true },
     collapsedLoop: false,
     selectedLoopIteration: undefined,
-    beatsPerLine: 16
+    beatsPerLine: 16,
+    selectedNote: null
 };
 
 let loadedTJAContent: string = exampleTJA;
@@ -21,6 +22,7 @@ let loadedTJAContent: string = exampleTJA;
 // Application State
 let activeDataSourceMode: string = 'example';
 let isSimulating: boolean = false;
+let selectedNoteHitInfo: HitInfo | null = null;
 
 // Judgement State
 const judgementClient = new JudgementClient();
@@ -47,7 +49,7 @@ const optionsCollapseBtn = document.getElementById('options-collapse-btn') as HT
 const optionsBody = document.getElementById('options-body') as HTMLDivElement;
 const showStatsCheckbox = document.getElementById('show-stats-checkbox') as HTMLInputElement;
 
-const loopControls = document.getElementById('loop-controls') as HTMLDivElement; // Changed to Div in HTML
+const loopControls = document.getElementById('loop-controls') as HTMLDivElement;
 const loopAutoCheckbox = document.getElementById('loop-auto') as HTMLInputElement;
 const loopPrevBtn = document.getElementById('loop-prev') as HTMLButtonElement;
 const loopNextBtn = document.getElementById('loop-next') as HTMLButtonElement;
@@ -57,9 +59,15 @@ const zoomOutBtn = document.getElementById('zoom-out-btn') as HTMLButtonElement;
 const zoomInBtn = document.getElementById('zoom-in-btn') as HTMLButtonElement;
 const zoomResetBtn = document.getElementById('zoom-reset-btn') as HTMLButtonElement;
 
+// Display Options Tabs
+const doTabs = document.querySelectorAll('#chart-options-panel .panel-tab');
+const doPanes = document.querySelectorAll('#chart-options-panel .panel-pane');
+const selectionToggle = document.getElementById('selection-toggle') as HTMLInputElement;
+const clearSelectionBtn = document.getElementById('clear-selection-btn') as HTMLButtonElement;
+
 // Data Source UI
-const dsTabs = document.querySelectorAll('.ds-tab');
-const dsPanes = document.querySelectorAll('.ds-pane');
+const dsTabs = document.querySelectorAll('#data-source-panel .panel-tab');
+const dsPanes = document.querySelectorAll('#data-source-panel .panel-pane');
 const dsCollapseBtn = document.getElementById('ds-collapse-btn') as HTMLButtonElement;
 const dsBody = document.getElementById('ds-body') as HTMLDivElement;
 const loadExampleBtn = document.getElementById('load-example-btn') as HTMLButtonElement;
@@ -79,6 +87,30 @@ function updateStatus(message: string) {
 function updateNoteStats(html: string) {
     if (noteStatsDisplay) {
         noteStatsDisplay.innerHTML = html;
+    }
+}
+
+function switchDisplayOptionTab(mode: string) {
+    doTabs.forEach(t => {
+        if (t.getAttribute('data-do-tab') === mode) t.classList.add('active');
+        else t.classList.remove('active');
+    });
+
+    doPanes.forEach(p => {
+        const isTarget = p.id === `do-tab-${mode}`;
+        if (isTarget) {
+            // Restore flex for view, block for selection
+            if (mode === 'view') (p as HTMLElement).style.display = 'flex';
+            else (p as HTMLElement).style.display = 'block';
+        } else {
+             (p as HTMLElement).style.display = 'none';
+        }
+    });
+}
+
+function updateSelectionUI() {
+    if (clearSelectionBtn) {
+        clearSelectionBtn.disabled = !viewOptions.selectedNote;
     }
 }
 
@@ -570,6 +602,23 @@ function init(): void {
 
     });
 
+    // Setup Display Options Tabs
+    doTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const mode = tab.getAttribute('data-do-tab');
+            if (mode) switchDisplayOptionTab(mode);
+        });
+    });
+
+    if (clearSelectionBtn) {
+        clearSelectionBtn.addEventListener('click', () => {
+            viewOptions.selectedNote = null;
+            selectedNoteHitInfo = null;
+            refreshChart();
+            updateSelectionUI();
+        });
+    }
+
 
 
             // Setup Collapse Button
@@ -955,19 +1004,40 @@ function init(): void {
 
             
 
-            if (hit) {
+            if (event.type === 'click') {
+                 if (selectionToggle && !selectionToggle.checked) return;
 
-                renderStats(hit, currentChart, viewOptions, judgements);
-
-                canvas.style.cursor = 'pointer';
-
-            } else {
-
-                renderStats(null, currentChart, viewOptions, judgements);
-
-                canvas.style.cursor = 'default';
-
+                 if (hit) {
+                     // Check if already selected
+                     if (viewOptions.selectedNote && 
+                         viewOptions.selectedNote.originalBarIndex === hit.originalBarIndex && 
+                         viewOptions.selectedNote.charIndex === hit.charIndex) {
+                         // Deselect
+                         viewOptions.selectedNote = null;
+                         selectedNoteHitInfo = null;
+                     } else {
+                         // Select
+                         viewOptions.selectedNote = { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex };
+                         selectedNoteHitInfo = hit;
+                     }
+                 } else {
+                     // Click on empty space - Deselect
+                     viewOptions.selectedNote = null;
+                     selectedNoteHitInfo = null;
+                 }
+                 refreshChart();
+                 updateSelectionUI();
             }
+
+            if (hit) {
+                canvas.style.cursor = 'pointer';
+            } else {
+                canvas.style.cursor = 'default';
+            }
+            
+            // Render Stats: Use selected note if active, otherwise hover hit
+            const statsHit = selectedNoteHitInfo || hit;
+            renderStats(statsHit, currentChart, viewOptions, judgements);
 
         };
 
@@ -1010,6 +1080,11 @@ function init(): void {
             judgementDeltas = [];
 
             currentChart = null;
+
+            // Clear selection
+            viewOptions.selectedNote = null;
+            selectedNoteHitInfo = null;
+            updateSelectionUI();
 
             updateStatus('Receiving data...');
 
@@ -1181,11 +1256,117 @@ function init(): void {
 
 function updateParsedCharts(content: string) {
 
+
+
+
+
+
+
     parsedTJACharts = parseTJA(content);
+
+
 
     
 
-    difficultySelector.innerHTML = '';
+
+
+        // Clear selection
+
+
+
+    
+
+
+
+    
+
+
+
+    
+
+
+
+        viewOptions.selectedNote = null;
+
+
+
+    
+
+
+
+    
+
+
+
+    
+
+
+
+        selectedNoteHitInfo = null;
+
+
+
+    
+
+
+
+    
+
+
+
+    
+
+
+
+        updateSelectionUI();
+
+
+
+    
+
+
+
+    
+
+
+
+    
+
+
+
+        
+
+
+
+    
+
+
+
+    
+
+
+
+    
+
+
+
+    
+
+
+
+    
+
+
+
+    
+
+
+
+    
+
+
+
+        difficultySelector.innerHTML = '';
 
     const difficulties = Object.keys(parsedTJACharts);
 

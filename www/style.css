@@ -35,7 +35,7 @@ h1 {
     overflow: hidden;
 }
 
-.ds-header {
+.panel-header {
     background-color: #f5f5f5;
     padding: 10px 15px;
     display: flex;
@@ -44,13 +44,13 @@ h1 {
     border-bottom: 1px solid #ddd;
 }
 
-.ds-header-left {
+.panel-header-left {
     display: flex;
     align-items: center;
     gap: 15px;
 }
 
-.ds-header h2 {
+.panel-header h2, .panel-header h3 {
     margin: 0;
     font-size: 1.1em;
     color: #333;
@@ -77,21 +77,21 @@ h1 {
     background-color: #e0e0e0;
 }
 
-#ds-body {
+.panel-body {
     transition: max-height 0.3s ease-out;
 }
 
-#ds-body.collapsed {
+.panel-body.collapsed {
     display: none;
 }
 
-.ds-tabs {
+.panel-tabs {
     display: flex;
     background-color: #eee;
     border-bottom: 1px solid #ddd;
 }
 
-.ds-tab {
+.panel-tab {
     flex: 1;
     padding: 10px;
     background: none;
@@ -103,26 +103,26 @@ h1 {
     border-radius: 0;
 }
 
-.ds-tab:last-child {
+.panel-tab:last-child {
     border-right: none;
 }
 
-.ds-tab:hover {
+.panel-tab:hover {
     background-color: #e0e0e0;
 }
 
-.ds-tab.active {
+.panel-tab.active {
     background-color: #fff;
     color: #1976d2;
     border-bottom: 2px solid #1976d2;
 }
 
-.ds-content {
+.panel-content {
     padding: 20px;
     background-color: #fff;
 }
 
-.ds-pane {
+.panel-pane {
     animation: fadeIn 0.2s;
 }
 

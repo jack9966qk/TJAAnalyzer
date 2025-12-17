@@ -12,31 +12,31 @@
         <h1>TJA Analyzer</h1>
         
         <div id="data-source-panel">
-            <div class="ds-header">
-                <div class="ds-header-left">
+            <div class="panel-header">
+                <div class="panel-header-left">
                     <h2>Data Source</h2>
                     <span id="status-display">Initializing...</span>
                 </div>
                 <button id="ds-collapse-btn">Hide Controls</button>
             </div>
             
-            <div id="ds-body">
-                <div class="ds-tabs">
-                    <button class="ds-tab" data-mode="example">Example</button>
-                    <button class="ds-tab" data-mode="file">Local File</button>
-                    <button class="ds-tab" data-mode="stream">Remote Stream</button>
-                    <button class="ds-tab" data-mode="test">Test Stream</button>
+            <div id="ds-body" class="panel-body">
+                <div class="panel-tabs">
+                    <button class="panel-tab" data-mode="example">Example</button>
+                    <button class="panel-tab" data-mode="file">Local File</button>
+                    <button class="panel-tab" data-mode="stream">Remote Stream</button>
+                    <button class="panel-tab" data-mode="test">Test Stream</button>
                 </div>
 
-                <div class="ds-content">
+                <div class="panel-content">
                     <!-- Example Mode -->
-                    <div id="tab-example" class="ds-pane">
+                    <div id="tab-example" class="panel-pane">
                         <p>Load the built-in example chart for demonstration.</p>
                         <button id="load-example-btn">Load Example Data</button>
                     </div>
 
                     <!-- File Mode -->
-                    <div id="tab-file" class="ds-pane" style="display:none;">
+                    <div id="tab-file" class="panel-pane" style="display:none;">
                         <div class="control-group">
                             <label for="tja-file-picker">Select TJA File:</label>
                             <input type="file" id="tja-file-picker" accept=".tja">
@@ -44,7 +44,7 @@
                     </div>
 
                     <!-- Stream Mode -->
-                    <div id="tab-stream" class="ds-pane" style="display:none;">
+                    <div id="tab-stream" class="panel-pane" style="display:none;">
                         <div class="control-group">
                             <label>Host: <input type="text" id="host-input" value="127.0.0.1"></label>
                             <label>Port: <input type="number" id="port-input" value="2354"></label>
@@ -53,7 +53,7 @@
                     </div>
 
                     <!-- Test Mode -->
-                    <div id="tab-test" class="ds-pane" style="display:none;">
+                    <div id="tab-test" class="panel-pane" style="display:none;">
                         <p>Simulate incoming judgement events on the currently loaded chart.</p>
                         <button id="test-stream-btn">Start Test Stream</button>
                     </div>
@@ -68,71 +68,89 @@
         </div>
 
         <div id="sticky-header">
-            <div id="display-options-panel" class="options-panel">
-                <div class="options-header">
-                    <h3>Display Options</h3>
+            <div id="chart-options-panel" class="options-panel">
+                <div class="panel-header">
+                    <h3>Chart Options</h3>
                     <button id="options-collapse-btn">Collapse</button>
                 </div>
-                <div id="options-body" class="options-content">
-                    <!-- Judgements Section -->
-                    <div class="option-section">
-                        <div class="section-main">
-                            <label><input type="checkbox" id="show-judgements-checkbox"> Show Judgements</label>
-                        </div>
-                        <div id="judgement-subcontrols" class="section-subs">
-                            <div class="sub-group">
-                                <span class="sub-label">Style:</span>
-                                <label><input type="radio" name="judgementStyle" value="color" checked> Color</label>
-                                <label><input type="radio" name="judgementStyle" value="underline"> Underline</label>
-                                <label><input type="radio" name="judgementStyle" value="text"> Text</label>
-                            </div>
-                            <div class="sub-group">
-                                <span class="sub-label">Coloring:</span>
-                                <label><input type="radio" name="judgementColoring" value="categorical" checked> Class</label>
-                                <label><input type="radio" name="judgementColoring" value="gradient"> Delta</label>
-                            </div>
-                            <div class="sub-group">
-                                <span class="sub-label">Filter:</span>
-                                <label><input type="checkbox" id="show-perfect-checkbox" checked> GOOD</label>
-                                <label><input type="checkbox" id="show-good-checkbox" checked> OK</label>
-                                <label><input type="checkbox" id="show-poor-checkbox" checked> BAD</label>
-                            </div>
-                        </div>
+                <div id="options-body" class="panel-body">
+                    <div class="panel-tabs">
+                        <button class="panel-tab active" data-do-tab="view">View Options</button>
+                        <button class="panel-tab" data-do-tab="selection">Note Selection</button>
                     </div>
+                    
+                    <div class="panel-content">
+                        <!-- View Options Pane -->
+                        <div id="do-tab-view" class="panel-pane" style="display:flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+                            <!-- Judgements Section -->
+                            <div class="option-section">
+                                <div class="section-main">
+                                    <label><input type="checkbox" id="show-judgements-checkbox"> Show Judgements</label>
+                                </div>
+                                <div id="judgement-subcontrols" class="section-subs">
+                                    <div class="sub-group">
+                                        <span class="sub-label">Style:</span>
+                                        <label><input type="radio" name="judgementStyle" value="color" checked> Color</label>
+                                        <label><input type="radio" name="judgementStyle" value="underline"> Underline</label>
+                                        <label><input type="radio" name="judgementStyle" value="text"> Text</label>
+                                    </div>
+                                    <div class="sub-group">
+                                        <span class="sub-label">Coloring:</span>
+                                        <label><input type="radio" name="judgementColoring" value="categorical" checked> Class</label>
+                                        <label><input type="radio" name="judgementColoring" value="gradient"> Delta</label>
+                                    </div>
+                                    <div class="sub-group">
+                                        <span class="sub-label">Filter:</span>
+                                        <label><input type="checkbox" id="show-perfect-checkbox" checked> GOOD</label>
+                                        <label><input type="checkbox" id="show-good-checkbox" checked> OK</label>
+                                        <label><input type="checkbox" id="show-poor-checkbox" checked> BAD</label>
+                                    </div>
+                                </div>
+                            </div>
 
-                    <!-- Loop Section -->
-                    <div class="option-section border-left">
-                        <div class="section-main">
-                            <label><input type="checkbox" id="collapse-loop-checkbox"> Collapse Loops</label>
-                        </div>
-                        <!-- Loop controls are inline/dynamic. They don't take much height so hiding them is fine, 
-                             but let's wrap them nicely. -->
-                        <div id="loop-controls" class="loop-subs" style="display:none;">
-                             <label class="auto-check"><input type="checkbox" id="loop-auto" checked> Auto</label>
-                             <div class="loop-stepper">
-                                 <button id="loop-prev" class="tiny-btn">&lt;</button>
-                                 <span id="loop-counter">-</span>
-                                 <button id="loop-next" class="tiny-btn">&gt;</button>
-                             </div>
-                        </div>
-                    </div>
+                            <!-- Loop Section -->
+                            <div class="option-section border-left">
+                                <div class="section-main">
+                                    <label><input type="checkbox" id="collapse-loop-checkbox"> Collapse Loops</label>
+                                </div>
+                                <!-- Loop controls are inline/dynamic. They don't take much height so hiding them is fine, 
+                                     but let's wrap them nicely. -->
+                                <div id="loop-controls" class="loop-subs" style="display:none;">
+                                     <label class="auto-check"><input type="checkbox" id="loop-auto" checked> Auto</label>
+                                     <div class="loop-stepper">
+                                         <button id="loop-prev" class="tiny-btn">&lt;</button>
+                                         <span id="loop-counter">-</span>
+                                         <button id="loop-next" class="tiny-btn">&gt;</button>
+                                     </div>
+                                </div>
+                            </div>
 
-                    <!-- Zoom Section -->
-                    <div class="option-section border-left">
-                        <div class="section-main">
-                            <span class="sub-label" style="min-width: auto; margin-right: 10px;">Zoom:</span>
-                            <div class="zoom-controls" style="display: flex; align-items: center; gap: 5px;">
-                                <button id="zoom-out-btn" class="tiny-btn">-</button>
-                                <button id="zoom-reset-btn" class="tiny-btn" style="font-family: 'Consolas', monospace; min-width: 50px;">100%</button>
-                                <button id="zoom-in-btn" class="tiny-btn">+</button>
+                            <!-- Zoom Section -->
+                            <div class="option-section border-left">
+                                <div class="section-main">
+                                    <span class="sub-label" style="min-width: auto; margin-right: 10px;">Zoom:</span>
+                                    <div class="zoom-controls" style="display: flex; align-items: center; gap: 5px;">
+                                        <button id="zoom-out-btn" class="tiny-btn">-</button>
+                                        <button id="zoom-reset-btn" class="tiny-btn" style="font-family: 'Consolas', monospace; min-width: 50px;">100%</button>
+                                        <button id="zoom-in-btn" class="tiny-btn">+</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Stats Section -->
+                            <div class="option-section border-left">
+                                <div class="section-main">
+                                    <label><input type="checkbox" id="show-stats-checkbox" checked> Show Note Stats</label>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Stats Section -->
-                    <div class="option-section border-left">
-                        <div class="section-main">
-                            <label><input type="checkbox" id="show-stats-checkbox" checked> Show Note Stats</label>
+                        <!-- Note Selection Pane -->
+                        <div id="do-tab-selection" class="panel-pane" style="display:none;">
+                            <div class="control-group">
+                                <label><input type="checkbox" id="selection-toggle" checked> Enable Selection</label>
+                                <button id="clear-selection-btn" disabled>Clear Selection</button>
+                            </div>
                         </div>
                     </div>
                 </div>

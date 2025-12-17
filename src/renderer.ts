@@ -29,6 +29,7 @@ export interface ViewOptions {
     collapsedLoop: boolean;
     selectedLoopIteration?: number;
     beatsPerLine: number;
+    selectedNote?: { originalBarIndex: number, charIndex: number } | null;
 }
 
 // Configuration Constants
@@ -637,7 +638,7 @@ function drawCapsule(ctx: CanvasRenderingContext2D, startX: number, endX: number
 
 
 function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, options: ViewOptions, startIndex: number, judgements: string[], judgementDeltas: (number | undefined)[] = [], originalBarIndex: number = -1, bars: string[][] = [], loopInfo?: LoopInfo): void {
-    const { viewMode, coloringMode, visibility: judgementVisibility } = options;
+    const { viewMode, coloringMode, visibility: judgementVisibility, selectedNote } = options;
     
     // DEBUG LOG
     if (originalBarIndex === 0 && (viewMode === 'judgements' || viewMode === 'judgements-underline' || viewMode === 'judgements-text')) {
@@ -913,7 +914,12 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
             ctx.arc(noteX, centerY, radius, 0, Math.PI * 2);
 
             // Black border (outside)
-            ctx.lineWidth = borderOuterW;
+            let effectiveBorderOuterW = borderOuterW;
+            if (selectedNote && selectedNote.originalBarIndex === originalBarIndex && selectedNote.charIndex === i) {
+                effectiveBorderOuterW = borderOuterW * 2.5; // Wider border for selected note
+            }
+
+            ctx.lineWidth = effectiveBorderOuterW;
             ctx.strokeStyle = '#000';
             ctx.stroke();
 
