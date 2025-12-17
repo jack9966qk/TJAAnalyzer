@@ -1,17 +1,21 @@
 import { parseTJA, ParsedChart } from './tja-parser.js';
-import { renderChart, getNoteAt, HitInfo, getGradientColor, JudgementVisibility } from './renderer.js';
+import { renderChart, getNoteAt, HitInfo, getGradientColor, JudgementVisibility, ViewOptions } from './renderer.js';
 import { exampleTJA } from './example-data.js';
 import { JudgementClient, ServerEvent } from './judgement-client.js';
 
 const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement | null;
 let parsedTJACharts: Record<string, ParsedChart> | null = null;
 let currentChart: ParsedChart | null = null;
-let currentViewMode: 'original' | 'judgements' | 'judgements-underline' | 'judgements-text' = 'original';
-let judgementColoringMode: 'categorical' | 'gradient' = 'categorical';
-let judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true };
-let collapsedLoop: boolean = false;
-let selectedLoopIteration: number | undefined = undefined;
-let beatsPerLine: number = 16; // Zoom State
+
+let viewOptions: ViewOptions = {
+    viewMode: 'original',
+    coloringMode: 'categorical',
+    visibility: { perfect: true, good: true, poor: true },
+    collapsedLoop: false,
+    selectedLoopIteration: undefined,
+    beatsPerLine: 16
+};
+
 let loadedTJAContent: string = exampleTJA;
 
 // Application State
@@ -138,9 +142,10 @@ function formatHS(val: number): string {
     return val % 1 === 0 ? val.toFixed(1) : val.toFixed(2);
 }
 
-function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: boolean, viewMode: string, judgements: string[], coloringMode: 'categorical' | 'gradient', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }) {
+function renderStats(hit: HitInfo | null, chart: ParsedChart | null, options: ViewOptions, judgements: string[]) {
     let html = '';
     const def = '-';
+    const { collapsedLoop: collapsed, viewMode, coloringMode, visibility: judgementVisibility } = options;
 
     // 1. Type
     html += createStatBox('Type', hit ? getNoteName(hit.type) : def);
@@ -200,8 +205,8 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, collapsed: 
                 let currentIterationIdx = -1;
                 
                 // If manual selection, use it. Else calculate like renderer
-                if (selectedLoopIteration !== undefined) {
-                    currentIterationIdx = selectedLoopIteration;
+                if (options.selectedLoopIteration !== undefined) {
+                    currentIterationIdx = options.selectedLoopIteration;
                 } else {
                      let preLoopNotes = 0;
                      for(let i=0; i<loop.startBarIndex; i++) {
@@ -365,15 +370,15 @@ function updateDisplayState() {
 
                 if (style && style.value === 'underline') {
 
-                    currentViewMode = 'judgements-underline';
+                    viewOptions.viewMode = 'judgements-underline';
 
                 } else if (style && style.value === 'text') {
 
-                    currentViewMode = 'judgements-text';
+                    viewOptions.viewMode = 'judgements-text';
 
                 } else {
 
-                    currentViewMode = 'judgements';
+                    viewOptions.viewMode = 'judgements';
 
                 }
 
@@ -391,7 +396,7 @@ function updateDisplayState() {
 
     } else {
 
-        currentViewMode = 'original';
+        viewOptions.viewMode = 'original';
 
         // Disable subcontrols (visually)
 
@@ -411,17 +416,17 @@ function updateDisplayState() {
 
     if (coloring && coloring.value === 'gradient') {
 
-        judgementColoringMode = 'gradient';
+        viewOptions.coloringMode = 'gradient';
 
     } else {
 
-        judgementColoringMode = 'categorical';
+        viewOptions.coloringMode = 'categorical';
 
     }
 
     // 3. Determine Judgement Visibility
     if (showPerfectCheckbox && showGoodCheckbox && showPoorCheckbox) {
-        judgementVisibility = {
+        viewOptions.visibility = {
             perfect: showPerfectCheckbox.checked,
             good: showGoodCheckbox.checked,
             poor: showPoorCheckbox.checked
@@ -460,7 +465,7 @@ function updateCollapseLoopState() {
 
         collapseLoopCheckbox.checked = false;
 
-        collapsedLoop = false;
+        viewOptions.collapsedLoop = false;
 
         if (collapseLoopCheckbox.parentElement) {
 
@@ -478,7 +483,7 @@ function updateCollapseLoopState() {
 
 function updateZoomDisplay() {
     if (zoomResetBtn) {
-        const percent = Math.round((16 / beatsPerLine) * 100);
+        const percent = Math.round((16 / viewOptions.beatsPerLine) * 100);
         zoomResetBtn.innerText = `${percent}%`;
     }
 }
@@ -809,7 +814,7 @@ function init(): void {
 
 
 
-                collapsedLoop = (event.target as HTMLInputElement).checked;
+                viewOptions.collapsedLoop = (event.target as HTMLInputElement).checked;
 
 
 
@@ -817,7 +822,7 @@ function init(): void {
 
 
 
-                renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode, judgementVisibility);
+                renderStats(null, currentChart, viewOptions, judgements);
 
 
 
@@ -837,7 +842,7 @@ function init(): void {
 
             if (loopAutoCheckbox.checked) {
 
-                selectedLoopIteration = undefined;
+                viewOptions.selectedLoopIteration = undefined;
 
             } else {
 
@@ -845,11 +850,11 @@ function init(): void {
 
                 if (matches) {
 
-                     selectedLoopIteration = parseInt(matches[1]) - 1;
+                     viewOptions.selectedLoopIteration = parseInt(matches[1]) - 1;
 
                 } else {
 
-                     selectedLoopIteration = 0;
+                     viewOptions.selectedLoopIteration = 0;
 
                 }
 
@@ -867,9 +872,9 @@ function init(): void {
 
         loopPrevBtn.addEventListener('click', () => {
 
-             if (selectedLoopIteration !== undefined && selectedLoopIteration > 0) {
+             if (viewOptions.selectedLoopIteration !== undefined && viewOptions.selectedLoopIteration > 0) {
 
-                 selectedLoopIteration--;
+                 viewOptions.selectedLoopIteration--;
 
                  refreshChart();
 
@@ -885,9 +890,9 @@ function init(): void {
 
         loopNextBtn.addEventListener('click', () => {
 
-             if (currentChart && currentChart.loop && selectedLoopIteration !== undefined && selectedLoopIteration < currentChart.loop.iterations - 1) {
+             if (currentChart && currentChart.loop && viewOptions.selectedLoopIteration !== undefined && viewOptions.selectedLoopIteration < currentChart.loop.iterations - 1) {
 
-                 selectedLoopIteration++;
+                 viewOptions.selectedLoopIteration++;
 
                  refreshChart();
 
@@ -901,8 +906,8 @@ function init(): void {
     if (zoomOutBtn) {
         zoomOutBtn.addEventListener('click', () => {
              // Increase beats per line (Zoom Out)
-             if (beatsPerLine < 32) {
-                 beatsPerLine += 2;
+             if (viewOptions.beatsPerLine < 32) {
+                 viewOptions.beatsPerLine += 2;
                  updateZoomDisplay();
                  refreshChart();
              }
@@ -912,8 +917,8 @@ function init(): void {
     if (zoomInBtn) {
         zoomInBtn.addEventListener('click', () => {
              // Decrease beats per line (Zoom In)
-             if (beatsPerLine > 4) {
-                 beatsPerLine -= 2;
+             if (viewOptions.beatsPerLine > 4) {
+                 viewOptions.beatsPerLine -= 2;
                  updateZoomDisplay();
                  refreshChart();
              }
@@ -922,8 +927,8 @@ function init(): void {
 
     if (zoomResetBtn) {
         zoomResetBtn.addEventListener('click', () => {
-            if (beatsPerLine !== 16) {
-                beatsPerLine = 16;
+            if (viewOptions.beatsPerLine !== 16) {
+                viewOptions.beatsPerLine = 16;
                 updateZoomDisplay();
                 refreshChart();
             }
@@ -946,19 +951,19 @@ function init(): void {
 
             
 
-            const hit = getNoteAt(x, y, currentChart, canvas, collapsedLoop, currentViewMode, judgements, selectedLoopIteration, judgementColoringMode, judgementVisibility, beatsPerLine);
+            const hit = getNoteAt(x, y, currentChart, canvas, judgements, viewOptions);
 
             
 
             if (hit) {
 
-                renderStats(hit, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode, judgementVisibility);
+                renderStats(hit, currentChart, viewOptions, judgements);
 
                 canvas.style.cursor = 'pointer';
 
             } else {
 
-                renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode, judgementVisibility);
+                renderStats(null, currentChart, viewOptions, judgements);
 
                 canvas.style.cursor = 'default';
 
@@ -1230,7 +1235,7 @@ function updateParsedCharts(content: string) {
 
 
 
-        renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode, judgementVisibility);
+        renderStats(null, currentChart, viewOptions, judgements);
 
 
 
@@ -1246,18 +1251,18 @@ function updateParsedCharts(content: string) {
     if (!loopControls || !currentChart) return;
 
     // Use .style.display for loop controls as they are dynamic and shouldn't take space if irrelevant
-    if (collapsedLoop && currentChart.loop) {
+    if (viewOptions.collapsedLoop && currentChart.loop) {
         loopControls.style.display = 'flex'; // Changed to flex to match CSS
         
         const loop = currentChart.loop;
         let displayedIter = 0;
 
-        if (selectedLoopIteration === undefined) {
+        if (viewOptions.selectedLoopIteration === undefined) {
              loopAutoCheckbox.checked = true;
              loopPrevBtn.disabled = true;
              loopNextBtn.disabled = true;
 
-             if ((currentViewMode === 'judgements' || currentViewMode === 'judgements-underline' || currentViewMode === 'judgements-text') && judgements.length > 0) {
+             if ((viewOptions.viewMode === 'judgements' || viewOptions.viewMode === 'judgements-underline' || viewOptions.viewMode === 'judgements-text') && judgements.length > 0) {
                 let notesPerLoop = 0;
                 let preLoopNotes = 0;
                 for(let i=0; i<loop.startBarIndex; i++) {
@@ -1277,7 +1282,7 @@ function updateParsedCharts(content: string) {
              }
         } else {
              loopAutoCheckbox.checked = false;
-             displayedIter = selectedLoopIteration;
+             displayedIter = viewOptions.selectedLoopIteration;
              loopPrevBtn.disabled = (displayedIter <= 0);
              loopNextBtn.disabled = (displayedIter >= loop.iterations - 1);
         }
@@ -1293,7 +1298,7 @@ function updateParsedCharts(content: string) {
 
 function refreshChart() {
     if (currentChart && canvas) {
-        renderChart(currentChart, canvas, currentViewMode, judgements, collapsedLoop, selectedLoopIteration, judgementDeltas, judgementColoringMode, judgementVisibility, beatsPerLine);
+        renderChart(currentChart, canvas, judgements, judgementDeltas, viewOptions);
         updateLoopControls();
     }
 }
@@ -1382,7 +1387,7 @@ window.addEventListener('resize', () => {
     judgements = newJudgements;
     judgementDeltas = newDeltas || [];
     refreshChart();
-    renderStats(null, currentChart, collapsedLoop, currentViewMode, judgements, judgementColoringMode, judgementVisibility);
+    renderStats(null, currentChart, viewOptions, judgements);
 };
 
 init();

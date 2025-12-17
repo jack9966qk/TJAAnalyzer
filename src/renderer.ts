@@ -22,6 +22,15 @@ export interface JudgementVisibility {
     poor: boolean;
 }
 
+export interface ViewOptions {
+    viewMode: 'original' | 'judgements' | 'judgements-underline' | 'judgements-text';
+    coloringMode: 'categorical' | 'gradient';
+    visibility: JudgementVisibility;
+    collapsedLoop: boolean;
+    selectedLoopIteration?: number;
+    beatsPerLine: number;
+}
+
 // Configuration Constants
 const BARS_PER_ROW: number = 4;
 const PADDING: number = 20;
@@ -39,11 +48,11 @@ const RATIOS = {
     BAR_NUMBER_OFFSET_Y_RATIO: -0.0015
 };
 
-function getVirtualBars(chart: ParsedChart, collapsed: boolean, viewMode: 'original' | 'judgements' | 'judgements-underline' | 'judgements-text', judgements: string[], globalBarStartIndices: number[], targetLoopIteration?: number): RenderBarInfo[] {
+function getVirtualBars(chart: ParsedChart, options: ViewOptions, judgements: string[], globalBarStartIndices: number[]): RenderBarInfo[] {
     const { bars, loop } = chart;
     let virtualBars: RenderBarInfo[] = [];
 
-    if (collapsed && loop) {
+    if (options.collapsedLoop && loop) {
         // Pre-loop
         for (let i = 0; i < loop.startBarIndex; i++) {
             virtualBars.push({ bar: bars[i], originalIndex: i });
@@ -64,9 +73,9 @@ function getVirtualBars(chart: ParsedChart, collapsed: boolean, viewMode: 'origi
             }
         }
 
-        if (targetLoopIteration !== undefined) {
-            currentIter = targetLoopIteration;
-        } else if ((viewMode === 'judgements' || viewMode === 'judgements-underline' || viewMode === 'judgements-text') && judgements.length > 0) {
+        if (options.selectedLoopIteration !== undefined) {
+            currentIter = options.selectedLoopIteration;
+        } else if ((options.viewMode === 'judgements' || options.viewMode === 'judgements-underline' || options.viewMode === 'judgements-text') && judgements.length > 0) {
             const lastJudgedIndex = judgements.length - 1;
             if (lastJudgedIndex >= preLoopNotes && notesPerLoop > 0) {
                 const relativeIndex = lastJudgedIndex - preLoopNotes;
@@ -201,13 +210,13 @@ export interface HitInfo {
     scroll: number;
 }
 
-export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, collapsed: boolean = false, viewMode: 'original' | 'judgements' | 'judgements-underline' | 'judgements-text' = 'original', judgements: string[] = [], targetLoopIteration?: number, coloringMode: 'categorical' | 'gradient' = 'categorical', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }, beatsPerLine: number = 16): HitInfo | null {
+export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, judgements: string[] = [], options: ViewOptions): HitInfo | null {
     const logicalCanvasWidth: number = canvas.clientWidth || 800;
     
     const globalBarStartIndices = calculateGlobalBarStartIndices(chart.bars);
-    const virtualBars = getVirtualBars(chart, collapsed, viewMode, judgements, globalBarStartIndices, targetLoopIteration);
+    const virtualBars = getVirtualBars(chart, options, judgements, globalBarStartIndices);
     
-    const { layouts, constants } = calculateLayout(virtualBars, chart, logicalCanvasWidth, beatsPerLine);
+    const { layouts, constants } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options.beatsPerLine);
     const { NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG } = constants;
 
     // Hit testing loop
@@ -320,7 +329,7 @@ export function getGradientColor(delta: number): string {
     return `rgb(${r}, ${g}, ${b})`;
 }
 
-export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewMode: 'original' | 'judgements' | 'judgements-underline' | 'judgements-text' = 'original', judgements: string[] = [], collapsed: boolean = false, targetLoopIteration?: number, judgementDeltas: (number | undefined)[] = [], coloringMode: 'categorical' | 'gradient' = 'categorical', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }, beatsPerLine: number = 16): void {
+export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judgements: string[] = [], judgementDeltas: (number | undefined)[] = [], options: ViewOptions): void {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
         console.error("2D rendering context not found for canvas.");
@@ -332,9 +341,9 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewM
 
     const globalBarStartIndices = calculateGlobalBarStartIndices(bars);
     const balloonIndices = calculateBalloonIndices(bars);
-    const virtualBars = getVirtualBars(chart, collapsed, viewMode, judgements, globalBarStartIndices, targetLoopIteration);
+    const virtualBars = getVirtualBars(chart, options, judgements, globalBarStartIndices);
     
-    const { layouts, constants, totalHeight } = calculateLayout(virtualBars, chart, logicalCanvasWidth, beatsPerLine);
+    const { layouts, constants, totalHeight } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options.beatsPerLine);
     
     // Adjust for device pixel ratio for sharp rendering
     const dpr = window.devicePixelRatio || 1;
@@ -368,7 +377,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewM
     });
 
     // Layer 1.5: Drumrolls and Balloons
-    drawLongNotes(ctx, virtualBars, layouts, constants, viewMode, chart.balloonCounts, balloonIndices);
+    drawLongNotes(ctx, virtualBars, layouts, constants, options.viewMode, chart.balloonCounts, balloonIndices);
 
     // Layer 2: Notes
     for (let index = virtualBars.length - 1; index >= 0; index--) {
@@ -379,7 +388,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, viewM
             ? info.overrideStartIndex 
             : globalBarStartIndices[info.originalIndex];
 
-        drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, viewMode, startIndex, judgements, judgementDeltas, info.originalIndex, bars, collapsed ? loop : undefined, coloringMode, judgementVisibility);
+        drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, options, startIndex, judgements, judgementDeltas, info.originalIndex, bars, options.collapsedLoop ? loop : undefined);
     }
 }
 
@@ -627,7 +636,9 @@ function drawCapsule(ctx: CanvasRenderingContext2D, startX: number, endX: number
 }
 
 
-function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, viewMode: 'original' | 'judgements' | 'judgements-underline' | 'judgements-text', startIndex: number, judgements: string[], judgementDeltas: (number | undefined)[] = [], originalBarIndex: number = -1, bars: string[][] = [], loopInfo?: LoopInfo, coloringMode: 'categorical' | 'gradient' = 'categorical', judgementVisibility: JudgementVisibility = { perfect: true, good: true, poor: true }): void {
+function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, options: ViewOptions, startIndex: number, judgements: string[], judgementDeltas: (number | undefined)[] = [], originalBarIndex: number = -1, bars: string[][] = [], loopInfo?: LoopInfo): void {
+    const { viewMode, coloringMode, visibility: judgementVisibility } = options;
+    
     // DEBUG LOG
     if (originalBarIndex === 0 && (viewMode === 'judgements' || viewMode === 'judgements-underline' || viewMode === 'judgements-text')) {
         console.log(`drawBarNotes Bar 0: mode=${coloringMode}, deltasLen=${judgementDeltas.length}, judgementsLen=${judgements.length}`);
