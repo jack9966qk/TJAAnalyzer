@@ -457,7 +457,7 @@ test.describe('Selection Interaction', () => {
         const notePos = { x: 20, y: 33 };
 
         // 1. Click on first note
-        await canvas.click({ position: notePos });
+        await canvas.click({ position: { x: notePos.x, y: notePos.y } });
         
         // 2. Verify Stats
         const stats = page.locator('#note-stats-display');
@@ -474,7 +474,7 @@ test.describe('Selection Interaction', () => {
         await expect(stats).toContainText('DON');
 
         // 6. Click again to unselect
-        await canvas.click({ position: notePos, force: true });
+        await canvas.click({ position: { x: notePos.x, y: notePos.y }, force: true });
         
         // 7. Move away to empty space
         await canvas.hover({ position: { x: notePos.x + 100, y: notePos.y }, force: true });
@@ -482,4 +482,43 @@ test.describe('Selection Interaction', () => {
         // 8. Stats should be cleared (showing '-')
         await expect(stats).toContainText('-');
     });
+
+    test('Range Selection Interaction', async ({ page }) => {
+        await page.goto('/');
+        await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
+        
+        const canvas = page.locator('#chart-canvas');
+        await expect(canvas).toBeVisible();
+        await page.waitForTimeout(2000);
+        await page.selectOption('#difficulty-selector', 'oni');
+        await page.waitForTimeout(500);
+
+        const barWidth = await page.evaluate(() => {
+            const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement;
+            const PADDING = 20;
+            const BARS_PER_ROW = 4;
+            return (canvas.clientWidth - (PADDING * 2)) / BARS_PER_ROW;
+        });
+        
+        const y = 20 + (barWidth * 0.14) / 2;
+        
+        // Bar 0 (Start), Bar 1, Bar 2
+        const x0 = 20; 
+        const x1 = 20 + barWidth;
+        const x2 = 20 + 2 * barWidth;
+
+        // 1. Click Start Note (Bar 0 - DON)
+        await canvas.click({ position: { x: x0, y }, force: true });
+        const stats = page.locator('#note-stats-display');
+        await expect(stats).toContainText('DON');
+
+        // 2. Click End Note (Bar 1 - DON)
+        await canvas.click({ position: { x: x1, y }, force: true });
+        await expect(stats).toContainText('DON'); 
+
+        // 3. Click Third Note (Bar 2 - Balloon) (Restart Selection)
+        await canvas.click({ position: { x: x2, y }, force: true });
+        await expect(stats).toContainText('balloon');
+    });
 });
+

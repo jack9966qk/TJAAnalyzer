@@ -29,7 +29,10 @@ export interface ViewOptions {
     collapsedLoop: boolean;
     selectedLoopIteration?: number;
     beatsPerLine: number;
-    selectedNote?: { originalBarIndex: number, charIndex: number } | null;
+    selection: {
+        start: { originalBarIndex: number, charIndex: number };
+        end: { originalBarIndex: number, charIndex: number } | null;
+    } | null;
 }
 
 // Configuration Constants
@@ -48,6 +51,43 @@ const RATIOS = {
     BAR_NUMBER_FONT_SIZE_RATIO: 0.06,
     BAR_NUMBER_OFFSET_Y_RATIO: -0.0015
 };
+
+function isNoteSelected(barIdx: number, charIdx: number, selection: ViewOptions['selection']): boolean {
+    if (!selection) return false;
+    
+    const { start, end } = selection;
+    if (!end) {
+        return start.originalBarIndex === barIdx && start.charIndex === charIdx;
+    }
+
+    // Range selection
+    // Determine min/max to handle reverse selection
+    let startBar = start.originalBarIndex;
+    let startChar = start.charIndex;
+    let endBar = end.originalBarIndex;
+    let endChar = end.charIndex;
+
+    if (startBar > endBar || (startBar === endBar && startChar > endChar)) {
+        [startBar, endBar] = [endBar, startBar];
+        [startChar, endChar] = [endChar, startChar];
+    }
+
+    if (barIdx < startBar || barIdx > endBar) return false;
+    
+    if (barIdx === startBar && barIdx === endBar) {
+        return charIdx >= startChar && charIdx <= endChar;
+    }
+    
+    if (barIdx === startBar) {
+        return charIdx >= startChar;
+    }
+    
+    if (barIdx === endBar) {
+        return charIdx <= endChar;
+    }
+    
+    return true; // strictly between startBar and endBar
+}
 
 function getVirtualBars(chart: ParsedChart, options: ViewOptions, judgements: string[], globalBarStartIndices: number[]): RenderBarInfo[] {
     const { bars, loop } = chart;
@@ -638,7 +678,7 @@ function drawCapsule(ctx: CanvasRenderingContext2D, startX: number, endX: number
 
 
 function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, options: ViewOptions, startIndex: number, judgements: string[], judgementDeltas: (number | undefined)[] = [], originalBarIndex: number = -1, bars: string[][] = [], loopInfo?: LoopInfo): void {
-    const { viewMode, coloringMode, visibility: judgementVisibility, selectedNote } = options;
+    const { viewMode, coloringMode, visibility: judgementVisibility, selection } = options;
     
     // DEBUG LOG
     if (originalBarIndex === 0 && (viewMode === 'judgements' || viewMode === 'judgements-underline' || viewMode === 'judgements-text')) {
@@ -915,7 +955,7 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
 
             // Black border (outside)
             let effectiveBorderOuterW = borderOuterW;
-            if (selectedNote && selectedNote.originalBarIndex === originalBarIndex && selectedNote.charIndex === i) {
+            if (isNoteSelected(originalBarIndex, i, selection)) {
                 effectiveBorderOuterW = borderOuterW * 2.5; // Wider border for selected note
             }
 

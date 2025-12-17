@@ -14,7 +14,7 @@ let viewOptions: ViewOptions = {
     collapsedLoop: false,
     selectedLoopIteration: undefined,
     beatsPerLine: 16,
-    selectedNote: null
+    selection: null
 };
 
 let loadedTJAContent: string = exampleTJA;
@@ -110,7 +110,7 @@ function switchDisplayOptionTab(mode: string) {
 
 function updateSelectionUI() {
     if (clearSelectionBtn) {
-        clearSelectionBtn.disabled = !viewOptions.selectedNote;
+        clearSelectionBtn.disabled = !viewOptions.selection;
     }
 }
 
@@ -612,7 +612,16 @@ function init(): void {
 
     if (clearSelectionBtn) {
         clearSelectionBtn.addEventListener('click', () => {
-            viewOptions.selectedNote = null;
+            viewOptions.selection = null;
+            selectedNoteHitInfo = null;
+            refreshChart();
+            updateSelectionUI();
+        });
+    }
+
+    if (selectionToggle) {
+        selectionToggle.addEventListener('change', () => {
+            viewOptions.selection = null;
             selectedNoteHitInfo = null;
             refreshChart();
             updateSelectionUI();
@@ -1008,21 +1017,49 @@ function init(): void {
                  if (selectionToggle && !selectionToggle.checked) return;
 
                  if (hit) {
-                     // Check if already selected
-                     if (viewOptions.selectedNote && 
-                         viewOptions.selectedNote.originalBarIndex === hit.originalBarIndex && 
-                         viewOptions.selectedNote.charIndex === hit.charIndex) {
-                         // Deselect
-                         viewOptions.selectedNote = null;
-                         selectedNoteHitInfo = null;
+                     // Check existing selection state
+                     if (!viewOptions.selection) {
+                         // Case 1: Initial Selection
+                         viewOptions.selection = { start: { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex }, end: null };
+                         selectedNoteHitInfo = hit;
+                     } else if (viewOptions.selection.start && !viewOptions.selection.end) {
+                         // Case 2: Range Selection (End)
+                         // Check if we clicked the same note (toggle off? No, prompt says click another note)
+                         // Prompt says "tapping on any note restarts the range selection as a single note" ONLY "once there is a range selected".
+                         // "once there is a single note selection, clicking/tapping on another note marks everything between them (inclusive) as selected"
+                         // What if I click the SAME note? 
+                         // "clicking/tapping on a note selects that single note" -> "clicking... on *another* note marks everything between".
+                         // I will assume clicking the same note does nothing or keeps it selected.
+                         if (viewOptions.selection.start.originalBarIndex === hit.originalBarIndex && viewOptions.selection.start.charIndex === hit.charIndex) {
+                             // Same note clicked. Maybe deselect? 
+                             // Prompt: "clicking/tapping on a note selects that single note". "Click/tap again to unselect" was for single note mode in PREVIOUS task.
+                             // Current task doesn't explicitly say "unselect on second click of same note".
+                             // "clicking/tapping on *another* note..."
+                             // I'll assume clicking the same note deselects it, consistent with previous behavior?
+                             // But wait, "once there is a single note selection...".
+                             // Let's implement range completion.
+                             
+                             // If same note, treat as range start == end.
+                             // But let's follow the "toggle" behavior of previous task if it feels right.
+                             // However, strict reading: "clicking/tapping on another note..."
+                             // If I click the same note, I'll just set it as a single-note range or leave it as single selection.
+                             // Let's allow unselecting if clicking the same note, as that's intuitive.
+                             viewOptions.selection = null;
+                             selectedNoteHitInfo = null;
+                         } else {
+                             viewOptions.selection.end = { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex };
+                             // Don't update selectedNoteHitInfo? Or update to the end note?
+                             // "When selected, the stats display would stick to it"
+                             selectedNoteHitInfo = hit; 
+                         }
                      } else {
-                         // Select
-                         viewOptions.selectedNote = { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex };
+                         // Case 3: Restart selection (Range already exists)
+                         viewOptions.selection = { start: { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex }, end: null };
                          selectedNoteHitInfo = hit;
                      }
                  } else {
                      // Click on empty space - Deselect
-                     viewOptions.selectedNote = null;
+                     viewOptions.selection = null;
                      selectedNoteHitInfo = null;
                  }
                  refreshChart();
@@ -1036,6 +1073,7 @@ function init(): void {
             }
             
             // Render Stats: Use selected note if active, otherwise hover hit
+            // If range selected, we probably want to show stats for the last clicked note (captured in selectedNoteHitInfo)
             const statsHit = selectedNoteHitInfo || hit;
             renderStats(statsHit, currentChart, viewOptions, judgements);
 
@@ -1082,7 +1120,7 @@ function init(): void {
             currentChart = null;
 
             // Clear selection
-            viewOptions.selectedNote = null;
+            viewOptions.selection = null;
             selectedNoteHitInfo = null;
             updateSelectionUI();
 
@@ -1286,7 +1324,7 @@ function updateParsedCharts(content: string) {
 
 
 
-        viewOptions.selectedNote = null;
+        viewOptions.selection = null;
 
 
 
