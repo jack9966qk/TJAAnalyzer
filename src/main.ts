@@ -1219,19 +1219,21 @@ function init(): void {
 
                         updateStatus('status.receiving');
 
-            
+            if (event.tjaSummaries && event.tjaSummaries.length > 0) {
+                // Sort by player to ensure we get Player 1
+                const sortedSummaries = [...event.tjaSummaries].sort((a, b) => a.player - b.player);
+                const summary = sortedSummaries[0];
+                
+                updateParsedCharts(summary.tjaContent);
+                
+                const diff = summary.difficulty.toLowerCase();
+                if (parsedTJACharts && parsedTJACharts[diff]) {
+                    difficultySelector.value = diff;
+                    currentChart = parsedTJACharts[diff];
+                }
+            }
 
-                        if (event.tjaSummaries && event.tjaSummaries.length > 0) {
-
-                            // ...
-
-            // ...
-
-                        }
-
-            
-
-                        updateCollapseLoopState();
+            updateCollapseLoopState();
 
             
 
