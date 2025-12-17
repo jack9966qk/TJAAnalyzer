@@ -1,6 +1,6 @@
 {
   "applicationId": "js.neutralino.tjaanalyzer",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "defaultMode": "window",
   "documentRoot": "app_package",
   "url": "/index.html",
@@ -18,7 +18,7 @@
       "fullScreen": false,
       "alwaysOnTop": false,
       "icon": "icon.png",
-      "enableInspector": true,
+      "enableInspector": false,
       "borderless": false,
       "maximize": false,
       "hidden": false,
