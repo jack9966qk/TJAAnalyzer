@@ -27,6 +27,7 @@ export interface ParsedChart {
     barParams: BarParams[];
     loop?: LoopInfo;
     balloonCounts: number[];
+    headers: Record<string, string>;
 }
 
 export function parseTJA(content: string): Record<string, ParsedChart> {
@@ -238,7 +239,13 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
             }
 
             const loop = detectLoop(bars);
-            parsedCourses[courseName] = { bars, barParams, loop, balloonCounts };
+            parsedCourses[courseName] = { 
+                bars, 
+                barParams, 
+                loop, 
+                balloonCounts,
+                headers: { ...globalHeader, ...headers }
+            };
         }
     }
 

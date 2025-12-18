@@ -1,4 +1,5 @@
 import { parseTJA, ParsedChart } from './tja-parser.js';
+import { generateTJAFromSelection } from './tja-exporter.js';
 import { renderChart, getNoteAt, HitInfo, getGradientColor, JudgementVisibility, ViewOptions, RenderTexts } from './renderer.js';
 import { exampleTJA } from './example-data.js';
 import { JudgementClient, ServerEvent } from './judgement-client.js';
@@ -66,6 +67,7 @@ const doTabs = document.querySelectorAll('#chart-options-panel .panel-tab');
 const doPanes = document.querySelectorAll('#chart-options-panel .panel-pane');
 const selectionToggle = document.getElementById('selection-toggle') as HTMLInputElement;
 const clearSelectionBtn = document.getElementById('clear-selection-btn') as HTMLButtonElement;
+const exportSelectionBtn = document.getElementById('export-selection-btn') as HTMLButtonElement;
 
 // Data Source UI
 const dsTabs = document.querySelectorAll('#data-source-panel .panel-tab');
@@ -116,6 +118,9 @@ function switchDisplayOptionTab(mode: string) {
 function updateSelectionUI() {
     if (clearSelectionBtn) {
         clearSelectionBtn.disabled = !viewOptions.selection;
+    }
+    if (exportSelectionBtn) {
+        exportSelectionBtn.disabled = !viewOptions.selection;
     }
 }
 
@@ -660,6 +665,44 @@ function init(): void {
             selectedNoteHitInfo = null;
             refreshChart();
             updateSelectionUI();
+        });
+    }
+
+    if (exportSelectionBtn) {
+        exportSelectionBtn.addEventListener('click', async () => {
+            if (!currentChart || !viewOptions.selection) {
+                // Should not be clickable if disabled, but just in case
+                return;
+            }
+
+            try {
+                const tjaContent = generateTJAFromSelection(currentChart, viewOptions.selection, difficultySelector.value);
+                const N = (window as any).Neutralino;
+
+                if (N && N.os && N.os.showSaveDialog) {
+                    const entry = await N.os.showSaveDialog('Export TJA', {
+                        defaultPath: 'exported.tja',
+                        filters: [{ name: 'TJA Files', extensions: ['tja'] }]
+                    });
+                    if (entry) {
+                        await N.filesystem.writeFile(entry, tjaContent);
+                        updateStatus('status.exportSuccess');
+                    }
+                } else {
+                    // Web Fallback
+                    const blob = new Blob([tjaContent], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'exported.tja';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    updateStatus('status.exportSuccess');
+                }
+            } catch (e) {
+                console.error("Export failed:", e);
+                updateStatus('status.exportFailed');
+            }
         });
     }
 

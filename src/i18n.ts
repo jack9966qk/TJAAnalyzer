@@ -45,6 +45,7 @@ const resources: Resources = {
         'ui.showStats': 'Show Note Stats',
         'ui.enableSelection': 'Enable Selection',
         'ui.clearSelection': 'Clear Selection',
+        'ui.export': 'Export Selection',
         
         'status.initializing': 'Initializing...',
         'status.ready': 'Ready',
@@ -56,6 +57,8 @@ const resources: Resources = {
         'status.simConnected': 'Simulating Stream: Connected',
         'status.disconnected': 'Disconnected',
         'status.simStopped': 'Simulation Stopped',
+        'status.exportSuccess': 'Selection exported successfully',
+        'status.exportFailed': 'Failed to export selection',
 
         'stats.type': 'Type',
         'stats.gap': 'Gap',
@@ -112,6 +115,7 @@ const resources: Resources = {
         'ui.showStats': '显示音符统计',
         'ui.enableSelection': '启用选择',
         'ui.clearSelection': '清除选择',
+        'ui.export': '导出选择',
         
         'status.initializing': '初始化中...',
         'status.ready': '就绪',
@@ -123,6 +127,8 @@ const resources: Resources = {
         'status.simConnected': '模拟流：已连接',
         'status.disconnected': '已断开',
         'status.simStopped': '模拟已停止',
+        'status.exportSuccess': '选择导出成功',
+        'status.exportFailed': '导出选择失败',
 
         'stats.type': '类型',
         'stats.gap': '间隔',
