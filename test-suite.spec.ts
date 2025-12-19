@@ -521,6 +521,9 @@ test.describe('Selection Interaction', () => {
         await page.selectOption('#difficulty-selector', 'oni');
         await page.waitForTimeout(500);
 
+        // Switch to Selection Tab
+        await page.click('button[data-do-tab="selection"]');
+
         // Position of the first note (approximate based on previous tests)
         const notePos = { x: 20, y: 33 };
 
@@ -561,6 +564,9 @@ test.describe('Selection Interaction', () => {
         await page.selectOption('#difficulty-selector', 'oni');
         await page.waitForTimeout(500);
 
+        // Switch to Selection Tab
+        await page.click('button[data-do-tab="selection"]');
+
         const barWidth = await page.evaluate(() => {
             const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement;
             const PADDING = 20;
@@ -587,6 +593,43 @@ test.describe('Selection Interaction', () => {
         // 3. Click Third Note (Bar 2 - Balloon) (Restart Selection)
         await canvas.click({ position: { x: x2, y }, force: true });
         await expect(stats).toContainText('balloon');
+    });
+});
+
+test.describe('Annotation Interaction', () => {
+    test('Annotation Cycle', async ({ page }) => {
+        await page.goto('/');
+        await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
+        
+        const canvas = page.locator('#chart-canvas');
+        await expect(canvas).toBeVisible();
+        await page.waitForTimeout(2000);
+        await page.selectOption('#difficulty-selector', 'oni');
+        await page.waitForTimeout(500);
+
+        // 1. Switch to Annotation Tab
+        await page.click('button[data-do-tab="annotation"]');
+        
+        // 2. Enable Annotation (Implicit by tab switch)
+        // await page.check('#annotation-toggle'); // Removed
+
+        // Verify Bar Numbers Hidden (implicit via snapshot of clean state in mode)
+        await expect(canvas).toHaveScreenshot('annotation-mode-initial.png');
+
+        // Note Position (First note)
+        const notePos = { x: 20, y: 33 };
+
+        // 3. Click to Annotate "L"
+        await canvas.click({ position: notePos });
+        await expect(canvas).toHaveScreenshot('annotation-L.png');
+
+        // 4. Click to Annotate "R"
+        await canvas.click({ position: notePos });
+        await expect(canvas).toHaveScreenshot('annotation-R.png');
+
+        // 5. Click to Clear
+        await canvas.click({ position: notePos });
+        await expect(canvas).toHaveScreenshot('annotation-none.png');
     });
 });
 

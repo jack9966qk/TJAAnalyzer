@@ -76,13 +76,17 @@
         <div id="sticky-header">
             <div id="chart-options-panel" class="options-panel">
                 <div class="panel-header">
-                    <h3 data-i18n="ui.chartOptions">Chart Options</h3>
+                    <div class="panel-header-left">
+                         <h3 data-i18n="ui.chartOptions">Chart Options</h3>
+                         <span id="chart-mode-status" style="margin-left: 15px; font-weight: normal; color: #666; font-size: 0.9em;"></span>
+                    </div>
                     <button id="options-collapse-btn" data-i18n="ui.collapse">Collapse</button>
                 </div>
                 <div id="options-body" class="panel-body">
                     <div class="panel-tabs">
                         <button class="panel-tab active" data-do-tab="view" data-i18n="ui.viewOptions">View Options</button>
                         <button class="panel-tab" data-do-tab="selection" data-i18n="ui.noteSelection">Note Selection</button>
+                        <button class="panel-tab" data-do-tab="annotation" data-i18n="ui.annotation">Annotation</button>
                     </div>
                     
                     <div class="panel-content">
@@ -154,7 +158,6 @@
                         <!-- Note Selection Pane -->
                         <div id="do-tab-selection" class="panel-pane" style="display:none;">
                             <div class="control-group" style="display: flex; align-items: center; gap: 10px;">
-                                <label><input type="checkbox" id="selection-toggle" checked> <span data-i18n="ui.enableSelection">Enable Selection</span></label>
                                 <button id="clear-selection-btn" class="control-btn" data-i18n="ui.clearSelection">Clear Selection</button>
                                 <div style="display: flex; align-items: center; gap: 5px; margin-left: auto;">
                                     <label for="export-loop-count" style="font-size: 0.9em;">Loops:</label>
@@ -162,6 +165,14 @@
                                     <button id="export-selection-btn" class="control-btn" data-i18n="ui.export">Export TJA</button>
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- Annotation Pane -->
+                        <div id="do-tab-annotation" class="panel-pane" style="display:none;">
+                            <div class="control-group" style="display: flex; align-items: center; gap: 10px;">
+                                <button id="clear-annotations-btn" class="control-btn" data-i18n="ui.clearAnnotations">Clear Annotations</button>
+                            </div>
+                            <p style="font-size: 0.9em; color: #666; margin-top: 5px;" data-i18n="ui.annotation.desc">Click on Don/Ka notes to toggle L/R annotation.</p>
                         </div>
                 </div>
             </div>

@@ -16,7 +16,8 @@ let viewOptions: ViewOptions = {
     collapsedLoop: false,
     selectedLoopIteration: undefined,
     beatsPerLine: 16,
-    selection: null
+    selection: null,
+    annotations: {}
 };
 
 let loadedTJAContent: string = exampleTJA;
@@ -25,6 +26,7 @@ let loadedTJAContent: string = exampleTJA;
 let activeDataSourceMode: string = 'example';
 let isSimulating: boolean = false;
 let selectedNoteHitInfo: HitInfo | null = null;
+let annotations: Record<string, string> = {};
 
 // Judgement State
 const judgementClient = new JudgementClient();
@@ -65,9 +67,11 @@ const zoomResetBtn = document.getElementById('zoom-reset-btn') as HTMLButtonElem
 // Display Options Tabs
 const doTabs = document.querySelectorAll('#chart-options-panel .panel-tab');
 const doPanes = document.querySelectorAll('#chart-options-panel .panel-pane');
-const selectionToggle = document.getElementById('selection-toggle') as HTMLInputElement;
 const clearSelectionBtn = document.getElementById('clear-selection-btn') as HTMLButtonElement;
 const exportSelectionBtn = document.getElementById('export-selection-btn') as HTMLButtonElement;
+
+const clearAnnotationsBtn = document.getElementById('clear-annotations-btn') as HTMLButtonElement;
+const chartModeStatus = document.getElementById('chart-mode-status') as HTMLSpanElement;
 
 // Data Source UI
 const dsTabs = document.querySelectorAll('#data-source-panel .panel-tab');
@@ -97,6 +101,14 @@ function updateNoteStats(html: string) {
     }
 }
 
+function updateModeStatus(mode: string) {
+    if (chartModeStatus) {
+        if (mode === 'view') chartModeStatus.innerText = i18n.t('mode.view');
+        else if (mode === 'selection') chartModeStatus.innerText = i18n.t('mode.selection');
+        else if (mode === 'annotation') chartModeStatus.innerText = i18n.t('mode.annotation');
+    }
+}
+
 function switchDisplayOptionTab(mode: string) {
     doTabs.forEach(t => {
         if (t.getAttribute('data-do-tab') === mode) t.classList.add('active');
@@ -106,13 +118,16 @@ function switchDisplayOptionTab(mode: string) {
     doPanes.forEach(p => {
         const isTarget = p.id === `do-tab-${mode}`;
         if (isTarget) {
-            // Restore flex for view, block for selection
+            // Restore flex for view, block for selection/annotation
             if (mode === 'view') (p as HTMLElement).style.display = 'flex';
             else (p as HTMLElement).style.display = 'block';
         } else {
              (p as HTMLElement).style.display = 'none';
         }
     });
+
+    updateModeStatus(mode);
+    refreshChart();
 }
 
 function updateSelectionUI() {
@@ -185,6 +200,12 @@ function updateUIText() {
 
     // Dynamic Elements
     updateStatus(currentStatusKey);
+    
+    // Update Mode Status
+    const activeTab = document.querySelector('#chart-options-panel .panel-tab.active');
+    if (activeTab) {
+        updateModeStatus(activeTab.getAttribute('data-do-tab') || 'view');
+    }
     
     // Update collapsible buttons text based on state
     if (dsCollapseBtn && dsBody) {
@@ -722,87 +743,35 @@ function init(): void {
             }
         });
     }
-
-    if (selectionToggle) {
-        selectionToggle.addEventListener('change', () => {
-            viewOptions.selection = null;
-            selectedNoteHitInfo = null;
+    
+    if (clearAnnotationsBtn) {
+        clearAnnotationsBtn.addEventListener('click', () => {
+            annotations = {};
             refreshChart();
-            updateSelectionUI();
         });
     }
 
-
-
-            // Setup Collapse Button
-
-
+    // Setup Collapse Button
 
             if (dsCollapseBtn && dsBody) {
 
-
-
                 dsCollapseBtn.addEventListener('click', () => {
-
-
 
                     if (dsBody.classList.contains('collapsed')) {
 
-
-
                         dsBody.classList.remove('collapsed');
 
-
-
-                        dsCollapseBtn.innerText = i18n.t('ui.hideControls'); // Wait, "Hide Controls" was for non-collapsed?
-                        // Original: "Hide Controls" (visible) -> click -> "Show Controls" (collapsed)
-                        // My i18n keys: ui.hideControls, ui.showControls
-                        
-                        // Wait, previous code:
-                        // if collapsed -> remove collapsed -> "Collapse" (Wait, "Collapse" != "Hide Controls")
-                        // The original code said: `dsCollapseBtn.innerText = "Collapse";` (when expanding) and `"Expand"` (when collapsing).
-                        // BUT `index.html` initial text is "Hide Controls".
-                        // Let's standardize: "Hide Controls" (expanded) vs "Show Controls" (collapsed).
-                        // Or "Collapse" vs "Expand".
-                        // The previous code had:
-                        // `dsCollapseBtn.innerText = "Collapse"`
-                        // `optionsCollapseBtn.innerText = "Collapse"`
-                        // The `index.html` had "Hide Controls" for ds and "Collapse" for options.
-                        // I will use `ui.collapse` / `ui.expand` for both to be consistent, OR use specific keys.
-                        
-                        // Let's use `ui.collapse` and `ui.expand` for simplicity as keys are generic.
-                        // For Data Source: 
-                        // Expanded state -> Button says "Collapse" (or Hide)
-                        // Collapsed state -> Button says "Expand" (or Show)
-                        
-                        // Correcting my `updateUIText` logic:
-                        // `dsCollapseBtn.innerText = dsBody.classList.contains('collapsed') ? i18n.t('ui.expand') : i18n.t('ui.collapse');`
-                        // So here:
-                        // Remove collapsed (Expand) -> Button text: 'ui.collapse'
-                        
                         dsCollapseBtn.innerText = i18n.t('ui.collapse');
-
-
 
                     } else {
 
-
-
                         dsBody.classList.add('collapsed');
-
-
 
                         dsCollapseBtn.innerText = i18n.t('ui.expand');
 
-
-
                     }
 
-
-
                 });
-
-
 
             }
 
@@ -957,21 +926,7 @@ function init(): void {
 
         connectBtn.addEventListener('click', () => {
 
-            if (connectBtn.innerText === 'Disconnect' || connectBtn.innerText === 'Connected') { // Inner text might be translated now, check status or just call disconnect
-                 // Better to check judgementClient.status or assume disconnect if not 'Connect'
-                 // But wait, innerText is now translated. 'Connect' -> '连接'.
-                 // This logic is brittle if we check innerText!
-                 // I should check `activeDataSourceMode` or use a flag.
-                 // `judgementClient` doesn't expose status property publicly easily, but it has `onStatusChange`.
-                 // Let's use `isSimulating` for sim, but for real stream?
-                 // `connectBtn` text is set in `onStatusChange`.
-                 
-                 // If the button says the translated version of 'Connect', we connect. 
-                 // If it says translated 'Disconnect', we disconnect.
-                 // This is hard to check against i18n.t('ui.stream.connect').
-                 
-                 // Alternative: Check if we are connected.
-                 // The easiest fix without exposing state is to check if text == i18n.t('ui.stream.connect').
+            if (connectBtn.innerText === 'Disconnect' || connectBtn.innerText === 'Connected') {
                  
                  const tConnect = i18n.t('ui.stream.connect');
                  const currentText = connectBtn.innerText;
@@ -1172,9 +1127,25 @@ function init(): void {
             const hit = getNoteAt(x, y, currentChart, canvas, judgements, viewOptions);
 
             
-
             if (event.type === 'click') {
-                 if (selectionToggle && !selectionToggle.checked) return;
+                 // Check active tab
+                 const activeTab = document.querySelector('#chart-options-panel .panel-tab.active');
+                 const mode = activeTab ? activeTab.getAttribute('data-do-tab') : 'view';
+
+                 if (mode === 'annotation') {
+                      if (hit && ['1', '2', '3', '4'].includes(hit.type)) {
+                           const noteId = `${hit.originalBarIndex}_${hit.charIndex}`;
+                           const current = annotations[noteId];
+                           if (!current) annotations[noteId] = 'L';
+                           else if (current === 'L') annotations[noteId] = 'R';
+                           else delete annotations[noteId];
+                           
+                           refreshChart();
+                      }
+                      return; // Don't trigger selection logic if in annotation mode
+                 }
+
+                 if (mode !== 'selection') return;
 
                  if (hit) {
                      // Check existing selection state
@@ -1184,32 +1155,11 @@ function init(): void {
                          selectedNoteHitInfo = hit;
                      } else if (viewOptions.selection.start && !viewOptions.selection.end) {
                          // Case 2: Range Selection (End)
-                         // Check if we clicked the same note (toggle off? No, prompt says click another note)
-                         // Prompt says "tapping on any note restarts the range selection as a single note" ONLY "once there is a range selected".
-                         // "once there is a single note selection, clicking/tapping on another note marks everything between them (inclusive) as selected"
-                         // What if I click the SAME note? 
-                         // "clicking/tapping on a note selects that single note" -> "clicking... on *another* note marks everything between".
-                         // I will assume clicking the same note does nothing or keeps it selected.
                          if (viewOptions.selection.start.originalBarIndex === hit.originalBarIndex && viewOptions.selection.start.charIndex === hit.charIndex) {
-                             // Same note clicked. Maybe deselect? 
-                             // Prompt: "clicking/tapping on a note selects that single note". "Click/tap again to unselect" was for single note mode in PREVIOUS task.
-                             // Current task doesn't explicitly say "unselect on second click of same note".
-                             // "clicking/tapping on *another* note..."
-                             // I'll assume clicking the same note deselects it, consistent with previous behavior?
-                             // But wait, "once there is a single note selection...".
-                             // Let's implement range completion.
-                             
-                             // If same note, treat as range start == end.
-                             // But let's follow the "toggle" behavior of previous task if it feels right.
-                             // However, strict reading: "clicking/tapping on another note..."
-                             // If I click the same note, I'll just set it as a single-note range or leave it as single selection.
-                             // Let's allow unselecting if clicking the same note, as that's intuitive.
                              viewOptions.selection = null;
                              selectedNoteHitInfo = null;
                          } else {
                              viewOptions.selection.end = { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex };
-                             // Don't update selectedNoteHitInfo? Or update to the end note?
-                             // "When selected, the stats display would stick to it"
                              selectedNoteHitInfo = hit; 
                          }
                      } else {
@@ -1341,21 +1291,7 @@ function init(): void {
             
 
                     if (connectBtn) {
-
-                        // Update button text based on status.
-
-                        // Status strings from client are 'Connected', 'Connecting...', 'Disconnected' (implied)
-
-                        // We need to map these to UI keys for the button.
-
-                        // If connected -> Show 'Disconnect' (ui.stream.disconnect)
-
-                        // If connecting -> Disable?
-
-                        // If disconnected -> Show 'Connect' (ui.stream.connect)
-
                         
-
                         if (status === 'Connected') {
 
                             connectBtn.innerText = i18n.t('ui.stream.disconnect');
@@ -1541,61 +1477,14 @@ function updateParsedCharts(content: string) {
 
     parsedTJACharts = parseTJA(content);
 
-
-
     
-
-
-
         // Clear selection
-
-
-
-    
-
-
-
-    
-
-
-
-    
-
-
-
         viewOptions.selection = null;
-
-
-
-    
-
-
-
-    
-
-
-
-    
-
-
-
         selectedNoteHitInfo = null;
-
-
-
-    
-
-
-
-    
-
-
-
-    
-
-
-
         updateSelectionUI();
+
+        // Clear Annotations
+        annotations = {};
 
 
 
@@ -1746,6 +1635,14 @@ function refreshChart() {
                 poor: i18n.t('renderer.judge.poor')
             }
         };
+        // Update viewOptions annotations
+        viewOptions.annotations = annotations;
+        
+        // Determine annotation mode state
+        const activeTab = document.querySelector('#chart-options-panel .panel-tab.active');
+        const mode = activeTab ? activeTab.getAttribute('data-do-tab') : 'view';
+        viewOptions.isAnnotationMode = (mode === 'annotation');
+
         renderChart(currentChart, canvas, judgements, judgementDeltas, viewOptions, texts);
         updateLoopControls();
     }

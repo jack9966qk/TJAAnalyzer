@@ -46,6 +46,13 @@ const resources: Resources = {
         'ui.enableSelection': 'Enable Selection',
         'ui.clearSelection': 'Clear Selection',
         'ui.export': 'Export Selection',
+        'ui.annotation': 'Annotation',
+        'ui.clearAnnotations': 'Clear Annotations',
+        'ui.annotation.desc': 'Click on Don/Ka notes to toggle L/R annotation.',
+
+        'mode.view': 'Mode: View',
+        'mode.selection': 'Mode: Selection',
+        'mode.annotation': 'Mode: Annotation',
         
         'status.initializing': 'Initializing...',
         'status.ready': 'Ready',
@@ -118,6 +125,13 @@ const resources: Resources = {
         'ui.enableSelection': '启用选择',
         'ui.clearSelection': '清除选择',
         'ui.export': '导出选择',
+        'ui.annotation': '标注',
+        'ui.clearAnnotations': '清除标注',
+        'ui.annotation.desc': '点击 咚/咔 音符以切换 L/R 标注。',
+
+        'mode.view': '模式：查看',
+        'mode.selection': '模式：选择',
+        'mode.annotation': '模式：标注',
         
         'status.initializing': '初始化中...',
         'status.ready': '就绪',

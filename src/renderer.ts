@@ -33,6 +33,8 @@ export interface ViewOptions {
         start: { originalBarIndex: number, charIndex: number };
         end: { originalBarIndex: number, charIndex: number } | null;
     } | null;
+    annotations?: Record<string, string>;
+    isAnnotationMode?: boolean;
 }
 
 // Configuration Constants
@@ -444,7 +446,9 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
         drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER);
         
         // Draw Bar Number
-        drawBarNumber(ctx, info.originalIndex + 1, layout.x, layout.y, constants.BAR_NUMBER_FONT_SIZE, constants.BAR_NUMBER_OFFSET_Y);
+        if (!options.isAnnotationMode) {
+            drawBarNumber(ctx, info.originalIndex + 1, layout.x, layout.y, constants.BAR_NUMBER_FONT_SIZE, constants.BAR_NUMBER_OFFSET_Y);
+        }
 
         // Draw Loop Indicator
         if (info.isLoopStart && loop) {
@@ -719,11 +723,6 @@ function drawCapsule(ctx: CanvasRenderingContext2D, startX: number, endX: number
 function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, options: ViewOptions, startIndex: number, judgements: string[], judgementDeltas: (number | undefined)[] = [], texts: RenderTexts, originalBarIndex: number = -1, bars: string[][] = [], loopInfo?: LoopInfo): void {
     const { viewMode, coloringMode, visibility: judgementVisibility, selection } = options;
     
-    // DEBUG LOG
-    if (originalBarIndex === 0 && (viewMode === 'judgements' || viewMode === 'judgements-underline' || viewMode === 'judgements-text')) {
-        console.log(`drawBarNotes Bar 0: mode=${coloringMode}, deltasLen=${judgementDeltas.length}, judgementsLen=${judgements.length}`);
-    }
-
     const centerY: number = y + height / 2;
     const noteCount: number = bar.length;
     if (noteCount === 0) return;
@@ -1008,6 +1007,27 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
             ctx.lineWidth = borderInnerW;
             ctx.strokeStyle = borderColor; // Dynamic border
             ctx.stroke();
+
+            // Annotation Rendering
+            if (options.annotations && ['1', '2', '3', '4'].includes(noteChar)) {
+                const noteId = `${originalBarIndex}_${i}`;
+                const annotation = options.annotations[noteId];
+                if (annotation) {
+                    ctx.save();
+                    // Larger size
+                    ctx.font = `bold ${rBig * 1.5}px sans-serif`;
+                    ctx.fillStyle = '#000';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+                    
+                    // Position higher above the note
+                    const noteTopY = centerY - radius - (radius * 0.5);
+                    const textY = noteTopY;
+
+                    ctx.fillText(annotation, noteX, textY);
+                    ctx.restore();
+                }
+            }
         }
     }
 }
