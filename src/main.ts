@@ -569,6 +569,20 @@ function updateZoomDisplay() {
     }
 }
 
+// Helper to read file as text (compatibility wrapper)
+function readFileAsText(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+        if (typeof file.text === 'function') {
+            file.text().then(resolve).catch(reject);
+        } else {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = () => reject(reader.error);
+            reader.readAsText(file);
+        }
+    });
+}
+
 function init(): void {
 
     if (!canvas) {
@@ -675,8 +689,11 @@ function init(): void {
                 return;
             }
 
+            const loopCountInput = document.getElementById('export-loop-count') as HTMLInputElement;
+            const loopCount = loopCountInput ? parseInt(loopCountInput.value, 10) : 10;
+
             try {
-                const tjaContent = generateTJAFromSelection(currentChart, viewOptions.selection, difficultySelector.value);
+                const tjaContent = generateTJAFromSelection(currentChart, viewOptions.selection, difficultySelector.value, loopCount);
                 const N = (window as any).Neutralino;
 
                 if (N && N.os && N.os.showSaveDialog) {
@@ -879,9 +896,15 @@ function init(): void {
 
             loadedTJAContent = exampleTJA;
 
-            updateParsedCharts(loadedTJAContent);
-
-            updateStatus('status.exampleLoaded');
+            try {
+                updateParsedCharts(loadedTJAContent);
+                updateStatus('status.exampleLoaded');
+            } catch (e) {
+                console.error("Error loading example:", e);
+                const msg = i18n.t('status.parseError', { error: (e as Error).message });
+                alert(msg);
+                if (statusDisplay) statusDisplay.innerText = msg;
+            }
 
         });
 
@@ -903,7 +926,7 @@ function init(): void {
 
                 try {
 
-                    const content = await file.text();
+                    const content = await readFileAsText(file);
 
                     loadedTJAContent = content;
 
@@ -914,8 +937,9 @@ function init(): void {
                 } catch (e) {
 
                     console.error("Error parsing TJA file:", e);
-
-                    alert("Failed to parse TJA file. See console for details.");
+                    const msg = i18n.t('status.parseError', { error: (e as any).message || String(e) });
+                    alert(msg);
+                    if (statusDisplay) statusDisplay.innerText = msg;
 
                 }
 
@@ -1623,43 +1647,25 @@ function updateParsedCharts(content: string) {
 
     const difficulties = Object.keys(parsedTJACharts);
 
-    difficulties.forEach(diff => {
-
-        const option = document.createElement('option');
-
-        option.value = diff;
-
-        option.innerText = diff.charAt(0).toUpperCase() + diff.slice(1);
-
-        difficultySelector.appendChild(option);
-
-    });
-
-
-
-    if (difficulties.length > 0) {
-
-        let defaultDifficulty = 'edit';
-
-        if (!parsedTJACharts[defaultDifficulty]) defaultDifficulty = 'oni';
-
-        if (!parsedTJACharts[defaultDifficulty]) defaultDifficulty = difficulties[0];
-
-        
-
-        difficultySelector.value = defaultDifficulty;
-
-        currentChart = parsedTJACharts[defaultDifficulty];
-
-        difficultySelectorContainer.hidden = false;
-
-    } else {
-
+    if (difficulties.length === 0) {
         difficultySelectorContainer.hidden = true;
-
+        throw new Error(i18n.t('status.noCourses'));
     }
 
+    difficulties.forEach(diff => {
+        const option = document.createElement('option');
+        option.value = diff;
+        option.innerText = diff.charAt(0).toUpperCase() + diff.slice(1);
+        difficultySelector.appendChild(option);
+    });
 
+    let defaultDifficulty = 'edit';
+    if (!parsedTJACharts[defaultDifficulty]) defaultDifficulty = 'oni';
+    if (!parsedTJACharts[defaultDifficulty]) defaultDifficulty = difficulties[0];
+    
+    difficultySelector.value = defaultDifficulty;
+    currentChart = parsedTJACharts[defaultDifficulty];
+    difficultySelectorContainer.hidden = false;
 
         updateCollapseLoopState();
 

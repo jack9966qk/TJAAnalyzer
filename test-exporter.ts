@@ -2,7 +2,39 @@ import { parseTJA } from './src/tja-parser.js';
 import { generateTJAFromSelection } from './src/tja-exporter.js';
 import { ViewOptions } from './src/renderer.js';
 
-const tjaContent = `
+function runTest(name: string, fn: () => void) {
+    try {
+        console.log(`\n--- ${name} ---`);
+        fn();
+        console.log("PASS");
+    } catch (e: any) {
+        console.error(`FAIL: ${e.message}`);
+        process.exit(1);
+    }
+}
+
+function assert(condition: boolean, message: string) {
+    if (!condition) {
+        throw new Error(message);
+    }
+}
+
+function assertIncludes(text: string, search: string) {
+    if (!text.includes(search)) {
+        throw new Error(`Expected output to include "${search}". Output:\n${text}`);
+    }
+}
+
+function assertNotIncludes(text: string, search: string) {
+    if (text.includes(search)) {
+        throw new Error(`Expected output NOT to include "${search}". Output:\n${text}`);
+    }
+}
+
+try {
+    console.log("Testing TJA Exporter...");
+
+    const tjaContent = `
 TITLE:Test
 BPM:120
 BALLOON:5,10,15
@@ -15,92 +47,39 @@ LEVEL:10
 90000000,
 #END
 `;
+    const parsed = parseTJA(tjaContent)['oni'];
 
-const parsed = parseTJA(tjaContent)['oni'];
+    runTest("Test 1: Full selection with Balloon (Middle)", () => {
+        const selection: ViewOptions['selection'] = {
+            start: { originalBarIndex: 1, charIndex: 0 },
+            end: { originalBarIndex: 1, charIndex: 7 }
+        };
+        const output = generateTJAFromSelection(parsed, selection, 'Oni');
+        assertIncludes(output, 'BALLOON:10');
+        assertNotIncludes(output, 'BALLOON:5');
+        assertNotIncludes(output, 'BALLOON:15');
+    });
 
-// Test 1: Full selection of bar 1 (contains balloon #2 which is 10)
-// Bar 0 has balloon #1 (5).
-// Bar 1 has balloon #2 (10).
-// Bar 2 has balloon #3 (15).
+    runTest("Test 2: Partial selection (Offset Balloon)", () => {
+        const selection: ViewOptions['selection'] = {
+            start: { originalBarIndex: 2, charIndex: 0 },
+            end: { originalBarIndex: 2, charIndex: 7 }
+        };
+        const output = generateTJAFromSelection(parsed, selection, 'Oni');
+        assertIncludes(output, 'BALLOON:15');
+    });
 
-const selection1: ViewOptions['selection'] = {
-    start: { originalBarIndex: 1, charIndex: 0 },
-    end: { originalBarIndex: 1, charIndex: 7 }
-};
+    runTest("Test 3: Partial selection cutting off Balloon", () => {
+        const selection: ViewOptions['selection'] = {
+            start: { originalBarIndex: 1, charIndex: 2 },
+            end: { originalBarIndex: 1, charIndex: 7 }
+        };
+        const output = generateTJAFromSelection(parsed, selection, 'Oni');
+        assertNotIncludes(output, 'BALLOON');
+    });
 
-const output1 = generateTJAFromSelection(parsed, selection1, 'Oni');
-console.log("--- Output 1 ---");
-console.log(output1);
-
-if (output1.includes('BALLOON:10')) {
-    console.log("PASS: Balloon value 10 found.");
-} else {
-    console.error("FAIL: Balloon value 10 not found.");
-    process.exit(1);
-}
-
-if (!output1.includes('BALLOON:5') && !output1.includes('BALLOON:15')) {
-    console.log("PASS: Balloon values 5 and 15 excluded.");
-} else {
-    console.error("FAIL: Unexpected balloon values found.");
-    process.exit(1);
-}
-
-// Test 2: Partial selection of bar 0 and 1
-// Select from bar 0 char 4 to bar 1 char 3.
-// Bar 0: 1000 [0000] -> balloon at 0 is excluded? No, balloon is '7'.
-// Bar 0: 10000000. Wait, bar 0 is just '1'. No balloon.
-// Wait, my tja:
-// Bar 0: 10000000
-// Bar 1: 70000000 (balloon at start)
-// Bar 2: 10007000 (balloon at 4)
-// Bar 3: 90000000 (kusudama at start)
-
-// Correction:
-// Bar 0: 1...
-// Bar 1: 7... (Value 5)
-// Bar 2: ...7... (Value 10)
-// Bar 3: 9... (Value 15)
-
-// Let's re-test selection of Bar 2 (index 2).
-const selection2: ViewOptions['selection'] = {
-    start: { originalBarIndex: 2, charIndex: 0 },
-    end: { originalBarIndex: 2, charIndex: 7 }
-};
-
-const output2 = generateTJAFromSelection(parsed, selection2, 'Oni');
-console.log("--- Output 2 ---");
-console.log(output2);
-if (output2.includes('BALLOON:15')) {
-    console.log("PASS: Balloon value 15 found.");
-} else {
-    console.error("FAIL: Balloon value 15 not found.");
-    process.exit(1);
-}
-
-// Test 3: Partial selection cutting off a balloon.
-// Bar 1: 70000000.
-// Select Bar 1 char 2 to 7. (00700000 -> 000000)
-// The '7' is at index 0. So it becomes '0'.
-// Expect NO balloon header.
-
-const selection3: ViewOptions['selection'] = {
-    start: { originalBarIndex: 1, charIndex: 2 },
-    end: { originalBarIndex: 1, charIndex: 7 }
-};
-
-const output3 = generateTJAFromSelection(parsed, selection3, 'Oni');
-console.log("--- Output 3 ---");
-console.log(output3);
-if (!output3.includes('BALLOON')) {
-    console.log("PASS: No BALLOON header.");
-} else {
-    console.error("FAIL: BALLOON header present.");
-    process.exit(1);
-}
-
-// Test 4: Verify BPM/SCROLL commands
-const tjaContent2 = `
+    runTest("Test 4: Verify BPM/SCROLL commands preservation", () => {
+        const tjaContent2 = `
 TITLE:Test2
 BPM:100
 COURSE:Oni
@@ -111,35 +90,22 @@ COURSE:Oni
 10001000,
 #END
 `;
-const parsed2 = parseTJA(tjaContent2)['oni'];
+        const parsed2 = parseTJA(tjaContent2)['oni'];
+        const selection: ViewOptions['selection'] = {
+            start: { originalBarIndex: 1, charIndex: 0 },
+            end: { originalBarIndex: 1, charIndex: 7 }
+        };
+        const output = generateTJAFromSelection(parsed2, selection, 'Oni');
+        
+        // Context at Start of Bar 1 (Index 0) includes the BPMCHANGE 200 at index 0.
+        // So Header BPM should be 200.
+        assertIncludes(output, 'BPM:200');
+        assertIncludes(output, '#SCROLL 2');
+        assertIncludes(output, '#BPMCHANGE 200');
+    });
 
-// Export bar 1 (index 1), which has BPMCHANGE 200 at start.
-// Bar 0 has SCROLL 2.0.
-// Export bar 1. We expect BPM:100 in header (start of bar 0? No, header).
-// But Bar 1 starts. State at Bar 1 start: BPM 100 (until change), Scroll 2.0.
-// Wait, BPMCHANGE 200 is at index 0 of Bar 1.
-// So Bar 1 start state is BPM 100. Then immediately changes to 200.
-// We expect:
-// Header BPM: 100
-// #SCROLL 2 (inherited)
-// #MEASURE ...
-// #BPMCHANGE 200 (in body)
-
-const selection4: ViewOptions['selection'] = {
-    start: { originalBarIndex: 1, charIndex: 0 },
-    end: { originalBarIndex: 1, charIndex: 7 }
-};
-
-const output4 = generateTJAFromSelection(parsed2, selection4, 'Oni');
-console.log("--- Output 4 ---");
-console.log(output4);
-
-if (output4.includes('BPM:100')) console.log("PASS: Header BPM 100");
-if (output4.includes('#SCROLL 2')) console.log("PASS: Initial SCROLL 2");
-if (output4.includes('#BPMCHANGE 200')) console.log("PASS: BPMCHANGE 200 preserved");
-
-// Test 5: Verify LEVEL preservation
-const tjaContent3 = `
+    runTest("Test 5: Verify LEVEL preservation", () => {
+        const tjaContent3 = `
 TITLE:LevelTest
 BPM:140
 COURSE:Hard
@@ -148,20 +114,174 @@ LEVEL:8
 10000000,
 #END
 `;
-const parsed3 = parseTJA(tjaContent3)['hard'];
-const selection5: ViewOptions['selection'] = {
-    start: { originalBarIndex: 0, charIndex: 0 },
-    end: { originalBarIndex: 0, charIndex: 7 }
-};
-const output5 = generateTJAFromSelection(parsed3, selection5, 'Hard');
-console.log("--- Output 5 ---");
-console.log(output5);
+        const parsed3 = parseTJA(tjaContent3)['hard'];
+        const selection: ViewOptions['selection'] = {
+            start: { originalBarIndex: 0, charIndex: 0 },
+            end: { originalBarIndex: 0, charIndex: 7 }
+        };
+        const output = generateTJAFromSelection(parsed3, selection, 'Hard');
+        assertIncludes(output, 'LEVEL:8');
+    });
 
-if (output5.includes('LEVEL:8')) {
-    console.log("PASS: LEVEL 8 preserved.");
-} else {
-    console.error("FAIL: LEVEL 8 not found.");
+    runTest("Test 6: Looping structure and Context Reset", () => {
+        const tjaLoop = `
+TITLE:LoopTest
+BPM:100
+COURSE:Oni
+#START
+#SCROLL 2.0
+#MEASURE 4/4
+10001000,
+#BPMCHANGE 200
+#SCROLL 1.5
+20002000,
+#END
+`;
+        const parsedLoop = parseTJA(tjaLoop)['oni'];
+        // Select Bar 0
+        const selection: ViewOptions['selection'] = {
+            start: { originalBarIndex: 0, charIndex: 0 },
+            end: { originalBarIndex: 0, charIndex: 7 }
+        };
+        const output = generateTJAFromSelection(parsedLoop, selection, 'Oni', 2);
+        
+        const loopCount = output.split('// Loop').length - 1;
+        assert(loopCount === 2, `Expected 2 loops, found ${loopCount}`);
+        assertIncludes(output, 'BPM:100');
+
+        // Check Loop 1 Context Reset
+        const loops = output.split('// Loop');
+        const loop1 = loops[1];
+        assertIncludes(loop1, '#BPMCHANGE 100');
+        assertIncludes(loop1, '#SCROLL 2');
+
+        // Check End Padding
+        assertIncludes(output, '// End Padding');
+        const endPad = output.split('// End Padding')[1];
+        // End context of Bar 0 (ignoring Bar 1's BPMCHANGE 200 which is at start of Bar 1)
+        // Actually Bar 1 starts with BPMCHANGE 200.
+        // Bar 0 has no changes inside.
+        // So state at end of Bar 0 is BPM 100, Scroll 2.
+        assertIncludes(endPad, '#BPMCHANGE 100');
+        assertIncludes(endPad, '#SCROLL 2');
+    });
+
+    runTest("Test 7: Looping with Balloons", () => {
+        const tjaBalloonLoop = `
+TITLE:BalloonLoop
+COURSE:Oni
+BALLOON:10
+#START
+70000000,
+#END
+`;
+        const parsedBalloonLoop = parseTJA(tjaBalloonLoop)['oni'];
+        const selection: ViewOptions['selection'] = {
+            start: { originalBarIndex: 0, charIndex: 0 },
+            end: { originalBarIndex: 0, charIndex: 7 }
+        };
+        const output = generateTJAFromSelection(parsedBalloonLoop, selection, 'Oni', 3);
+        assertIncludes(output, 'BALLOON:10,10,10');
+    });
+
+    runTest("Test 8: End Context Specificity (End of Bar)", () => {
+        const tjaMidBar = `
+TITLE:MidBar
+COURSE:Oni
+BPM:100
+#START
+#BPMCHANGE 200
+10
+#BPMCHANGE 300
+00,
+#END
+`;
+        // Bar 0 Structure:
+        // Index 0: '1'
+        // Index 1: '0'
+        // Index 2: #BPMCHANGE 300 (before '0')
+        // Index 2: '0'
+        // Index 3: '0'
+        
+        const parsedMidBar = parseTJA(tjaMidBar)['oni'];
+        
+        // Select just the first note (Index 0)
+        const selection: ViewOptions['selection'] = {
+            start: { originalBarIndex: 0, charIndex: 0 },
+            end: { originalBarIndex: 0, charIndex: 0 }
+        };
+        const output = generateTJAFromSelection(parsedMidBar, selection, 'Oni', 1);
+        
+        assertIncludes(output, '// End Padding');
+        const endPart = output.split('// End Padding')[1];
+        
+        // We expect the End Padding to reflect the state at the END OF THE BAR
+        // even though we only selected the start.
+        // The End Padding follows the empty bars which follow the loop.
+        // Wait, logically:
+        // Loop 1: Empty Bar (Start Ctx) -> Selection -> Rest of Bar (Implicitly skipped) -> Next Loop
+        // Actually my implementation does NOT output the "rest of bar".
+        // It outputs: Empty Bar -> Selection -> (End of selection loop).
+        // Then End Padding.
+        // The End Padding is supposed to transition us back to the "Rest of the chart" or simply be a safe ending?
+        // If we only export a selection, the "End Padding" bars are just 3 empty bars.
+        // Their context should probably match the state where the selection ENDED?
+        // Or where the selection WOULD have ended if we continued?
+        // In my implementation step 12, I set it to `getContextAt(chart, endBar, 999999)`.
+        // This effectively means "State at the end of the endBar".
+        // So yes, it should include the #BPMCHANGE 300 which happened later in that bar. 
+        
+        assertIncludes(endPart, '#BPMCHANGE 300');
+    });
+
+    runTest("Test 9: Export -> Parse Cycle", () => {
+        const tjaCycle = `
+TITLE:CycleTest
+COURSE:Oni
+BPM:150
+BALLOON:3
+#START
+10700000,
+#END
+`;
+        const parsedCycle = parseTJA(tjaCycle)['oni'];
+        const selection: ViewOptions['selection'] = {
+            start: { originalBarIndex: 0, charIndex: 0 },
+            end: { originalBarIndex: 0, charIndex: 7 }
+        };
+        // Export with 2 loops
+        const exportedTja = generateTJAFromSelection(parsedCycle, selection, 'Oni', 2);
+        
+        // Parse it back
+        const reParsedMap = parseTJA(exportedTja);
+        const reParsed = reParsedMap['oni'];
+        
+        assert(!!reParsed, "Re-parsed chart should contain 'Oni' course");
+        
+        // Check Header BPM
+        assert(reParsed.barParams[0].bpm === 150, `Expected BPM 150, got ${reParsed.barParams[0].bpm}`);
+        
+        // Check Structure: 
+        // Loop 1: Empty Bar (0,) -> Selection (10700000,)
+        // Loop 2: Empty Bar (0,) -> Selection (10700000,)
+        // End Padding: 0, 0, 0,
+        // Total Bars: (1+1) + (1+1) + 3 = 7 bars?
+        // Let's check the content of the bars that correspond to selection.
+        // Bar 0: Empty (generated context reset)
+        // Bar 1: Selection
+        const bar1 = reParsed.bars[1];
+        assert(bar1.join('') === '10700000', `Expected bar 1 to be '10700000', got '${bar1.join('')}'`);
+        
+        // Check Balloons
+        // Original has 1 balloon (value 3). We loop 2 times.
+        // So expected balloons: 3, 3.
+        assert(reParsed.balloonCounts.length === 2, `Expected 2 balloons, got ${reParsed.balloonCounts.length}`);
+        assert(reParsed.balloonCounts[0] === 3, `Expected first balloon to be 3`);
+        assert(reParsed.balloonCounts[1] === 3, `Expected second balloon to be 3`);
+    });
+
+    console.log("\nAll TJA Exporter tests passed.");
+} catch (e: any) {
+    console.error("Test suite failed:", e);
     process.exit(1);
 }
-
-console.log("All tests passed");

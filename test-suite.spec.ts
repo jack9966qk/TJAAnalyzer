@@ -296,6 +296,74 @@ BALLOON:5,10
         await page.waitForTimeout(1000);
         await expect(canvas).toHaveScreenshot('balloon-render.png');
     });
+
+    test('Load Exported Chart', async ({ page }) => {
+        await page.goto('/');
+        const canvas = page.locator('#chart-canvas');
+        await expect(canvas).toBeVisible();
+
+        // Switch to File Tab
+        await page.click('button[data-mode="file"]');
+
+        const tjaContent = `TITLE:Exported Selection
+SUBTITLE:--
+BPM:250
+WAVE:placeholder.mp3
+OFFSET:0
+COURSE:Edit
+LEVEL:10
+
+#START
+
+// Loop 1
+#MEASURE 4/4
+#BPMCHANGE 250
+#SCROLL 1
+0,
+10220120,
+202120202120,
+3022203022203022,
+2030222030222220,
+
+// Loop 2
+#MEASURE 4/4
+#BPMCHANGE 250
+#SCROLL 1
+0,
+10220120,
+202120202120,
+3022203022203022,
+2030222030222220,
+
+// End Padding
+#MEASURE 4/4
+#BPMCHANGE 250
+#SCROLL 1
+0,
+0,
+0,
+#END`;
+
+        await page.locator('#tja-file-picker').setInputFiles({
+            name: 'exported.tja',
+            mimeType: 'text/plain',
+            buffer: Buffer.from(tjaContent)
+        });
+
+        await page.waitForTimeout(1000);
+        
+        // Verify Canvas is still there
+        await expect(canvas).toBeVisible();
+        
+        // Check Status
+        // Key: status.fileLoaded
+        // Use evaluate to check translation or text content
+        const status = page.locator('#status-display');
+        // i18n keys are loaded. If English, it should be "File loaded".
+        // Let's just check if it is NOT "Ready" (status.ready)
+        await expect(status).not.toContainText('Ready');
+        await expect(status).not.toContainText('Initializing');
+    });
 });
 
 test.describe('Interaction', () => {

@@ -153,12 +153,16 @@
 
                         <!-- Note Selection Pane -->
                         <div id="do-tab-selection" class="panel-pane" style="display:none;">
-                            <div class="control-group">
+                            <div class="control-group" style="display: flex; align-items: center; gap: 10px;">
                                 <label><input type="checkbox" id="selection-toggle" checked> <span data-i18n="ui.enableSelection">Enable Selection</span></label>
-                            <button id="clear-selection-btn" class="control-btn" data-i18n="ui.clearSelection">Clear Selection</button>
-                            <button id="export-selection-btn" class="control-btn" data-i18n="ui.export">Export TJA</button>
+                                <button id="clear-selection-btn" class="control-btn" data-i18n="ui.clearSelection">Clear Selection</button>
+                                <div style="display: flex; align-items: center; gap: 5px; margin-left: auto;">
+                                    <label for="export-loop-count" style="font-size: 0.9em;">Loops:</label>
+                                    <input type="number" id="export-loop-count" value="10" min="1" style="width: 50px; padding: 2px;">
+                                    <button id="export-selection-btn" class="control-btn" data-i18n="ui.export">Export TJA</button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
                 </div>
             </div>
 

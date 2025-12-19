@@ -6,7 +6,46 @@ interface ExportContext {
     selection: NonNullable<ViewOptions['selection']>;
 }
 
-export function generateTJAFromSelection(chart: ParsedChart, selection: NonNullable<ViewOptions['selection']>, courseName: string = 'Oni'): string {
+interface ChartContext {
+    bpm: number;
+    scroll: number;
+    measureRatio: number;
+}
+
+function getContextAt(chart: ParsedChart, barIndex: number, charIndex: number): ChartContext {
+    let bpm = chart.barParams[0]?.bpm || 120; // Default
+    let scroll = 1.0;
+    let measure = 1.0;
+
+    // Scan up to barIndex
+    for (let b = 0; b <= barIndex; b++) {
+        const params = chart.barParams[b];
+        if (!params) continue;
+        
+        // Measure updates per bar (active for the whole bar usually, but let's track the latest)
+        measure = params.measureRatio;
+
+        // Check changes within bar
+        if (params.bpmChanges) {
+            for (const ch of params.bpmChanges) {
+                if (b < barIndex || (b === barIndex && ch.index <= charIndex)) {
+                    bpm = ch.bpm;
+                }
+            }
+        }
+        
+        if (params.scrollChanges) {
+            for (const ch of params.scrollChanges) {
+                if (b < barIndex || (b === barIndex && ch.index <= charIndex)) {
+                    scroll = ch.scroll;
+                }
+            }
+        }
+    }
+    return { bpm, scroll, measureRatio: measure };
+}
+
+export function generateTJAFromSelection(chart: ParsedChart, selection: NonNullable<ViewOptions['selection']>, courseName: string = 'Oni', loopCount: number = 10): string {
     const { start, end } = selection;
 
     // Normalize selection range
@@ -21,7 +60,7 @@ export function generateTJAFromSelection(chart: ParsedChart, selection: NonNulla
     }
     
     // 1. Calculate Balloon Data
-    const exportedBalloons: number[] = [];
+    const selectionBalloons: number[] = [];
     let balloonCursor = 0; // Index into chart.balloonCounts
     
     // Advance cursor to start of selection
@@ -35,7 +74,6 @@ export function generateTJAFromSelection(chart: ParsedChart, selection: NonNulla
     }
 
     // Scan selection for balloons
-    // We need to simulate the export process to know which balloons are kept
     for (let b = startBar; b <= endBar; b++) {
         const bar = chart.bars[b];
         if (!bar) continue;
@@ -50,9 +88,9 @@ export function generateTJAFromSelection(chart: ParsedChart, selection: NonNulla
                 // If this note is within selection, we keep it and need its value
                 if (i >= validStart && i <= validEnd) {
                     if (balloonCursor < chart.balloonCounts.length) {
-                        exportedBalloons.push(chart.balloonCounts[balloonCursor]);
+                        selectionBalloons.push(chart.balloonCounts[balloonCursor]);
                     } else {
-                        exportedBalloons.push(5); // Default fallback
+                        selectionBalloons.push(5); // Default fallback
                     }
                 }
                 // Always advance cursor as we pass a balloon in the original chart
@@ -61,11 +99,23 @@ export function generateTJAFromSelection(chart: ParsedChart, selection: NonNulla
         }
     }
 
-    // 2. Generate Header
+    const exportedBalloons: number[] = [];
+    for (let i = 0; i < loopCount; i++) {
+        exportedBalloons.push(...selectionBalloons);
+    }
+
+    // 2. Determine Contexts
+    // Start context: State at the BEGINNING of the start bar (index 0).
+    const startContext = getContextAt(chart, startBar, 0);
+    // End context: State at the END of the end bar (effectively infinite index).
+    const endContext = getContextAt(chart, endBar, 999999);
+
+
+    // 3. Generate Header
     const headers: string[] = [
         `TITLE:Exported Selection`,
         `SUBTITLE:--`,
-        `BPM:${formatVal(chart.barParams[startBar]?.bpm || 120)}`,
+        `BPM:${formatVal(startContext.bpm)}`,
         `WAVE:placeholder.mp3`,
         `OFFSET:0`,
         `COURSE:${courseName.charAt(0).toUpperCase() + courseName.slice(1)}`,
@@ -78,52 +128,49 @@ export function generateTJAFromSelection(chart: ParsedChart, selection: NonNulla
 
     let tjaContent = headers.join('\n') + '\n\n#START\n';
 
-    // 3. Initial State Commands
-    const startParams = chart.barParams[startBar];
-    if (startParams) {
-        // Emit SCROLL and MEASURE. BPM is in header, but if it changes immediately, we handle it in loop.
-        // Actually, if the first bar has a BPM change at index 0, it will be handled in the loop.
-        // But if the "current BPM" is inherited, the Header BPM covers it.
-        // Wait, Header BPM sets the initial BPM.
-        // If `startParams.bpm` != Header BPM (which we set to `startParams.bpm`), we are fine.
-        // But what if `startParams.bpm` is different from `chart.barParams[0].bpm`?
-        // We set Header BPM to `startParams.bpm`. So the chart starts with correct BPM.
-        
-        tjaContent += `#SCROLL ${formatVal(startParams.scroll)}\n`;
-        // Measure ratio: convert to fraction if possible
-        tjaContent += `#MEASURE ${formatMeasure(startParams.measureRatio)}\n`;
-    }
-
-    // 4. Generate Bars
-    let lastMeasureRatio = startParams ? startParams.measureRatio : 1.0;
+    // 4. Generate Content
+    
+    // We pre-calculate the selection string block to avoid re-processing every loop
+    // But wait, "One strategy is to start from the original bar string and replace the unselected notes with empty note".
+    // We need to generate the "Selection Block".
+    
+    let selectionBlock = '';
+    
+    // Check initial measure of selection
+    // The selection block itself should start with #MEASURE if the first bar has a specific measure.
+    // But we handle this via "Empty Bar" context setting for the *loop*.
+    // However, if the first bar of selection has a DIFFERENT measure than `startContext.measureRatio`?
+    // `startContext.measureRatio` IS the measure of the first bar (because getContextAt uses `params.measureRatio` of that bar).
+    // So the Empty Bar will set the measure correctly for the start of selection.
+    
+    // Generate the bars for selection
+    let lastMeasureRatio = startContext.measureRatio;
 
     for (let b = startBar; b <= endBar; b++) {
         const bar = chart.bars[b];
         const params = chart.barParams[b];
 
         if (!bar || !params) {
-            tjaContent += ',\n';
+            selectionBlock += ',\n';
             continue;
         }
 
-        // Check for Measure Change
-        if (b > startBar && Math.abs(params.measureRatio - lastMeasureRatio) > 0.0001) {
-            tjaContent += `#MEASURE ${formatMeasure(params.measureRatio)}\n`;
+        // Measure Change logic within selection
+        // If this bar has different measure than previous *in the selection flow*, output command.
+        // For first bar (b==startBar), lastMeasureRatio is initialized to startContext.measureRatio.
+        // So if first bar matches startContext (which it should), no redundant #MEASURE.
+        if (Math.abs(params.measureRatio - lastMeasureRatio) > 0.0001) {
+            selectionBlock += `#MEASURE ${formatMeasure(params.measureRatio)}\n`;
             lastMeasureRatio = params.measureRatio;
         }
 
-        // Construct Bar Line with interleaved commands
+        // Collect commands
+        const commandsAt: Record<number, string[]> = {};
+        
+        // Define valid range
         const validStart = (b === startBar) ? startChar : 0;
         const validEnd = (b === endBar) ? endChar : bar.length - 1;
 
-        // Collect commands for this bar
-        // bpmChanges and scrollChanges are usually sparse.
-        // They have an 'index' property.
-        // We iterate note by note.
-        
-        // Commands mapping: index -> string[]
-        const commandsAt: Record<number, string[]> = {};
-        
         if (params.bpmChanges) {
             for (const ch of params.bpmChanges) {
                 if (!commandsAt[ch.index]) commandsAt[ch.index] = [];
@@ -138,39 +185,45 @@ export function generateTJAFromSelection(chart: ParsedChart, selection: NonNulla
         }
 
         let barString = '';
-        
-        // Iterate through the bar length (original length)
-        // We must preserve length to maintain timing if we zero out notes.
         for (let i = 0; i < bar.length; i++) {
-            // Emit commands if any
             if (commandsAt[i]) {
-                // To support commands, we might need to break the line?
-                // Standard TJA: commands are on their own line.
-                // So: `note1` `\n#CMD\n` `note2` ...
-                // But TJA bars are comma terminated.
-                // Can we have `11\n#CMD\n11,`? Yes.
                 if (barString.length > 0 && !barString.endsWith('\n')) barString += '\n';
                 barString += commandsAt[i].join('\n') + '\n';
             }
 
             const char = bar[i];
             const isSelected = (i >= validStart && i <= validEnd);
-            
-            // If selected, keep char. Else '0'.
             barString += isSelected ? char : '0';
         }
         
-        // Handle commands at the very end of bar? (index == length)
-        // TJA parser usually associates index=length with end of bar?
-        // But `bpmChanges` index is based on `currentBarBuffer.length`.
-        // If we had `1111#BPMCHANGE`, index is 4.
+        // Trailing commands
         if (commandsAt[bar.length]) {
-            if (barString.length > 0 && !barString.endsWith('\n')) barString += '\n';
-            barString += commandsAt[bar.length].join('\n') + '\n';
+             if (barString.length > 0 && !barString.endsWith('\n')) barString += '\n';
+             barString += commandsAt[bar.length].join('\n') + '\n';
         }
 
-        tjaContent += barString + ',\n';
+        selectionBlock += barString + ',\n';
     }
+
+    // Now assemble the loops
+    for (let i = 0; i < loopCount; i++) {
+        // Empty Bar (Context Reset)
+        tjaContent += `\n// Loop ${i+1}\n`;
+        tjaContent += `#MEASURE ${formatMeasure(startContext.measureRatio)}\n`;
+        tjaContent += `#BPMCHANGE ${formatVal(startContext.bpm)}\n`;
+        tjaContent += `#SCROLL ${formatVal(startContext.scroll)}\n`;
+        tjaContent += `0,\n`;
+
+        // Selection
+        tjaContent += selectionBlock;
+    }
+
+    // End Padding
+    tjaContent += `\n// End Padding\n`;
+    tjaContent += `#MEASURE ${formatMeasure(endContext.measureRatio)}\n`;
+    tjaContent += `#BPMCHANGE ${formatVal(endContext.bpm)}\n`;
+    tjaContent += `#SCROLL ${formatVal(endContext.scroll)}\n`;
+    tjaContent += `0,\n0,\n0,\n`;
 
     tjaContent += '#END\n';
     return tjaContent;
@@ -192,6 +245,5 @@ function formatMeasure(ratio: number): string {
         return `${Math.round(y)}/16`;
     }
     // Fallback
-    return `${ratio}/1`; // valid? TJA usually expects int/int.
-    // 4/4 = 1.
+    return `${ratio}/1`; 
 }

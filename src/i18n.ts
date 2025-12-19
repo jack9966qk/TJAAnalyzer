@@ -59,6 +59,8 @@ const resources: Resources = {
         'status.simStopped': 'Simulation Stopped',
         'status.exportSuccess': 'Selection exported successfully',
         'status.exportFailed': 'Failed to export selection',
+        'status.parseError': 'Error parsing TJA file: {error}',
+        'status.noCourses': 'No valid courses found in TJA file',
 
         'stats.type': 'Type',
         'stats.gap': 'Gap',
@@ -129,6 +131,8 @@ const resources: Resources = {
         'status.simStopped': '模拟已停止',
         'status.exportSuccess': '选择导出成功',
         'status.exportFailed': '导出选择失败',
+        'status.parseError': '解析 TJA 文件错误：{error}',
+        'status.noCourses': 'TJA 文件中未找到有效课程',
 
         'stats.type': '类型',
         'stats.gap': '间隔',
