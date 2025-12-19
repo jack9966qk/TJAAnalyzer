@@ -68,6 +68,11 @@ const resources: Resources = {
         'status.exportFailed': 'Failed to export selection',
         'status.parseError': 'Error parsing TJA file: {error}',
         'status.noCourses': 'No valid courses found in TJA file',
+        'status.loadingEse': 'Loading chart list from ESE...',
+        'status.eseReady': 'ESE chart list loaded',
+        'status.eseError': 'Error loading ESE data: {error}',
+        'status.loadingChart': 'Loading chart...',
+        'status.chartLoaded': 'Chart loaded from ESE',
 
         'stats.type': 'Type',
         'stats.gap': 'Gap',
@@ -147,6 +152,11 @@ const resources: Resources = {
         'status.exportFailed': '导出选择失败',
         'status.parseError': '解析 TJA 文件错误：{error}',
         'status.noCourses': 'TJA 文件中未找到有效课程',
+        'status.loadingEse': '正在从 ESE 加载谱面列表...',
+        'status.eseReady': 'ESE 谱面列表已加载',
+        'status.eseError': '加载 ESE 数据错误：{error}',
+        'status.loadingChart': '正在加载谱面...',
+        'status.chartLoaded': '已从 ESE 加载谱面',
 
         'stats.type': '类型',
         'stats.gap': '间隔',

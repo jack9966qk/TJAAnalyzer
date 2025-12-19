@@ -11,3 +11,5 @@ neutralinojs.log
 bin/
 app_package/
 js_out/
+www/ese/
+www/ese_index.json

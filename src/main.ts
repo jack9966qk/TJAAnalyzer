@@ -4,6 +4,7 @@ import { renderChart, getNoteAt, HitInfo, getGradientColor, JudgementVisibility,
 import { exampleTJA } from './example-data.js';
 import { JudgementClient, ServerEvent } from './judgement-client.js';
 import { i18n } from './i18n.js';
+import { EseClient, GitNode } from './ese-client.js';
 
 const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement | null;
 let parsedTJACharts: Record<string, ParsedChart> | null = null;
@@ -27,6 +28,10 @@ let activeDataSourceMode: string = 'example';
 let isSimulating: boolean = false;
 let selectedNoteHitInfo: HitInfo | null = null;
 let annotations: Record<string, string> = {};
+
+// ESE Client
+const eseClient = new EseClient();
+let eseTree: GitNode[] | null = null;
 
 // Judgement State
 const judgementClient = new JudgementClient();
@@ -86,12 +91,17 @@ const portInput = document.getElementById('port-input') as HTMLInputElement;
 const connectBtn = document.getElementById('connect-btn') as HTMLButtonElement;
 const testStreamBtn = document.getElementById('test-stream-btn') as HTMLButtonElement;
 
-let currentStatusKey = 'status.initializing';
+const eseSearchInput = document.getElementById('ese-search-input') as HTMLInputElement;
+const eseResults = document.getElementById('ese-results') as HTMLDivElement;
 
-function updateStatus(key: string) {
+let currentStatusKey = 'status.initializing';
+let currentStatusParams: Record<string, string | number> | undefined;
+
+function updateStatus(key: string, params?: Record<string, string | number>) {
     currentStatusKey = key;
+    currentStatusParams = params;
     if (statusDisplay) {
-        statusDisplay.innerText = i18n.t(key);
+        statusDisplay.innerText = i18n.t(key, params);
     }
 }
 
@@ -139,6 +149,66 @@ function updateSelectionUI() {
     }
 }
 
+function filterEseResults(query: string) {
+    if (!eseTree || !eseResults) return;
+    const results = query ? eseTree.filter(node => node.path.toLowerCase().includes(query)) : [];
+    
+    if (results.length === 0 && !query) {
+         eseResults.innerHTML = `<div style="padding: 10px; color: #888; font-style: italic;">Search for songs...</div>`;
+         return;
+    } else if (results.length === 0) {
+         eseResults.innerHTML = `<div style="padding: 10px; color: #888; font-style: italic;">No results found.</div>`;
+         return;
+    }
+
+    // Limit results for performance
+    const displayResults = results.slice(0, 100); 
+
+    eseResults.innerHTML = '';
+    displayResults.forEach(node => {
+        const div = document.createElement('div');
+        div.className = 'ese-result-item';
+        div.style.padding = '5px 10px';
+        div.style.cursor = 'pointer';
+        div.style.borderBottom = '1px solid #eee';
+        
+        // Simple highlighting or just text
+        div.innerText = node.path;
+        
+        div.addEventListener('click', async () => {
+             try {
+                 updateStatus('status.loadingChart');
+                 // Highlight selection
+                 document.querySelectorAll('.ese-result-item').forEach(el => (el as HTMLElement).style.background = 'transparent');
+                 div.style.background = '#e0e0ff';
+
+                 const content = await eseClient.getFileContent(node.path);
+                 loadedTJAContent = content;
+                 updateParsedCharts(content);
+                 updateStatus('status.chartLoaded');
+             } catch (e) {
+                 console.error(e);
+                 const errMsg = (e as any).message || String(e);
+                 alert(`Failed to load chart: ${errMsg}`);
+                 updateStatus('status.eseError', { error: errMsg });
+             }
+        });
+        
+        div.addEventListener('mouseover', () => { 
+            if (div.style.background !== 'rgb(224, 224, 255)' && div.style.background !== '#e0e0ff') {
+                div.style.backgroundColor = '#f0f0f0'; 
+            }
+        });
+        div.addEventListener('mouseout', () => { 
+            if (div.style.background !== 'rgb(224, 224, 255)' && div.style.background !== '#e0e0ff') {
+                div.style.backgroundColor = 'transparent'; 
+            }
+        });
+        
+        eseResults.appendChild(div);
+    });
+}
+
 function switchDataSourceMode(mode: string) {
     activeDataSourceMode = mode;
     console.log(`Switching data source mode to: ${mode}`);
@@ -163,6 +233,25 @@ function switchDataSourceMode(mode: string) {
         // Check if connected
         if (connectBtn && (connectBtn.innerText === 'Disconnect' || isSimulating)) {
             judgementClient.disconnect();
+        }
+    }
+
+    // ESE Logic
+    if (mode === 'ese') {
+        if (!eseTree) {
+             updateStatus('status.loadingEse');
+             // Show loading indicator in results
+             if(eseResults) eseResults.innerHTML = '<div style="padding:10px;">Loading song list...</div>';
+             
+             eseClient.getTjaFiles().then(tree => {
+                 eseTree = tree;
+                 updateStatus('status.eseReady');
+                 filterEseResults('');
+             }).catch(e => {
+                 const errMsg = (e as any).message || String(e);
+                 updateStatus('status.eseError', { error: errMsg });
+                 if(eseResults) eseResults.innerHTML = `<div style="padding:10px; color:red">Error loading tree: ${errMsg}</div>`;
+             });
         }
     }
 
@@ -917,8 +1006,14 @@ function init(): void {
         });
 
     }
-
-
+    
+    // Setup ESE Search
+    if (eseSearchInput) {
+        eseSearchInput.addEventListener('input', () => {
+             const query = eseSearchInput.value.toLowerCase();
+             filterEseResults(query);
+        });
+    }
 
     // Setup Stream Controls
 
