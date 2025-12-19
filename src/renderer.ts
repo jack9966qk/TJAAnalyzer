@@ -72,6 +72,45 @@ const DEFAULT_TEXTS: RenderTexts = {
     }
 };
 
+function calculateInferredHands(bars: string[][], annotations: Record<string, string> | undefined): Map<string, string> {
+    const inferred = new Map<string, string>();
+    let lastHand = 'L'; // Initialize to L so the first note (which triggers reset or flip) can become R
+    let shouldResetToRight = true;
+
+    for (let i = 0; i < bars.length; i++) {
+        const bar = bars[i];
+        if (!bar) continue;
+        for (let j = 0; j < bar.length; j++) {
+            const char = bar[j];
+            const noteId = `${i}_${j}`;
+
+            if (['1', '2', '3', '4'].includes(char)) {
+                let currentInferred = 'R';
+                
+                if (shouldResetToRight) {
+                    currentInferred = 'R';
+                    shouldResetToRight = false;
+                } else {
+                    currentInferred = (lastHand === 'R') ? 'L' : 'R';
+                }
+                
+                inferred.set(noteId, currentInferred);
+
+                // Determine source of truth for next note
+                if (annotations && annotations[noteId]) {
+                    lastHand = annotations[noteId];
+                } else {
+                    lastHand = currentInferred;
+                }
+            } else if (char === '8') {
+                // End of drumroll/balloon/kusudama
+                shouldResetToRight = true;
+            }
+        }
+    }
+    return inferred;
+}
+
 function isNoteSelected(barIdx: number, charIdx: number, selection: ViewOptions['selection']): boolean {
     if (!selection) return false;
     
@@ -406,6 +445,8 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
     
     const { layouts, constants, totalHeight } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options.beatsPerLine);
     
+    const inferredHands = calculateInferredHands(bars, options.annotations);
+
     // Adjust for device pixel ratio for sharp rendering
     let dpr = window.devicePixelRatio || 1;
     
@@ -472,7 +513,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
             ? info.overrideStartIndex 
             : globalBarStartIndices[info.originalIndex];
 
-        drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, options, startIndex, judgements, judgementDeltas, texts, info.originalIndex, bars, options.collapsedLoop ? loop : undefined);
+        drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, options, startIndex, judgements, judgementDeltas, texts, info.originalIndex, bars, options.collapsedLoop ? loop : undefined, inferredHands);
     }
 }
 
@@ -720,7 +761,7 @@ function drawCapsule(ctx: CanvasRenderingContext2D, startX: number, endX: number
 }
 
 
-function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, options: ViewOptions, startIndex: number, judgements: string[], judgementDeltas: (number | undefined)[] = [], texts: RenderTexts, originalBarIndex: number = -1, bars: string[][] = [], loopInfo?: LoopInfo): void {
+function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, options: ViewOptions, startIndex: number, judgements: string[], judgementDeltas: (number | undefined)[] = [], texts: RenderTexts, originalBarIndex: number = -1, bars: string[][] = [], loopInfo?: LoopInfo, inferredHands?: Map<string, string>): void {
     const { viewMode, coloringMode, visibility: judgementVisibility, selection } = options;
     
     const centerY: number = y + height / 2;
@@ -1013,16 +1054,23 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
                 const noteId = `${originalBarIndex}_${i}`;
                 const annotation = options.annotations[noteId];
                 if (annotation) {
+                    let textColor = '#000';
+                    if (inferredHands) {
+                        const inferred = inferredHands.get(noteId);
+                        if (inferred && inferred !== annotation) {
+                            textColor = '#f00'; // Red if mismatch
+                        }
+                    }
+
                     ctx.save();
                     // Larger size
                     ctx.font = `bold ${rBig * 1.5}px sans-serif`;
-                    ctx.fillStyle = '#000';
+                    ctx.fillStyle = textColor;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'bottom';
                     
-                    // Position higher above the note
-                    const noteTopY = centerY - radius - (radius * 0.5);
-                    const textY = noteTopY;
+                    // Position at the top of the bar, similar to bar numbers
+                    const textY = y;
 
                     ctx.fillText(annotation, noteX, textY);
                     ctx.restore();
