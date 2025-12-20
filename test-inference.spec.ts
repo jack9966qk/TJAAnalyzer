@@ -3,6 +3,16 @@ import { test, expect } from '@playwright/test';
 test.describe('Annotation Inference', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         const canvas = page.locator('#chart-canvas');
         await expect(canvas).toBeVisible();
         await page.waitForTimeout(2000);

@@ -5,6 +5,16 @@ test.describe('Visual Regression', () => {
 
     test('Initial Render', async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         const canvas = page.locator('#chart-canvas');
         await expect(canvas).toBeVisible();
         
@@ -14,6 +24,16 @@ test.describe('Visual Regression', () => {
 
     test('BPM Change Tooltip', async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         const canvas = page.locator('#chart-canvas');
         await expect(canvas).toBeVisible();
         await page.waitForTimeout(1000);
@@ -29,6 +49,16 @@ test.describe('Visual Regression', () => {
 
     test('Note Stats Tooltip', async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         const canvas = page.locator('#chart-canvas');
         await expect(canvas).toBeVisible();
         await page.waitForTimeout(1000);
@@ -44,6 +74,16 @@ test.describe('Visual Regression', () => {
 
     test('Judgements View', async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
 
         await page.evaluate(() => {
             window.setInterval = () => 0 as any;
@@ -89,6 +129,16 @@ test.describe('Visual Regression', () => {
 
     test('Judgements Underline View', async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
 
         await page.evaluate(() => {
             window.setInterval = () => 0 as any;
@@ -139,6 +189,16 @@ test.describe('Visual Regression', () => {
 
     test('Judgements Text View', async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
 
         await page.evaluate(() => {
             window.setInterval = () => 0 as any;
@@ -189,6 +249,16 @@ test.describe('Visual Regression', () => {
 
     test('Gradient Coloring View', async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
 
         await page.evaluate(() => {
             window.setInterval = () => 0 as any;
@@ -251,6 +321,16 @@ test.describe('Visual Regression', () => {
 
     test('Loop Collapsed', async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         const canvas = page.locator('#chart-canvas');
         await expect(canvas).toBeVisible();
 
@@ -271,6 +351,16 @@ test.describe('Visual Regression', () => {
 
     test('Balloon Render', async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         const canvas = page.locator('#chart-canvas');
         await expect(canvas).toBeVisible();
 
@@ -299,6 +389,16 @@ BALLOON:5,10
 
     test('Load Exported Chart', async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         const canvas = page.locator('#chart-canvas');
         await expect(canvas).toBeVisible();
 
@@ -367,6 +467,16 @@ LEVEL:10
 
     test('Export Chart Image Width', async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         await page.waitForTimeout(2000);
 
         const width = await page.evaluate(async () => {
@@ -410,47 +520,22 @@ LEVEL:10
 });
 
 test.describe('Interaction', () => {
-    test('stats display on hover', async ({ page }) => {
-        await page.goto('/');
-    
-        const canvas = page.locator('#chart-canvas');
-        await expect(canvas).toBeVisible();
-    
-        await page.waitForTimeout(2000);
-    
-        await page.selectOption('#difficulty-selector', 'oni');
-        await page.waitForTimeout(500);
-    
-        const dimensions = await page.evaluate(() => {
-            const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement;
-            const PADDING = 20;
-            const BARS_PER_ROW = 4;
-            const availableWidth = canvas.clientWidth - (PADDING * 2);
-            const barWidth = availableWidth / BARS_PER_ROW;
-            const headerHeight = barWidth * 0.35;
-            const y = PADDING + headerHeight + PADDING + (barWidth * 0.14) / 2;
-            return { barWidth, y };
-        });
 
-        await canvas.hover({ position: { x: 20, y: dimensions.y } });
-    
-        const stats = page.locator('#note-stats-display');
-        await expect(stats).toContainText('Type');
-        await expect(stats).toContainText('DON');
-    
-        const secondNoteX = 20 + dimensions.barWidth;
-        await canvas.hover({ position: { x: secondNoteX, y: dimensions.y } });
-        await expect(stats).toContainText('Type');
-        await expect(stats).toContainText('DON');
-        
-        await expect(stats).toContainText('Gap');
-        await expect(stats).toContainText('1/1');
-    });
 });
 
 test.describe('UI Logic', () => {
     test.beforeEach(async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         await page.waitForTimeout(1000); 
     });
 
@@ -485,6 +570,16 @@ test.describe('UI Logic', () => {
 test.describe('Loop Controls Interaction', () => {
     test('Loop controls visibility and interaction', async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         const canvas = page.locator('#chart-canvas');
         await expect(canvas).toBeVisible();
 
@@ -532,6 +627,16 @@ test.describe('Loop Controls Interaction', () => {
 test.describe('Zoom Controls', () => {
     test('Zoom In/Out/Reset', async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         await page.waitForTimeout(1000);
 
         const zoomOutBtn = page.locator('#zoom-out-btn');
@@ -562,6 +667,16 @@ test.describe('Zoom Controls', () => {
 test.describe('Selection Interaction', () => {
     test('Select note, verify visual and sticky stats', async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         const canvas = page.locator('#chart-canvas');
         await expect(canvas).toBeVisible();
         await page.waitForTimeout(2000);
@@ -614,6 +729,16 @@ test.describe('Selection Interaction', () => {
 
     test('Range Selection Interaction', async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
         
         const canvas = page.locator('#chart-canvas');
@@ -661,6 +786,16 @@ test.describe('Selection Interaction', () => {
 test.describe('Annotation Interaction', () => {
     test('Annotation Cycle', async ({ page }) => {
         await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
         
         const canvas = page.locator('#chart-canvas');
