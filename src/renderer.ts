@@ -314,11 +314,17 @@ export interface HitInfo {
 
 export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, judgements: string[] = [], options: ViewOptions): HitInfo | null {
     const logicalCanvasWidth: number = canvas.clientWidth || 800;
+
+    // Calculate Header Dimensions (Must match renderChart)
+    const availableWidth = logicalCanvasWidth - (PADDING * 2);
+    const baseBarWidth: number = availableWidth / (options.beatsPerLine / 4);
+    const headerHeight = baseBarWidth * RATIOS.HEADER_HEIGHT;
+    const offsetY = PADDING + headerHeight + PADDING;
     
     const globalBarStartIndices = calculateGlobalBarStartIndices(chart.bars);
     const virtualBars = getVirtualBars(chart, options, judgements, globalBarStartIndices);
     
-    const { layouts, constants } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options.beatsPerLine);
+    const { layouts, constants } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options.beatsPerLine, offsetY);
     const { NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG } = constants;
 
     // Hit testing loop

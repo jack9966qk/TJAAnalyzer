@@ -421,21 +421,25 @@ test.describe('Interaction', () => {
         await page.selectOption('#difficulty-selector', 'oni');
         await page.waitForTimeout(500);
     
-        await canvas.hover({ position: { x: 20, y: 33 } });
+        const dimensions = await page.evaluate(() => {
+            const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement;
+            const PADDING = 20;
+            const BARS_PER_ROW = 4;
+            const availableWidth = canvas.clientWidth - (PADDING * 2);
+            const barWidth = availableWidth / BARS_PER_ROW;
+            const headerHeight = barWidth * 0.35;
+            const y = PADDING + headerHeight + PADDING + (barWidth * 0.14) / 2;
+            return { barWidth, y };
+        });
+
+        await canvas.hover({ position: { x: 20, y: dimensions.y } });
     
         const stats = page.locator('#note-stats-display');
         await expect(stats).toContainText('Type');
         await expect(stats).toContainText('DON');
     
-        const barWidth = await page.evaluate(() => {
-            const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement;
-            const PADDING = 20;
-            const BARS_PER_ROW = 4;
-            return (canvas.clientWidth - (PADDING * 2)) / BARS_PER_ROW;
-        });
-    
-        const secondNoteX = 20 + barWidth;
-        await canvas.hover({ position: { x: secondNoteX, y: 33 } });
+        const secondNoteX = 20 + dimensions.barWidth;
+        await canvas.hover({ position: { x: secondNoteX, y: dimensions.y } });
         await expect(stats).toContainText('Type');
         await expect(stats).toContainText('DON');
         
@@ -567,8 +571,19 @@ test.describe('Selection Interaction', () => {
         // Switch to Selection Tab
         await page.click('button[data-do-tab="selection"]');
 
-        // Position of the first note (approximate based on previous tests)
-        const notePos = { x: 20, y: 33 };
+        const dimensions = await page.evaluate(() => {
+            const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement;
+            const PADDING = 20;
+            const BARS_PER_ROW = 4;
+            const availableWidth = canvas.clientWidth - (PADDING * 2);
+            const barWidth = availableWidth / BARS_PER_ROW;
+            const headerHeight = barWidth * 0.35;
+            const y = PADDING + headerHeight + PADDING + (barWidth * 0.14) / 2;
+            return { y };
+        });
+
+        // Position of the first note
+        const notePos = { x: 20, y: dimensions.y };
 
         // 1. Click on first note
         await canvas.click({ position: { x: notePos.x, y: notePos.y } });
@@ -610,14 +625,18 @@ test.describe('Selection Interaction', () => {
         // Switch to Selection Tab
         await page.click('button[data-do-tab="selection"]');
 
-        const barWidth = await page.evaluate(() => {
+        const dimensions = await page.evaluate(() => {
             const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement;
             const PADDING = 20;
             const BARS_PER_ROW = 4;
-            return (canvas.clientWidth - (PADDING * 2)) / BARS_PER_ROW;
+            const availableWidth = canvas.clientWidth - (PADDING * 2);
+            const barWidth = availableWidth / BARS_PER_ROW;
+            const headerHeight = barWidth * 0.35;
+            const y = PADDING + headerHeight + PADDING + (barWidth * 0.14) / 2;
+            return { barWidth, y };
         });
         
-        const y = 20 + (barWidth * 0.14) / 2;
+        const { barWidth, y } = dimensions;
         
         // Bar 0 (Start), Bar 1, Bar 2
         const x0 = 20; 
@@ -659,8 +678,19 @@ test.describe('Annotation Interaction', () => {
         // Verify Bar Numbers Hidden (implicit via snapshot of clean state in mode)
         await expect(canvas).toHaveScreenshot('annotation-mode-initial.png');
 
+        const dimensions = await page.evaluate(() => {
+            const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement;
+            const PADDING = 20;
+            const BARS_PER_ROW = 4;
+            const availableWidth = canvas.clientWidth - (PADDING * 2);
+            const barWidth = availableWidth / BARS_PER_ROW;
+            const headerHeight = barWidth * 0.35;
+            const y = PADDING + headerHeight + PADDING + (barWidth * 0.14) / 2;
+            return { y };
+        });
+
         // Note Position (First note)
-        const notePos = { x: 20, y: 33 };
+        const notePos = { x: 20, y: dimensions.y };
 
         // 3. Click to Annotate "L"
         await canvas.click({ position: notePos });
