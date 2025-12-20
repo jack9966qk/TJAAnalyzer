@@ -14,12 +14,19 @@ export interface ScrollChange {
     scroll: number;
 }
 
+export interface GogoChange {
+    index: number;
+    isGogo: boolean;
+}
+
 export interface BarParams {
     bpm: number;
     scroll: number;
     measureRatio: number;
+    gogoTime: boolean;
     bpmChanges?: BPMChange[];
     scrollChanges?: ScrollChange[];
+    gogoChanges?: GogoChange[];
 }
 
 export interface ParsedChart {
@@ -118,12 +125,16 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
             let currentMeasureRatio = 1.0;
             let barStartMeasureRatio = currentMeasureRatio;
 
+            let currentGogoTime = false;
+            let barStartGogoTime = currentGogoTime;
+
             const bars: string[][] = [];
             const barParams: BarParams[] = [];
             
             let currentBarBuffer: string = '';
             let currentBarBpmChanges: BPMChange[] = [];
             let currentBarScrollChanges: ScrollChange[] = [];
+            let currentBarGogoChanges: GogoChange[] = [];
 
             for (const line of courseData) {
                 if (line.startsWith('#')) {
@@ -176,6 +187,20 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                                 }
                             }
                         }
+                    } else if (upperLine.startsWith('#GOGOSTART')) {
+                        currentGogoTime = true;
+                        if (currentBarBuffer.length === 0) {
+                            barStartGogoTime = true;
+                        } else {
+                            currentBarGogoChanges.push({ index: currentBarBuffer.length, isGogo: true });
+                        }
+                    } else if (upperLine.startsWith('#GOGOEND')) {
+                        currentGogoTime = false;
+                        if (currentBarBuffer.length === 0) {
+                            barStartGogoTime = false;
+                        } else {
+                            currentBarGogoChanges.push({ index: currentBarBuffer.length, isGogo: false });
+                        }
                     }
                     continue;
                 }
@@ -227,16 +252,20 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                             bpm: barStartBpm, 
                             scroll: barStartScroll,
                             measureRatio: currentMeasureRatio,
+                            gogoTime: barStartGogoTime,
                             bpmChanges: currentBarBpmChanges.length > 0 ? [...currentBarBpmChanges] : undefined,
-                            scrollChanges: currentBarScrollChanges.length > 0 ? [...currentBarScrollChanges] : undefined
+                            scrollChanges: currentBarScrollChanges.length > 0 ? [...currentBarScrollChanges] : undefined,
+                            gogoChanges: currentBarGogoChanges.length > 0 ? [...currentBarGogoChanges] : undefined
                         });
                         
                         // Prepare for next bar
                         barStartBpm = currentBpm;
                         barStartScroll = currentScroll;
+                        barStartGogoTime = currentGogoTime;
                         // measure ratio persists until changed
                         currentBarBpmChanges = [];
                         currentBarScrollChanges = [];
+                        currentBarGogoChanges = [];
                         currentBarBuffer = '';
                         tempLine = tempLine.substring(commaIdx + 1);
                     }

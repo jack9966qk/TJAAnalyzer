@@ -78,6 +78,46 @@ try {
         console.warn(`Warning: Found unexpected note char '${invalidNote}' in first bar.`);
     }
 
+    // --- Gogo Time Tests ---
+    console.log("Testing Gogo Time Parser...");
+    const gogoTJA = `
+TITLE:Gogo Test
+BPM:120
+COURSE:Oni
+LEVEL:8
+
+#START
+1000,
+#GOGOSTART
+2000,
+2000,
+#GOGOEND
+1000,
+#END
+`;
+    const gogoCharts = parseTJA(gogoTJA);
+    const gogoChart = gogoCharts['oni'];
+    
+    if (!gogoChart) throw new Error("Gogo Test Chart not parsed");
+    
+    const gogoParams = gogoChart.barParams;
+    
+    // Bar 0: Normal
+    if (gogoParams[0].gogoTime) throw new Error("Bar 0 should NOT be Gogo Time");
+
+    // Bar 1: Gogo Start
+    // Since #GOGOSTART is before the bar data, it should be active for this bar.
+    if (!gogoParams[1].gogoTime) throw new Error("Bar 1 SHOULD be Gogo Time");
+
+    // Bar 2: Gogo Continues
+    if (!gogoParams[2].gogoTime) throw new Error("Bar 2 SHOULD be Gogo Time");
+
+    // Bar 3: Gogo Ends
+    // #GOGOEND is before bar 3 data.
+    if (gogoParams[3].gogoTime) throw new Error("Bar 3 should NOT be Gogo Time");
+    
+    console.log("Gogo Time parser test passed.");
+
     console.log("Parser test passed.");
 } catch (e: unknown) {
     console.error("Parser test failed:", e);

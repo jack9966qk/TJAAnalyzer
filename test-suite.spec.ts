@@ -387,6 +387,46 @@ BALLOON:5,10
         await expect(canvas).toHaveScreenshot('balloon-render.png');
     });
 
+    test('Gogo Time Render', async ({ page }) => {
+        await page.goto('/');
+        await page.waitForTimeout(500);
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        const canvas = page.locator('#chart-canvas');
+        await expect(canvas).toBeVisible();
+
+        // Switch to File Tab
+        await page.click('button[data-mode="file"]');
+
+        const tjaContent = `TITLE:Gogo Test
+BPM:120
+COURSE:Oni
+LEVEL:10
+#START
+1000,
+#GOGOSTART
+2000,
+2000,
+#GOGOEND
+1000,
+#END`;
+        
+        await page.locator('#tja-file-picker').setInputFiles({
+            name: 'gogo.tja',
+            mimeType: 'text/plain',
+            buffer: Buffer.from(tjaContent)
+        });
+
+        await page.waitForTimeout(1000);
+        await expect(canvas).toHaveScreenshot('gogo-render.png');
+    });
+
     test('Load Exported Chart', async ({ page }) => {
         await page.goto('/');
         await page.waitForTimeout(500);

@@ -1,4 +1,4 @@
-import { ParsedChart, LoopInfo } from './tja-parser.js';
+import { ParsedChart, LoopInfo, GogoChange } from './tja-parser.js';
 
 // Helper types for renderer and hit testing
 interface RenderBarInfo {
@@ -513,8 +513,12 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
     // Layer 1: Backgrounds
     virtualBars.forEach((info, index) => {
         const layout = layouts[index];
+        const params = chart.barParams[info.originalIndex];
+        const gogoTime = params ? params.gogoTime : false;
+        const gogoChanges = params ? params.gogoChanges : undefined;
+        const noteCount = info.bar ? info.bar.length : 0;
         
-        drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER);
+        drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, gogoTime, gogoChanges, noteCount);
         
         // Draw Bar Number
         if (!options.isAnnotationMode) {
@@ -624,12 +628,48 @@ function drawChartHeader(ctx: CanvasRenderingContext2D, chart: ParsedChart, x: n
     ctx.restore();
 }
 
-function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, borderW: number, centerW: number): void {
+function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, borderW: number, centerW: number, gogoTime: boolean, gogoChanges: GogoChange[] | undefined, noteCount: number): void {
     const centerY: number = y + height / 2;
+    const GOGO_COLOR = '#ba9832';
+    const NORMAL_COLOR = '#999';
 
-    // Draw Bar Background
-    ctx.fillStyle = '#999'; // Darker grey background
-    ctx.fillRect(x, y, width, height);
+    // 1. Fill Background
+    if (!gogoChanges || gogoChanges.length === 0 || noteCount === 0) {
+        // Simple Case
+        ctx.fillStyle = gogoTime ? GOGO_COLOR : NORMAL_COLOR;
+        ctx.fillRect(x, y, width, height);
+    } else {
+        // Split Background
+        let currentX = x;
+        let isGogo = gogoTime;
+
+        // Sort changes by index just in case
+        const sortedChanges = [...gogoChanges].sort((a, b) => a.index - b.index);
+
+        for (const change of sortedChanges) {
+            // Calculate pixel position of change
+            // change.index is char index. 0 is start of bar.
+            // noteCount is total chars.
+            // Position = x + (index / noteCount) * width
+            
+            const nextX = x + (change.index / noteCount) * width;
+            
+            // Draw segment from currentX to nextX
+            if (nextX > currentX) {
+                ctx.fillStyle = isGogo ? GOGO_COLOR : NORMAL_COLOR;
+                ctx.fillRect(currentX, y, nextX - currentX, height);
+            }
+            
+            currentX = nextX;
+            isGogo = change.isGogo;
+        }
+
+        // Draw remaining segment
+        if (currentX < x + width) {
+            ctx.fillStyle = isGogo ? GOGO_COLOR : NORMAL_COLOR;
+            ctx.fillRect(currentX, y, (x + width) - currentX, height);
+        }
+    }
     
     // Draw Bar Border
     ctx.strokeStyle = '#000';
