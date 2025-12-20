@@ -51,7 +51,8 @@ const RATIOS = {
     LINE_WIDTH_NOTE_INNER: 0.0075,
     LINE_WIDTH_UNDERLINE_BORDER: 0.008,
     BAR_NUMBER_FONT_SIZE_RATIO: 0.06,
-    BAR_NUMBER_OFFSET_Y_RATIO: -0.0015
+    BAR_NUMBER_OFFSET_Y_RATIO: -0.0015,
+    HEADER_HEIGHT: 0.35
 };
 
 export interface RenderTexts {
@@ -235,7 +236,7 @@ function calculateGlobalBarStartIndices(bars: string[][]): number[] {
     return indices;
 }
 
-function calculateLayout(virtualBars: RenderBarInfo[], chart: ParsedChart, logicalCanvasWidth: number, beatsPerLine: number = 16): { layouts: BarLayout[], constants: any, totalHeight: number } {
+function calculateLayout(virtualBars: RenderBarInfo[], chart: ParsedChart, logicalCanvasWidth: number, beatsPerLine: number = 16, offsetY: number = PADDING): { layouts: BarLayout[], constants: any, totalHeight: number } {
     // 1. Determine Base Dimensions
     // The full canvas width (minus padding) represents 'beatsPerLine' beats.
     const availableWidth = logicalCanvasWidth - (PADDING * 2);
@@ -259,7 +260,8 @@ function calculateLayout(virtualBars: RenderBarInfo[], chart: ParsedChart, logic
         LW_NOTE_INNER: baseBarWidth * RATIOS.LINE_WIDTH_NOTE_INNER,
         LW_UNDERLINE_BORDER: baseBarWidth * RATIOS.LINE_WIDTH_UNDERLINE_BORDER,
         BAR_NUMBER_FONT_SIZE: baseBarWidth * RATIOS.BAR_NUMBER_FONT_SIZE_RATIO,
-        BAR_NUMBER_OFFSET_Y: baseBarWidth * RATIOS.BAR_NUMBER_OFFSET_Y_RATIO
+        BAR_NUMBER_OFFSET_Y: baseBarWidth * RATIOS.BAR_NUMBER_OFFSET_Y_RATIO,
+        HEADER_HEIGHT: baseBarWidth * RATIOS.HEADER_HEIGHT
     };
 
     // 2. Calculate Layout Positions
@@ -282,7 +284,7 @@ function calculateLayout(virtualBars: RenderBarInfo[], chart: ParsedChart, logic
         }
 
         const x = PADDING + currentRowX;
-        const y = PADDING + (rowIndex * (BAR_HEIGHT + ROW_SPACING));
+        const y = offsetY + (rowIndex * (BAR_HEIGHT + ROW_SPACING));
 
         layouts.push({
             x,
@@ -296,7 +298,7 @@ function calculateLayout(virtualBars: RenderBarInfo[], chart: ParsedChart, logic
 
     const totalHeight = layouts.length > 0 
         ? layouts[layouts.length - 1].y + BAR_HEIGHT + PADDING 
-        : PADDING * 2;
+        : offsetY + PADDING;
 
     return { layouts, constants, totalHeight };
 }
@@ -439,11 +441,17 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
     const { bars, loop } = chart;
     const logicalCanvasWidth: number = canvas.clientWidth || 800;
 
+    // Calculate Header Dimensions
+    const availableWidth = logicalCanvasWidth - (PADDING * 2);
+    const baseBarWidth: number = availableWidth / (options.beatsPerLine / 4);
+    const headerHeight = baseBarWidth * RATIOS.HEADER_HEIGHT;
+    const offsetY = PADDING + headerHeight + PADDING; // Padding above and below header
+
     const globalBarStartIndices = calculateGlobalBarStartIndices(bars);
     const balloonIndices = calculateBalloonIndices(bars);
     const virtualBars = getVirtualBars(chart, options, judgements, globalBarStartIndices);
     
-    const { layouts, constants, totalHeight } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options.beatsPerLine);
+    const { layouts, constants, totalHeight } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options.beatsPerLine, offsetY);
     
     const inferredHands = calculateInferredHands(bars, options.annotations);
 
@@ -451,7 +459,6 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
     let dpr = window.devicePixelRatio || 1;
     
     // Safety check for canvas limits
-    // Most browsers have a max height/width around 32,767px.
     const MAX_CANVAS_DIMENSION = 32000;
 
     if (totalHeight * dpr > MAX_CANVAS_DIMENSION) {
@@ -479,6 +486,9 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
     // Clear
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, logicalCanvasWidth, totalHeight);
+
+    // Layer 0: Header
+    drawChartHeader(ctx, chart, PADDING, PADDING, availableWidth, headerHeight);
 
     // Layer 1: Backgrounds
     virtualBars.forEach((info, index) => {
@@ -515,6 +525,83 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
 
         drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, options, startIndex, judgements, judgementDeltas, texts, info.originalIndex, bars, options.collapsedLoop ? loop : undefined, inferredHands);
     }
+}
+
+function drawChartHeader(ctx: CanvasRenderingContext2D, chart: ParsedChart, x: number, y: number, width: number, height: number): void {
+    const title = chart.title || 'Untitled';
+    const subtitle = chart.subtitle || '';
+    const startBpm = chart.bpm || 120;
+    const level = chart.level || 0;
+    const course = chart.course || 'Oni';
+
+    // Calculate BPM Range
+    let minBpm = startBpm;
+    let maxBpm = startBpm;
+
+    if (chart.barParams) {
+        for (const param of chart.barParams) {
+            if (param.bpm < minBpm) minBpm = param.bpm;
+            if (param.bpm > maxBpm) maxBpm = param.bpm;
+
+            if (param.bpmChanges) {
+                for (const change of param.bpmChanges) {
+                    if (change.bpm < minBpm) minBpm = change.bpm;
+                    if (change.bpm > maxBpm) maxBpm = change.bpm;
+                }
+            }
+        }
+    }
+
+    const bpmText = (minBpm === maxBpm) ? `BPM: ${minBpm}` : `BPM: ${minBpm}-${maxBpm}`;
+
+    const titleFontSize = height * 0.4;
+    const subtitleFontSize = height * 0.25;
+    const metaFontSize = height * 0.25;
+
+    ctx.save();
+    
+    // Draw Title
+    ctx.fillStyle = '#000';
+    ctx.font = `bold ${titleFontSize}px sans-serif`;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    ctx.fillText(title, x, y);
+
+    // Draw Subtitle (below title)
+    if (subtitle) {
+        ctx.font = `${subtitleFontSize}px sans-serif`;
+        ctx.fillStyle = '#444';
+        ctx.fillText(subtitle, x, y + titleFontSize + 5);
+    }
+
+    // Draw Metadata (Right aligned)
+    const metaY = y;
+    ctx.textAlign = 'right';
+    
+    // Course & Level
+    let courseText = course;
+    if (level > 0) {
+        courseText += ` ★${level}`;
+    }
+    
+    // Determine course color
+    let courseColor = '#000';
+    const c = course.toLowerCase();
+    if (c.includes('oni') || c.includes('ura') || c === 'edit') courseColor = '#c6006e'; // Purple/Pink
+    else if (c.includes('hard')) courseColor = '#f00';
+    else if (c.includes('normal')) courseColor = '#00f';
+    else if (c.includes('easy')) courseColor = '#0c0';
+
+    ctx.fillStyle = courseColor;
+    ctx.font = `bold ${metaFontSize}px sans-serif`;
+    ctx.fillText(courseText, x + width, metaY);
+
+    // BPM
+    ctx.fillStyle = '#000';
+    ctx.font = `${metaFontSize}px sans-serif`;
+    ctx.fillText(bpmText, x + width, metaY + metaFontSize + 5);
+
+    ctx.restore();
 }
 
 function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, borderW: number, centerW: number): void {

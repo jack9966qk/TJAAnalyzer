@@ -28,6 +28,13 @@ export interface ParsedChart {
     loop?: LoopInfo;
     balloonCounts: number[];
     headers: Record<string, string>;
+    
+    // Metadata
+    title: string;
+    subtitle: string;
+    bpm: number;
+    level: number;
+    course: string;
 }
 
 export function parseTJA(content: string): Record<string, ParsedChart> {
@@ -68,8 +75,8 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
             // Header parsing
              const parts = line.split(':');
              if (parts.length >= 2) {
-                 const key = parts[0].trim();
-                 const val = parts[1].trim();
+                 const key = parts[0].trim().toUpperCase();
+                 const val = parts.slice(1).join(':').trim(); // Handle colons in value
                  if (currentCourse) {
                      courseHeaders[currentCourse.toLowerCase()][key] = val;
                  } else {
@@ -84,16 +91,21 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
     for (const courseName in courses) {
         if (Object.prototype.hasOwnProperty.call(courses, courseName)) {
             const courseData = courses[courseName];
+            const headers = { ...globalHeader, ...courseHeaders[courseName] };
             
+            // Metadata Extraction
+            const title = headers['TITLEJA'] || headers['TITLE'] || '';
+            const subtitle = headers['SUBTITLEJA'] || headers['SUBTITLE'] || '';
+            const bpm = parseFloat(headers['BPM']) || 120;
+            const level = parseInt(headers['LEVEL']) || 0;
+            const course = headers['COURSE'] || courseName;
+
             // Determine initial BPM
-            let currentBpm = 120;
-            const headers = courseHeaders[courseName] || {};
-            if (headers['BPM']) currentBpm = parseFloat(headers['BPM']);
-            else if (globalHeader['BPM']) currentBpm = parseFloat(globalHeader['BPM']);
+            let currentBpm = bpm;
             
             // Parse BALLOON counts
             let balloonCounts: number[] = [];
-            const balloonStr = headers['BALLOON'] || globalHeader['BALLOON'];
+            const balloonStr = headers['BALLOON'];
             if (balloonStr) {
                 balloonCounts = balloonStr.split(/[,]+/).map(s => parseInt(s.trim())).filter(n => !isNaN(n));
             }
@@ -244,7 +256,12 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                 barParams, 
                 loop, 
                 balloonCounts,
-                headers: { ...globalHeader, ...headers }
+                headers,
+                title,
+                subtitle,
+                bpm,
+                level,
+                course
             };
         }
     }
