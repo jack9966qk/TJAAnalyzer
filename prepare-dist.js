@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { execSync } from 'child_process';
 
 const destDir = 'app_package';
 
@@ -8,6 +9,20 @@ if (fs.existsSync(destDir)) {
     fs.rmSync(destDir, { recursive: true, force: true });
 }
 fs.mkdirSync(destDir);
+
+// Generate Changelog
+console.log('Generating changelog...');
+try {
+    const logOutput = execSync('git log -n 100 --pretty=format:"%h|%s|%ad" --date=short').toString();
+    const changelog = logOutput.split('\n').filter(line => line).map(line => {
+        const [hash, message, date] = line.split('|');
+        return { hash, message, date };
+    });
+    fs.writeFileSync(path.join(destDir, 'changelog.json'), JSON.stringify(changelog, null, 2));
+} catch (e) {
+    console.warn('Failed to generate changelog:', e.message);
+    fs.writeFileSync(path.join(destDir, 'changelog.json'), JSON.stringify([], null, 2));
+}
 
 // Files/Dirs to copy
 const files = [

@@ -70,6 +70,12 @@ const zoomOutBtn = document.getElementById('zoom-out-btn') as HTMLButtonElement;
 const zoomInBtn = document.getElementById('zoom-in-btn') as HTMLButtonElement;
 const zoomResetBtn = document.getElementById('zoom-reset-btn') as HTMLButtonElement;
 
+// Footer & Changelog
+const changelogBtn = document.getElementById('changelog-btn') as HTMLButtonElement;
+const changelogModal = document.getElementById('changelog-modal') as HTMLDivElement;
+const changelogCloseBtn = changelogModal ? changelogModal.querySelector('.close-btn') as HTMLElement : null;
+const changelogList = document.getElementById('changelog-list') as HTMLDivElement;
+
 // Display Options Tabs
 const doTabs = document.querySelectorAll('#chart-options-panel .panel-tab');
 const doPanes = document.querySelectorAll('#chart-options-panel .panel-pane');
@@ -1230,6 +1236,55 @@ function init(): void {
     i18n.onLanguageChange(() => {
         updateUIText();
     });
+
+    // Changelog Logic
+    if (changelogBtn && changelogModal && changelogList) {
+        changelogBtn.addEventListener('click', async () => {
+            changelogModal.style.display = 'block';
+            
+            if (changelogList.children.length === 0) {
+                changelogList.innerHTML = '<div style="padding:10px; color:#666;">Loading...</div>';
+                try {
+                    const res = await fetch('changelog.json');
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    const data = await res.json();
+                    
+                    changelogList.innerHTML = '';
+                    if (Array.isArray(data) && data.length > 0) {
+                        data.forEach((item: any) => {
+                            const div = document.createElement('div');
+                            div.className = 'changelog-item';
+                            div.innerHTML = `
+                                <div class="changelog-header">
+                                    <span>${item.date}</span>
+                                    <span style="font-family:monospace;">${item.hash}</span>
+                                </div>
+                                <div class="changelog-msg">${item.message}</div>
+                            `;
+                            changelogList.appendChild(div);
+                        });
+                    } else {
+                         changelogList.innerHTML = '<div style="padding:10px;">No changelog available.</div>';
+                    }
+                } catch (e) {
+                    console.error("Failed to load changelog:", e);
+                    changelogList.innerHTML = '<div style="padding:10px; color:red;">Failed to load changelog.</div>';
+                }
+            }
+        });
+
+        if (changelogCloseBtn) {
+            changelogCloseBtn.addEventListener('click', () => {
+                changelogModal.style.display = 'none';
+            });
+        }
+
+        window.addEventListener('click', (event) => {
+            if (event.target === changelogModal) {
+                changelogModal.style.display = 'none';
+            }
+        });
+    }
 
     // Canvas Interaction
     
