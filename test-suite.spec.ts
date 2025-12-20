@@ -364,6 +364,37 @@ LEVEL:10
         await expect(status).not.toContainText('Ready');
         await expect(status).not.toContainText('Initializing');
     });
+
+    test('Export Chart Image Width', async ({ page }) => {
+        await page.goto('/');
+        await page.waitForTimeout(2000);
+
+        const width = await page.evaluate(async () => {
+             return new Promise<number>((resolve) => {
+                 const originalCreateElement = document.createElement;
+                 
+                 document.createElement = (tagName) => {
+                      const el = originalCreateElement.call(document, tagName);
+                      if (tagName.toLowerCase() === 'a') {
+                          el.click = () => {
+                               if (el.href.startsWith('data:image/png')) {
+                                    const img = new Image();
+                                    img.onload = () => resolve(img.width);
+                                    img.src = el.href;
+                               }
+                          };
+                      }
+                      return el;
+                 };
+                 
+                 const btn = document.getElementById('export-image-btn');
+                 if (btn) btn.click();
+                 else resolve(-1);
+             });
+        });
+        
+        expect(width).toBe(1024);
+    });
 });
 
 test.describe('Interaction', () => {

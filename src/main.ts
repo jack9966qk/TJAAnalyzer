@@ -1,6 +1,6 @@
 import { parseTJA, ParsedChart } from './tja-parser.js';
 import { generateTJAFromSelection } from './tja-exporter.js';
-import { renderChart, getNoteAt, HitInfo, getGradientColor, JudgementVisibility, ViewOptions, RenderTexts } from './renderer.js';
+import { renderChart, getNoteAt, HitInfo, getGradientColor, JudgementVisibility, ViewOptions, RenderTexts, exportChartImage } from './renderer.js';
 import { exampleTJA } from './example-data.js';
 import { JudgementClient, ServerEvent } from './judgement-client.js';
 import { i18n } from './i18n.js';
@@ -74,6 +74,7 @@ const doTabs = document.querySelectorAll('#chart-options-panel .panel-tab');
 const doPanes = document.querySelectorAll('#chart-options-panel .panel-pane');
 const clearSelectionBtn = document.getElementById('clear-selection-btn') as HTMLButtonElement;
 const exportSelectionBtn = document.getElementById('export-selection-btn') as HTMLButtonElement;
+const exportImageBtn = document.getElementById('export-image-btn') as HTMLButtonElement;
 
 const clearAnnotationsBtn = document.getElementById('clear-annotations-btn') as HTMLButtonElement;
 const chartModeStatus = document.getElementById('chart-mode-status') as HTMLSpanElement;
@@ -829,6 +830,65 @@ function init(): void {
             } catch (e) {
                 console.error("Export failed:", e);
                 updateStatus('status.exportFailed');
+            }
+        });
+    }
+
+    if (exportImageBtn) {
+        exportImageBtn.addEventListener('click', async () => {
+            if (!currentChart) return;
+            
+            try {
+                const texts: RenderTexts = {
+                    loopPattern: i18n.t('renderer.loop'),
+                    judgement: {
+                        perfect: i18n.t('renderer.judge.perfect'),
+                        good: i18n.t('renderer.judge.good'),
+                        poor: i18n.t('renderer.judge.poor')
+                    }
+                };
+                
+                // Determine annotation mode state for rendering
+                // We should respect the current state
+                const activeTab = document.querySelector('#chart-options-panel .panel-tab.active');
+                const mode = activeTab ? activeTab.getAttribute('data-do-tab') : 'view';
+                const optionsForExport = { ...viewOptions, isAnnotationMode: (mode === 'annotation') };
+
+                const dataURL = exportChartImage(currentChart, judgements, judgementDeltas, optionsForExport, texts);
+                
+                const N = (window as any).Neutralino;
+                if (N && N.os && N.os.showSaveDialog) {
+                    const entry = await N.os.showSaveDialog('Save Chart Image', {
+                        defaultPath: 'chart.png',
+                        filters: [{ name: 'Images', extensions: ['png'] }]
+                    });
+                    
+                    if (entry) {
+                        // Convert DataURL to Uint8Array
+                        const base64Data = dataURL.split(',')[1];
+                        const binaryString = window.atob(base64Data);
+                        const len = binaryString.length;
+                        const bytes = new Uint8Array(len);
+                        for (let i = 0; i < len; i++) {
+                            bytes[i] = binaryString.charCodeAt(i);
+                        }
+                        
+                        await N.filesystem.writeBinaryFile(entry, bytes);
+                        updateStatus('status.exportImageSuccess');
+                    }
+                } else {
+                    // Web Fallback
+                    const link = document.createElement('a');
+                    link.download = 'chart.png';
+                    link.href = dataURL;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    updateStatus('status.exportImageSuccess');
+                }
+            } catch (e) {
+                console.error("Export image failed:", e);
+                updateStatus('status.exportImageFailed');
             }
         });
     }

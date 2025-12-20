@@ -405,6 +405,20 @@ export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTML
     return null;
 }
 
+export function exportChartImage(chart: ParsedChart, judgements: string[] = [], judgementDeltas: (number | undefined)[] = [], options: ViewOptions, texts: RenderTexts = DEFAULT_TEXTS): string {
+    const canvas = document.createElement('canvas');
+    const TARGET_WIDTH = 1024;
+    
+    // We want the final image to be exactly 1024px wide.
+    // We force DPR to 1 so that logical width == physical width.
+    canvas.width = TARGET_WIDTH;
+    
+    // renderChart will resize height
+    renderChart(chart, canvas, judgements, judgementDeltas, options, texts, 1);
+    
+    return canvas.toDataURL('image/png');
+}
+
 export function getGradientColor(delta: number): string {
     const clamped = Math.max(-100, Math.min(100, delta));
     let r, g, b;
@@ -431,7 +445,7 @@ export function getGradientColor(delta: number): string {
     return `rgb(${r}, ${g}, ${b})`;
 }
 
-export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judgements: string[] = [], judgementDeltas: (number | undefined)[] = [], options: ViewOptions, texts: RenderTexts = DEFAULT_TEXTS): void {
+export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judgements: string[] = [], judgementDeltas: (number | undefined)[] = [], options: ViewOptions, texts: RenderTexts = DEFAULT_TEXTS, customDpr?: number): void {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
         console.error("2D rendering context not found for canvas.");
@@ -439,7 +453,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
     }
 
     const { bars, loop } = chart;
-    const logicalCanvasWidth: number = canvas.clientWidth || 800;
+    const logicalCanvasWidth: number = canvas.clientWidth || canvas.width || 800;
 
     // Calculate Header Dimensions
     const availableWidth = logicalCanvasWidth - (PADDING * 2);
@@ -456,7 +470,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
     const inferredHands = calculateInferredHands(bars, options.annotations);
 
     // Adjust for device pixel ratio for sharp rendering
-    let dpr = window.devicePixelRatio || 1;
+    let dpr = customDpr !== undefined ? customDpr : (window.devicePixelRatio || 1);
     
     // Safety check for canvas limits
     const MAX_CANVAS_DIMENSION = 32000;
