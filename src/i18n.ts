@@ -50,6 +50,7 @@ const resources: Resources = {
         'ui.annotation': 'Annotation',
         'ui.clearAnnotations': 'Clear Annotations',
         'ui.annotation.desc': 'Click on Don/Ka notes to toggle L/R annotation.',
+        'ui.ese.share': 'Share Current Chart',
 
         'mode.view': 'Mode: View',
         'mode.selection': 'Mode: Selection',
@@ -137,6 +138,7 @@ const resources: Resources = {
         'ui.annotation': '标注',
         'ui.clearAnnotations': '清除标注',
         'ui.annotation.desc': '点击 咚/咔 音符以切换 L/R 标注。',
+        'ui.ese.share': '分享当前谱面',
 
         'mode.view': '模式：查看',
         'mode.selection': '模式：选择',

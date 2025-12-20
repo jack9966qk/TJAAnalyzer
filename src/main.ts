@@ -101,7 +101,9 @@ const testStreamBtn = document.getElementById('test-stream-btn') as HTMLButtonEl
 
 const eseSearchInput = document.getElementById('ese-search-input') as HTMLInputElement;
 const eseResults = document.getElementById('ese-results') as HTMLDivElement;
+const eseShareBtn = document.getElementById('ese-share-btn') as HTMLButtonElement;
 
+let currentEsePath: string | null = null;
 let currentStatusKey = 'status.initializing';
 let currentStatusParams: Record<string, string | number> | undefined;
 
@@ -187,6 +189,11 @@ function filterEseResults(query: string) {
         
         // Simple highlighting or just text
         div.innerText = node.path;
+
+        // Highlight if matches current path
+        if (currentEsePath && node.path === currentEsePath) {
+            div.style.background = '#e0e0ff';
+        }
         
         div.addEventListener('click', async () => {
              try {
@@ -197,6 +204,9 @@ function filterEseResults(query: string) {
 
                  const content = await eseClient.getFileContent(node.path);
                  loadedTJAContent = content;
+                 currentEsePath = node.path; // Update current ESE path
+                 if (eseShareBtn) eseShareBtn.disabled = false;
+                 
                  updateParsedCharts(content);
                  updateStatus('status.chartLoaded');
              } catch (e) {
@@ -260,11 +270,30 @@ function switchDataSourceMode(mode: string) {
                  eseTree = tree;
                  updateStatus('status.eseReady');
                  filterEseResults('');
+                 
+                 // Check pending load from URL
+                 if (pendingEseLoad) {
+                     loadEseFromUrl(pendingEseLoad.path, pendingEseLoad.diff);
+                     pendingEseLoad = null;
+                 }
              }).catch(e => {
                  const errMsg = (e as any).message || String(e);
                  updateStatus('status.eseError', { error: errMsg });
                  if(eseResults) eseResults.innerHTML = `<div style="padding:10px; color:red">Error loading tree: ${errMsg}</div>`;
              });
+        } else if (pendingEseLoad) {
+             // Tree already loaded, just load the file
+             loadEseFromUrl(pendingEseLoad.path, pendingEseLoad.diff);
+             pendingEseLoad = null;
+        }
+    }
+    
+    // Disable share button if not in ESE mode or no chart loaded
+    if (eseShareBtn) {
+        if (mode === 'ese' && currentEsePath) {
+            eseShareBtn.disabled = false;
+        } else {
+            eseShareBtn.disabled = true;
         }
     }
 
@@ -283,6 +312,46 @@ function switchDataSourceMode(mode: string) {
         // tjaFilePicker.value = ''; // Maybe keep it for convenience
     }
 }
+
+let pendingEseLoad: { path: string, diff: string } | null = null;
+
+async function loadEseFromUrl(path: string, diff: string) {
+    try {
+         updateStatus('status.loadingChart');
+         
+         const content = await eseClient.getFileContent(path);
+         loadedTJAContent = content;
+         currentEsePath = path;
+         if (eseShareBtn) eseShareBtn.disabled = false;
+
+         // Update Search UI
+         if (eseSearchInput) eseSearchInput.value = path;
+         filterEseResults(path);
+
+         updateParsedCharts(content);
+         
+         if (parsedTJACharts) {
+             // Fallback if requested diff not found
+             const targetDiff = parsedTJACharts[diff] ? diff : Object.keys(parsedTJACharts)[0];
+             
+             if (parsedTJACharts[targetDiff]) {
+                 difficultySelector.value = targetDiff;
+                 currentChart = parsedTJACharts[targetDiff];
+                 refreshChart();
+                 updateCollapseLoopState();
+             }
+         }
+         
+         updateStatus('status.chartLoaded');
+    } catch (e) {
+         console.error("Error in loadEseFromUrl", e);
+         const errMsg = (e as any).message || String(e);
+         alert(`Failed to load chart from URL: ${errMsg}`);
+         updateStatus('status.eseError', { error: errMsg });
+    }
+}
+
+// ... rest of the file ...
 
 function updateUIText() {
     document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -1626,21 +1695,41 @@ function init(): void {
 
 
 
+    // ESE Share Button
+    if (eseShareBtn) {
+        eseShareBtn.addEventListener('click', async () => {
+             if (!currentEsePath) return;
+             
+             const url = new URL(window.location.href);
+             url.searchParams.set('ese', currentEsePath);
+             url.searchParams.set('diff', difficultySelector.value);
+             
+             try {
+                 await navigator.clipboard.writeText(url.toString());
+                 alert('Link copied to clipboard!');
+             } catch (e) {
+                 console.error('Failed to copy link:', e);
+                 alert('Failed to copy link.');
+             }
+        });
+    }
+
     // Initial Load
-
-    switchDataSourceMode('example');
-
-    // Load example by default
-
     updateStatus('status.ready');
     updateUIText(); // Initialize text
 
-    // We don't auto-click load-example, but maybe we should to show something?
+    // Check URL Params
+    const urlParams = new URLSearchParams(window.location.search);
+    const eseParam = urlParams.get('ese');
+    const diffParam = urlParams.get('diff');
 
-    // The previous code loaded example on start.
-
-    loadExampleBtn.click();
-
+    if (eseParam) {
+        pendingEseLoad = { path: eseParam, diff: diffParam || 'oni' };
+        switchDataSourceMode('ese');
+    } else {
+        switchDataSourceMode('example');
+        loadExampleBtn.click();
+    }
 }
 
 
