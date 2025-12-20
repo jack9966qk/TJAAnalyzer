@@ -797,7 +797,7 @@ function drawBalloonSegment(ctx: CanvasRenderingContext2D, startX: number, endX:
             ctx.font = `bold ${radius * 1.5}px sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(count.toString(), startX, centerY + (radius * 0.1));
+            ctx.fillText(count.toString(), startX, centerY - (radius * 0.2));
         }
     }
 }
