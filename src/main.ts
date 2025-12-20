@@ -1,5 +1,6 @@
 import { parseTJA, ParsedChart } from './tja-parser.js';
 import { generateTJAFromSelection } from './tja-exporter.js';
+import { shareFile } from './file-share.js';
 import { renderChart, getNoteAt, HitInfo, getGradientColor, JudgementVisibility, ViewOptions, RenderTexts, exportChartImage } from './renderer.js';
 import { exampleTJA } from './example-data.js';
 import { JudgementClient, ServerEvent } from './judgement-client.js';
@@ -805,28 +806,9 @@ function init(): void {
 
             try {
                 const tjaContent = generateTJAFromSelection(currentChart, viewOptions.selection, difficultySelector.value, loopCount);
-                const N = (window as any).Neutralino;
-
-                if (N && N.os && N.os.showSaveDialog) {
-                    const entry = await N.os.showSaveDialog('Export TJA', {
-                        defaultPath: 'exported.tja',
-                        filters: [{ name: 'TJA Files', extensions: ['tja'] }]
-                    });
-                    if (entry) {
-                        await N.filesystem.writeFile(entry, tjaContent);
-                        updateStatus('status.exportSuccess');
-                    }
-                } else {
-                    // Web Fallback
-                    const blob = new Blob([tjaContent], { type: 'text/plain' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'exported.tja';
-                    a.click();
-                    URL.revokeObjectURL(url);
-                    updateStatus('status.exportSuccess');
-                }
+                
+                await shareFile('exported.tja', tjaContent, 'text/plain', 'Export TJA');
+                updateStatus('status.exportSuccess');
             } catch (e) {
                 console.error("Export failed:", e);
                 updateStatus('status.exportFailed');
@@ -856,36 +838,17 @@ function init(): void {
 
                 const dataURL = exportChartImage(currentChart, judgements, judgementDeltas, optionsForExport, texts);
                 
-                const N = (window as any).Neutralino;
-                if (N && N.os && N.os.showSaveDialog) {
-                    const entry = await N.os.showSaveDialog('Save Chart Image', {
-                        defaultPath: 'chart.png',
-                        filters: [{ name: 'Images', extensions: ['png'] }]
-                    });
-                    
-                    if (entry) {
-                        // Convert DataURL to Uint8Array
-                        const base64Data = dataURL.split(',')[1];
-                        const binaryString = window.atob(base64Data);
-                        const len = binaryString.length;
-                        const bytes = new Uint8Array(len);
-                        for (let i = 0; i < len; i++) {
-                            bytes[i] = binaryString.charCodeAt(i);
-                        }
-                        
-                        await N.filesystem.writeBinaryFile(entry, bytes);
-                        updateStatus('status.exportImageSuccess');
-                    }
-                } else {
-                    // Web Fallback
-                    const link = document.createElement('a');
-                    link.download = 'chart.png';
-                    link.href = dataURL;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    updateStatus('status.exportImageSuccess');
+                // Convert DataURL to Uint8Array
+                const base64Data = dataURL.split(',')[1];
+                const binaryString = window.atob(base64Data);
+                const len = binaryString.length;
+                const bytes = new Uint8Array(len);
+                for (let i = 0; i < len; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
                 }
+                
+                await shareFile('chart.png', bytes, 'image/png', 'Save Chart Image');
+                updateStatus('status.exportImageSuccess');
             } catch (e) {
                 console.error("Export image failed:", e);
                 updateStatus('status.exportImageFailed');

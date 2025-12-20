@@ -370,17 +370,29 @@ LEVEL:10
         await page.waitForTimeout(2000);
 
         const width = await page.evaluate(async () => {
+             // Force fallback by removing navigator.share if present
+             try {
+                // @ts-ignore
+                navigator.share = undefined;
+             } catch (e) {}
+             
+             try {
+                // @ts-ignore
+                navigator.canShare = () => false;
+             } catch (e) {}
+
              return new Promise<number>((resolve) => {
                  const originalCreateElement = document.createElement;
                  
-                 document.createElement = (tagName) => {
-                      const el = originalCreateElement.call(document, tagName);
+                 document.createElement = (tagName: string, options?: any) => {
+                      const el = originalCreateElement.call(document, tagName, options) as any;
                       if (tagName.toLowerCase() === 'a') {
                           el.click = () => {
-                               if (el.href.startsWith('data:image/png')) {
+                               const href = el.href;
+                               if (href && (href.startsWith('data:image/png') || href.startsWith('blob:'))) {
                                     const img = new Image();
                                     img.onload = () => resolve(img.width);
-                                    img.src = el.href;
+                                    img.src = href;
                                }
                           };
                       }
