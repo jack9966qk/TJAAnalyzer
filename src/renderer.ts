@@ -1,4 +1,4 @@
-import { ParsedChart, LoopInfo, GogoChange } from './tja-parser.js';
+import { ParsedChart, LoopInfo, GogoChange, BarParams } from './tja-parser.js';
 
 // Helper types for renderer and hit testing
 interface RenderBarInfo {
@@ -42,7 +42,7 @@ const BARS_PER_ROW: number = 4;
 const PADDING: number = 20;
 const RATIOS = {
     BAR_HEIGHT: 0.14,
-    ROW_SPACING: 0.11,
+    ROW_SPACING: 0.16,
     NOTE_RADIUS_SMALL: 0.035,
     NOTE_RADIUS_BIG: 0.05,
     LINE_WIDTH_BAR_BORDER: 0.01,
@@ -50,8 +50,9 @@ const RATIOS = {
     LINE_WIDTH_NOTE_OUTER: 0.022,
     LINE_WIDTH_NOTE_INNER: 0.0075,
     LINE_WIDTH_UNDERLINE_BORDER: 0.008,
-    BAR_NUMBER_FONT_SIZE_RATIO: 0.06,
-    BAR_NUMBER_OFFSET_Y_RATIO: -0.0015,
+    BAR_NUMBER_FONT_SIZE_RATIO: 0.045,
+    STATUS_FONT_SIZE_RATIO: 0.045,
+    BAR_NUMBER_OFFSET_Y_RATIO: 0.005,
     HEADER_HEIGHT: 0.35
 };
 
@@ -260,6 +261,7 @@ function calculateLayout(virtualBars: RenderBarInfo[], chart: ParsedChart, logic
         LW_NOTE_INNER: baseBarWidth * RATIOS.LINE_WIDTH_NOTE_INNER,
         LW_UNDERLINE_BORDER: baseBarWidth * RATIOS.LINE_WIDTH_UNDERLINE_BORDER,
         BAR_NUMBER_FONT_SIZE: baseBarWidth * RATIOS.BAR_NUMBER_FONT_SIZE_RATIO,
+        STATUS_FONT_SIZE: baseBarWidth * RATIOS.STATUS_FONT_SIZE_RATIO,
         BAR_NUMBER_OFFSET_Y: baseBarWidth * RATIOS.BAR_NUMBER_OFFSET_Y_RATIO,
         HEADER_HEIGHT: baseBarWidth * RATIOS.HEADER_HEIGHT
     };
@@ -520,9 +522,9 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
         
         drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, gogoTime, gogoChanges, noteCount);
         
-        // Draw Bar Number
+        // Draw Bar Labels (Number, BPM, HS)
         if (!options.isAnnotationMode) {
-            drawBarNumber(ctx, info.originalIndex + 1, layout.x, layout.y, constants.BAR_NUMBER_FONT_SIZE, constants.BAR_NUMBER_OFFSET_Y);
+            drawBarLabels(ctx, info.originalIndex, layout.x, layout.y, layout.width, layout.height, constants.BAR_NUMBER_FONT_SIZE, constants.STATUS_FONT_SIZE, constants.BAR_NUMBER_OFFSET_Y, params, noteCount, info.originalIndex === 0, constants.LW_BAR);
         }
 
         // Draw Loop Indicator
@@ -1227,12 +1229,119 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
     }
 }
 
-function drawBarNumber(ctx: CanvasRenderingContext2D, barNumber: number, x: number, y: number, fontSize: number, offsetY: number): void {
+function drawBarLabels(ctx: CanvasRenderingContext2D, originalBarIndex: number, x: number, y: number, width: number, height: number, numFontSize: number, statusFontSize: number, offsetY: number, params: BarParams | undefined, noteCount: number, isFirstBar: boolean, barBorderWidth: number): void {
     ctx.save();
-    ctx.font = `bold ${fontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
+    
+    const lineHeight = statusFontSize; 
+    // Stack: BarNum (0), BPM (1), HS (2)
+    // Baseline of HS is: y - offsetY - 2 * lineHeight
+    // Top of HS is approx: y - offsetY - 3 * lineHeight
+    const topY = y - offsetY - 3 * lineHeight;
+    
+    // Draw Bar Line Extensions (Left and Right)
+    ctx.beginPath();
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = barBorderWidth;
+
+    // Left Extension
+    ctx.moveTo(x, y);
+    ctx.lineTo(x, topY);
+    
+    // Right Extension
+    ctx.moveTo(x + width, y);
+    ctx.lineTo(x + width, topY);
+    ctx.stroke();
+
+    // Text Padding
+    const textPadding = statusFontSize * 0.2;
+
+    // 1. Draw Bar Number
+    ctx.font = `bold ${numFontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
     ctx.fillStyle = '#333';
-    ctx.textAlign = 'left'; // Align to the left bar line
-    ctx.textBaseline = 'bottom'; // Position above the bar
-    ctx.fillText(barNumber.toString(), x, y - offsetY);
+    ctx.textAlign = 'left'; 
+    ctx.textBaseline = 'bottom';
+    
+    const barNumY = y - offsetY;
+    ctx.fillText((originalBarIndex + 1).toString(), x + textPadding, barNumY);
+
+    if (!params) {
+        ctx.restore();
+        return;
+    }
+
+    // 2. Prepare Labels
+    interface Label { type: 'BPM'|'HS'; val: number; index: number; }
+    const labels: Label[] = [];
+
+    if (isFirstBar) {
+        labels.push({ type: 'BPM', val: params.bpm, index: 0 });
+        if (params.scroll !== 1.0) {
+            labels.push({ type: 'HS', val: params.scroll, index: 0 });
+        }
+    }
+
+    if (params.bpmChanges) {
+        for (const c of params.bpmChanges) {
+            const exists = labels.some(l => l.type === 'BPM' && l.index === c.index);
+            if (!exists) labels.push({ type: 'BPM', val: c.bpm, index: c.index });
+        }
+    }
+
+    if (params.scrollChanges) {
+        for (const c of params.scrollChanges) {
+            const exists = labels.some(l => l.type === 'HS' && l.index === c.index);
+            if (!exists) labels.push({ type: 'HS', val: c.scroll, index: c.index });
+        }
+    }
+
+    if (labels.length === 0) {
+        ctx.restore();
+        return;
+    }
+
+    const bpmY = barNumY - lineHeight; 
+    const hsY = bpmY - lineHeight;     
+
+    ctx.font = `bold ${statusFontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
+
+    // Process Mid-Bar Lines (Dark Grey)
+    // Collect unique indices > 0
+    const changeIndices = new Set<number>();
+    labels.forEach(l => {
+        if (l.index > 0) changeIndices.add(l.index);
+    });
+
+    if (changeIndices.size > 0 && noteCount > 0) {
+        ctx.beginPath();
+        ctx.strokeStyle = '#666'; // Dark Grey
+        ctx.lineWidth = barBorderWidth * 0.8; // Slightly thinner
+
+        changeIndices.forEach(idx => {
+            const lineX = x + (idx / noteCount) * width;
+            ctx.moveTo(lineX, y + height); // From bottom of bar
+            ctx.lineTo(lineX, topY);      // To top of labels
+        });
+        ctx.stroke();
+    }
+
+    // Render Text
+    for (const label of labels) {
+        let labelX = x;
+        if (noteCount > 0) {
+             labelX = x + (label.index / noteCount) * width;
+        }
+        
+        // Shift text
+        const drawX = labelX + textPadding;
+
+        if (label.type === 'BPM') {
+            ctx.fillStyle = '#00008B';
+            ctx.fillText(`BPM ${label.val}`, drawX, bpmY);
+        } else if (label.type === 'HS') {
+            ctx.fillStyle = '#8B0000';
+            ctx.fillText(`HS ${label.val}`, drawX, hsY);
+        }
+    }
+
     ctx.restore();
 }
