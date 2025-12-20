@@ -565,6 +565,57 @@ test.describe('UI Logic', () => {
         await expect(streamPane).toBeVisible();
         await expect(filePane).not.toBeVisible();
     });
+    test('ESE Search by Title', async ({ page }) => {
+        await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        
+        // Mock the ESE index response
+        await page.route('**/ese_index.json', route => route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify([
+                { path: 'cat/song.tja', title: 'My Song', titleJp: '私の歌', url: 'ese/cat/song.tja', type: 'blob', sha: '123' }
+            ])
+        }));
+
+        // Switch to ESE tab
+        await page.click('button[data-mode="ese"]');
+        
+        // Wait for search input
+        const searchInput = page.locator('#ese-search-input');
+        await expect(searchInput).toBeVisible();
+        
+        // Wait for mocked data to load (UI shows "No results" or results)
+        // Since initial query is empty, it might show nothing or all.
+        // My implementation: if query empty, shows "Search for songs..."
+        await expect(page.locator('#ese-results')).toContainText('Search for songs...');
+        
+        // Search by English Title
+        await searchInput.fill('My Song');
+        await expect(page.locator('.ese-result-item')).toContainText('cat/song.tja');
+        
+        // Search by Japanese Title
+        await searchInput.fill('私の歌');
+        await expect(page.locator('.ese-result-item')).toContainText('cat/song.tja');
+        
+        // Search by Path
+        await searchInput.fill('song.tja');
+        await expect(page.locator('.ese-result-item')).toContainText('cat/song.tja');
+        
+        // Search by non-existent
+        await searchInput.fill('NotExist');
+        await expect(page.locator('.ese-result-item')).not.toBeVisible();
+        await expect(page.locator('#ese-results')).toContainText('No results found');
+    });
 });
 
 test.describe('Loop Controls Interaction', () => {

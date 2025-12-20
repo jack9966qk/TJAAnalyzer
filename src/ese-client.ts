@@ -2,6 +2,8 @@ export interface GitNode {
     path: string;
     type: 'blob' | 'tree';
     url: string; // Relative URL
+    title?: string;
+    titleJp?: string;
 }
 
 export class EseClient {

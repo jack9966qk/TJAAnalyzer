@@ -31,6 +31,25 @@ async function downloadFile(nodePath) {
     return await response.text(); // TJA files are text
 }
 
+function extractMetadata(content) {
+    const lines = content.split(/\r?\n/);
+    let title = null;
+    let titleJp = null;
+    
+    for (const line of lines) {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('TITLE:')) {
+            title = trimmed.substring(6).trim();
+        } else if (trimmed.startsWith('TITLEJA:')) {
+            titleJp = trimmed.substring(8).trim();
+        }
+        
+        if (title && titleJp) break; // Found both
+        if (line.startsWith('#START')) break; // Stop at chart start
+    }
+    return { title, titleJp };
+}
+
 async function main() {
     try {
         console.log('Fetching file tree from API...');
@@ -68,7 +87,7 @@ async function main() {
                 const json = JSON.parse(raw);
                 for (const item of json) {
                     if (item.path && item.sha) {
-                        existingIndex[item.path] = item.sha;
+                        existingIndex[item.path] = item;
                     }
                 }
             } catch (e) {
@@ -91,11 +110,23 @@ async function main() {
             
             validPaths.add(targetPath);
 
-            const isCached = existingIndex[node.path] === node.sha && fs.existsSync(targetPath);
+            const isCached = existingIndex[node.path] && existingIndex[node.path].sha === node.sha && fs.existsSync(targetPath);
+
+            let title = null;
+            let titleJp = null;
 
             if (isCached) {
                 skipCount++;
                 // process.stdout.write(`\r[${progress}%] Skipping ${node.path}...`); 
+                // Always read from local file to ensure metadata is up to date with latest parsing logic
+                try {
+                    const content = fs.readFileSync(targetPath, 'utf8');
+                    const meta = extractMetadata(content);
+                    title = meta.title;
+                    titleJp = meta.titleJp;
+                } catch (e) {
+                    console.warn(`Failed to read local file for metadata: ${targetPath}`);
+                }
             } else {
                 downloadCount++;
                 process.stdout.write(`\r[${progress}%] Downloading ${node.path}...`);
@@ -104,18 +135,26 @@ async function main() {
                     const content = await downloadFile(node.path);
                     fs.mkdirSync(path.dirname(targetPath), { recursive: true });
                     fs.writeFileSync(targetPath, content);
+                    
+                    const meta = extractMetadata(content);
+                    title = meta.title;
+                    titleJp = meta.titleJp;
                 } catch (err) {
                     console.error(`\nError downloading ${node.path}:`, err.message);
                     continue; // Don't add to index if failed
                 }
             }
 
-            newIndex.push({
+            const entry = {
                 path: node.path,
                 type: 'blob',
                 sha: node.sha,
                 url: `ese/${node.path}`
-            });
+            };
+            if (title) entry.title = title;
+            if (titleJp) entry.titleJp = titleJp;
+            
+            newIndex.push(entry);
         }
         
         process.stdout.write('\n'); // Clear last progress line

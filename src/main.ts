@@ -153,7 +153,12 @@ function updateSelectionUI() {
 
 function filterEseResults(query: string) {
     if (!eseTree || !eseResults) return;
-    const results = query ? eseTree.filter(node => node.path.toLowerCase().includes(query)) : [];
+    const results = query ? eseTree.filter(node => {
+        const q = query.toLowerCase();
+        return node.path.toLowerCase().includes(q) ||
+               (node.title && node.title.toLowerCase().includes(q)) ||
+               (node.titleJp && node.titleJp.toLowerCase().includes(q));
+    }) : [];
     
     if (results.length === 0 && !query) {
          eseResults.innerHTML = `<div style="padding: 10px; color: #888; font-style: italic;">Search for songs...</div>`;
