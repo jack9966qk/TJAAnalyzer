@@ -1,23 +1,55 @@
 # TJA Analyzer
 
-A simple local web application to visualize TJA charts.
+A versatile tool for visualizing, analyzing, and annotating TJA charts for Taiko no Tatsujin simulators.
 
 ## Features
-- Parses TJA files (prioritizing 'Edit' or 'Oni' difficulty).
-- Visualizes the chart with a standard 4-bar layout.
-- Supports Don (Red), Ka (Blue), and Big notes.
 
-## How to Run
-Since this application uses ES Modules, you need to serve it with a local web server.
+- **Chart Visualization**: Renders TJA charts with support for standard notes, rolls, balloons, and variable measures. Displays chart metadata (Title, BPM, etc.).
+- **Analysis**:
+  - **Detailed Note Statistics**: Inspect individual note timing, interval, and properties.
+  - **View Options**: Customizable display with zooming, loop collapsing, and bar numbering.
+- **Data Sources**: Load charts from local files, built-in examples, or the **ESE Database**.
+- **Judgement Integration**: Connect to an external judgement stream (SSE) to visualize hit results (Perfect, Good, Poor) in real-time.
+- **Annotation & Editing**:
+  - Select notes and ranges.
+  - Annotate hands (L/R) with automatic inference helper.
+  - Export selected sections as TJA snippets.
+- **Export**: Save rendered charts as high-quality images.
+- **Internationalization**: Supports English and Simplified Chinese.
 
-1. Open a terminal in this directory.
-2. Run a local server:
-   - Python 3: `python -m http.server`
-   - Node.js (http-server): `npx http-server .`
-3. Open your browser to the provided URL (usually `http://localhost:8000` or `http://localhost:8080`).
+## Getting Started
 
-## Development
-- `src/tja-parser.js`: TJA parsing logic.
-- `src/renderer.js`: Canvas rendering logic.
-- `src/main.js`: Main application entry point.
-- `test-parser.js`: Node.js script to verify the parser logic.
+### Prerequisites
+
+- Node.js (for building/running locally)
+
+### Installation
+
+```bash
+npm install
+```
+
+### Running
+
+**Web Mode:**
+```bash
+npm start
+```
+*Access at `http://localhost:8080` (or the port shown).*
+
+**Desktop Mode (Neutralinojs):**
+```bash
+npm run start:exe
+```
+
+### Building
+
+To build the web assets:
+```bash
+npm run build
+```
+
+To build the standalone executable:
+```bash
+npm run build:exe
+```
