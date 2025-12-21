@@ -24,6 +24,15 @@ try {
     fs.writeFileSync(path.join(destDir, 'changelog.json'), JSON.stringify([], null, 2));
 }
 
+// Generate Version
+try {
+    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf-8'));
+    fs.writeFileSync(path.join(destDir, 'version.json'), JSON.stringify({ version: packageJson.version }, null, 2));
+} catch (e) {
+    console.warn('Failed to generate version.json:', e.message);
+    fs.writeFileSync(path.join(destDir, 'version.json'), JSON.stringify({ version: 'unknown' }, null, 2));
+}
+
 // Create .nojekyll to bypass Jekyll processing
 fs.writeFileSync(path.join(destDir, '.nojekyll'), '');
 

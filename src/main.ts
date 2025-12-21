@@ -1320,6 +1320,24 @@ function init(): void {
         });
     }
 
+    // Load Version
+    const appVersionEl = document.getElementById('app-version');
+    if (appVersionEl) {
+        fetch('version.json')
+            .then(res => {
+                if (!res.ok) throw new Error('Version file not found');
+                return res.json();
+            })
+            .then(data => {
+                if (data && data.version) {
+                    appVersionEl.innerText = `v${data.version}`;
+                }
+            })
+            .catch(e => {
+                console.warn('Failed to load version:', e);
+            });
+    }
+
     // Canvas Interaction
     
         const handleCanvasInteraction = (event: MouseEvent) => {

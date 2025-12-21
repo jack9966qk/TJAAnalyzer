@@ -420,6 +420,16 @@ canvas {
     border-bottom-right-radius: 8px;
 }
 
+.footer-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.separator {
+    color: #ccc;
+}
+
 .text-btn {
     background: none;
     border: none;
