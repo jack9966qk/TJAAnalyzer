@@ -1,5 +1,10 @@
 [
   {
+    "hash": "1ba8a7a",
+    "message": "Fix GitHub Pages deployment by adding .nojekyll to app_package.",
+    "date": "2025-12-22"
+  },
+  {
     "hash": "9b89166",
     "message": "Update Github page domain name.",
     "date": "2025-12-22"
