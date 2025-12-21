@@ -461,7 +461,14 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
     }
 
     const { bars, loop } = chart;
-    const logicalCanvasWidth: number = canvas.clientWidth || canvas.width || 800;
+    
+    // Reset width to 100% to allow measuring the container's available width
+    canvas.style.width = '100%';
+    let logicalCanvasWidth: number = canvas.clientWidth;
+
+    if (logicalCanvasWidth === 0) {
+        logicalCanvasWidth = canvas.width || 800;
+    }
 
     // Calculate Header Dimensions
     const availableWidth = logicalCanvasWidth - (PADDING * 2);
