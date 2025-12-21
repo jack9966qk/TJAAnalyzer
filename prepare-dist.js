@@ -35,7 +35,7 @@ const files = [
     { src: 'www/ese', dest: 'ese' },
     { src: 'www/ese_index.json', dest: 'ese_index.json' },
     { src: 'www/CNAME', dest: 'CNAME' },
-    { src: 'js_out/src', dest: 'js_out/src' },
+    { src: 'js_out/src', dest: 'scripts' },
     { src: 'icon.png', dest: 'icon.png' }
 ];
 
