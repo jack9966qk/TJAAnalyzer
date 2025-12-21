@@ -1,0 +1,46 @@
+//TJADB Project
+TITLE:Kuro Vyrn no Tsubasa EASY
+TITLEJA:黒ビィんの翼 EASY
+SUBTITLE:--Tsutomu Narita feat. Rie Kugimiya/Granblue Fantasy
+BPM:212
+WAVE:Kuro Vyrn no Tsubasa EASY.ogg
+OFFSET:-4.528
+DEMOSTART:4.245
+
+COURSE:Easy
+LEVEL:1
+BALLOON:11
+SCOREINIT:5000
+
+
+#START
+
+
+#SCROLL 0.5
+1,
+,
+1,
+,
+2,
+,
+2,
+,
+3,
+,
+4,
+,
+500000000000000000000000000000000000000000000008,
+,
+7,
+,
+8,
+,
+,
+,
+1,
+,
+10000001,
+
+
+#END
+

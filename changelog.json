@@ -1,0 +1,362 @@
+[
+  {
+    "hash": "bd25ed6",
+    "message": "Create LICENSE",
+    "date": "2025-12-21"
+  },
+  {
+    "hash": "a02f524",
+    "message": "Fix chart resizing to fit viewport width and avoid frequent rerendering.",
+    "date": "2025-12-21"
+  },
+  {
+    "hash": "a8a9c06",
+    "message": "On page load, expand controls only if there is plenty of vertical space.",
+    "date": "2025-12-21"
+  },
+  {
+    "hash": "c8ad000",
+    "message": "Refine chart controls UI layout.",
+    "date": "2025-12-21"
+  },
+  {
+    "hash": "47d3a0a",
+    "message": "For the hosted version, add functionality to create and open links to specific ESE items.",
+    "date": "2025-12-21"
+  },
+  {
+    "hash": "d77955b",
+    "message": "Add rendering for BPM and HS changes.",
+    "date": "2025-12-21"
+  },
+  {
+    "hash": "3a072db",
+    "message": "Add Gogo Time rendering.",
+    "date": "2025-12-21"
+  },
+  {
+    "hash": "71dfe0f",
+    "message": "Update version to 0.3.1.",
+    "date": "2025-12-20"
+  },
+  {
+    "hash": "31360d3",
+    "message": "Add footer and changelog.",
+    "date": "2025-12-20"
+  },
+  {
+    "hash": "ddbc8f9",
+    "message": "ESE search results includes title matches.",
+    "date": "2025-12-20"
+  },
+  {
+    "hash": "cd13dc8",
+    "message": "Update README.",
+    "date": "2025-12-20"
+  },
+  {
+    "hash": "e47eedc",
+    "message": "Slight adjustment of ballon number positioning.",
+    "date": "2025-12-20"
+  },
+  {
+    "hash": "5d1f386",
+    "message": "Fix sticky chart options, make it collapsed by default, fix some tests.",
+    "date": "2025-12-20"
+  },
+  {
+    "hash": "66a8879",
+    "message": "Fix note selection hit detection offset caused by chart header.",
+    "date": "2025-12-20"
+  },
+  {
+    "hash": "ce58539",
+    "message": "Use system share sheet for TJA/image export where available.",
+    "date": "2025-12-20"
+  },
+  {
+    "hash": "cee9204",
+    "message": "Support saving the rendered chart as image.",
+    "date": "2025-12-20"
+  },
+  {
+    "hash": "43ced0e",
+    "message": "Add header to rendered chart for properties such as title.",
+    "date": "2025-12-20"
+  },
+  {
+    "hash": "a882174",
+    "message": "Update version to 0.3.",
+    "date": "2025-12-20"
+  },
+  {
+    "hash": "a8cb008",
+    "message": "Add functionality to load from ESE database. Database is downloaded to host before build time.",
+    "date": "2025-12-20"
+  },
+  {
+    "hash": "fc2d12a",
+    "message": "Add annotation coloring based on hand inference.",
+    "date": "2025-12-19"
+  },
+  {
+    "hash": "1bbbec5",
+    "message": "Add basic hand annotation functionality.",
+    "date": "2025-12-19"
+  },
+  {
+    "hash": "3d00da4",
+    "message": "Update version to 0.2.",
+    "date": "2025-12-19"
+  },
+  {
+    "hash": "c204292",
+    "message": "Add looping support to TJA export, fix timing logic, and improve error handling",
+    "date": "2025-12-19"
+  },
+  {
+    "hash": "881eec8",
+    "message": "Add basic note selection export functionality.",
+    "date": "2025-12-19"
+  },
+  {
+    "hash": "6e09c89",
+    "message": "Update test snapshots for darwin environment",
+    "date": "2025-12-19"
+  },
+  {
+    "hash": "29ecc29",
+    "message": "More realistic judgement class simulation from test stream.",
+    "date": "2025-12-18"
+  },
+  {
+    "hash": "7028de0",
+    "message": "Restore missing gameplay initialization logic and update test snapshots.",
+    "date": "2025-12-18"
+  },
+  {
+    "hash": "bb8e7df",
+    "message": "Fix a bug where the chart may disappear at high zoom level.",
+    "date": "2025-12-18"
+  },
+  {
+    "hash": "d812ed9",
+    "message": "Basic zh-CN language support.",
+    "date": "2025-12-18"
+  },
+  {
+    "hash": "73d979c",
+    "message": "Support selecting a range of notes.",
+    "date": "2025-12-18"
+  },
+  {
+    "hash": "2a165ac",
+    "message": "Add basic note selection functionality.",
+    "date": "2025-12-18"
+  },
+  {
+    "hash": "0425a7e",
+    "message": "Update config for v0.1 release.",
+    "date": "2025-12-17"
+  },
+  {
+    "hash": "958aad0",
+    "message": "Refactor view options parameters into a single object.",
+    "date": "2025-12-17"
+  },
+  {
+    "hash": "bfc5792",
+    "message": "Add judgement display mode that puts text above notes.",
+    "date": "2025-12-16"
+  },
+  {
+    "hash": "0f9ddb0",
+    "message": "Add display option functionality to zoom in/out the chart.",
+    "date": "2025-12-16"
+  },
+  {
+    "hash": "b1aadb6",
+    "message": "Toggle display of judgement for each class separately. Toggle for note stats panel. Button for display options expand/collapse.",
+    "date": "2025-12-16"
+  },
+  {
+    "hash": "8d27b9f",
+    "message": "Rearrange files for more isolated webpage output.",
+    "date": "2025-12-16"
+  },
+  {
+    "hash": "b08a7ac",
+    "message": "Smarter chart bar line wrapping given non standard MEASURE values.",
+    "date": "2025-12-16"
+  },
+  {
+    "hash": "8d58e18",
+    "message": "Display options UI refinements.",
+    "date": "2025-12-16"
+  },
+  {
+    "hash": "cc54443",
+    "message": "Refine data source control UI.",
+    "date": "2025-12-16"
+  },
+  {
+    "hash": "cc6a0c2",
+    "message": "Use 5 workers for Playwright tests.",
+    "date": "2025-12-16"
+  },
+  {
+    "hash": "94d2aa3",
+    "message": "Option to color note judgements with gradient color mapping from delta.",
+    "date": "2025-12-16"
+  },
+  {
+    "hash": "b26ef8b",
+    "message": "Color \"all delta\" values.",
+    "date": "2025-12-15"
+  },
+  {
+    "hash": "66699ce",
+    "message": "App packaging into executable using neutralinojs.",
+    "date": "2025-12-15"
+  },
+  {
+    "hash": "6ece4b1",
+    "message": "New view mode to display judgement results as bars underline.",
+    "date": "2025-12-15"
+  },
+  {
+    "hash": "eb0f28d",
+    "message": "Ballon rendering.",
+    "date": "2025-12-15"
+  },
+  {
+    "hash": "5f99d03",
+    "message": "Allow manual selection of loop iteration in collapsed mode.",
+    "date": "2025-12-15"
+  },
+  {
+    "hash": "8a7e806",
+    "message": "Scale bar width rendered with MEASURE commands in TJA.",
+    "date": "2025-12-15"
+  },
+  {
+    "hash": "dab7661",
+    "message": "Rearrange test cases.",
+    "date": "2025-12-15"
+  },
+  {
+    "hash": "820f721",
+    "message": "UI refinements. Sticky view options and note stats panel.",
+    "date": "2025-12-15"
+  },
+  {
+    "hash": "434c89a",
+    "message": "Fix BPM and HS display when there is a change within the same bar.",
+    "date": "2025-12-15"
+  },
+  {
+    "hash": "7c91d15",
+    "message": "Merge branch 'main' of https://github.com/jack9966qk/TJAAnalyzer",
+    "date": "2025-12-14"
+  },
+  {
+    "hash": "c7f7262",
+    "message": "Fix BPM and SCROLL parsing.",
+    "date": "2025-12-14"
+  },
+  {
+    "hash": "0082290",
+    "message": "Fix BPM and SCROLL parsing.",
+    "date": "2025-12-14"
+  },
+  {
+    "hash": "e2a9729",
+    "message": "Note stats UI refinements. Add BPM and HS display.",
+    "date": "2025-12-14"
+  },
+  {
+    "hash": "d61f531",
+    "message": "Basic note status display on hover.",
+    "date": "2025-12-14"
+  },
+  {
+    "hash": "dee7d41",
+    "message": "Basic loop detection and collapsing.",
+    "date": "2025-12-14"
+  },
+  {
+    "hash": "47ad336",
+    "message": "Add proper difficulty selection and fix some tests.",
+    "date": "2025-12-14"
+  },
+  {
+    "hash": "f5fe59f",
+    "message": "Change default port to 2354!",
+    "date": "2025-12-14"
+  },
+  {
+    "hash": "e277fa8",
+    "message": "Fix blurry rendering.",
+    "date": "2025-12-14"
+  },
+  {
+    "hash": "7707c44",
+    "message": "Render bar numbers and slightly adjust elements sizing.",
+    "date": "2025-12-14"
+  },
+  {
+    "hash": "999d003",
+    "message": "Minor UI polish.",
+    "date": "2025-12-14"
+  },
+  {
+    "hash": "f06368f",
+    "message": "TJA loading from manually picked file, or from the game start event.",
+    "date": "2025-12-14"
+  },
+  {
+    "hash": "bfdd486",
+    "message": "Improved drumroll (yellow capsule) rendering.",
+    "date": "2025-12-13"
+  },
+  {
+    "hash": "bd52829",
+    "message": "Update judgement style with fill colors. More helpful judgement snapshot image.",
+    "date": "2025-12-13"
+  },
+  {
+    "hash": "fcd2eae",
+    "message": "Basic judgement listening and rendering support.",
+    "date": "2025-12-13"
+  },
+  {
+    "hash": "8719bcc",
+    "message": "Fix notes draw ordering near barline. Align not positioning with barline.",
+    "date": "2025-12-13"
+  },
+  {
+    "hash": "0eb1893",
+    "message": "Make bar height and note size scale with bar width.",
+    "date": "2025-12-13"
+  },
+  {
+    "hash": "1c1673b",
+    "message": "Update bar background color and add note black border.",
+    "date": "2025-12-13"
+  },
+  {
+    "hash": "f70e0b1",
+    "message": "Basic rendering tests with snapshot functionality.",
+    "date": "2025-12-13"
+  },
+  {
+    "hash": "f594480",
+    "message": "Rewrite in TypeScript.",
+    "date": "2025-12-13"
+  },
+  {
+    "hash": "38c10f9",
+    "message": "Initial commit",
+    "date": "2025-12-13"
+  }
+]

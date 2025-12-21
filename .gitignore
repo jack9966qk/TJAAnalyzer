@@ -1,0 +1,15 @@
+.gemini/
+node_modules/
+package-lock.json
+dev_instructions/
+dist/
+test-results/
+playwright-report/
+blob-report/
+.blink.*
+neutralinojs.log
+bin/
+app_package/
+js_out/
+www/ese/
+www/ese_index.json
