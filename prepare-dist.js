@@ -24,6 +24,9 @@ try {
     fs.writeFileSync(path.join(destDir, 'changelog.json'), JSON.stringify([], null, 2));
 }
 
+// Create .nojekyll to bypass Jekyll processing
+fs.writeFileSync(path.join(destDir, '.nojekyll'), '');
+
 // Files/Dirs to copy
 const files = [
     { src: 'www/index.html', dest: 'index.html' },
