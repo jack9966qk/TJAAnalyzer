@@ -302,7 +302,7 @@ function switchDataSourceMode(mode: string) {
 
     // Difficulty Selector Visibility
     if (difficultySelectorContainer) {
-        if (mode === 'stream') {
+        if (mode === 'stream' || mode === 'test') {
             difficultySelectorContainer.hidden = true;
         } else {
             // Show only if charts are parsed
@@ -367,7 +367,7 @@ function updateUIText() {
                  // If the element has children (e.g. checkbox label wrapping span), we should target the span.
                  // In index.html I put data-i18n on the specific text container elements (spans, h2, buttons).
                  // So innerText is safe.
-                 (el as HTMLElement).innerText = i18n.t(key);
+                 (el as HTMLElement).innerHTML = i18n.t(key);
             }
         }
     });
@@ -1684,7 +1684,12 @@ function updateParsedCharts(content: string) {
     
     difficultySelector.value = defaultDifficulty;
     currentChart = parsedTJACharts[defaultDifficulty];
-    difficultySelectorContainer.hidden = false;
+    
+    if (activeDataSourceMode === 'stream' || activeDataSourceMode === 'test') {
+        difficultySelectorContainer.hidden = true;
+    } else {
+        difficultySelectorContainer.hidden = false;
+    }
 
         updateCollapseLoopState();
 
