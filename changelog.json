@@ -1,5 +1,20 @@
 [
   {
+    "hash": "9b89166",
+    "message": "Update Github page domain name.",
+    "date": "2025-12-22"
+  },
+  {
+    "hash": "19bcb86",
+    "message": "Include CNAME in build artifacts for GitHub Pages.",
+    "date": "2025-12-22"
+  },
+  {
+    "hash": "ca70c39",
+    "message": "Add npm command ro deploy to Github Pages.",
+    "date": "2025-12-22"
+  },
+  {
     "hash": "bd25ed6",
     "message": "Create LICENSE",
     "date": "2025-12-21"
