@@ -63,6 +63,7 @@ export interface RenderTexts {
         good: string;
         poor: string;
     };
+    course?: Record<string, string>;
 }
 
 const DEFAULT_TEXTS: RenderTexts = {
@@ -71,6 +72,13 @@ const DEFAULT_TEXTS: RenderTexts = {
         perfect: "良",
         good: "可",
         poor: "不可"
+    },
+    course: {
+        'easy': 'Easy',
+        'normal': 'Normal',
+        'hard': 'Hard',
+        'oni': 'Oni',
+        'edit': 'Oni (Ura)'
     }
 };
 
@@ -517,7 +525,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
     ctx.fillRect(0, 0, logicalCanvasWidth, totalHeight);
 
     // Layer 0: Header
-    drawChartHeader(ctx, chart, PADDING, PADDING, availableWidth, headerHeight);
+    drawChartHeader(ctx, chart, PADDING, PADDING, availableWidth, headerHeight, texts);
 
     // Layer 1: Backgrounds
     virtualBars.forEach((info, index) => {
@@ -560,7 +568,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
     }
 }
 
-function drawChartHeader(ctx: CanvasRenderingContext2D, chart: ParsedChart, x: number, y: number, width: number, height: number): void {
+function drawChartHeader(ctx: CanvasRenderingContext2D, chart: ParsedChart, x: number, y: number, width: number, height: number, texts: RenderTexts): void {
     const title = chart.title || 'Untitled';
     const subtitle = chart.subtitle || '';
     const startBpm = chart.bpm || 120;
@@ -612,7 +620,14 @@ function drawChartHeader(ctx: CanvasRenderingContext2D, chart: ParsedChart, x: n
     ctx.textAlign = 'right';
     
     // Course & Level
-    let courseText = course;
+    const courseKey = course.toLowerCase();
+    let courseName = course.charAt(0).toUpperCase() + course.slice(1);
+    
+    if (texts.course && texts.course[courseKey]) {
+        courseName = texts.course[courseKey];
+    }
+    
+    let courseText = courseName;
     if (level > 0) {
         courseText += ` ★${level}`;
     }
@@ -620,10 +635,18 @@ function drawChartHeader(ctx: CanvasRenderingContext2D, chart: ParsedChart, x: n
     // Determine course color
     let courseColor = '#000';
     const c = course.toLowerCase();
-    if (c.includes('oni') || c.includes('ura') || c === 'edit') courseColor = '#c6006e'; // Purple/Pink
-    else if (c.includes('hard')) courseColor = '#f00';
-    else if (c.includes('normal')) courseColor = '#00f';
-    else if (c.includes('easy')) courseColor = '#0c0';
+    
+    if (c.includes('edit') || c.includes('ura')) {
+        courseColor = '#800080'; // Purple
+    } else if (c.includes('oni')) {
+        courseColor = '#c6006e'; // Pink (Unchanged)
+    } else if (c.includes('hard')) {
+        courseColor = '#555'; // Dark Grey
+    } else if (c.includes('normal')) {
+        courseColor = '#00aa00'; // Green
+    } else if (c.includes('easy')) {
+        courseColor = '#ffa500'; // Orange
+    }
 
     ctx.fillStyle = courseColor;
     ctx.font = `bold ${metaFontSize}px sans-serif`;
