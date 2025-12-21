@@ -98,47 +98,20 @@
                 </div>
                 <div id="options-body" class="panel-body collapsed">
                     <div class="panel-tabs">
-                        <button class="panel-tab active" data-do-tab="view" data-i18n="ui.viewOptions">View Options</button>
-                        <button class="panel-tab" data-do-tab="selection" data-i18n="ui.noteSelection">Note Selection</button>
-                        <button class="panel-tab" data-do-tab="annotation" data-i18n="ui.annotation">Annotation</button>
+                        <button class="panel-tab active" data-do-tab="view" data-i18n="ui.tab.view">View</button>
+                        <button class="panel-tab" data-do-tab="judgements" data-i18n="ui.tab.judgements">Judgements</button>
+                        <button class="panel-tab" data-do-tab="selection" data-i18n="ui.tab.select">Select</button>
+                        <button class="panel-tab" data-do-tab="annotation" data-i18n="ui.tab.annotate">Annotate</button>
                     </div>
                     
                     <div class="panel-content">
                         <!-- View Options Pane -->
                         <div id="do-tab-view" class="panel-pane" style="display:flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
-                            <!-- Judgements Section -->
-                            <div class="option-section">
-                                <div class="section-main">
-                                    <label><input type="checkbox" id="show-judgements-checkbox"> <span data-i18n="ui.showJudgements">Show Judgements</span></label>
-                                </div>
-                                <div id="judgement-subcontrols" class="section-subs">
-                                    <div class="sub-group">
-                                        <span class="sub-label" data-i18n="ui.style">Style:</span>
-                                        <label><input type="radio" name="judgementStyle" value="color" checked> <span data-i18n="ui.style.color">Color</span></label>
-                                        <label><input type="radio" name="judgementStyle" value="underline"> <span data-i18n="ui.style.underline">Underline</span></label>
-                                        <label><input type="radio" name="judgementStyle" value="text"> <span data-i18n="ui.style.text">Text</span></label>
-                                    </div>
-                                    <div class="sub-group">
-                                        <span class="sub-label" data-i18n="ui.coloring">Coloring:</span>
-                                        <label><input type="radio" name="judgementColoring" value="categorical" checked> <span data-i18n="ui.coloring.class">Class</span></label>
-                                        <label><input type="radio" name="judgementColoring" value="gradient"> <span data-i18n="ui.coloring.gradient">Delta</span></label>
-                                    </div>
-                                    <div class="sub-group">
-                                        <span class="sub-label" data-i18n="ui.filter">Filter:</span>
-                                        <label><input type="checkbox" id="show-perfect-checkbox" checked> <span data-i18n="judgement.perfect">GOOD</span></label>
-                                        <label><input type="checkbox" id="show-good-checkbox" checked> <span data-i18n="judgement.good">OK</span></label>
-                                        <label><input type="checkbox" id="show-poor-checkbox" checked> <span data-i18n="judgement.poor">BAD</span></label>
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Loop Section -->
-                            <div class="option-section border-left">
+                            <div class="option-section">
                                 <div class="section-main">
                                     <label><input type="checkbox" id="collapse-loop-checkbox"> <span data-i18n="ui.collapseLoops">Collapse Loops</span></label>
                                 </div>
-                                <!-- Loop controls are inline/dynamic. They don't take much height so hiding them is fine, 
-                                     but let's wrap them nicely. -->
                                 <div id="loop-controls" class="loop-subs" style="display:none;">
                                      <label class="auto-check"><input type="checkbox" id="loop-auto" checked> <span data-i18n="ui.auto">Auto</span></label>
                                      <div class="loop-stepper">
@@ -172,6 +145,36 @@
                             <div class="option-section border-left">
                                 <div class="section-main">
                                     <button id="export-image-btn" class="control-btn" data-i18n="ui.exportImage">Save Image</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Judgements Pane -->
+                        <div id="do-tab-judgements" class="panel-pane" style="display:none;">
+                            <div id="judgement-warning" style="color: #666; font-style: italic; margin-bottom: 10px; display: none;" data-i18n="ui.judgement.notActive">
+                                Judgements are only displayed when a stream is active.
+                            </div>
+                            <div id="judgement-controls" style="display:flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+                                <div class="option-section">
+                                    <div id="judgement-subcontrols" class="section-subs" style="margin-left: 0;">
+                                        <div class="sub-group">
+                                            <span class="sub-label" data-i18n="ui.style">Style:</span>
+                                            <label><input type="radio" name="judgementStyle" value="color" checked> <span data-i18n="ui.style.color">Color</span></label>
+                                            <label><input type="radio" name="judgementStyle" value="underline"> <span data-i18n="ui.style.underline">Underline</span></label>
+                                            <label><input type="radio" name="judgementStyle" value="text"> <span data-i18n="ui.style.text">Text</span></label>
+                                        </div>
+                                        <div class="sub-group">
+                                            <span class="sub-label" data-i18n="ui.coloring">Coloring:</span>
+                                            <label><input type="radio" name="judgementColoring" value="categorical" checked> <span data-i18n="ui.coloring.class">Class</span></label>
+                                            <label><input type="radio" name="judgementColoring" value="gradient"> <span data-i18n="ui.coloring.gradient">Delta</span></label>
+                                        </div>
+                                        <div class="sub-group">
+                                            <span class="sub-label" data-i18n="ui.filter">Filter:</span>
+                                            <label><input type="checkbox" id="show-perfect-checkbox" checked> <span data-i18n="judgement.perfect">GOOD</span></label>
+                                            <label><input type="checkbox" id="show-good-checkbox" checked> <span data-i18n="judgement.good">OK</span></label>
+                                            <label><input type="checkbox" id="show-poor-checkbox" checked> <span data-i18n="judgement.poor">BAD</span></label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

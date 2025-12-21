@@ -52,7 +52,14 @@ const resources: Resources = {
         'ui.annotation.desc': 'Click on Don/Ka notes to toggle L/R annotation.',
         'ui.ese.share': 'Share Current Chart',
 
+        'ui.tab.view': 'View',
+        'ui.tab.judgements': 'Judgements',
+        'ui.tab.select': 'Select',
+        'ui.tab.annotate': 'Annotate',
+        'ui.judgement.notActive': 'Judgements are only displayed when a stream is active.',
+
         'mode.view': 'Mode: View',
+        'mode.judgements': 'Mode: Judgements',
         'mode.selection': 'Mode: Selection',
         'mode.annotation': 'Mode: Annotation',
         
@@ -130,7 +137,7 @@ const resources: Resources = {
         'ui.collapseLoops': '折叠循环',
         'ui.auto': '自动',
         'ui.zoom': '缩放：',
-        'ui.showStats': '显示音符统计',
+        'ui.showStats': '显示音符数值',
         'ui.enableSelection': '启用选择',
         'ui.clearSelection': '清除选择',
         'ui.export': '导出选择',
@@ -140,7 +147,14 @@ const resources: Resources = {
         'ui.annotation.desc': '点击 咚/咔 音符以切换 L/R 标注。',
         'ui.ese.share': '分享当前谱面',
 
+        'ui.tab.view': '视图',
+        'ui.tab.judgements': '判定',
+        'ui.tab.select': '选择',
+        'ui.tab.annotate': '标注',
+        'ui.judgement.notActive': '判定仅在流活动时显示。',
+
         'mode.view': '模式：查看',
+        'mode.judgements': '模式：判定',
         'mode.selection': '模式：选择',
         'mode.annotation': '模式：标注',
         

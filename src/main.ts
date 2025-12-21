@@ -27,6 +27,7 @@ let loadedTJAContent: string = exampleTJA;
 // Application State
 let activeDataSourceMode: string = 'example';
 let isSimulating: boolean = false;
+let isStreamConnected: boolean = false;
 let selectedNoteHitInfo: HitInfo | null = null;
 let annotations: Record<string, string> = {};
 
@@ -44,7 +45,8 @@ const statusDisplay = document.getElementById('status-display') as HTMLElement;
 const noteStatsDisplay = document.getElementById('note-stats-display') as HTMLDivElement;
 const languageSelector = document.getElementById('language-selector') as HTMLSelectElement;
 
-const showJudgementsCheckbox = document.getElementById('show-judgements-checkbox') as HTMLInputElement;
+const judgementWarning = document.getElementById('judgement-warning') as HTMLDivElement;
+const judgementControls = document.getElementById('judgement-controls') as HTMLDivElement;
 const judgementSubcontrols = document.getElementById('judgement-subcontrols') as HTMLDivElement;
 const judgementStyleRadios = document.querySelectorAll('input[name="judgementStyle"]');
 const judgementColoringRadios = document.querySelectorAll('input[name="judgementColoring"]');
@@ -124,6 +126,7 @@ function updateNoteStats(html: string) {
 function updateModeStatus(mode: string) {
     if (chartModeStatus) {
         if (mode === 'view') chartModeStatus.innerText = i18n.t('mode.view');
+        else if (mode === 'judgements') chartModeStatus.innerText = i18n.t('mode.judgements');
         else if (mode === 'selection') chartModeStatus.innerText = i18n.t('mode.selection');
         else if (mode === 'annotation') chartModeStatus.innerText = i18n.t('mode.annotation');
     }
@@ -138,7 +141,7 @@ function switchDisplayOptionTab(mode: string) {
     doPanes.forEach(p => {
         const isTarget = p.id === `do-tab-${mode}`;
         if (isTarget) {
-            // Restore flex for view, block for selection/annotation
+            // Restore flex for view, block for selection/annotation/judgements
             if (mode === 'view') (p as HTMLElement).style.display = 'flex';
             else (p as HTMLElement).style.display = 'block';
         } else {
@@ -147,7 +150,7 @@ function switchDisplayOptionTab(mode: string) {
     });
 
     updateModeStatus(mode);
-    refreshChart();
+    updateDisplayState();
 }
 
 function updateSelectionUI() {
@@ -632,72 +635,44 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, options: Vi
 }
 
 function updateDisplayState() {
+    const activeTab = document.querySelector('#chart-options-panel .panel-tab.active');
+    const mode = activeTab ? activeTab.getAttribute('data-do-tab') : 'view';
+    const isStreamActive = isStreamConnected || isSimulating;
 
-    // 1. Determine base View Mode
-
-    if (showJudgementsCheckbox && showJudgementsCheckbox.checked && !showJudgementsCheckbox.disabled) {
-
-        // Look at style radios
-
+    if (mode === 'judgements') {
+        // Determine sub-mode from radios
         const style = document.querySelector('input[name="judgementStyle"]:checked') as HTMLInputElement;
-
-                if (style && style.value === 'underline') {
-
-                    viewOptions.viewMode = 'judgements-underline';
-
-                } else if (style && style.value === 'text') {
-
-                    viewOptions.viewMode = 'judgements-text';
-
-                } else {
-
-                    viewOptions.viewMode = 'judgements';
-
-                }
-
-
-
-        // Enable subcontrols
-
-        if (judgementSubcontrols) {
-
-            judgementSubcontrols.classList.remove('disabled');
-
+        if (style && style.value === 'underline') {
+            viewOptions.viewMode = 'judgements-underline';
+        } else if (style && style.value === 'text') {
+            viewOptions.viewMode = 'judgements-text';
+        } else {
+            viewOptions.viewMode = 'judgements';
         }
 
-
-
+        // Handle Warning/Controls visibility
+        if (judgementWarning) judgementWarning.style.display = isStreamActive ? 'none' : 'block';
+        if (judgementControls) {
+             judgementControls.style.display = 'flex';
+             if (isStreamActive) {
+                 judgementControls.classList.remove('disabled');
+                 judgementControls.style.opacity = '1';
+                 judgementControls.style.pointerEvents = 'auto';
+             } else {
+                 judgementControls.classList.add('disabled');
+                 judgementControls.style.opacity = '0.5';
+                 judgementControls.style.pointerEvents = 'none';
+             }
+        }
     } else {
-
         viewOptions.viewMode = 'original';
-
-        // Disable subcontrols (visually)
-
-        if (judgementSubcontrols) {
-
-            judgementSubcontrols.classList.add('disabled');
-
-        }
-
     }
 
-
-
-    // 2. Determine Coloring Mode
-
+    // Determine Coloring Mode
     const coloring = document.querySelector('input[name="judgementColoring"]:checked') as HTMLInputElement;
+    viewOptions.coloringMode = (coloring && coloring.value === 'gradient') ? 'gradient' : 'categorical';
 
-    if (coloring && coloring.value === 'gradient') {
-
-        viewOptions.coloringMode = 'gradient';
-
-    } else {
-
-        viewOptions.coloringMode = 'categorical';
-
-    }
-
-    // 3. Determine Judgement Visibility
+    // Determine Judgement Visibility
     if (showPerfectCheckbox && showGoodCheckbox && showPoorCheckbox) {
         viewOptions.visibility = {
             perfect: showPerfectCheckbox.checked,
@@ -707,7 +682,6 @@ function updateDisplayState() {
     }
 
     refreshChart();
-
 }
 
 
@@ -789,30 +763,9 @@ function init(): void {
 
     // Initial State
 
-    if (showJudgementsCheckbox) {
-
-        showJudgementsCheckbox.disabled = true;
-
-        showJudgementsCheckbox.checked = false;
-
-        if (showJudgementsCheckbox.parentElement) {
-
-            showJudgementsCheckbox.parentElement.classList.add('disabled-text');
-
-        }
-
-        showJudgementsCheckbox.addEventListener('change', updateDisplayState);
-
-    }
-
-    
-
     // Ensure subcontrols are disabled initially
-
     if (judgementSubcontrols) {
-
-        judgementSubcontrols.classList.add('disabled');
-
+        // judgementSubcontrols.classList.add('disabled'); // Class no longer used for disabled state, controlled by display
     }
     
     // Listeners for new checkboxes
@@ -1154,6 +1107,7 @@ function init(): void {
         testStreamBtn.addEventListener('click', () => {
 
             isSimulating = true;
+            updateDisplayState();
 
             // Use currently loaded content and selected difficulty
 
@@ -1535,162 +1489,42 @@ function init(): void {
 
                 judgementClient.onStatusChange((status: string) => {
 
-            
-
                     if (connectBtn) {
-                        
                         if (status === 'Connected') {
-
+                            isStreamConnected = true;
                             connectBtn.innerText = i18n.t('ui.stream.disconnect');
-
                         } else {
-
-                            connectBtn.innerText = i18n.t('ui.stream.connect');
-
+                            // Only set to connect if disconnected or connecting...
+                             if (status !== 'Connecting...') {
+                                 connectBtn.innerText = i18n.t('ui.stream.connect');
+                             }
                         }
-
                     }
-
-            
-
-            
-
-            
 
                     if (status === 'Connected') {
-
-            
-
-                        if (showJudgementsCheckbox) {
-
-            
-
-                            showJudgementsCheckbox.disabled = false;
-
-            
-
-                            if (showJudgementsCheckbox.parentElement) {
-
-            
-
-                                showJudgementsCheckbox.parentElement.classList.remove('disabled-text');
-
-            
-
-                            }
-
-                        }
-
-            
-
+                        isStreamConnected = true;
                         
-
                         if (isSimulating) {
-
-            
-
                             updateStatus('status.simConnected');
-
-            
-
                         } else {
-
-            
-
                             updateStatus('status.connected');
-
-            
-
                             if (testStreamBtn) testStreamBtn.disabled = true;
-
-            
-
                         }
-
-            
-
                     } else if (status === 'Connecting...') {
-
-            
-
                         updateStatus('status.connecting');
-
-            
-
                         if (testStreamBtn) testStreamBtn.disabled = true;
-
-            
-
                         if (connectBtn) connectBtn.disabled = true;
-
-            
-
                     } else { // Disconnected
-
-            
-
-                        if (showJudgementsCheckbox) {
-
-            
-
-                            showJudgementsCheckbox.disabled = true;
-
-            
-
-                            showJudgementsCheckbox.checked = false;
-
-            
-
-                            if (showJudgementsCheckbox.parentElement) {
-
-            
-
-                                showJudgementsCheckbox.parentElement.classList.add('disabled-text');
-
-            
-
-                            }
-
-            
-
-                        }
-
-            
-
-                        updateDisplayState(); // Will reset to 'original'
-
-            
-
-            
-
-            
-
-                        // Re-enable controls if we were in test mode
-
-            
-
-                         if (testStreamBtn) testStreamBtn.disabled = false;
-
-            
-
-                         if (connectBtn) connectBtn.disabled = false;
-
-            
-
+                        isStreamConnected = false;
                         
-
+                        // Re-enable controls if we were in test mode
+                         if (testStreamBtn) testStreamBtn.disabled = false;
+                         if (connectBtn) connectBtn.disabled = false;
+                        
                         updateStatus(isSimulating ? 'status.simStopped' : 'status.disconnected');
-
-            
-
                         isSimulating = false;
-
-            
-
                     }
-
-            
-
+                    updateDisplayState();
                 });
 
 

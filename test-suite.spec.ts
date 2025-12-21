@@ -93,11 +93,9 @@ test.describe('Visual Regression', () => {
         await page.click('button[data-mode="test"]');
 
         await page.click('#test-stream-btn');
-        await page.waitForTimeout(500); 
-        
-        const judgementsCheckbox = page.locator('#show-judgements-checkbox');
-        await expect(judgementsCheckbox).toBeEnabled();
-        await judgementsCheckbox.check();
+        // Switch to Judgements Tab
+        await page.click('button[data-do-tab="judgements"]');
+        await page.waitForTimeout(500);
 
         await page.evaluate(() => {
             let seed = 12345;
@@ -150,10 +148,9 @@ test.describe('Visual Regression', () => {
         await page.click('#test-stream-btn');
         await page.waitForTimeout(500); 
         
-        // 1. Enable Judgements
-        const judgementsCheckbox = page.locator('#show-judgements-checkbox');
-        await expect(judgementsCheckbox).toBeEnabled();
-        await judgementsCheckbox.check();
+        // 1. Switch to Judgements Tab
+        await page.click('button[data-do-tab="judgements"]');
+        await page.waitForTimeout(500);
         
         // 2. Select Underline Style
         const underlineRadio = page.locator('input[name="judgementStyle"][value="underline"]');
@@ -210,10 +207,9 @@ test.describe('Visual Regression', () => {
         await page.click('#test-stream-btn');
         await page.waitForTimeout(500); 
         
-        // 1. Enable Judgements
-        const judgementsCheckbox = page.locator('#show-judgements-checkbox');
-        await expect(judgementsCheckbox).toBeEnabled();
-        await judgementsCheckbox.check();
+        // 1. Switch to Judgements Tab
+        await page.click('button[data-do-tab="judgements"]');
+        await page.waitForTimeout(500);
         
         // 2. Select Text Style
         const textRadio = page.locator('input[name="judgementStyle"][value="text"]');
@@ -270,10 +266,9 @@ test.describe('Visual Regression', () => {
         await page.click('#test-stream-btn');
         await page.waitForTimeout(500); 
         
-        // 1. Enable Judgements
-        const judgementsCheckbox = page.locator('#show-judgements-checkbox');
-        await expect(judgementsCheckbox).toBeEnabled();
-        await judgementsCheckbox.check();
+        // 1. Switch to Judgements Tab
+        await page.click('button[data-do-tab="judgements"]');
+        await page.waitForTimeout(500);
         
         // 2. Select Gradient Coloring
         const gradientRadio = page.locator('input[name="judgementColoring"][value="gradient"]');
