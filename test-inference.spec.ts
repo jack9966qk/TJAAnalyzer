@@ -13,6 +13,15 @@ test.describe('Annotation Inference', () => {
                 await page.waitForTimeout(500);
             }
         }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         const canvas = page.locator('#chart-canvas');
         await expect(canvas).toBeVisible();
         await page.waitForTimeout(2000);

@@ -1564,8 +1564,37 @@ function init(): void {
         switchDataSourceMode('example');
         loadExampleBtn.click();
     }
+
+    initializePanelVisibility();
 }
 
+function initializePanelVisibility() {
+    if (!dsBody || !optionsBody) return;
+
+    // Temporarily expand to measure
+    dsBody.classList.remove('collapsed');
+    optionsBody.classList.remove('collapsed');
+    
+    const dsHeight = dsBody.offsetHeight;
+    const optionsHeight = optionsBody.offsetHeight;
+    const viewportHeight = window.innerHeight;
+
+    const totalExpandedHeight = dsHeight + optionsHeight;
+
+    if (totalExpandedHeight < viewportHeight / 2) {
+        // Expand
+        dsBody.classList.remove('collapsed');
+        optionsBody.classList.remove('collapsed');
+        if (dsCollapseBtn) dsCollapseBtn.innerText = i18n.t('ui.collapse');
+        if (optionsCollapseBtn) optionsCollapseBtn.innerText = i18n.t('ui.collapse');
+    } else {
+        // Collapse
+        dsBody.classList.add('collapsed');
+        optionsBody.classList.add('collapsed');
+        if (dsCollapseBtn) dsCollapseBtn.innerText = i18n.t('ui.expand');
+        if (optionsCollapseBtn) optionsCollapseBtn.innerText = i18n.t('ui.expand');
+    }
+}
 
 
 function updateParsedCharts(content: string) {

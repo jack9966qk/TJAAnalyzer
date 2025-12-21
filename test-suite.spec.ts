@@ -15,6 +15,15 @@ test.describe('Visual Regression', () => {
                 await page.waitForTimeout(500);
             }
         }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         const canvas = page.locator('#chart-canvas');
         await expect(canvas).toBeVisible();
         
@@ -31,6 +40,15 @@ test.describe('Visual Regression', () => {
             const classes = await optionsBody.getAttribute('class');
             if (classes && classes.includes('collapsed')) {
                 await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
                 await page.waitForTimeout(500);
             }
         }
@@ -59,6 +77,15 @@ test.describe('Visual Regression', () => {
                 await page.waitForTimeout(500);
             }
         }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         const canvas = page.locator('#chart-canvas');
         await expect(canvas).toBeVisible();
         await page.waitForTimeout(1000);
@@ -81,6 +108,15 @@ test.describe('Visual Regression', () => {
             const classes = await optionsBody.getAttribute('class');
             if (classes && classes.includes('collapsed')) {
                 await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
                 await page.waitForTimeout(500);
             }
         }
@@ -134,6 +170,15 @@ test.describe('Visual Regression', () => {
             const classes = await optionsBody.getAttribute('class');
             if (classes && classes.includes('collapsed')) {
                 await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
                 await page.waitForTimeout(500);
             }
         }
@@ -196,6 +241,15 @@ test.describe('Visual Regression', () => {
                 await page.waitForTimeout(500);
             }
         }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
 
         await page.evaluate(() => {
             window.setInterval = () => 0 as any;
@@ -252,6 +306,15 @@ test.describe('Visual Regression', () => {
             const classes = await optionsBody.getAttribute('class');
             if (classes && classes.includes('collapsed')) {
                 await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
                 await page.waitForTimeout(500);
             }
         }
@@ -326,6 +389,15 @@ test.describe('Visual Regression', () => {
                 await page.waitForTimeout(500);
             }
         }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         const canvas = page.locator('#chart-canvas');
         await expect(canvas).toBeVisible();
 
@@ -353,6 +425,15 @@ test.describe('Visual Regression', () => {
             const classes = await optionsBody.getAttribute('class');
             if (classes && classes.includes('collapsed')) {
                 await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
                 await page.waitForTimeout(500);
             }
         }
@@ -390,6 +471,15 @@ BALLOON:5,10
             const classes = await optionsBody.getAttribute('class');
             if (classes && classes.includes('collapsed')) {
                 await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
                 await page.waitForTimeout(500);
             }
         }
@@ -431,6 +521,15 @@ LEVEL:10
             const classes = await optionsBody.getAttribute('class');
             if (classes && classes.includes('collapsed')) {
                 await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
                 await page.waitForTimeout(500);
             }
         }
@@ -512,6 +611,15 @@ LEVEL:10
                 await page.waitForTimeout(500);
             }
         }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         await page.waitForTimeout(2000);
 
         const width = await page.evaluate(async () => {
@@ -571,6 +679,15 @@ test.describe('UI Logic', () => {
                 await page.waitForTimeout(500);
             }
         }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         await page.waitForTimeout(1000); 
     });
 
@@ -609,6 +726,15 @@ test.describe('UI Logic', () => {
             const classes = await optionsBody.getAttribute('class');
             if (classes && classes.includes('collapsed')) {
                 await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
                 await page.waitForTimeout(500);
             }
         }
@@ -663,6 +789,15 @@ test.describe('Loop Controls Interaction', () => {
             const classes = await optionsBody.getAttribute('class');
             if (classes && classes.includes('collapsed')) {
                 await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
                 await page.waitForTimeout(500);
             }
         }
@@ -723,6 +858,15 @@ test.describe('Zoom Controls', () => {
                 await page.waitForTimeout(500);
             }
         }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         await page.waitForTimeout(1000);
 
         const zoomOutBtn = page.locator('#zoom-out-btn');
@@ -760,6 +904,15 @@ test.describe('Selection Interaction', () => {
             const classes = await optionsBody.getAttribute('class');
             if (classes && classes.includes('collapsed')) {
                 await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
                 await page.waitForTimeout(500);
             }
         }
@@ -825,6 +978,15 @@ test.describe('Selection Interaction', () => {
                 await page.waitForTimeout(500);
             }
         }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
         await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
         
         const canvas = page.locator('#chart-canvas');
@@ -879,6 +1041,15 @@ test.describe('Annotation Interaction', () => {
             const classes = await optionsBody.getAttribute('class');
             if (classes && classes.includes('collapsed')) {
                 await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
                 await page.waitForTimeout(500);
             }
         }
