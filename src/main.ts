@@ -375,6 +375,17 @@ function updateUIText() {
     // Dynamic Elements
     updateStatus(currentStatusKey);
     
+    // Update difficulty selector options
+    if (difficultySelector) {
+        for (let i = 0; i < difficultySelector.options.length; i++) {
+            const opt = difficultySelector.options[i];
+            const diff = opt.value;
+            const key = `ui.difficulty.${diff.toLowerCase()}`;
+            const translated = i18n.t(key);
+            opt.innerText = (translated !== key) ? translated : (diff.charAt(0).toUpperCase() + diff.slice(1));
+        }
+    }
+    
     // Update Mode Status
     const activeTab = document.querySelector('#chart-options-panel .panel-tab.active');
     if (activeTab) {
@@ -1674,7 +1685,9 @@ function updateParsedCharts(content: string) {
     difficulties.forEach(diff => {
         const option = document.createElement('option');
         option.value = diff;
-        option.innerText = diff.charAt(0).toUpperCase() + diff.slice(1);
+        const key = `ui.difficulty.${diff.toLowerCase()}`;
+        const translated = i18n.t(key);
+        option.innerText = (translated !== key) ? translated : (diff.charAt(0).toUpperCase() + diff.slice(1));
         difficultySelector.appendChild(option);
     });
 
@@ -1768,6 +1781,14 @@ function refreshChart() {
                 perfect: i18n.t('renderer.judge.perfect'),
                 good: i18n.t('renderer.judge.good'),
                 poor: i18n.t('renderer.judge.poor')
+            },
+            course: {
+                'easy': i18n.t('ui.difficulty.easy'),
+                'normal': i18n.t('ui.difficulty.normal'),
+                'hard': i18n.t('ui.difficulty.hard'),
+                'oni': i18n.t('ui.difficulty.oni'),
+                'edit': i18n.t('ui.difficulty.edit'),
+                'ura': i18n.t('ui.difficulty.edit')
             }
         };
         // Update viewOptions annotations

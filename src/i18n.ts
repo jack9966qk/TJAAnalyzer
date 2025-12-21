@@ -58,6 +58,11 @@ const resources: Resources = {
         'ui.tab.select': 'Select',
         'ui.tab.annotate': 'Annotate',
         'ui.judgement.notActive': 'Judgements are only displayed when a stream is active.',
+        'ui.difficulty.easy': 'Easy',
+        'ui.difficulty.normal': 'Normal',
+        'ui.difficulty.hard': 'Hard',
+        'ui.difficulty.oni': 'Oni',
+        'ui.difficulty.edit': 'Oni (Ura)',
 
         'mode.view': 'Mode: View',
         'mode.judgements': 'Mode: Judgements',
@@ -154,6 +159,11 @@ const resources: Resources = {
         'ui.tab.select': '选择',
         'ui.tab.annotate': '标注',
         'ui.judgement.notActive': '判定仅在流活动时显示。',
+        'ui.difficulty.easy': '简单',
+        'ui.difficulty.normal': '普通',
+        'ui.difficulty.hard': '困难',
+        'ui.difficulty.oni': '魔王',
+        'ui.difficulty.edit': '魔王（里）',
 
         'mode.view': '模式：查看',
         'mode.judgements': '模式：判定',

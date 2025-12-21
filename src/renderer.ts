@@ -747,8 +747,8 @@ function drawLongNotes(ctx: CanvasRenderingContext2D, virtualBars: RenderBarInfo
         const originalBarIdx = virtualBars[i].originalIndex;
         
         const noteCount = bar.length;
-        if (noteCount === 0) continue;
-        const noteStep = layout.width / noteCount;
+        if (noteCount === 0 && !currentLongNote) continue;
+        const noteStep = noteCount > 0 ? layout.width / noteCount : 0;
         
         const barX = layout.x;
         const centerY = layout.y + layout.height / 2;
@@ -875,7 +875,39 @@ function drawBalloonSegment(ctx: CanvasRenderingContext2D, startX: number, endX:
 }
 
 function drawCapsule(ctx: CanvasRenderingContext2D, startX: number, endX: number, centerY: number, radius: number, startCap: boolean, endCap: boolean, borderOuterW: number, borderInnerW: number, fillColor: string, innerBorderColor: string): void {
-    // Create Path
+    // 1. Outer Border (Open Path if no caps to avoid vertical lines)
+    ctx.beginPath();
+
+    // Top Edge Part
+    if (startCap) {
+        // From Left-Middle to Top-Left
+        ctx.arc(startX, centerY, radius, Math.PI, Math.PI * 1.5, false);
+    } else {
+        ctx.moveTo(startX, centerY - radius);
+    }
+    
+    ctx.lineTo(endX, centerY - radius);
+    
+    if (endCap) {
+        // From Top-Right to Bottom-Right
+        ctx.arc(endX, centerY, radius, Math.PI * 1.5, Math.PI * 2.5, false);
+    } else {
+        ctx.moveTo(endX, centerY + radius);
+    }
+
+    // Bottom Edge Part
+    ctx.lineTo(startX, centerY + radius);
+    
+    if (startCap) {
+        // From Bottom-Left to Left-Middle
+        ctx.arc(startX, centerY, radius, Math.PI * 0.5, Math.PI, false);
+    }
+
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = borderOuterW;
+    ctx.stroke();
+
+    // 2. Fill (Closed Path)
     ctx.beginPath();
     ctx.moveTo(startX, centerY + radius);
     
@@ -900,12 +932,6 @@ function drawCapsule(ctx: CanvasRenderingContext2D, startX: number, endX: number
     ctx.lineTo(startX, centerY + radius);
     ctx.closePath();
 
-    // 1. Black Border
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = borderOuterW;
-    ctx.stroke();
-
-    // 2. Fill
     ctx.fillStyle = fillColor;
     ctx.fill();
 
