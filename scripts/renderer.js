@@ -22,6 +22,13 @@ const DEFAULT_TEXTS = {
         perfect: "良",
         good: "可",
         poor: "不可"
+    },
+    course: {
+        'easy': 'Easy',
+        'normal': 'Normal',
+        'hard': 'Hard',
+        'oni': 'Oni',
+        'edit': 'Oni (Ura)'
     }
 };
 function calculateInferredHands(bars, annotations) {
@@ -389,7 +396,7 @@ export function renderChart(chart, canvas, judgements = [], judgementDeltas = []
     ctx.fillStyle = '#fff';
     ctx.fillRect(0, 0, logicalCanvasWidth, totalHeight);
     // Layer 0: Header
-    drawChartHeader(ctx, chart, PADDING, PADDING, availableWidth, headerHeight);
+    drawChartHeader(ctx, chart, PADDING, PADDING, availableWidth, headerHeight, texts);
     // Layer 1: Backgrounds
     virtualBars.forEach((info, index) => {
         const layout = layouts[index];
@@ -423,7 +430,7 @@ export function renderChart(chart, canvas, judgements = [], judgementDeltas = []
         drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, options, startIndex, judgements, judgementDeltas, texts, info.originalIndex, bars, options.collapsedLoop ? loop : undefined, inferredHands);
     }
 }
-function drawChartHeader(ctx, chart, x, y, width, height) {
+function drawChartHeader(ctx, chart, x, y, width, height, texts) {
     const title = chart.title || 'Untitled';
     const subtitle = chart.subtitle || '';
     const startBpm = chart.bpm || 120;
@@ -469,21 +476,33 @@ function drawChartHeader(ctx, chart, x, y, width, height) {
     const metaY = y;
     ctx.textAlign = 'right';
     // Course & Level
-    let courseText = course;
+    const courseKey = course.toLowerCase();
+    let courseName = course.charAt(0).toUpperCase() + course.slice(1);
+    if (texts.course && texts.course[courseKey]) {
+        courseName = texts.course[courseKey];
+    }
+    let courseText = courseName;
     if (level > 0) {
         courseText += ` ★${level}`;
     }
     // Determine course color
     let courseColor = '#000';
     const c = course.toLowerCase();
-    if (c.includes('oni') || c.includes('ura') || c === 'edit')
-        courseColor = '#c6006e'; // Purple/Pink
-    else if (c.includes('hard'))
-        courseColor = '#f00';
-    else if (c.includes('normal'))
-        courseColor = '#00f';
-    else if (c.includes('easy'))
-        courseColor = '#0c0';
+    if (c.includes('edit') || c.includes('ura')) {
+        courseColor = '#800080'; // Purple
+    }
+    else if (c.includes('oni')) {
+        courseColor = '#c6006e'; // Pink (Unchanged)
+    }
+    else if (c.includes('hard')) {
+        courseColor = '#555'; // Dark Grey
+    }
+    else if (c.includes('normal')) {
+        courseColor = '#00aa00'; // Green
+    }
+    else if (c.includes('easy')) {
+        courseColor = '#ffa500'; // Orange
+    }
     ctx.fillStyle = courseColor;
     ctx.font = `bold ${metaFontSize}px sans-serif`;
     ctx.fillText(courseText, x + width, metaY);
@@ -495,7 +514,7 @@ function drawChartHeader(ctx, chart, x, y, width, height) {
 }
 function drawBarBackground(ctx, x, y, width, height, borderW, centerW, gogoTime, gogoChanges, noteCount) {
     const centerY = y + height / 2;
-    const GOGO_COLOR = '#ba9832';
+    const GOGO_COLOR = '#b5774a';
     const NORMAL_COLOR = '#999';
     // 1. Fill Background
     if (!gogoChanges || gogoChanges.length === 0 || noteCount === 0) {
@@ -568,9 +587,9 @@ function drawLongNotes(ctx, virtualBars, layouts, constants, viewMode, balloonCo
         const layout = layouts[i];
         const originalBarIdx = virtualBars[i].originalIndex;
         const noteCount = bar.length;
-        if (noteCount === 0)
+        if (noteCount === 0 && !currentLongNote)
             continue;
-        const noteStep = layout.width / noteCount;
+        const noteStep = noteCount > 0 ? layout.width / noteCount : 0;
         const barX = layout.x;
         const centerY = layout.y + layout.height / 2;
         // Track the starting index of the segment in THIS bar
@@ -676,7 +695,34 @@ function drawBalloonSegment(ctx, startX, endX, centerY, radius, startCap, endCap
     }
 }
 function drawCapsule(ctx, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, fillColor, innerBorderColor) {
-    // Create Path
+    // 1. Outer Border (Open Path if no caps to avoid vertical lines)
+    ctx.beginPath();
+    // Top Edge Part
+    if (startCap) {
+        // From Left-Middle to Top-Left
+        ctx.arc(startX, centerY, radius, Math.PI, Math.PI * 1.5, false);
+    }
+    else {
+        ctx.moveTo(startX, centerY - radius);
+    }
+    ctx.lineTo(endX, centerY - radius);
+    if (endCap) {
+        // From Top-Right to Bottom-Right
+        ctx.arc(endX, centerY, radius, Math.PI * 1.5, Math.PI * 2.5, false);
+    }
+    else {
+        ctx.moveTo(endX, centerY + radius);
+    }
+    // Bottom Edge Part
+    ctx.lineTo(startX, centerY + radius);
+    if (startCap) {
+        // From Bottom-Left to Left-Middle
+        ctx.arc(startX, centerY, radius, Math.PI * 0.5, Math.PI, false);
+    }
+    ctx.strokeStyle = '#000';
+    ctx.lineWidth = borderOuterW;
+    ctx.stroke();
+    // 2. Fill (Closed Path)
     ctx.beginPath();
     ctx.moveTo(startX, centerY + radius);
     // Left Edge
@@ -698,11 +744,6 @@ function drawCapsule(ctx, startX, endX, centerY, radius, startCap, endCap, borde
     // Bottom Edge
     ctx.lineTo(startX, centerY + radius);
     ctx.closePath();
-    // 1. Black Border
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = borderOuterW;
-    ctx.stroke();
-    // 2. Fill
     ctx.fillStyle = fillColor;
     ctx.fill();
     // 3. Inner Border

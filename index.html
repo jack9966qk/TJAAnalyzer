@@ -65,6 +65,7 @@
 
                     <!-- Stream Mode -->
                     <div id="tab-stream" class="panel-pane" style="display:none;">
+                        <p data-i18n="ui.stream.desc">Connect to an external program that broadcasts currently played chart and judgement events. For example, <a href="https://github.com/jack9966qk/TJAAnalyzer/releases/tag/OpenTaikoPatched" target="_blank">this patched version</a> of OpenTaiko listens to connections at port 2354 (need to run as admin).</p>
                         <div class="control-group">
                             <label><span data-i18n="ui.stream.host">Host:</span> <input type="text" id="host-input" value="127.0.0.1"></label>
                             <label><span data-i18n="ui.stream.port">Port:</span> <input type="number" id="port-input" value="2354"></label>
@@ -210,7 +211,11 @@
         </div>
         
         <div class="app-footer">
-            <span>Made by Jack</span>
+            <div class="footer-left">
+                <span id="app-version">v0.0.0</span>
+                <span class="separator">|</span>
+                <span>Made by Jack</span>
+            </div>
             <button id="changelog-btn" class="text-btn">Changelog</button>
         </div>
     </div>

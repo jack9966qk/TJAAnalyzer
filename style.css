@@ -2,6 +2,10 @@
     box-sizing: border-box;
 }
 
+[hidden] {
+    display: none !important;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
@@ -414,6 +418,16 @@ canvas {
     font-size: 0.9em;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
+}
+
+.footer-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.separator {
+    color: #ccc;
 }
 
 .text-btn {

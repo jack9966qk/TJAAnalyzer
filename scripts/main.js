@@ -276,7 +276,7 @@ function switchDataSourceMode(mode) {
     }
     // Difficulty Selector Visibility
     if (difficultySelectorContainer) {
-        if (mode === 'stream') {
+        if (mode === 'stream' || mode === 'test') {
             difficultySelectorContainer.hidden = true;
         }
         else {
@@ -335,12 +335,22 @@ function updateUIText() {
                 // If the element has children (e.g. checkbox label wrapping span), we should target the span.
                 // In index.html I put data-i18n on the specific text container elements (spans, h2, buttons).
                 // So innerText is safe.
-                el.innerText = i18n.t(key);
+                el.innerHTML = i18n.t(key);
             }
         }
     });
     // Dynamic Elements
     updateStatus(currentStatusKey);
+    // Update difficulty selector options
+    if (difficultySelector) {
+        for (let i = 0; i < difficultySelector.options.length; i++) {
+            const opt = difficultySelector.options[i];
+            const diff = opt.value;
+            const key = `ui.difficulty.${diff.toLowerCase()}`;
+            const translated = i18n.t(key);
+            opt.innerText = (translated !== key) ? translated : (diff.charAt(0).toUpperCase() + diff.slice(1));
+        }
+    }
     // Update Mode Status
     const activeTab = document.querySelector('#chart-options-panel .panel-tab.active');
     if (activeTab) {
@@ -1037,6 +1047,24 @@ function init() {
             }
         });
     }
+    // Load Version
+    const appVersionEl = document.getElementById('app-version');
+    if (appVersionEl) {
+        fetch('version.json')
+            .then(res => {
+            if (!res.ok)
+                throw new Error('Version file not found');
+            return res.json();
+        })
+            .then(data => {
+            if (data && data.version) {
+                appVersionEl.innerText = `v${data.version}`;
+            }
+        })
+            .catch(e => {
+            console.warn('Failed to load version:', e);
+        });
+    }
     // Canvas Interaction
     const handleCanvasInteraction = (event) => {
         if (!currentChart)
@@ -1274,7 +1302,9 @@ function updateParsedCharts(content) {
     difficulties.forEach(diff => {
         const option = document.createElement('option');
         option.value = diff;
-        option.innerText = diff.charAt(0).toUpperCase() + diff.slice(1);
+        const key = `ui.difficulty.${diff.toLowerCase()}`;
+        const translated = i18n.t(key);
+        option.innerText = (translated !== key) ? translated : (diff.charAt(0).toUpperCase() + diff.slice(1));
         difficultySelector.appendChild(option);
     });
     let defaultDifficulty = 'edit';
@@ -1284,7 +1314,12 @@ function updateParsedCharts(content) {
         defaultDifficulty = difficulties[0];
     difficultySelector.value = defaultDifficulty;
     currentChart = parsedTJACharts[defaultDifficulty];
-    difficultySelectorContainer.hidden = false;
+    if (activeDataSourceMode === 'stream' || activeDataSourceMode === 'test') {
+        difficultySelectorContainer.hidden = true;
+    }
+    else {
+        difficultySelectorContainer.hidden = false;
+    }
     updateCollapseLoopState();
     refreshChart();
     renderStats(null, currentChart, viewOptions, judgements);
@@ -1349,6 +1384,14 @@ function refreshChart() {
                 perfect: i18n.t('renderer.judge.perfect'),
                 good: i18n.t('renderer.judge.good'),
                 poor: i18n.t('renderer.judge.poor')
+            },
+            course: {
+                'easy': i18n.t('ui.difficulty.easy'),
+                'normal': i18n.t('ui.difficulty.normal'),
+                'hard': i18n.t('ui.difficulty.hard'),
+                'oni': i18n.t('ui.difficulty.oni'),
+                'edit': i18n.t('ui.difficulty.edit'),
+                'ura': i18n.t('ui.difficulty.edit')
             }
         };
         // Update viewOptions annotations

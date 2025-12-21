@@ -1,5 +1,45 @@
 [
   {
+    "hash": "f599f65",
+    "message": "Update version as 0.3.2.",
+    "date": "2025-12-22"
+  },
+  {
+    "hash": "ce3b9a6",
+    "message": "Display version number at footer.",
+    "date": "2025-12-22"
+  },
+  {
+    "hash": "ce8f214",
+    "message": "Refine long notes rendering when it spans over an entire bar.",
+    "date": "2025-12-22"
+  },
+  {
+    "hash": "e37d782",
+    "message": "Refine difficulty display text and color.",
+    "date": "2025-12-22"
+  },
+  {
+    "hash": "8d5c3ae",
+    "message": "Minor refinements in zh-CN translation.",
+    "date": "2025-12-22"
+  },
+  {
+    "hash": "d7a6b07",
+    "message": "Add description and improve clarity of remote/test stream panels.",
+    "date": "2025-12-22"
+  },
+  {
+    "hash": "f16fadb",
+    "message": "Minor Gogo time bar color adjustment.",
+    "date": "2025-12-22"
+  },
+  {
+    "hash": "14ba6bd",
+    "message": "Move built JS to scripts/ dir to avoid gitignore issues on deployment.",
+    "date": "2025-12-22"
+  },
+  {
     "hash": "1ba8a7a",
     "message": "Fix GitHub Pages deployment by adding .nojekyll to app_package.",
     "date": "2025-12-22"
