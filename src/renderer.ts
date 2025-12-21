@@ -639,7 +639,7 @@ function drawChartHeader(ctx: CanvasRenderingContext2D, chart: ParsedChart, x: n
 
 function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, borderW: number, centerW: number, gogoTime: boolean, gogoChanges: GogoChange[] | undefined, noteCount: number): void {
     const centerY: number = y + height / 2;
-    const GOGO_COLOR = '#ba9832';
+    const GOGO_COLOR = '#b5774a';
     const NORMAL_COLOR = '#999';
 
     // 1. Fill Background
