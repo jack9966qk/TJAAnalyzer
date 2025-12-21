@@ -31,6 +31,7 @@ const files = [
     { src: 'www/icon_simple.png', dest: 'icon_simple.png' },
     { src: 'www/ese', dest: 'ese' },
     { src: 'www/ese_index.json', dest: 'ese_index.json' },
+    { src: 'www/CNAME', dest: 'CNAME' },
     { src: 'js_out/src', dest: 'js_out/src' },
     { src: 'icon.png', dest: 'icon.png' }
 ];
