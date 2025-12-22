@@ -56,6 +56,9 @@ const showPoorCheckbox = document.getElementById('show-poor-checkbox') as HTMLIn
 
 const difficultySelectorContainer = document.getElementById('difficulty-selector-container') as HTMLDivElement;
 const difficultySelector = document.getElementById('difficulty-selector') as HTMLSelectElement;
+const branchSelectorContainer = document.getElementById('branch-selector-container') as HTMLSpanElement;
+const branchSelector = document.getElementById('branch-selector') as HTMLSelectElement;
+
 const collapseLoopCheckbox = document.getElementById('collapse-loop-checkbox') as HTMLInputElement;
 
 const optionsCollapseBtn = document.getElementById('options-collapse-btn') as HTMLButtonElement;
@@ -692,6 +695,38 @@ function updateDisplayState() {
         };
     }
 
+    refreshChart();
+}
+
+function updateBranchSelectorState(resetBranch: boolean = false) {
+    if (!parsedTJACharts) return;
+    
+    const selectedDiff = difficultySelector.value;
+    const rootChart = parsedTJACharts[selectedDiff];
+    
+    if (!rootChart) return;
+
+    if (rootChart.branches) {
+        branchSelectorContainer.hidden = false;
+        if (resetBranch) {
+            branchSelector.value = 'normal';
+        }
+        
+        const branchType = branchSelector.value as 'normal' | 'expert' | 'master';
+        // Note: rootChart.branches.normal is the rootChart itself usually
+        const target = rootChart.branches[branchType];
+        if (target) {
+            currentChart = target;
+        } else {
+            // Fallback
+            currentChart = rootChart;
+        }
+    } else {
+        branchSelectorContainer.hidden = true;
+        currentChart = rootChart;
+    }
+    
+    updateCollapseLoopState();
     refreshChart();
 }
 
@@ -1428,20 +1463,14 @@ function init(): void {
 
 
     difficultySelector.addEventListener('change', () => {
-
-        if (parsedTJACharts) {
-
-            const selectedDifficulty = difficultySelector.value;
-
-            currentChart = parsedTJACharts[selectedDifficulty];
-
-            updateCollapseLoopState(); // Check if new difficulty has loops
-
-            refreshChart();
-
-        }
-
+        updateBranchSelectorState(true);
     });
+
+    if (branchSelector) {
+        branchSelector.addEventListener('change', () => {
+            updateBranchSelectorState(false);
+        });
+    }
 
 
 
@@ -1714,20 +1743,13 @@ function updateParsedCharts(content: string) {
     if (!parsedTJACharts[defaultDifficulty]) defaultDifficulty = difficulties[0];
     
     difficultySelector.value = defaultDifficulty;
-    currentChart = parsedTJACharts[defaultDifficulty];
+    updateBranchSelectorState(true);
     
     if (activeDataSourceMode === 'stream' || activeDataSourceMode === 'test') {
         difficultySelectorContainer.hidden = true;
     } else {
         difficultySelectorContainer.hidden = false;
     }
-
-        updateCollapseLoopState();
-
-
-
-        refreshChart();
-
 
 
         renderStats(null, currentChart, viewOptions, judgements);

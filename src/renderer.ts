@@ -537,6 +537,11 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
         
         drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, gogoTime, gogoChanges, noteCount);
         
+        // Draw Branch Indicator
+        if (params && params.isBranched) {
+            drawBranchIndicator(ctx, layout.x, layout.y, layout.height, constants.NOTE_RADIUS_SMALL * 2, chart.branchType || 'normal');
+        }
+
         // Draw Bar Labels (Number, BPM, HS)
         if (!options.isAnnotationMode) {
             drawBarLabels(ctx, info.originalIndex, layout.x, layout.y, layout.width, layout.height, constants.BAR_NUMBER_FONT_SIZE, constants.STATUS_FONT_SIZE, constants.BAR_NUMBER_OFFSET_Y, params, noteCount, info.originalIndex === 0, constants.LW_BAR);
@@ -1400,4 +1405,14 @@ function drawBarLabels(ctx: CanvasRenderingContext2D, originalBarIndex: number, 
     }
 
     ctx.restore();
+}
+
+function drawBranchIndicator(ctx: CanvasRenderingContext2D, x: number, y: number, height: number, width: number, branchType: string): void {
+    let color = '#808080'; // Grey (Normal)
+    if (branchType === 'expert') color = '#5cbbff'; // Blue
+    else if (branchType === 'master') color = '#ff4d4d'; // Pink/Red
+
+    ctx.fillStyle = color;
+    // Position: immediately to the left of x
+    ctx.fillRect(x - width, y, width, height);
 }
