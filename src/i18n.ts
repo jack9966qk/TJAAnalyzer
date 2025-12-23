@@ -52,6 +52,10 @@ const resources: Resources = {
         'ui.clearAnnotations': 'Clear Annotations',
         'ui.annotation.desc': 'Click on Don/Ka notes to toggle L/R annotation.',
         'ui.ese.share': 'Share Current Chart',
+        'ui.branch': 'Branch:',
+        'branch.normal': 'Normal Chart',
+        'branch.expert': 'Professional Chart',
+        'branch.master': 'Master Chart',
 
         'ui.tab.view': 'View',
         'ui.tab.judgements': 'Judgements',
@@ -155,6 +159,10 @@ const resources: Resources = {
         'ui.clearAnnotations': '清除标注',
         'ui.annotation.desc': '点击 咚/咔 音符以切换 L/R 标注。',
         'ui.ese.share': '分享当前谱面',
+        'ui.branch': '分歧：',
+        'branch.normal': '普通谱面',
+        'branch.expert': '玄人谱面',
+        'branch.master': '达人谱面',
 
         'ui.tab.view': '视图',
         'ui.tab.judgements': '判定',
