@@ -257,13 +257,13 @@ export function parseTJA(content) {
                     bufferE = [];
                     bufferM = [];
                 }
-                else if (inBranch && upper.startsWith('#N')) {
+                else if (inBranch && upper === '#N') {
                     currentBranchTarget = 'n';
                 }
-                else if (inBranch && upper.startsWith('#E')) {
+                else if (inBranch && upper === '#E') {
                     currentBranchTarget = 'e';
                 }
-                else if (inBranch && upper.startsWith('#M')) {
+                else if (inBranch && upper === '#M') {
                     currentBranchTarget = 'm';
                 }
                 else {
