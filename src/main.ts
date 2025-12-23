@@ -1123,23 +1123,16 @@ function init(): void {
 
         connectBtn.addEventListener('click', () => {
 
-            if (connectBtn.innerText === 'Disconnect' || connectBtn.innerText === 'Connected') {
-                 
-                 const tConnect = i18n.t('ui.stream.connect');
-                 const currentText = connectBtn.innerText;
-                 
-                 if (currentText === tConnect) {
-                      const host = hostInput.value;
-                      const port = parseInt(portInput.value, 10);
-                      if (host && port) {
-                          judgementClient.connect(host, port);
-                      } else {
-                          alert("Please enter valid Host and Port.");
-                      }
+            if (isStreamConnected) {
+                 judgementClient.disconnect();
+            } else {
+                 const host = hostInput.value;
+                 const port = parseInt(portInput.value, 10);
+                 if (host && port) {
+                     judgementClient.connect(host, port);
                  } else {
-                      judgementClient.disconnect();
+                     alert("Please enter valid Host and Port.");
                  }
-
             }
 
         });
