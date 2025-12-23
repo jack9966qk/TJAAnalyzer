@@ -539,7 +539,9 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
         
         // Draw Branch Indicator
         if (params && params.isBranched) {
-            drawBranchIndicator(ctx, layout.x, layout.y, layout.height, constants.NOTE_RADIUS_SMALL * 2, chart.branchType || 'normal');
+            const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
+            const stripY = layout.y - stripHeight - (constants.LW_BAR / 2);
+            drawBranchIndicator(ctx, layout.x, stripY, stripHeight, layout.width, chart.branchType || 'normal');
         }
 
         // Draw Bar Labels (Number, BPM, HS)
@@ -1408,11 +1410,11 @@ function drawBarLabels(ctx: CanvasRenderingContext2D, originalBarIndex: number, 
 }
 
 function drawBranchIndicator(ctx: CanvasRenderingContext2D, x: number, y: number, height: number, width: number, branchType: string): void {
-    let color = '#808080'; // Grey (Normal)
-    if (branchType === 'expert') color = '#5cbbff'; // Blue
-    else if (branchType === 'master') color = '#ff4d4d'; // Pink/Red
+    let color = '#c4c4c4ff'; // Grey (Normal)
+    if (branchType === 'expert') color = '#96c9edff'; // Blue
+    else if (branchType === 'master') color = '#e189ecff'; // Pink/Red
 
     ctx.fillStyle = color;
-    // Position: immediately to the left of x
-    ctx.fillRect(x - width, y, width, height);
+    // Position: above the bar, covering width
+    ctx.fillRect(x, y, width, height);
 }
