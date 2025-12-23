@@ -24,6 +24,7 @@ let loadedTJAContent = exampleTJA;
 let activeDataSourceMode = 'example';
 let isSimulating = false;
 let isStreamConnected = false;
+let hasReceivedGameStart = false;
 let selectedNoteHitInfo = null;
 let annotations = {};
 // ESE Client
@@ -47,6 +48,8 @@ const showGoodCheckbox = document.getElementById('show-good-checkbox');
 const showPoorCheckbox = document.getElementById('show-poor-checkbox');
 const difficultySelectorContainer = document.getElementById('difficulty-selector-container');
 const difficultySelector = document.getElementById('difficulty-selector');
+const branchSelectorContainer = document.getElementById('branch-selector-container');
+const branchSelector = document.getElementById('branch-selector');
 const collapseLoopCheckbox = document.getElementById('collapse-loop-checkbox');
 const optionsCollapseBtn = document.getElementById('options-collapse-btn');
 const optionsBody = document.getElementById('options-body');
@@ -659,6 +662,36 @@ function updateDisplayState() {
     }
     refreshChart();
 }
+function updateBranchSelectorState(resetBranch = false) {
+    if (!parsedTJACharts)
+        return;
+    const selectedDiff = difficultySelector.value;
+    const rootChart = parsedTJACharts[selectedDiff];
+    if (!rootChart)
+        return;
+    if (rootChart.branches) {
+        branchSelectorContainer.hidden = false;
+        if (resetBranch) {
+            branchSelector.value = 'normal';
+        }
+        const branchType = branchSelector.value;
+        // Note: rootChart.branches.normal is the rootChart itself usually
+        const target = rootChart.branches[branchType];
+        if (target) {
+            currentChart = target;
+        }
+        else {
+            // Fallback
+            currentChart = rootChart;
+        }
+    }
+    else {
+        branchSelectorContainer.hidden = true;
+        currentChart = rootChart;
+    }
+    updateCollapseLoopState();
+    refreshChart();
+}
 function updateCollapseLoopState() {
     if (!collapseLoopCheckbox)
         return;
@@ -892,21 +925,17 @@ function init() {
     // Setup Stream Controls
     if (connectBtn && hostInput && portInput) {
         connectBtn.addEventListener('click', () => {
-            if (connectBtn.innerText === 'Disconnect' || connectBtn.innerText === 'Connected') {
-                const tConnect = i18n.t('ui.stream.connect');
-                const currentText = connectBtn.innerText;
-                if (currentText === tConnect) {
-                    const host = hostInput.value;
-                    const port = parseInt(portInput.value, 10);
-                    if (host && port) {
-                        judgementClient.connect(host, port);
-                    }
-                    else {
-                        alert("Please enter valid Host and Port.");
-                    }
+            if (isStreamConnected) {
+                judgementClient.disconnect();
+            }
+            else {
+                const host = hostInput.value;
+                const port = parseInt(portInput.value, 10);
+                if (host && port) {
+                    judgementClient.connect(host, port);
                 }
                 else {
-                    judgementClient.disconnect();
+                    alert("Please enter valid Host and Port.");
                 }
             }
         });
@@ -1139,13 +1168,13 @@ function init() {
     canvas.addEventListener('mousemove', handleCanvasInteraction);
     canvas.addEventListener('click', handleCanvasInteraction);
     difficultySelector.addEventListener('change', () => {
-        if (parsedTJACharts) {
-            const selectedDifficulty = difficultySelector.value;
-            currentChart = parsedTJACharts[selectedDifficulty];
-            updateCollapseLoopState(); // Check if new difficulty has loops
-            refreshChart();
-        }
+        updateBranchSelectorState(true);
     });
+    if (branchSelector) {
+        branchSelector.addEventListener('change', () => {
+            updateBranchSelectorState(false);
+        });
+    }
     // Judgement Client Callbacks
     judgementClient.onMessage(async (event) => {
         if (event.type === 'gameplay_start') {
@@ -1153,6 +1182,7 @@ function init() {
             judgements = [];
             judgementDeltas = [];
             currentChart = null;
+            hasReceivedGameStart = true;
             // Clear selection
             viewOptions.selection = null;
             selectedNoteHitInfo = null;
@@ -1193,6 +1223,8 @@ function init() {
         }
         if (status === 'Connected') {
             isStreamConnected = true;
+            // Reset for new connection session
+            hasReceivedGameStart = false;
             if (isSimulating) {
                 updateStatus('status.simConnected');
             }
@@ -1201,9 +1233,15 @@ function init() {
                 if (testStreamBtn)
                     testStreamBtn.disabled = true;
             }
+            // Clear chart to force waiting screen
+            if (!isSimulating) { // Simulation sends start event immediately usually, but good to be safe
+                currentChart = null;
+                refreshChart();
+            }
         }
         else if (status === 'Connecting...') {
             updateStatus('status.connecting');
+            hasReceivedGameStart = false;
             if (testStreamBtn)
                 testStreamBtn.disabled = true;
             if (connectBtn)
@@ -1211,6 +1249,7 @@ function init() {
         }
         else { // Disconnected
             isStreamConnected = false;
+            hasReceivedGameStart = false;
             // Re-enable controls if we were in test mode
             if (testStreamBtn)
                 testStreamBtn.disabled = false;
@@ -1313,15 +1352,13 @@ function updateParsedCharts(content) {
     if (!parsedTJACharts[defaultDifficulty])
         defaultDifficulty = difficulties[0];
     difficultySelector.value = defaultDifficulty;
-    currentChart = parsedTJACharts[defaultDifficulty];
+    updateBranchSelectorState(true);
     if (activeDataSourceMode === 'stream' || activeDataSourceMode === 'test') {
         difficultySelectorContainer.hidden = true;
     }
     else {
         difficultySelectorContainer.hidden = false;
     }
-    updateCollapseLoopState();
-    refreshChart();
     renderStats(null, currentChart, viewOptions, judgements);
 }
 function updateLoopControls() {
@@ -1377,7 +1414,67 @@ function updateLoopControls() {
     }
 }
 function refreshChart() {
-    if (currentChart && canvas) {
+    if (!canvas)
+        return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx)
+        return;
+    // 1. Check for Stream Waiting State
+    if ((isStreamConnected || isSimulating) && !hasReceivedGameStart) {
+        // Clear and draw placeholder
+        const width = canvas.clientWidth || 800;
+        const height = 400; // Arbitrary height
+        // Set canvas size
+        canvas.width = width;
+        canvas.height = height;
+        canvas.style.height = height + 'px';
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0, 0, width, height);
+        ctx.fillStyle = '#666';
+        ctx.font = 'bold 24px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(i18n.t('ui.stream.waitingStart'), width / 2, height / 2);
+        updateLoopControls(); // Likely hides it
+        return;
+    }
+    if (currentChart) {
+        // 2. Check for Branching + Judgement Mode
+        const isJudgementMode = viewOptions.viewMode.startsWith('judgements');
+        const hasBranching = currentChart.branchType !== undefined || (currentChart.branches !== undefined);
+        // Note: parsedTJACharts[diff] returns the root which has .branches. 
+        // currentChart might be a specific branch (which doesn't have .branches usually, but we check if we are in a branched context)
+        // However, checking logic: 
+        // If currentChart is one of the branches, we can render it.
+        // But the requirement says "chart has branching".
+        // If we are viewing a specific branch, technically we are supporting it?
+        // "When there is judgement to display and the chart has branching, do not render the chart."
+        // This implies the current implementation of judgement display might be broken for branched charts (alignment issues etc).
+        // So we should block it even if we selected a branch.
+        // Actually, currentChart is set to a branch target in updateBranchSelectorState.
+        // But the judgement display logic (deltas mapping) might assume linear non-branched progression or sync issues.
+        // So if the ORIGINAL chart had branches, we block it.
+        // We can check if `branchSelectorContainer` is visible (implies branching available).
+        const branchSelectorVisible = branchSelectorContainer && !branchSelectorContainer.hidden;
+        if (isJudgementMode && branchSelectorVisible) {
+            const width = canvas.clientWidth || 800;
+            const height = 400;
+            canvas.width = width;
+            canvas.height = height;
+            canvas.style.height = height + 'px';
+            ctx.fillStyle = '#fff0f0'; // Light red background
+            ctx.fillRect(0, 0, width, height);
+            ctx.fillStyle = '#cc0000';
+            ctx.font = 'bold 20px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            const msg = i18n.t('ui.judgement.branchingNotSupported');
+            // Wrap text if needed? Canvas doesn't wrap. 
+            // Just draw it.
+            ctx.fillText(msg, width / 2, height / 2);
+            updateLoopControls();
+            return;
+        }
         const texts = {
             loopPattern: i18n.t('renderer.loop'),
             judgement: {

@@ -405,6 +405,12 @@ export function renderChart(chart, canvas, judgements = [], judgementDeltas = []
         const gogoChanges = params ? params.gogoChanges : undefined;
         const noteCount = info.bar ? info.bar.length : 0;
         drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, gogoTime, gogoChanges, noteCount);
+        // Draw Branch Indicator
+        if (params && params.isBranched) {
+            const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
+            const stripY = layout.y - stripHeight - (constants.LW_BAR / 2);
+            drawBranchIndicator(ctx, layout.x, stripY, stripHeight, layout.width, chart.branchType || 'normal');
+        }
         // Draw Bar Labels (Number, BPM, HS)
         if (!options.isAnnotationMode) {
             drawBarLabels(ctx, info.originalIndex, layout.x, layout.y, layout.width, layout.height, constants.BAR_NUMBER_FONT_SIZE, constants.STATUS_FONT_SIZE, constants.BAR_NUMBER_OFFSET_Y, params, noteCount, info.originalIndex === 0, constants.LW_BAR);
@@ -1165,4 +1171,14 @@ function drawBarLabels(ctx, originalBarIndex, x, y, width, height, numFontSize, 
         }
     }
     ctx.restore();
+}
+function drawBranchIndicator(ctx, x, y, height, width, branchType) {
+    let color = '#c4c4c4ff'; // Grey (Normal)
+    if (branchType === 'expert')
+        color = '#96c9edff'; // Blue
+    else if (branchType === 'master')
+        color = '#e189ecff'; // Pink/Red
+    ctx.fillStyle = color;
+    // Position: above the bar, covering width
+    ctx.fillRect(x, y, width, height);
 }

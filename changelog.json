@@ -1,5 +1,35 @@
 [
   {
+    "hash": "6bb8894",
+    "message": "Update version to 0.3.3.",
+    "date": "2025-12-24"
+  },
+  {
+    "hash": "f4a4778",
+    "message": "Add missing localization for branching.",
+    "date": "2025-12-24"
+  },
+  {
+    "hash": "eaa6616",
+    "message": "Add placeholder text replacing rendered chart for chart branching and for the initial state after remote stream connection.",
+    "date": "2025-12-24"
+  },
+  {
+    "hash": "a5f747b",
+    "message": "Fix remote stream connection.",
+    "date": "2025-12-24"
+  },
+  {
+    "hash": "c80cd16",
+    "message": "Update branch indicator as a small strip on top of the rendered bars.",
+    "date": "2025-12-24"
+  },
+  {
+    "hash": "dbfdcc7",
+    "message": "Basic branch parsing and rendering.",
+    "date": "2025-12-23"
+  },
+  {
     "hash": "f599f65",
     "message": "Update version as 0.3.2.",
     "date": "2025-12-22"
