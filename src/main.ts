@@ -28,6 +28,7 @@ let loadedTJAContent: string = exampleTJA;
 let activeDataSourceMode: string = 'example';
 let isSimulating: boolean = false;
 let isStreamConnected: boolean = false;
+let hasReceivedGameStart: boolean = false;
 let selectedNoteHitInfo: HitInfo | null = null;
 let annotations: Record<string, string> = {};
 
@@ -1480,6 +1481,8 @@ function init(): void {
             judgementDeltas = [];
 
             currentChart = null;
+            
+            hasReceivedGameStart = true;
 
             // Clear selection
             viewOptions.selection = null;
@@ -1555,18 +1558,30 @@ function init(): void {
                     if (status === 'Connected') {
                         isStreamConnected = true;
                         
+                        // Reset for new connection session
+                        hasReceivedGameStart = false; 
+                        
                         if (isSimulating) {
                             updateStatus('status.simConnected');
                         } else {
                             updateStatus('status.connected');
                             if (testStreamBtn) testStreamBtn.disabled = true;
                         }
+                        
+                        // Clear chart to force waiting screen
+                        if (!isSimulating) { // Simulation sends start event immediately usually, but good to be safe
+                             currentChart = null; 
+                             refreshChart();
+                        }
+
                     } else if (status === 'Connecting...') {
                         updateStatus('status.connecting');
+                        hasReceivedGameStart = false; 
                         if (testStreamBtn) testStreamBtn.disabled = true;
                         if (connectBtn) connectBtn.disabled = true;
                     } else { // Disconnected
                         isStreamConnected = false;
+                        hasReceivedGameStart = false;
                         
                         // Re-enable controls if we were in test mode
                          if (testStreamBtn) testStreamBtn.disabled = false;
@@ -1807,7 +1822,79 @@ function updateParsedCharts(content: string) {
 }
 
 function refreshChart() {
-    if (currentChart && canvas) {
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // 1. Check for Stream Waiting State
+    if ((isStreamConnected || isSimulating) && !hasReceivedGameStart) {
+        // Clear and draw placeholder
+        const width = canvas.clientWidth || 800;
+        const height = 400; // Arbitrary height
+        // Set canvas size
+        canvas.width = width;
+        canvas.height = height;
+        canvas.style.height = height + 'px';
+        
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0, 0, width, height);
+        
+        ctx.fillStyle = '#666';
+        ctx.font = 'bold 24px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(i18n.t('ui.stream.waitingStart'), width / 2, height / 2);
+        
+        updateLoopControls(); // Likely hides it
+        return;
+    }
+
+    if (currentChart) {
+        // 2. Check for Branching + Judgement Mode
+        const isJudgementMode = viewOptions.viewMode.startsWith('judgements');
+        const hasBranching = currentChart.branchType !== undefined || (currentChart.branches !== undefined);
+        
+        // Note: parsedTJACharts[diff] returns the root which has .branches. 
+        // currentChart might be a specific branch (which doesn't have .branches usually, but we check if we are in a branched context)
+        // However, checking logic: 
+        // If currentChart is one of the branches, we can render it.
+        // But the requirement says "chart has branching".
+        // If we are viewing a specific branch, technically we are supporting it?
+        // "When there is judgement to display and the chart has branching, do not render the chart."
+        // This implies the current implementation of judgement display might be broken for branched charts (alignment issues etc).
+        // So we should block it even if we selected a branch.
+        
+        // Actually, currentChart is set to a branch target in updateBranchSelectorState.
+        // But the judgement display logic (deltas mapping) might assume linear non-branched progression or sync issues.
+        // So if the ORIGINAL chart had branches, we block it.
+        // We can check if `branchSelectorContainer` is visible (implies branching available).
+        
+        const branchSelectorVisible = branchSelectorContainer && !branchSelectorContainer.hidden;
+
+        if (isJudgementMode && branchSelectorVisible) {
+            const width = canvas.clientWidth || 800;
+            const height = 400;
+            canvas.width = width;
+            canvas.height = height;
+            canvas.style.height = height + 'px';
+            
+            ctx.fillStyle = '#fff0f0'; // Light red background
+            ctx.fillRect(0, 0, width, height);
+            
+            ctx.fillStyle = '#cc0000';
+            ctx.font = 'bold 20px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const msg = i18n.t('ui.judgement.branchingNotSupported');
+            // Wrap text if needed? Canvas doesn't wrap. 
+            // Just draw it.
+            ctx.fillText(msg, width / 2, height / 2);
+            
+            updateLoopControls();
+            return;
+        }
+
         const texts: RenderTexts = {
             loopPattern: i18n.t('renderer.loop'),
             judgement: {
