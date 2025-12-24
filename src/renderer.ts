@@ -1,7 +1,7 @@
 import { ParsedChart, LoopInfo, GogoChange, BarParams } from './tja-parser.js';
 
 export const PALETTE = {
-    background: '#FAFAFA', // Very light grey
+    background: '#d4d4d4ff',
     text: {
         primary: '#000',
         secondary: '#444',
@@ -10,6 +10,7 @@ export const PALETTE = {
     },
     ui: {
         barBorder: '#000',
+        barVerticalLine: '#ffffffff',
         centerLine: '#ccc',
         selectionBorder: '#000',
         annotation: {
@@ -704,7 +705,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
                 // If branched, labels should align with top lane (Normal) height which is BASE_LANE_HEIGHT.
                 // If unbranched, height is BASE_LANE_HEIGHT.
                 // So always pass BASE_LANE_HEIGHT as height for label drawing context.
-                drawBarLabels(ctx, info.originalIndex, layout.x, layout.y, layout.width, BASE_LANE_HEIGHT, constants.BAR_NUMBER_FONT_SIZE, constants.STATUS_FONT_SIZE, constants.BAR_NUMBER_OFFSET_Y, params, noteCount, info.originalIndex === 0, constants.LW_BAR);
+                drawBarLabels(ctx, info.originalIndex, layout.x, layout.y, layout.width, BASE_LANE_HEIGHT, constants.BAR_NUMBER_FONT_SIZE, constants.STATUS_FONT_SIZE, constants.BAR_NUMBER_OFFSET_Y, params, noteCount, info.originalIndex === 0, constants.LW_BAR, isBranchStart);
              }
 
              // Draw Loop Indicator
@@ -739,7 +740,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
 
             // Draw Bar Labels (Number, BPM, HS)
             if (!options.isAnnotationMode) {
-                drawBarLabels(ctx, info.originalIndex, layout.x, layout.y, layout.width, layout.height, constants.BAR_NUMBER_FONT_SIZE, constants.STATUS_FONT_SIZE, constants.BAR_NUMBER_OFFSET_Y, params, noteCount, info.originalIndex === 0, constants.LW_BAR);
+                drawBarLabels(ctx, info.originalIndex, layout.x, layout.y, layout.width, layout.height, constants.BAR_NUMBER_FONT_SIZE, constants.STATUS_FONT_SIZE, constants.BAR_NUMBER_OFFSET_Y, params, noteCount, info.originalIndex === 0, constants.LW_BAR, isBranchStart);
             }
 
             // Draw Loop Indicator
@@ -927,10 +928,25 @@ function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, 
     ctx.fillStyle = fillColor;
     ctx.fillRect(x, y, width, height);
     
-    // Draw Bar Border
+    // Draw Bar Border (Horizontal)
     ctx.strokeStyle = PALETTE.ui.barBorder;
     ctx.lineWidth = borderW;
-    ctx.strokeRect(x, y, width, height);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + width, y);
+    ctx.moveTo(x, y + height);
+    ctx.lineTo(x + width, y + height);
+    ctx.stroke();
+
+    // Draw Bar Border (Vertical)
+    ctx.strokeStyle = PALETTE.ui.barVerticalLine;
+    ctx.lineWidth = borderW;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x, y + height);
+    ctx.moveTo(x + width, y);
+    ctx.lineTo(x + width, y + height);
+    ctx.stroke();
 
     // Draw Center Line
     ctx.strokeStyle = PALETTE.ui.centerLine;
@@ -1509,7 +1525,7 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
     }
 }
 
-function drawBarLabels(ctx: CanvasRenderingContext2D, originalBarIndex: number, x: number, y: number, width: number, height: number, numFontSize: number, statusFontSize: number, offsetY: number, params: BarParams | undefined, noteCount: number, isFirstBar: boolean, barBorderWidth: number): void {
+function drawBarLabels(ctx: CanvasRenderingContext2D, originalBarIndex: number, x: number, y: number, width: number, height: number, numFontSize: number, statusFontSize: number, offsetY: number, params: BarParams | undefined, noteCount: number, isFirstBar: boolean, barBorderWidth: number, isBranchStart: boolean = false): void {
     ctx.save();
     
     const lineHeight = statusFontSize; 
@@ -1519,15 +1535,18 @@ function drawBarLabels(ctx: CanvasRenderingContext2D, originalBarIndex: number, 
     const topY = y - offsetY - 3 * lineHeight;
     
     // Draw Bar Line Extensions (Left and Right)
-    ctx.beginPath();
-    ctx.strokeStyle = PALETTE.ui.barBorder;
     ctx.lineWidth = barBorderWidth;
 
     // Left Extension
+    ctx.beginPath();
+    ctx.strokeStyle = isBranchStart ? PALETTE.branches.startLine : PALETTE.ui.barVerticalLine;
     ctx.moveTo(x, y);
     ctx.lineTo(x, topY);
-    
+    ctx.stroke();
+
     // Right Extension
+    ctx.beginPath();
+    ctx.strokeStyle = PALETTE.ui.barVerticalLine;
     ctx.moveTo(x + width, y);
     ctx.lineTo(x + width, topY);
     ctx.stroke();
