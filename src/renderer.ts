@@ -36,7 +36,8 @@ export const PALETTE = {
         border: {
              white: '#fff',
              black: '#000',
-             grey: '#ccc'
+             grey: '#ccc',
+             yellow: '#ff0'
         }
     },
     courses: {
@@ -1599,8 +1600,13 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
 
             // Black border (outside)
             let effectiveBorderOuterW = borderOuterW;
+            let effectiveBorderInnerW = borderInnerW;
+            let effectiveInnerBorderColor = borderColor;
+
             if (isNoteSelected(originalBarIndex, i, selection)) {
-                effectiveBorderOuterW = borderOuterW * 2.5; // Wider border for selected note
+                effectiveBorderOuterW = borderOuterW * 2; // 2x the width
+                effectiveBorderInnerW = borderInnerW * 2; // 2x the width
+                effectiveInnerBorderColor = PALETTE.notes.border.yellow;
             }
 
             ctx.lineWidth = effectiveBorderOuterW;
@@ -1610,8 +1616,8 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
             ctx.fillStyle = color;
             ctx.fill();
             
-            ctx.lineWidth = borderInnerW;
-            ctx.strokeStyle = borderColor; // Dynamic border
+            ctx.lineWidth = effectiveBorderInnerW;
+            ctx.strokeStyle = effectiveInnerBorderColor; // Dynamic border
             ctx.stroke();
 
             // Annotation Rendering
