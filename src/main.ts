@@ -1,7 +1,7 @@
 import { parseTJA, ParsedChart } from './tja-parser.js';
 import { generateTJAFromSelection } from './tja-exporter.js';
 import { shareFile } from './file-share.js';
-import { renderChart, getNoteAt, HitInfo, getGradientColor, JudgementVisibility, ViewOptions, RenderTexts, exportChartImage } from './renderer.js';
+import { renderChart, getNoteAt, HitInfo, getGradientColor, JudgementVisibility, ViewOptions, RenderTexts, exportChartImage, PALETTE } from './renderer.js';
 import { exampleTJA } from './example-data.js';
 import { JudgementClient, ServerEvent } from './judgement-client.js';
 import { i18n } from './i18n.js';
@@ -536,12 +536,12 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, options: Vi
                             if ((judge === 'Perfect' || judge === 'Good' || judge === 'Poor') && delta !== undefined) {
                                 color = getGradientColor(delta);
                             } else {
-                                color = '#555'; // Dark Grey for non-standard
+                                color = PALETTE.judgements.miss; // Dark Grey for non-standard
                             }
                         } else {
-                            if (judge === 'Perfect') color = '#ffa500';
-                            else if (judge === 'Good') color = '#fff';
-                            else if (judge === 'Poor') color = '#00f';
+                            if (judge === 'Perfect') color = PALETTE.judgements.perfect;
+                            else if (judge === 'Good') color = PALETTE.judgements.good;
+                            else if (judge === 'Poor') color = PALETTE.judgements.poor;
                         }
 
                         if (color) {
@@ -588,12 +588,12 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, options: Vi
                              if (judge === 'Perfect' || judge === 'Good' || judge === 'Poor') {
                                  color = getGradientColor(delta);
                              } else {
-                                 color = '#555';
+                                 color = PALETTE.judgements.miss;
                              }
                          } else {
-                             if (judge === 'Perfect') color = '#ffa500';
-                             else if (judge === 'Good') color = '#fff';
-                             else if (judge === 'Poor') color = '#00f';
+                             if (judge === 'Perfect') color = PALETTE.judgements.perfect;
+                             else if (judge === 'Good') color = PALETTE.judgements.good;
+                             else if (judge === 'Poor') color = PALETTE.judgements.poor;
                          }
 
                          if (color) s = `<span style="color: ${color}">${s}</span>`;
@@ -625,12 +625,12 @@ function renderStats(hit: HitInfo | null, chart: ParsedChart | null, options: Vi
                              if (judge === 'Perfect' || judge === 'Good' || judge === 'Poor') {
                                  color = getGradientColor(delta);
                              } else {
-                                 color = '#555';
+                                 color = PALETTE.judgements.miss;
                              }
                          } else {
-                             if (judge === 'Perfect') color = '#ffa500';
-                             else if (judge === 'Good') color = '#fff';
-                             else if (judge === 'Poor') color = '#00f';
+                             if (judge === 'Perfect') color = PALETTE.judgements.perfect;
+                             else if (judge === 'Good') color = PALETTE.judgements.good;
+                             else if (judge === 'Poor') color = PALETTE.judgements.poor;
                          }
 
                          if (color) deltaVal = `<span style="color: ${color}">${deltaVal}</span>`;
@@ -1836,10 +1836,10 @@ function refreshChart() {
         canvas.height = height;
         canvas.style.height = height + 'px';
         
-        ctx.fillStyle = '#f0f0f0';
+        ctx.fillStyle = PALETTE.ui.streamWaiting.background;
         ctx.fillRect(0, 0, width, height);
         
-        ctx.fillStyle = '#666';
+        ctx.fillStyle = PALETTE.ui.streamWaiting.text;
         ctx.font = 'bold 24px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
@@ -1878,10 +1878,10 @@ function refreshChart() {
             canvas.height = height;
             canvas.style.height = height + 'px';
             
-            ctx.fillStyle = '#fff0f0'; // Light red background
+            ctx.fillStyle = PALETTE.ui.warning.background; // Light red background
             ctx.fillRect(0, 0, width, height);
             
-            ctx.fillStyle = '#cc0000';
+            ctx.fillStyle = PALETTE.ui.warning.text;
             ctx.font = 'bold 20px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';

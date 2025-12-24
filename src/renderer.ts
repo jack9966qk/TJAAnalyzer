@@ -1,5 +1,71 @@
 import { ParsedChart, LoopInfo, GogoChange, BarParams } from './tja-parser.js';
 
+export const PALETTE = {
+    background: '#FAFAFA', // Very light grey
+    text: {
+        primary: '#000',
+        secondary: '#444',
+        inverted: '#000',
+        label: '#333'
+    },
+    ui: {
+        barBorder: '#000',
+        centerLine: '#ccc',
+        selectionBorder: '#000',
+        annotation: {
+            match: '#000',
+            mismatch: '#f00'
+        },
+        warning: {
+            background: '#fff0f0',
+            text: '#cc0000'
+        },
+        streamWaiting: {
+            background: '#f0f0f0',
+            text: '#666'
+        }
+    },
+    notes: {
+        don: 'rgba(255, 77, 77, 1)',
+        ka: 'rgba(92, 187, 255, 1)',
+        drumroll: '#ff0',
+        balloon: '#ffa500',
+        kusudama: '#ffd700',
+        unjudged: '#999',
+        border: {
+             white: '#fff',
+             black: '#000',
+             grey: '#ccc'
+        }
+    },
+    courses: {
+        easy: '#ffa500',
+        normal: '#00aa00',
+        hard: '#555',
+        oni: '#c6006e',
+        edit: '#800080'
+    },
+    judgements: {
+        perfect: '#ffa500',
+        good: '#fff',
+        poor: '#00f',
+        miss: '#555',
+        textBorder: '#000'
+    },
+    branches: {
+        normal: '#2C2C2C',
+        expert: '#284E6A',
+        master: '#752168',
+        default: '#999'
+    },
+    status: {
+        bpm: '#00008B',
+        hs: '#8B0000',
+        line: '#666'
+    },
+    gogo: '#f8a33cff'
+};
+
 // Helper types for renderer and hit testing
 interface RenderBarInfo {
     bar: string[];
@@ -521,7 +587,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
     ctx.scale(dpr, dpr);
 
     // Clear
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = PALETTE.background;
     ctx.fillRect(0, 0, logicalCanvasWidth, totalHeight);
 
     // Layer 0: Header
@@ -552,7 +618,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
 
         // Draw Loop Indicator
         if (info.isLoopStart && loop) {
-            ctx.fillStyle = '#000';
+            ctx.fillStyle = PALETTE.text.primary;
             ctx.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px sans-serif`;
             ctx.textAlign = 'right';
             const text = texts.loopPattern.replace('{n}', loop.iterations.toString());
@@ -610,7 +676,7 @@ function drawChartHeader(ctx: CanvasRenderingContext2D, chart: ParsedChart, x: n
     ctx.save();
     
     // Draw Title
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = PALETTE.text.primary;
     ctx.font = `bold ${titleFontSize}px sans-serif`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
@@ -619,7 +685,7 @@ function drawChartHeader(ctx: CanvasRenderingContext2D, chart: ParsedChart, x: n
     // Draw Subtitle (below title)
     if (subtitle) {
         ctx.font = `${subtitleFontSize}px sans-serif`;
-        ctx.fillStyle = '#444';
+        ctx.fillStyle = PALETTE.text.secondary;
         ctx.fillText(subtitle, x, y + titleFontSize + 5);
     }
 
@@ -641,19 +707,19 @@ function drawChartHeader(ctx: CanvasRenderingContext2D, chart: ParsedChart, x: n
     }
     
     // Determine course color
-    let courseColor = '#000';
+    let courseColor = PALETTE.text.primary;
     const c = course.toLowerCase();
     
     if (c.includes('edit') || c.includes('ura')) {
-        courseColor = '#800080'; // Purple
+        courseColor = PALETTE.courses.edit; // Purple
     } else if (c.includes('oni')) {
-        courseColor = '#c6006e'; // Pink (Unchanged)
+        courseColor = PALETTE.courses.oni; // Pink (Unchanged)
     } else if (c.includes('hard')) {
-        courseColor = '#555'; // Dark Grey
+        courseColor = PALETTE.courses.hard; // Dark Grey
     } else if (c.includes('normal')) {
-        courseColor = '#00aa00'; // Green
+        courseColor = PALETTE.courses.normal; // Green
     } else if (c.includes('easy')) {
-        courseColor = '#ffa500'; // Orange
+        courseColor = PALETTE.courses.easy; // Orange
     }
 
     ctx.fillStyle = courseColor;
@@ -661,7 +727,7 @@ function drawChartHeader(ctx: CanvasRenderingContext2D, chart: ParsedChart, x: n
     ctx.fillText(courseText, x + width, metaY);
 
     // BPM
-    ctx.fillStyle = '#000';
+    ctx.fillStyle = PALETTE.text.primary;
     ctx.font = `${metaFontSize}px sans-serif`;
     ctx.fillText(bpmText, x + width, metaY + metaFontSize + 5);
 
@@ -671,11 +737,11 @@ function drawChartHeader(ctx: CanvasRenderingContext2D, chart: ParsedChart, x: n
 function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, borderW: number, centerW: number, isBranched: boolean, branchType: string = 'normal'): void {
     const centerY: number = y + height / 2;
     
-    let fillColor = '#999';
+    let fillColor = PALETTE.branches.default;
     if (isBranched) {
-        if (branchType === 'normal') fillColor = '#2C2C2C'; // Normal
-        if (branchType === 'expert') fillColor = '#284E6A'; // Professional
-        else if (branchType === 'master') fillColor = '#752168'; // Master
+        if (branchType === 'normal') fillColor = PALETTE.branches.normal; // Normal
+        if (branchType === 'expert') fillColor = PALETTE.branches.expert; // Professional
+        else if (branchType === 'master') fillColor = PALETTE.branches.master; // Master
     }
     
     // 1. Fill Background
@@ -683,12 +749,12 @@ function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, 
     ctx.fillRect(x, y, width, height);
     
     // Draw Bar Border
-    ctx.strokeStyle = '#000';
+    ctx.strokeStyle = PALETTE.ui.barBorder;
     ctx.lineWidth = borderW;
     ctx.strokeRect(x, y, width, height);
 
     // Draw Center Line
-    ctx.strokeStyle = '#ccc';
+    ctx.strokeStyle = PALETTE.ui.centerLine;
     ctx.lineWidth = centerW;
     ctx.beginPath();
     ctx.moveTo(x, centerY);
@@ -791,24 +857,24 @@ function drawLongNotes(ctx: CanvasRenderingContext2D, virtualBars: RenderBarInfo
 }
 
 function drawDrumrollSegment(ctx: CanvasRenderingContext2D, startX: number, endX: number, centerY: number, radius: number, startCap: boolean, endCap: boolean, borderOuterW: number, borderInnerW: number, viewMode: 'original' | 'judgements' | 'judgements-underline' | 'judgements-text', type: string): void {
-    let fillColor = '#ff0';
-    let innerBorderColor = '#fff';
+    let fillColor = PALETTE.notes.drumroll;
+    let innerBorderColor = PALETTE.notes.border.white;
 
     if (viewMode === 'judgements') {
-        fillColor = '#999';
-        innerBorderColor = '#ccc';
+        fillColor = PALETTE.notes.unjudged;
+        innerBorderColor = PALETTE.notes.border.grey;
     }
 
     drawCapsule(ctx, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, fillColor, innerBorderColor);
 }
 
 function drawBalloonSegment(ctx: CanvasRenderingContext2D, startX: number, endX: number, centerY: number, radius: number, startCap: boolean, endCap: boolean, borderOuterW: number, borderInnerW: number, viewMode: 'original' | 'judgements' | 'judgements-underline' | 'judgements-text', count: number, isKusudama: boolean): void {
-    let fillColor = '#ffa500'; // Orangeish for balloon body
-    let innerBorderColor = '#fff';
+    let fillColor = PALETTE.notes.balloon; // Orangeish for balloon body
+    let innerBorderColor = PALETTE.notes.border.white;
 
     if (viewMode === 'judgements') {
-        fillColor = '#999';
-        innerBorderColor = '#ccc';
+        fillColor = PALETTE.notes.unjudged;
+        innerBorderColor = PALETTE.notes.border.grey;
     }
 
     // Draw the tail (body)
@@ -820,11 +886,11 @@ function drawBalloonSegment(ctx: CanvasRenderingContext2D, startX: number, endX:
 
     // If this is the start segment, draw the balloon head
     if (startCap) {
-        let headColor = '#ffa500'; // Orange
-        if (isKusudama) headColor = '#ffd700'; // Gold
+        let headColor = PALETTE.notes.balloon; // Orange
+        if (isKusudama) headColor = PALETTE.notes.kusudama; // Gold
         
         if (viewMode === 'judgements') {
-            headColor = '#999';
+            headColor = PALETTE.notes.unjudged;
         }
 
         // Draw Head
@@ -832,7 +898,7 @@ function drawBalloonSegment(ctx: CanvasRenderingContext2D, startX: number, endX:
         ctx.arc(startX, centerY, radius, 0, Math.PI * 2);
         
         ctx.lineWidth = borderOuterW;
-        ctx.strokeStyle = '#000';
+        ctx.strokeStyle = PALETTE.notes.border.black;
         ctx.stroke();
 
         ctx.fillStyle = headColor;
@@ -844,7 +910,7 @@ function drawBalloonSegment(ctx: CanvasRenderingContext2D, startX: number, endX:
 
         // Draw Count
         if (viewMode !== 'judgements') {
-            ctx.fillStyle = '#000';
+            ctx.fillStyle = PALETTE.text.inverted;
             ctx.font = `bold ${radius * 1.5}px sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
@@ -882,7 +948,7 @@ function drawCapsule(ctx: CanvasRenderingContext2D, startX: number, endX: number
         ctx.arc(startX, centerY, radius, Math.PI * 0.5, Math.PI, false);
     }
 
-    ctx.strokeStyle = '#000';
+    ctx.strokeStyle = PALETTE.notes.border.black;
     ctx.lineWidth = borderOuterW;
     ctx.stroke();
 
@@ -1054,7 +1120,7 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
                  if (isValidJudge && effectiveDelta !== undefined) {
                       noteColors[i] = getGradientColor(effectiveDelta);
                  } else if (isJudgedButMiss) {
-                      noteColors[i] = '#555'; // Dark Grey
+                      noteColors[i] = PALETTE.judgements.miss; // Dark Grey
                  }
                  // Else null (Unjudged)
 
@@ -1062,9 +1128,9 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
                 // Categorical Logic
                 if (globalIndex < judgements.length) {
                     const judge = judgements[globalIndex];
-                    if (judge === 'Perfect' && judgementVisibility.perfect) noteColors[i] = '#ffa500';
-                    else if (judge === 'Good' && judgementVisibility.good) noteColors[i] = '#fff';
-                    else if (judge === 'Poor' && judgementVisibility.poor) noteColors[i] = '#00f';
+                    if (judge === 'Perfect' && judgementVisibility.perfect) noteColors[i] = PALETTE.judgements.perfect;
+                    else if (judge === 'Good' && judgementVisibility.good) noteColors[i] = PALETTE.judgements.good;
+                    else if (judge === 'Poor' && judgementVisibility.poor) noteColors[i] = PALETTE.judgements.poor;
                     // Miss is null
                 }
             }
@@ -1080,7 +1146,7 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
         // Pass 1.1: Draw Black Borders (Backwards iteration)
         ctx.save();
         ctx.lineCap = 'round';
-        ctx.strokeStyle = '#000';
+        ctx.strokeStyle = PALETTE.ui.barBorder;
         ctx.lineWidth = lineWidth + (borderUnderlineW * 2);
         
         for (let i = noteCount - 1; i >= 0; i--) {
@@ -1132,7 +1198,7 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
         ctx.lineWidth = height * 0.05; // Border width for text
-        ctx.strokeStyle = '#000';
+        ctx.strokeStyle = PALETTE.judgements.textBorder;
 
         for (let i = 0; i < noteCount; i++) {
             const noteChar = bar[i];
@@ -1177,36 +1243,36 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
 
         switch (noteChar) {
             case '1': // Don (Red Small)
-                color = 'rgba(255, 77, 77, 1)';
+                color = PALETTE.notes.don;
                 radius = rSmall;
                 break;
             case '2': // Ka (Blue Small)
-                color = 'rgba(92, 187, 255, 1)';
+                color = PALETTE.notes.ka;
                 radius = rSmall;
                 break;
             case '3': // Don (Red Big)
-                color = 'rgba(255, 77, 77, 1)';
+                color = PALETTE.notes.don;
                 radius = rBig;
                 isBig = true;
                 break;
             case '4': // Ka (Blue Big)
-                color = 'rgba(92, 187, 255, 1)';
+                color = PALETTE.notes.ka;
                 radius = rBig;
                 isBig = true;
                 break;
         }
 
         if (color) {
-            let borderColor = '#fff'; // Default white border
+            let borderColor = PALETTE.notes.border.white; // Default white border
 
             if (viewMode === 'judgements') {
-                color = '#999'; // Default unjudged fill color (Grey)
-                borderColor = '#ccc'; // Default unjudged border color (Grey)
+                color = PALETTE.notes.unjudged; // Default unjudged fill color (Grey)
+                borderColor = PALETTE.notes.border.grey; // Default unjudged border color (Grey)
                 
                 const assignedColor = noteColors[i];
                 if (assignedColor) {
                     color = assignedColor;
-                    borderColor = '#fff'; // Revert to standard white border for judged notes
+                    borderColor = PALETTE.notes.border.white; // Revert to standard white border for judged notes
                 }
             }
             
@@ -1223,7 +1289,7 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
             }
 
             ctx.lineWidth = effectiveBorderOuterW;
-            ctx.strokeStyle = '#000';
+            ctx.strokeStyle = PALETTE.notes.border.black;
             ctx.stroke();
 
             ctx.fillStyle = color;
@@ -1238,11 +1304,11 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
                 const noteId = `${originalBarIndex}_${i}`;
                 const annotation = options.annotations[noteId];
                 if (annotation) {
-                    let textColor = '#000';
+                    let textColor = PALETTE.ui.annotation.match;
                     if (inferredHands) {
                         const inferred = inferredHands.get(noteId);
                         if (inferred && inferred !== annotation) {
-                            textColor = '#f00'; // Red if mismatch
+                            textColor = PALETTE.ui.annotation.mismatch; // Red if mismatch
                         }
                     }
 
@@ -1275,7 +1341,7 @@ function drawBarLabels(ctx: CanvasRenderingContext2D, originalBarIndex: number, 
     
     // Draw Bar Line Extensions (Left and Right)
     ctx.beginPath();
-    ctx.strokeStyle = '#000';
+    ctx.strokeStyle = PALETTE.ui.barBorder;
     ctx.lineWidth = barBorderWidth;
 
     // Left Extension
@@ -1292,7 +1358,7 @@ function drawBarLabels(ctx: CanvasRenderingContext2D, originalBarIndex: number, 
 
     // 1. Draw Bar Number
     ctx.font = `bold ${numFontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
-    ctx.fillStyle = '#333';
+    ctx.fillStyle = PALETTE.text.label;
     ctx.textAlign = 'left'; 
     ctx.textBaseline = 'bottom';
     
@@ -1348,7 +1414,7 @@ function drawBarLabels(ctx: CanvasRenderingContext2D, originalBarIndex: number, 
 
     if (changeIndices.size > 0 && noteCount > 0) {
         ctx.beginPath();
-        ctx.strokeStyle = '#666'; // Dark Grey
+        ctx.strokeStyle = PALETTE.status.line; // Dark Grey
         ctx.lineWidth = barBorderWidth * 0.8; // Slightly thinner
 
         changeIndices.forEach(idx => {
@@ -1370,10 +1436,10 @@ function drawBarLabels(ctx: CanvasRenderingContext2D, originalBarIndex: number, 
         const drawX = labelX + textPadding;
 
         if (label.type === 'BPM') {
-            ctx.fillStyle = '#00008B';
+            ctx.fillStyle = PALETTE.status.bpm;
             ctx.fillText(`BPM ${label.val}`, drawX, bpmY);
         } else if (label.type === 'HS') {
-            ctx.fillStyle = '#8B0000';
+            ctx.fillStyle = PALETTE.status.hs;
             ctx.fillText(`HS ${label.val}`, drawX, hsY);
         }
     }
@@ -1382,7 +1448,7 @@ function drawBarLabels(ctx: CanvasRenderingContext2D, originalBarIndex: number, 
 }
 
 function drawGogoIndicator(ctx: CanvasRenderingContext2D, x: number, y: number, height: number, width: number, gogoTime: boolean, gogoChanges: GogoChange[] | undefined, noteCount: number): void {
-    const GOGO_COLOR = '#f8a33cff';
+    const GOGO_COLOR = PALETTE.gogo;
 
     if (!gogoChanges || gogoChanges.length === 0 || noteCount === 0) {
         // Simple Case
