@@ -1,5 +1,35 @@
 [
   {
+    "hash": "b14897d",
+    "message": "Update version to 0.4.0",
+    "date": "2025-12-24"
+  },
+  {
+    "hash": "c19e9af",
+    "message": "Add over extended region with fade out effect to the start and end of each bar line.",
+    "date": "2025-12-24"
+  },
+  {
+    "hash": "50cf89f",
+    "message": "Add a grey background color to rendered chart. Update barlines to white. Make branch start vertical line color extend over the top of bar.",
+    "date": "2025-12-24"
+  },
+  {
+    "hash": "6ff677f",
+    "message": "Support rendering all branches stacked.",
+    "date": "2025-12-24"
+  },
+  {
+    "hash": "796a475",
+    "message": "Refactor: extract color constants to PALETTE and update chart background.",
+    "date": "2025-12-24"
+  },
+  {
+    "hash": "755cf5f",
+    "message": "Use bar strip for Gogo time and background color for branching.",
+    "date": "2025-12-24"
+  },
+  {
     "hash": "2257b55",
     "message": "Fix bug where #MEASURE in branches caused incorrect branch parsing.",
     "date": "2025-12-24"
