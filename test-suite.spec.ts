@@ -1096,5 +1096,221 @@ test.describe('Annotation Interaction', () => {
         await canvas.click({ position: notePos });
         await expect(canvas).toHaveScreenshot('annotation-none.png');
     });
+
+    test('Auto Annotate Logic', async ({ page }) => {
+        await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
+        
+        const canvas = page.locator('#chart-canvas');
+        await expect(canvas).toBeVisible();
+
+        // Switch to File Tab
+        await page.click('button[data-mode="file"]');
+        
+        // Pattern: Q, Q, Q, Q (Last Q annotated), E, E (Not annotated)
+        // 100100100100 -> Q, Q, Q, Q
+        // 10101010 -> E, E, E, E
+        // Q4 gap to Q3 is 1. Q4 gap to E1 is 0.5. 0.5 < 1 -> Annotate Q4.
+        // E1 gap to Q4 is 0.5. Gap to E2 is 0.5. 0.5 < 0.5 False.
+        // E2 gap to E1 is 0.5. Gap to E3 is 0.5. False.
+        const tjaContent = `TITLE:Auto Annotate Test
+BPM:120
+COURSE:Oni
+LEVEL:10
+#START
+1000100010001000,
+1010101010101010,
+#END`;
+        
+        await page.locator('#tja-file-picker').setInputFiles({
+            name: 'auto_annotate.tja',
+            mimeType: 'text/plain',
+            buffer: Buffer.from(tjaContent)
+        });
+        
+        await page.waitForTimeout(500);
+
+        // Switch to Annotation Tab
+        await page.click('button[data-do-tab="annotation"]');
+        
+        // Click Auto Annotate
+        await page.click('#auto-annotate-btn');
+        await page.waitForTimeout(500);
+        
+        // Snapshot
+        await expect(canvas).toHaveScreenshot('auto-annotate-result.png');
+    });
+
+    test('Rule: Gap Decrease but >= Quarter Note (Half -> Quarter)', async ({ page }) => {
+        await page.goto('/');
+        await page.waitForTimeout(500);
+        
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
+
+        const canvas = page.locator('#chart-canvas');
+        await expect(canvas).toBeVisible();
+
+        const tjaContent = `TITLE:Half to Quarter
+BPM:120
+COURSE:Oni
+LEVEL:10
+#START
+1000000010000000,
+1000100010001000,
+#END`;
+        
+        await page.click('button[data-mode="file"]');
+        await page.locator('#tja-file-picker').setInputFiles({
+            name: 'rule_half_quarter.tja',
+            mimeType: 'text/plain',
+            buffer: Buffer.from(tjaContent)
+        });
+        await page.waitForTimeout(500);
+
+        await page.click('button[data-do-tab="annotation"]');
+        await page.click('#auto-annotate-btn');
+        await page.waitForTimeout(500);
+
+        await expect(canvas).toHaveScreenshot('rule-half-quarter.png');
+    });
+
+    test('Rule: Gap Decrease and < Quarter Note (Quarter -> Eighth)', async ({ page }) => {
+        await page.goto('/');
+        await page.waitForTimeout(500);
+        
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
+
+        const canvas = page.locator('#chart-canvas');
+        await expect(canvas).toBeVisible();
+
+        const tjaContent = `TITLE:Quarter to Eighth
+BPM:120
+COURSE:Oni
+LEVEL:10
+#START
+1000100010001000,
+1010101010101010,
+#END`;
+        
+        await page.click('button[data-mode="file"]');
+        await page.locator('#tja-file-picker').setInputFiles({
+            name: 'rule_quarter_eighth.tja',
+            mimeType: 'text/plain',
+            buffer: Buffer.from(tjaContent)
+        });
+        await page.waitForTimeout(500);
+
+        await page.click('button[data-do-tab="annotation"]');
+        await page.click('#auto-annotate-btn');
+        await page.waitForTimeout(500);
+
+        await expect(canvas).toHaveScreenshot('rule-quarter-eighth.png');
+    });
+
+    test('Rule: Gap Decrease and < Quarter Note (Eighth -> Sixteenth)', async ({ page }) => {
+        await page.goto('/');
+        await page.waitForTimeout(500);
+        
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
+
+        const canvas = page.locator('#chart-canvas');
+        await expect(canvas).toBeVisible();
+
+        const tjaContent = `TITLE:Eighth to Sixteenth
+BPM:120
+COURSE:Oni
+LEVEL:10
+#START
+1010101010101010,
+1111111111111111,
+#END`;
+        
+        await page.click('button[data-mode="file"]');
+        await page.locator('#tja-file-picker').setInputFiles({
+            name: 'rule_eighth_sixteenth.tja',
+            mimeType: 'text/plain',
+            buffer: Buffer.from(tjaContent)
+        });
+        await page.waitForTimeout(500);
+
+        await page.click('button[data-do-tab="annotation"]');
+        await page.click('#auto-annotate-btn');
+        await page.waitForTimeout(500);
+
+        await expect(canvas).toHaveScreenshot('rule-eighth-sixteenth.png');
+    });
 });
 

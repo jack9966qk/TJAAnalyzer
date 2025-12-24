@@ -152,7 +152,7 @@ const DEFAULT_TEXTS: RenderTexts = {
     }
 };
 
-function calculateInferredHands(bars: string[][], annotations: Record<string, string> | undefined): Map<string, string> {
+export function calculateInferredHands(bars: string[][], annotations: Record<string, string> | undefined): Map<string, string> {
     const inferred = new Map<string, string>();
     let lastHand = 'L'; // Initialize to L so the first note (which triggers reset or flip) can become R
     let shouldResetToRight = true;

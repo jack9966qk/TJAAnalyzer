@@ -1,7 +1,7 @@
 import { parseTJA, ParsedChart } from './tja-parser.js';
 import { generateTJAFromSelection } from './tja-exporter.js';
 import { shareFile } from './file-share.js';
-import { renderChart, getNoteAt, HitInfo, getGradientColor, JudgementVisibility, ViewOptions, RenderTexts, exportChartImage, PALETTE } from './renderer.js';
+import { renderChart, getNoteAt, HitInfo, getGradientColor, JudgementVisibility, ViewOptions, RenderTexts, exportChartImage, PALETTE, calculateInferredHands } from './renderer.js';
 import { exampleTJA } from './example-data.js';
 import { JudgementClient, ServerEvent } from './judgement-client.js';
 import { i18n } from './i18n.js';
@@ -89,6 +89,7 @@ const clearSelectionBtn = document.getElementById('clear-selection-btn') as HTML
 const exportSelectionBtn = document.getElementById('export-selection-btn') as HTMLButtonElement;
 
 const clearAnnotationsBtn = document.getElementById('clear-annotations-btn') as HTMLButtonElement;
+const autoAnnotateBtn = document.getElementById('auto-annotate-btn') as HTMLButtonElement;
 const chartModeStatus = document.getElementById('chart-mode-status') as HTMLSpanElement;
 
 // Data Source UI
@@ -948,6 +949,12 @@ function init(): void {
         clearAnnotationsBtn.addEventListener('click', () => {
             annotations = {};
             refreshChart();
+        });
+    }
+
+    if (autoAnnotateBtn) {
+        autoAnnotateBtn.addEventListener('click', () => {
+            performAutoAnnotation();
         });
     }
 
@@ -1954,6 +1961,101 @@ function refreshChart() {
 
         renderChart(currentChart, canvas, judgements, judgementDeltas, viewOptions, texts);
         updateLoopControls();
+    }
+}
+
+function performAutoAnnotation() {
+    if (!currentChart) return;
+    
+    // Pass current annotations so inference respects them (source of truth rule)
+    const inferred = calculateInferredHands(currentChart.bars, annotations);
+
+    interface NoteTiming {
+        id: string;
+        beat: number;
+        hand: string;
+    }
+
+    const notes: NoteTiming[] = [];
+    let currentBeat = 0;
+    
+    for (let i = 0; i < currentChart.bars.length; i++) {
+        const bar = currentChart.bars[i];
+        const params = currentChart.barParams[i];
+        // Default measure ratio is 1.0 (4/4)
+        const measureRatio = params ? params.measureRatio : 1.0;
+        const barLengthBeats = 4 * measureRatio;
+        
+        if (bar && bar.length > 0) {
+            const step = barLengthBeats / bar.length;
+            for (let j = 0; j < bar.length; j++) {
+                const char = bar[j];
+                // Only Don/Ka (Small/Large) are annotatable
+                if (['1', '2', '3', '4'].includes(char)) {
+                    const id = `${i}_${j}`;
+                    const hand = inferred.get(id);
+                    if (hand) {
+                         notes.push({ id, beat: currentBeat + (j * step), hand });
+                    }
+                }
+            }
+        }
+        currentBeat += barLengthBeats;
+    }
+
+    // Identify notes to annotate
+    const toAnnotate = new Set<string>();
+    
+    for (let k = 0; k < notes.length; k++) {
+        const note = notes[k];
+        
+        // 1. First note
+        if (k === 0) {
+            toAnnotate.add(note.id);
+            continue;
+        }
+        
+        // 2. Gap logic
+        // We need next note to compare gaps
+        if (k < notes.length - 1) {
+            const prev = notes[k-1];
+            const next = notes[k+1];
+            
+            const gapPrev = note.beat - prev.beat;
+            const gapNext = next.beat - note.beat;
+
+            // Get measure ratio for current note to determine "quarter note" duration (1/4 of a bar)
+            const [barIdxStr] = note.id.split('_');
+            const barIdx = parseInt(barIdxStr, 10);
+            const params = currentChart.barParams[barIdx];
+            const measureRatio = params ? params.measureRatio : 1.0;
+            // 1/4 of a bar = (4 * measureRatio) / 4 = measureRatio (in beats)
+            const quarterNoteGap = measureRatio;
+            
+            // "if the gap between it and the next note is smaller than the gap between it and the previous note"
+            // AND "gap to next note has to be smaller than a forth note"
+            // Use a small epsilon for float comparison stability
+            if (gapNext < gapPrev - 0.0001 && gapNext < quarterNoteGap - 0.0001) {
+                toAnnotate.add(note.id);
+            }
+        }
+    }
+    
+    // Update annotations
+    let changed = false;
+    toAnnotate.forEach(id => {
+        const hand = inferred.get(id);
+        if (hand && annotations[id] !== hand) {
+            annotations[id] = hand;
+            changed = true;
+        } else if (hand && !annotations[id]) {
+            annotations[id] = hand;
+            changed = true;
+        }
+    });
+    
+    if (changed) {
+        refreshChart();
     }
 }
 
