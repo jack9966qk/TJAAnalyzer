@@ -56,6 +56,7 @@ const resources: Resources = {
         'branch.normal': 'Normal Chart',
         'branch.expert': 'Professional Chart',
         'branch.master': 'Master Chart',
+        'branch.all': 'All Branches',
 
         'ui.tab.view': 'View',
         'ui.tab.judgements': 'Judgements',
@@ -64,6 +65,7 @@ const resources: Resources = {
         'ui.judgement.notActive': 'Judgements are only displayed when a stream is active.',
         'ui.stream.waitingStart': 'Waiting for game to start...',
         'ui.judgement.branchingNotSupported': 'Judgement display for chart branching is not yet supported.',
+        'ui.error.branchAllMode': 'Selection/annotation cannot be done when displaying multiple branches, please select a single branch to display.',
         'ui.difficulty.easy': 'Easy',
         'ui.difficulty.normal': 'Normal',
         'ui.difficulty.hard': 'Hard',
@@ -163,6 +165,7 @@ const resources: Resources = {
         'branch.normal': '普通谱面',
         'branch.expert': '玄人谱面',
         'branch.master': '达人谱面',
+        'branch.all': '全部分歧',
 
         'ui.tab.view': '视图',
         'ui.tab.judgements': '判定',
@@ -171,6 +174,7 @@ const resources: Resources = {
         'ui.judgement.notActive': '判定仅在流活动时显示。',
         'ui.stream.waitingStart': '等待游戏开始...',
         'ui.judgement.branchingNotSupported': '暂不支持分歧谱面的判定显示。',
+        'ui.error.branchAllMode': '显示多个分歧时无法进行选择/标注，请选择单个分歧进行显示。',
         'ui.difficulty.easy': '简单',
         'ui.difficulty.normal': '普通',
         'ui.difficulty.hard': '困难',

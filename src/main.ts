@@ -710,20 +710,28 @@ function updateBranchSelectorState(resetBranch: boolean = false) {
     if (rootChart.branches) {
         branchSelectorContainer.hidden = false;
         if (resetBranch) {
-            branchSelector.value = 'normal';
+            branchSelector.value = 'all';
         }
         
-        const branchType = branchSelector.value as 'normal' | 'expert' | 'master';
-        // Note: rootChart.branches.normal is the rootChart itself usually
-        const target = rootChart.branches[branchType];
-        if (target) {
-            currentChart = target;
-        } else {
-            // Fallback
+        const branchType = branchSelector.value;
+        
+        if (branchType === 'all') {
+            viewOptions.showAllBranches = true;
             currentChart = rootChart;
+        } else {
+            viewOptions.showAllBranches = false;
+            // Note: rootChart.branches.normal is the rootChart itself usually
+            const target = rootChart.branches[branchType as 'normal' | 'expert' | 'master'];
+            if (target) {
+                currentChart = target;
+            } else {
+                // Fallback
+                currentChart = rootChart;
+            }
         }
     } else {
         branchSelectorContainer.hidden = true;
+        viewOptions.showAllBranches = false;
         currentChart = rootChart;
     }
     
@@ -1369,29 +1377,30 @@ function init(): void {
 
     // Canvas Interaction
     
-        const handleCanvasInteraction = (event: MouseEvent) => {
+                const handleCanvasInteraction = (event: MouseEvent) => {
+    
+                    if (!currentChart) return;
+    
+                    // Check active tab
+                    const activeTab = document.querySelector('#chart-options-panel .panel-tab.active');
+                    const mode = activeTab ? activeTab.getAttribute('data-do-tab') : 'view';
+                    if (viewOptions.showAllBranches && (mode === 'annotation' || mode === 'selection')) {
+                        canvas.style.cursor = 'default';
+                        return;
+                    }    
 
-            if (!currentChart) return;
-
-            
-
-            const rect = canvas.getBoundingClientRect();
-
-            const x = event.clientX - rect.left;
-
-            const y = event.clientY - rect.top;
-
-            
-
-            const hit = getNoteAt(x, y, currentChart, canvas, judgements, viewOptions);
-
-            
-            if (event.type === 'click') {
-                 // Check active tab
-                 const activeTab = document.querySelector('#chart-options-panel .panel-tab.active');
-                 const mode = activeTab ? activeTab.getAttribute('data-do-tab') : 'view';
-
-                 if (mode === 'annotation') {
+                    const rect = canvas.getBoundingClientRect();        
+                    const x = event.clientX - rect.left;
+                    const y = event.clientY - rect.top;
+                    const hit = getNoteAt(x, y, currentChart, canvas, judgements, viewOptions);
+    
+        
+    
+                    
+    
+                    if (event.type === 'click') {
+    
+                         if (mode === 'annotation') {
                       if (hit && ['1', '2', '3', '4'].includes(hit.type)) {
                            const noteId = `${hit.originalBarIndex}_${hit.charIndex}`;
                            const current = annotations[noteId];
@@ -1850,6 +1859,33 @@ function refreshChart() {
     }
 
     if (currentChart) {
+        // Determine mode for checks
+        const activeTab = document.querySelector('#chart-options-panel .panel-tab.active');
+        const mode = activeTab ? activeTab.getAttribute('data-do-tab') : 'view';
+
+        // 1. Check for All Branches + Selection/Annotation Mode
+        if (viewOptions.showAllBranches && (mode === 'selection' || mode === 'annotation')) {
+            const width = canvas.clientWidth || 800;
+            const height = 400;
+            canvas.width = width;
+            canvas.height = height;
+            canvas.style.height = height + 'px';
+            
+            ctx.fillStyle = PALETTE.ui.warning.background;
+            ctx.fillRect(0, 0, width, height);
+            
+            ctx.fillStyle = PALETTE.ui.warning.text;
+            ctx.font = 'bold 20px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            const msg = i18n.t('ui.error.branchAllMode');
+            ctx.fillText(msg, width / 2, height / 2);
+            
+            updateLoopControls();
+            return;
+        }
+
         // 2. Check for Branching + Judgement Mode
         const isJudgementMode = viewOptions.viewMode.startsWith('judgements');
         const hasBranching = currentChart.branchType !== undefined || (currentChart.branches !== undefined);
@@ -1914,9 +1950,6 @@ function refreshChart() {
         // Update viewOptions annotations
         viewOptions.annotations = annotations;
         
-        // Determine annotation mode state
-        const activeTab = document.querySelector('#chart-options-panel .panel-tab.active');
-        const mode = activeTab ? activeTab.getAttribute('data-do-tab') : 'view';
         viewOptions.isAnnotationMode = (mode === 'annotation');
 
         renderChart(currentChart, canvas, judgements, judgementDeltas, viewOptions, texts);
