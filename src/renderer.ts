@@ -534,14 +534,15 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
         const gogoTime = params ? params.gogoTime : false;
         const gogoChanges = params ? params.gogoChanges : undefined;
         const noteCount = info.bar ? info.bar.length : 0;
+        const isBranched = params ? params.isBranched : false;
         
-        drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, gogoTime, gogoChanges, noteCount);
+        drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, isBranched, chart.branchType);
         
-        // Draw Branch Indicator
-        if (params && params.isBranched) {
+        // Draw Gogo Indicator
+        if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
             const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
             const stripY = layout.y - stripHeight - (constants.LW_BAR / 2);
-            drawBranchIndicator(ctx, layout.x, stripY, stripHeight, layout.width, chart.branchType || 'normal');
+            drawGogoIndicator(ctx, layout.x, stripY, stripHeight, layout.width, gogoTime, gogoChanges, noteCount);
         }
 
         // Draw Bar Labels (Number, BPM, HS)
@@ -667,48 +668,19 @@ function drawChartHeader(ctx: CanvasRenderingContext2D, chart: ParsedChart, x: n
     ctx.restore();
 }
 
-function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, borderW: number, centerW: number, gogoTime: boolean, gogoChanges: GogoChange[] | undefined, noteCount: number): void {
+function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, borderW: number, centerW: number, isBranched: boolean, branchType: string = 'normal'): void {
     const centerY: number = y + height / 2;
-    const GOGO_COLOR = '#b5774a';
-    const NORMAL_COLOR = '#999';
-
-    // 1. Fill Background
-    if (!gogoChanges || gogoChanges.length === 0 || noteCount === 0) {
-        // Simple Case
-        ctx.fillStyle = gogoTime ? GOGO_COLOR : NORMAL_COLOR;
-        ctx.fillRect(x, y, width, height);
-    } else {
-        // Split Background
-        let currentX = x;
-        let isGogo = gogoTime;
-
-        // Sort changes by index just in case
-        const sortedChanges = [...gogoChanges].sort((a, b) => a.index - b.index);
-
-        for (const change of sortedChanges) {
-            // Calculate pixel position of change
-            // change.index is char index. 0 is start of bar.
-            // noteCount is total chars.
-            // Position = x + (index / noteCount) * width
-            
-            const nextX = x + (change.index / noteCount) * width;
-            
-            // Draw segment from currentX to nextX
-            if (nextX > currentX) {
-                ctx.fillStyle = isGogo ? GOGO_COLOR : NORMAL_COLOR;
-                ctx.fillRect(currentX, y, nextX - currentX, height);
-            }
-            
-            currentX = nextX;
-            isGogo = change.isGogo;
-        }
-
-        // Draw remaining segment
-        if (currentX < x + width) {
-            ctx.fillStyle = isGogo ? GOGO_COLOR : NORMAL_COLOR;
-            ctx.fillRect(currentX, y, (x + width) - currentX, height);
-        }
+    
+    let fillColor = '#999';
+    if (isBranched) {
+        if (branchType === 'normal') fillColor = '#2C2C2C'; // Normal
+        if (branchType === 'expert') fillColor = '#284E6A'; // Professional
+        else if (branchType === 'master') fillColor = '#752168'; // Master
     }
+    
+    // 1. Fill Background
+    ctx.fillStyle = fillColor;
+    ctx.fillRect(x, y, width, height);
     
     // Draw Bar Border
     ctx.strokeStyle = '#000';
@@ -1409,12 +1381,37 @@ function drawBarLabels(ctx: CanvasRenderingContext2D, originalBarIndex: number, 
     ctx.restore();
 }
 
-function drawBranchIndicator(ctx: CanvasRenderingContext2D, x: number, y: number, height: number, width: number, branchType: string): void {
-    let color = '#c4c4c4ff'; // Grey (Normal)
-    if (branchType === 'expert') color = '#96c9edff'; // Blue
-    else if (branchType === 'master') color = '#e189ecff'; // Pink/Red
+function drawGogoIndicator(ctx: CanvasRenderingContext2D, x: number, y: number, height: number, width: number, gogoTime: boolean, gogoChanges: GogoChange[] | undefined, noteCount: number): void {
+    const GOGO_COLOR = '#f8a33cff';
 
-    ctx.fillStyle = color;
-    // Position: above the bar, covering width
-    ctx.fillRect(x, y, width, height);
+    if (!gogoChanges || gogoChanges.length === 0 || noteCount === 0) {
+        // Simple Case
+        if (gogoTime) {
+            ctx.fillStyle = GOGO_COLOR;
+            ctx.fillRect(x, y, width, height);
+        }
+    } else {
+        // Split Logic
+        let currentX = x;
+        let isGogo = gogoTime;
+
+        // Sort changes by index just in case
+        const sortedChanges = [...gogoChanges].sort((a, b) => a.index - b.index);
+
+        for (const change of sortedChanges) {
+            const nextX = x + (change.index / noteCount) * width;
+            
+            if (nextX > currentX && isGogo) {
+                ctx.fillStyle = GOGO_COLOR;
+                ctx.fillRect(currentX, y, nextX - currentX, height);
+            }
+            currentX = nextX;
+            isGogo = change.isGogo;
+        }
+
+        if (currentX < x + width && isGogo) {
+            ctx.fillStyle = GOGO_COLOR;
+            ctx.fillRect(currentX, y, (x + width) - currentX, height);
+        }
+    }
 }
