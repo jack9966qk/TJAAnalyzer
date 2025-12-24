@@ -653,6 +653,24 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
         const gogoChanges = params ? params.gogoChanges : undefined;
         const noteCount = info.bar ? info.bar.length : 0;
         const isBranched = params ? params.isBranched : false;
+
+        // Detect neighbors for over-extension
+        let hasLeftNeighbor = false;
+        if (index > 0) {
+            const prevLayout = layouts[index - 1];
+            if (Math.abs(prevLayout.y - layout.y) < 1.0) {
+                hasLeftNeighbor = true;
+            }
+        }
+        let hasRightNeighbor = false;
+        if (index < virtualBars.length - 1) {
+            const nextLayout = layouts[index + 1];
+            if (Math.abs(nextLayout.y - layout.y) < 1.0) {
+                hasRightNeighbor = true;
+            }
+        }
+
+        const overExtendWidth = 2 * constants.NOTE_RADIUS_SMALL;
         
         // Detect Branch Start
         let isBranchStart = false;
@@ -670,9 +688,9 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
                  const subHeight = BASE_LANE_HEIGHT; 
                  
                  // Draw 3 lanes
-                 drawBarBackground(ctx, layout.x, layout.y, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, 'normal');
-                 drawBarBackground(ctx, layout.x, layout.y + subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, 'expert');
-                 drawBarBackground(ctx, layout.x, layout.y + 2*subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, 'master');
+                 drawBarBackground(ctx, layout.x, layout.y, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, 'normal', !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+                 drawBarBackground(ctx, layout.x, layout.y + subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, 'expert', !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+                 drawBarBackground(ctx, layout.x, layout.y + 2*subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, 'master', !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
 
                  // Yellow Branch Start Line
                  if (isBranchStart) {
@@ -687,7 +705,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
              } else {
                  // Unbranched (Common) Bar
                  // layout.height should be H (single lane)
-                 drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, false, 'normal');
+                 drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, false, 'normal', !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
              }
 
              // Common Elements for All Branches Mode (Gogo, Labels, Loop)
@@ -697,7 +715,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
              if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
                 const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
                 const stripY = layout.y - stripHeight - (constants.LW_BAR / 2);
-                drawGogoIndicator(ctx, layout.x, stripY, stripHeight, layout.width, gogoTime, gogoChanges, noteCount);
+                drawGogoIndicator(ctx, layout.x, stripY, stripHeight, layout.width, gogoTime, gogoChanges, noteCount, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
              }
 
              // Draw Bar Labels
@@ -719,7 +737,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
 
         } else {
             // Standard View
-            drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, isBranched, chart.branchType);
+            drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, isBranched, chart.branchType, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
             
             // Yellow Branch Start Line (Standard View)
             if (isBranchStart) {
@@ -735,7 +753,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
             if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
                 const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
                 const stripY = layout.y - stripHeight - (constants.LW_BAR / 2);
-                drawGogoIndicator(ctx, layout.x, stripY, stripHeight, layout.width, gogoTime, gogoChanges, noteCount);
+                drawGogoIndicator(ctx, layout.x, stripY, stripHeight, layout.width, gogoTime, gogoChanges, noteCount, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
             }
 
             // Draw Bar Labels (Number, BPM, HS)
@@ -914,7 +932,7 @@ function drawChartHeader(ctx: CanvasRenderingContext2D, chart: ParsedChart, x: n
     ctx.restore();
 }
 
-function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, borderW: number, centerW: number, isBranched: boolean, branchType: string = 'normal'): void {
+function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, borderW: number, centerW: number, isBranched: boolean, branchType: string = 'normal', drawLeftExt: boolean = false, drawRightExt: boolean = false, overExtendWidth: number = 0): void {
     const centerY: number = y + height / 2;
     
     let fillColor = PALETTE.branches.default;
@@ -922,6 +940,89 @@ function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, 
         if (branchType === 'normal') fillColor = PALETTE.branches.normal; // Normal
         if (branchType === 'expert') fillColor = PALETTE.branches.expert; // Professional
         else if (branchType === 'master') fillColor = PALETTE.branches.master; // Master
+    }
+
+    // Helper for extensions
+    const drawExtension = (exX: number, exW: number, isLeft: boolean) => {
+        // 1. Background Gradient
+        const grad = ctx.createLinearGradient(exX, y, exX + exW, y);
+        const cSolid = hexToRgba(fillColor, 1);
+        const cMid = hexToRgba(fillColor, 0.2);
+        const cTrans = hexToRgba(fillColor, 0);
+        
+        if (isLeft) {
+            grad.addColorStop(0, cTrans);
+            grad.addColorStop(0.25, cMid);
+            grad.addColorStop(0.5, cSolid);
+            grad.addColorStop(1, cSolid);
+        } else {
+            grad.addColorStop(0, cSolid);
+            grad.addColorStop(0.5, cSolid);
+            grad.addColorStop(0.75, cMid);
+            grad.addColorStop(1, cTrans);
+        }
+        
+        ctx.fillStyle = grad;
+        ctx.fillRect(exX, y, exW, height);
+        
+        // 2. Horizontal Borders Gradient
+        const borderGrad = ctx.createLinearGradient(exX, y, exX + exW, y);
+        const bcSolid = hexToRgba(PALETTE.ui.barBorder, 1);
+        const bcMid = hexToRgba(PALETTE.ui.barBorder, 0.2);
+        const bcTrans = hexToRgba(PALETTE.ui.barBorder, 0);
+
+        if (isLeft) {
+            borderGrad.addColorStop(0, bcTrans);
+            borderGrad.addColorStop(0.25, bcMid);
+            borderGrad.addColorStop(0.5, bcSolid);
+            borderGrad.addColorStop(1, bcSolid);
+        } else {
+            borderGrad.addColorStop(0, bcSolid);
+            borderGrad.addColorStop(0.5, bcSolid);
+            borderGrad.addColorStop(0.75, bcMid);
+            borderGrad.addColorStop(1, bcTrans);
+        }
+        
+        ctx.strokeStyle = borderGrad;
+        ctx.lineWidth = borderW;
+        ctx.beginPath();
+        ctx.moveTo(exX, y);
+        ctx.lineTo(exX + exW, y);
+        ctx.moveTo(exX, y + height);
+        ctx.lineTo(exX + exW, y + height);
+        ctx.stroke();
+
+        // 3. Center Line Gradient
+        const centerGrad = ctx.createLinearGradient(exX, y, exX + exW, y);
+        const ccSolid = hexToRgba(PALETTE.ui.centerLine, 1);
+        const ccMid = hexToRgba(PALETTE.ui.centerLine, 0.2);
+        const ccTrans = hexToRgba(PALETTE.ui.centerLine, 0);
+
+        if (isLeft) {
+            centerGrad.addColorStop(0, ccTrans);
+            centerGrad.addColorStop(0.25, ccMid);
+            centerGrad.addColorStop(0.5, ccSolid);
+            centerGrad.addColorStop(1, ccSolid);
+        } else {
+            centerGrad.addColorStop(0, ccSolid);
+            centerGrad.addColorStop(0.5, ccSolid);
+            centerGrad.addColorStop(0.75, ccMid);
+            centerGrad.addColorStop(1, ccTrans);
+        }
+
+        ctx.strokeStyle = centerGrad;
+        ctx.lineWidth = centerW;
+        ctx.beginPath();
+        ctx.moveTo(exX, centerY);
+        ctx.lineTo(exX + exW, centerY);
+        ctx.stroke();
+    };
+
+    if (drawLeftExt && overExtendWidth > 0) {
+        drawExtension(x - overExtendWidth, overExtendWidth, true);
+    }
+    if (drawRightExt && overExtendWidth > 0) {
+        drawExtension(x + width, overExtendWidth, false);
     }
     
     // 1. Fill Background
@@ -955,6 +1056,25 @@ function drawBarBackground(ctx: CanvasRenderingContext2D, x: number, y: number, 
     ctx.moveTo(x, centerY);
     ctx.lineTo(x + width, centerY);
     ctx.stroke();
+}
+
+function hexToRgba(hex: string, alpha: number): string {
+    const h = hex.replace('#', '');
+    let r = 0, g = 0, b = 0;
+    if (h.length === 3) {
+        r = parseInt(h[0] + h[0], 16);
+        g = parseInt(h[1] + h[1], 16);
+        b = parseInt(h[2] + h[2], 16);
+    } else if (h.length === 6) {
+        r = parseInt(h.substring(0, 2), 16);
+        g = parseInt(h.substring(2, 4), 16);
+        b = parseInt(h.substring(4, 6), 16);
+    } else if (h.length === 8) {
+        r = parseInt(h.substring(0, 2), 16);
+        g = parseInt(h.substring(2, 4), 16);
+        b = parseInt(h.substring(4, 6), 16);
+    }
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 function calculateBalloonIndices(bars: string[][]): Map<string, number> {
@@ -1645,22 +1765,43 @@ function drawBarLabels(ctx: CanvasRenderingContext2D, originalBarIndex: number, 
     ctx.restore();
 }
 
-function drawGogoIndicator(ctx: CanvasRenderingContext2D, x: number, y: number, height: number, width: number, gogoTime: boolean, gogoChanges: GogoChange[] | undefined, noteCount: number): void {
+function drawGogoIndicator(ctx: CanvasRenderingContext2D, x: number, y: number, height: number, width: number, gogoTime: boolean, gogoChanges: GogoChange[] | undefined, noteCount: number, drawLeftExt: boolean = false, drawRightExt: boolean = false, overExtendWidth: number = 0): void {
     const GOGO_COLOR = PALETTE.gogo;
 
-    if (!gogoChanges || gogoChanges.length === 0 || noteCount === 0) {
-        // Simple Case
-        if (gogoTime) {
-            ctx.fillStyle = GOGO_COLOR;
-            ctx.fillRect(x, y, width, height);
+    // Helper for extensions
+    const drawExtension = (exX: number, exW: number, isLeft: boolean) => {
+        const grad = ctx.createLinearGradient(exX, y, exX + exW, y);
+        const cSolid = hexToRgba(GOGO_COLOR, 1);
+        const cMid = hexToRgba(GOGO_COLOR, 0.2);
+        const cTrans = hexToRgba(GOGO_COLOR, 0);
+        
+        if (isLeft) {
+            grad.addColorStop(0, cTrans);
+            grad.addColorStop(0.25, cMid);
+            grad.addColorStop(0.5, cSolid);
+            grad.addColorStop(1, cSolid);
+        } else {
+            grad.addColorStop(0, cSolid);
+            grad.addColorStop(0.5, cSolid);
+            grad.addColorStop(0.75, cMid);
+            grad.addColorStop(1, cTrans);
         }
-    } else {
+        
+        ctx.fillStyle = grad;
+        ctx.fillRect(exX, y, exW, height);
+    };
+
+    let isStartGogo = gogoTime;
+    let isEndGogo = gogoTime;
+
+    if (gogoChanges && gogoChanges.length > 0) {
+        // Sort changes by index just in case
+        const sortedChanges = [...gogoChanges].sort((a, b) => a.index - b.index);
+        isEndGogo = sortedChanges[sortedChanges.length - 1].isGogo;
+        
         // Split Logic
         let currentX = x;
         let isGogo = gogoTime;
-
-        // Sort changes by index just in case
-        const sortedChanges = [...gogoChanges].sort((a, b) => a.index - b.index);
 
         for (const change of sortedChanges) {
             const nextX = x + (change.index / noteCount) * width;
@@ -1677,5 +1818,19 @@ function drawGogoIndicator(ctx: CanvasRenderingContext2D, x: number, y: number, 
             ctx.fillStyle = GOGO_COLOR;
             ctx.fillRect(currentX, y, (x + width) - currentX, height);
         }
+    } else {
+        // Simple Case
+        if (gogoTime) {
+            ctx.fillStyle = GOGO_COLOR;
+            ctx.fillRect(x, y, width, height);
+        }
+    }
+
+    // Draw Extensions
+    if (isStartGogo && drawLeftExt && overExtendWidth > 0) {
+        drawExtension(x - overExtendWidth, overExtendWidth, true);
+    }
+    if (isEndGogo && drawRightExt && overExtendWidth > 0) {
+        drawExtension(x + width, overExtendWidth, false);
     }
 }
