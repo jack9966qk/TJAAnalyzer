@@ -87,7 +87,6 @@ const doTabs = document.querySelectorAll('#chart-options-panel .panel-tab');
 const doPanes = document.querySelectorAll('#chart-options-panel .panel-pane');
 const clearSelectionBtn = document.getElementById('clear-selection-btn') as HTMLButtonElement;
 const exportSelectionBtn = document.getElementById('export-selection-btn') as HTMLButtonElement;
-const exportImageBtn = document.getElementById('export-image-btn') as HTMLButtonElement;
 
 const clearAnnotationsBtn = document.getElementById('clear-annotations-btn') as HTMLButtonElement;
 const chartModeStatus = document.getElementById('chart-mode-status') as HTMLSpanElement;
@@ -904,8 +903,9 @@ function init(): void {
         });
     }
 
-    if (exportImageBtn) {
-        exportImageBtn.addEventListener('click', async () => {
+    const exportImageBtns = document.querySelectorAll('.export-image-trigger');
+    exportImageBtns.forEach(btn => {
+        btn.addEventListener('click', async () => {
             if (!currentChart) return;
             
             try {
@@ -942,7 +942,7 @@ function init(): void {
                 updateStatus('status.exportImageFailed');
             }
         });
-    }
+    });
     
     if (clearAnnotationsBtn) {
         clearAnnotationsBtn.addEventListener('click', () => {
