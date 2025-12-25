@@ -9,234 +9,240 @@
 </head>
 <body>
     <div id="app">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding-right: 20px;">
-            <h1>TJA Analyzer</h1>
-            <select id="language-selector">
-                <option value="en">English</option>
-                <option value="zh">中文</option>
-            </select>
-        </div>
-        
-        <div id="data-source-panel">
-            <div class="panel-header">
-                <div class="panel-header-left">
-                    <h2 data-i18n="ui.dataSource">Data Source</h2>
-                    <span id="status-display" data-i18n="status.initializing">Initializing...</span>
-                </div>
-                <button id="ds-collapse-btn" data-i18n="ui.expand">Expand</button>
+        <div id="controls-container">
+            <div class="app-header">
+                <h1>TJA Analyzer</h1>
+                <select id="language-selector">
+                    <option value="en">English</option>
+                    <option value="zh">中文</option>
+                </select>
             </div>
             
-            <div id="ds-body" class="panel-body collapsed">
-                <div class="panel-tabs">
-                    <button class="panel-tab" data-mode="example" data-i18n="ui.tab.example">Example</button>
-                    <button class="panel-tab" data-mode="file" data-i18n="ui.tab.file">Local File</button>
-                    <button class="panel-tab" data-mode="stream" data-i18n="ui.tab.stream">Remote Stream</button>
-                    <button class="panel-tab" data-mode="test" data-i18n="ui.tab.test">Test Stream</button>
-                    <button class="panel-tab" data-mode="ese">ESE</button>
-                </div>
-
-                <div class="panel-content">
-                    <!-- Example Mode -->
-                    <div id="tab-example" class="panel-pane">
-                        <p data-i18n="ui.example.desc">Load the built-in example chart for demonstration.</p>
-                        <button id="load-example-btn" data-i18n="ui.example.load">Load Example Data</button>
-                    </div>
-
-                    <!-- File Mode -->
-                    <div id="tab-file" class="panel-pane" style="display:none;">
-                        <div class="control-group">
-                            <label for="tja-file-picker" data-i18n="ui.file.label">Select TJA File:</label>
-                            <input type="file" id="tja-file-picker" accept=".tja">
-                        </div>
-                    </div>
-
-                    <!-- ESE Mode -->
-                    <div id="tab-ese" class="panel-pane" style="display:none;">
-                        <div class="control-group">
-                            <input type="text" id="ese-search-input" placeholder="Search TJA files..." style="width: 100%; box-sizing: border-box; padding: 5px;">
-                        </div>
-                        <div class="control-group" style="margin-top: 5px;">
-                             <button id="ese-share-btn" disabled style="width: 100%;" data-i18n="ui.ese.share">Share Current Song</button>
-                        </div>
-                        <div id="ese-results" style="max-height: 200px; overflow-y: auto; margin-top: 10px; border: 1px solid #ddd; background: #fff;">
-                            <div style="padding: 10px; color: #888; font-style: italic;">Search for songs...</div>
-                        </div>
-                    </div>
-
-                    <!-- Stream Mode -->
-                    <div id="tab-stream" class="panel-pane" style="display:none;">
-                        <p data-i18n="ui.stream.desc">Connect to an external program that broadcasts currently played chart and judgement events. For example, <a href="https://github.com/jack9966qk/TJAAnalyzer/releases/tag/OpenTaikoPatched" target="_blank">this patched version</a> of OpenTaiko listens to connections at port 2354 (need to run as admin).</p>
-                        <div class="control-group">
-                            <label><span data-i18n="ui.stream.host">Host:</span> <input type="text" id="host-input" value="127.0.0.1"></label>
-                            <label><span data-i18n="ui.stream.port">Port:</span> <input type="number" id="port-input" value="2354"></label>
-                            <button id="connect-btn" data-i18n="ui.stream.connect">Connect</button>
-                        </div>
-                    </div>
-
-                    <!-- Test Mode -->
-                    <div id="tab-test" class="panel-pane" style="display:none;">
-                        <p data-i18n="ui.test.desc">Simulate incoming judgement events on the currently loaded chart.</p>
-                        <button id="test-stream-btn" data-i18n="ui.test.start">Start Test Stream</button>
-                    </div>
-
-                    <!-- Shared Difficulty Selector -->
-                    <div id="difficulty-selector-container" class="control-group" hidden style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                        <label for="difficulty-selector" data-i18n="ui.difficulty">Difficulty:</label>
-                        <select id="difficulty-selector"></select>
-
-                        <!-- Branch Selector -->
-                        <span id="branch-selector-container" hidden style="margin-left: 20px;">
-                            <label for="branch-selector" data-i18n="ui.branch">Branch:</label>
-                            <select id="branch-selector">
-                                <option value="all" data-i18n="branch.all" selected>All</option>
-                                <option value="normal" data-i18n="branch.normal">Normal</option>
-                                <option value="expert" data-i18n="branch.expert">Expert</option>
-                                <option value="master" data-i18n="branch.master">Master</option>
-                            </select>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div id="sticky-header">
-            <div id="chart-options-panel" class="options-panel">
+            <div id="data-source-panel">
                 <div class="panel-header">
                     <div class="panel-header-left">
-                         <h3 data-i18n="ui.chartOptions">Chart Options</h3>
-                         <span id="chart-mode-status" style="margin-left: 15px; font-weight: normal; color: #666; font-size: 0.9em;"></span>
+                        <h2 data-i18n="ui.dataSource">Data Source</h2>
+                        <span id="status-display" data-i18n="status.initializing">Initializing...</span>
                     </div>
-                    <button id="options-collapse-btn" data-i18n="ui.expand">Expand</button>
+                    <button id="ds-collapse-btn" data-i18n="ui.expand">Expand</button>
                 </div>
-                <div id="options-body" class="panel-body collapsed">
+                
+                <div id="ds-body" class="panel-body collapsed">
                     <div class="panel-tabs">
-                        <button class="panel-tab active" data-do-tab="view" data-i18n="ui.tab.view">View</button>
-                        <button class="panel-tab" data-do-tab="judgements" data-i18n="ui.tab.judgements">Judgements</button>
-                        <button class="panel-tab" data-do-tab="selection" data-i18n="ui.tab.select">Select</button>
-                        <button class="panel-tab" data-do-tab="annotation" data-i18n="ui.tab.annotate">Annotate</button>
+                        <button class="panel-tab" data-mode="example" data-i18n="ui.tab.example">Example</button>
+                        <button class="panel-tab" data-mode="file" data-i18n="ui.tab.file">Local File</button>
+                        <button class="panel-tab" data-mode="stream" data-i18n="ui.tab.stream">Remote Stream</button>
+                        <button class="panel-tab" data-mode="test" data-i18n="ui.tab.test">Test Stream</button>
+                        <button class="panel-tab" data-mode="ese">ESE</button>
                     </div>
-                    
+
                     <div class="panel-content">
-                        <!-- View Options Pane -->
-                        <div id="do-tab-view" class="panel-pane" style="display:flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
-                            <!-- Loop Section -->
-                            <div class="option-section">
-                                <div class="section-main">
-                                    <label><input type="checkbox" id="collapse-loop-checkbox"> <span data-i18n="ui.collapseLoops">Collapse Loops</span></label>
-                                </div>
-                                <div id="loop-controls" class="loop-subs" style="display:none;">
-                                     <label class="auto-check"><input type="checkbox" id="loop-auto" checked> <span data-i18n="ui.auto">Auto</span></label>
-                                     <div class="loop-stepper">
-                                         <button id="loop-prev" class="tiny-btn">&lt;</button>
-                                         <span id="loop-counter">-</span>
-                                         <button id="loop-next" class="tiny-btn">&gt;</button>
-                                     </div>
-                                </div>
-                            </div>
+                        <!-- Example Mode -->
+                        <div id="tab-example" class="panel-pane">
+                            <p data-i18n="ui.example.desc">Load the built-in example chart for demonstration.</p>
+                            <button id="load-example-btn" data-i18n="ui.example.load">Load Example Data</button>
+                        </div>
 
-                            <!-- Zoom Section -->
-                            <div class="option-section border-left">
-                                <div class="section-main">
-                                    <span class="sub-label" style="min-width: auto; margin-right: 10px;" data-i18n="ui.zoom">Zoom:</span>
-                                    <div class="zoom-controls" style="display: flex; align-items: center; gap: 5px;">
-                                        <button id="zoom-out-btn" class="tiny-btn">-</button>
-                                        <button id="zoom-reset-btn" class="tiny-btn" style="font-family: 'Consolas', monospace; min-width: 50px;">100%</button>
-                                        <button id="zoom-in-btn" class="tiny-btn">+</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Stats Section -->
-                            <div class="option-section border-left">
-                                <div class="section-main">
-                                    <label><input type="checkbox" id="show-stats-checkbox" checked> <span data-i18n="ui.showStats">Show Note Stats</span></label>
-                                </div>
-                            </div>
-
-                            <!-- Export Image Section -->
-                            <div class="option-section border-left">
-                                <div class="section-main">
-                                    <button id="export-image-btn" class="control-btn export-image-trigger" data-i18n="ui.exportImage">Save Image</button>
-                                </div>
+                        <!-- File Mode -->
+                        <div id="tab-file" class="panel-pane" style="display:none;">
+                            <div class="control-group">
+                                <label for="tja-file-picker" data-i18n="ui.file.label">Select TJA File:</label>
+                                <input type="file" id="tja-file-picker" accept=".tja">
                             </div>
                         </div>
 
-                        <!-- Judgements Pane -->
-                        <div id="do-tab-judgements" class="panel-pane" style="display:none;">
-                            <div id="judgement-warning" style="color: #666; font-style: italic; margin-bottom: 10px; display: none;" data-i18n="ui.judgement.notActive">
-                                Judgements are only displayed when a stream is active.
+                        <!-- ESE Mode -->
+                        <div id="tab-ese" class="panel-pane" style="display:none;">
+                            <div class="control-group">
+                                <input type="text" id="ese-search-input" placeholder="Search TJA files..." style="width: 100%; box-sizing: border-box; padding: 5px;">
                             </div>
-                            <div id="judgement-controls" style="display:flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+                            <div class="control-group" style="margin-top: 5px;">
+                                 <button id="ese-share-btn" disabled style="width: 100%;" data-i18n="ui.ese.share">Share Current Song</button>
+                            </div>
+                            <div id="ese-results" style="max-height: 200px; overflow-y: auto; margin-top: 10px; border: 1px solid #ddd; background: #fff;">
+                                <div style="padding: 10px; color: #888; font-style: italic;">Search for songs...</div>
+                            </div>
+                        </div>
+
+                        <!-- Stream Mode -->
+                        <div id="tab-stream" class="panel-pane" style="display:none;">
+                            <p data-i18n="ui.stream.desc">Connect to an external program that broadcasts currently played chart and judgement events. For example, <a href="https://github.com/jack9966qk/TJAAnalyzer/releases/tag/OpenTaikoPatched" target="_blank">this patched version</a> of OpenTaiko listens to connections at port 2354 (need to run as admin).</p>
+                            <div class="control-group">
+                                <label><span data-i18n="ui.stream.host">Host:</span> <input type="text" id="host-input" value="127.0.0.1"></label>
+                                <label><span data-i18n="ui.stream.port">Port:</span> <input type="number" id="port-input" value="2354"></label>
+                                <button id="connect-btn" data-i18n="ui.stream.connect">Connect</button>
+                            </div>
+                        </div>
+
+                        <!-- Test Mode -->
+                        <div id="tab-test" class="panel-pane" style="display:none;">
+                            <p data-i18n="ui.test.desc">Simulate incoming judgement events on the currently loaded chart.</p>
+                            <button id="test-stream-btn" data-i18n="ui.test.start">Start Test Stream</button>
+                        </div>
+
+                        <!-- Shared Difficulty Selector -->
+                        <div id="difficulty-selector-container" class="control-group" hidden style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+                            <label for="difficulty-selector" data-i18n="ui.difficulty">Difficulty:</label>
+                            <select id="difficulty-selector"></select>
+
+                            <!-- Branch Selector -->
+                            <span id="branch-selector-container" hidden style="margin-left: 20px;">
+                                <label for="branch-selector" data-i18n="ui.branch">Branch:</label>
+                                <select id="branch-selector">
+                                    <option value="all" data-i18n="branch.all" selected>All</option>
+                                    <option value="normal" data-i18n="branch.normal">Normal</option>
+                                    <option value="expert" data-i18n="branch.expert">Expert</option>
+                                    <option value="master" data-i18n="branch.master">Master</option>
+                                </select>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="sticky-header">
+                <div id="chart-options-panel" class="options-panel">
+                    <div class="panel-header">
+                        <div class="panel-header-left">
+                             <h3 data-i18n="ui.chartOptions">Chart Options</h3>
+                             <span id="chart-mode-status" style="margin-left: 15px; font-weight: normal; color: #666; font-size: 0.9em;"></span>
+                        </div>
+                        <button id="options-collapse-btn" data-i18n="ui.expand">Expand</button>
+                    </div>
+                    <div id="options-body" class="panel-body collapsed">
+                        <div class="panel-tabs">
+                            <button class="panel-tab active" data-do-tab="view" data-i18n="ui.tab.view">View</button>
+                            <button class="panel-tab" data-do-tab="judgements" data-i18n="ui.tab.judgements">Judgements</button>
+                            <button class="panel-tab" data-do-tab="selection" data-i18n="ui.tab.select">Select</button>
+                            <button class="panel-tab" data-do-tab="annotation" data-i18n="ui.tab.annotate">Annotate</button>
+                        </div>
+                        
+                        <div class="panel-content">
+                            <!-- View Options Pane -->
+                            <div id="do-tab-view" class="panel-pane" style="display:flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+                                <!-- Loop Section -->
                                 <div class="option-section">
-                                    <div id="judgement-subcontrols" class="section-subs" style="margin-left: 0;">
-                                        <div class="sub-group">
-                                            <span class="sub-label" data-i18n="ui.style">Style:</span>
-                                            <label><input type="radio" name="judgementStyle" value="color" checked> <span data-i18n="ui.style.color">Color</span></label>
-                                            <label><input type="radio" name="judgementStyle" value="underline"> <span data-i18n="ui.style.underline">Underline</span></label>
-                                            <label><input type="radio" name="judgementStyle" value="text"> <span data-i18n="ui.style.text">Text</span></label>
-                                        </div>
-                                        <div class="sub-group">
-                                            <span class="sub-label" data-i18n="ui.coloring">Coloring:</span>
-                                            <label><input type="radio" name="judgementColoring" value="categorical" checked> <span data-i18n="ui.coloring.class">Class</span></label>
-                                            <label><input type="radio" name="judgementColoring" value="gradient"> <span data-i18n="ui.coloring.gradient">Delta</span></label>
-                                        </div>
-                                        <div class="sub-group">
-                                            <span class="sub-label" data-i18n="ui.filter">Filter:</span>
-                                            <label><input type="checkbox" id="show-perfect-checkbox" checked> <span data-i18n="judgement.perfect">GOOD</span></label>
-                                            <label><input type="checkbox" id="show-good-checkbox" checked> <span data-i18n="judgement.good">OK</span></label>
-                                            <label><input type="checkbox" id="show-poor-checkbox" checked> <span data-i18n="judgement.poor">BAD</span></label>
-                                        </div>
+                                    <div class="section-main">
+                                        <label><input type="checkbox" id="collapse-loop-checkbox"> <span data-i18n="ui.collapseLoops">Collapse Loops</span></label>
+                                    </div>
+                                    <div id="loop-controls" class="loop-subs" style="display:none;">
+                                         <label class="auto-check"><input type="checkbox" id="loop-auto" checked> <span data-i18n="ui.auto">Auto</span></label>
+                                         <div class="loop-stepper">
+                                             <button id="loop-prev" class="tiny-btn">&lt;</button>
+                                             <span id="loop-counter">-</span>
+                                             <button id="loop-next" class="tiny-btn">&gt;</button>
+                                         </div>
                                     </div>
                                 </div>
-                                
-                                <!-- Export Image Section for Judgements -->
+
+                                <!-- Zoom Section -->
                                 <div class="option-section border-left">
                                     <div class="section-main">
-                                        <button class="control-btn export-image-trigger" data-i18n="ui.exportImage">Save Image</button>
+                                        <span class="sub-label" style="min-width: auto; margin-right: 10px;" data-i18n="ui.zoom">Zoom:</span>
+                                        <div class="zoom-controls" style="display: flex; align-items: center; gap: 5px;">
+                                            <button id="zoom-out-btn" class="tiny-btn">-</button>
+                                            <button id="zoom-reset-btn" class="tiny-btn" style="font-family: 'Consolas', monospace; min-width: 50px;">100%</button>
+                                            <button id="zoom-in-btn" class="tiny-btn">+</button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Stats Section -->
+                                <div class="option-section border-left">
+                                    <div class="section-main">
+                                        <label><input type="checkbox" id="show-stats-checkbox" checked> <span data-i18n="ui.showStats">Show Note Stats</span></label>
+                                    </div>
+                                </div>
+
+                                <!-- Export Image Section -->
+                                <div class="option-section border-left">
+                                    <div class="section-main">
+                                        <button id="export-image-btn" class="control-btn export-image-trigger" data-i18n="ui.exportImage">Save Image</button>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Note Selection Pane -->
-                        <div id="do-tab-selection" class="panel-pane" style="display:none;">
-                            <div class="control-group" style="display: flex; align-items: center; gap: 10px;">
-                                <button id="clear-selection-btn" class="control-btn" data-i18n="ui.clearSelection">Clear Selection</button>
-                                <div style="display: flex; align-items: center; gap: 5px; margin-left: auto;">
-                                    <label for="export-loop-count" style="font-size: 0.9em;">Loops:</label>
-                                    <input type="number" id="export-loop-count" value="10" min="1" style="width: 50px; padding: 2px;">
-                                    <button id="export-selection-btn" class="control-btn" data-i18n="ui.export">Export TJA</button>
+                            <!-- Judgements Pane -->
+                            <div id="do-tab-judgements" class="panel-pane" style="display:none;">
+                                <div id="judgement-warning" style="color: #666; font-style: italic; margin-bottom: 10px; display: none;" data-i18n="ui.judgement.notActive">
+                                    Judgements are only displayed when a stream is active.
+                                </div>
+                                <div id="judgement-controls" style="display:flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+                                    <div class="option-section">
+                                        <div id="judgement-subcontrols" class="section-subs" style="margin-left: 0;">
+                                            <div class="sub-group">
+                                                <span class="sub-label" data-i18n="ui.style">Style:</span>
+                                                <label><input type="radio" name="judgementStyle" value="color" checked> <span data-i18n="ui.style.color">Color</span></label>
+                                                <label><input type="radio" name="judgementStyle" value="underline"> <span data-i18n="ui.style.underline">Underline</span></label>
+                                                <label><input type="radio" name="judgementStyle" value="text"> <span data-i18n="ui.style.text">Text</span></label>
+                                            </div>
+                                            <div class="sub-group">
+                                                <span class="sub-label" data-i18n="ui.coloring">Coloring:</span>
+                                                <label><input type="radio" name="judgementColoring" value="categorical" checked> <span data-i18n="ui.coloring.class">Class</span></label>
+                                                <label><input type="radio" name="judgementColoring" value="gradient"> <span data-i18n="ui.coloring.gradient">Delta</span></label>
+                                            </div>
+                                            <div class="sub-group">
+                                                <span class="sub-label" data-i18n="ui.filter">Filter:</span>
+                                                <label><input type="checkbox" id="show-perfect-checkbox" checked> <span data-i18n="judgement.perfect">GOOD</span></label>
+                                                <label><input type="checkbox" id="show-good-checkbox" checked> <span data-i18n="judgement.good">OK</span></label>
+                                                <label><input type="checkbox" id="show-poor-checkbox" checked> <span data-i18n="judgement.poor">BAD</span></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Export Image Section for Judgements -->
+                                    <div class="option-section border-left">
+                                        <div class="section-main">
+                                            <button class="control-btn export-image-trigger" data-i18n="ui.exportImage">Save Image</button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <!-- Annotation Pane -->
-                        <div id="do-tab-annotation" class="panel-pane" style="display:none;">
-                            <div class="control-group" style="display: flex; align-items: center; gap: 10px;">
-                                <button id="auto-annotate-btn" class="control-btn" data-i18n="ui.autoAnnotate">Auto Annotate</button>
-                                <button id="clear-annotations-btn" class="control-btn" data-i18n="ui.clearAnnotations">Clear Annotations</button>
-                                <button class="control-btn export-image-trigger" data-i18n="ui.exportImage">Save Image</button>
+                            <!-- Note Selection Pane -->
+                            <div id="do-tab-selection" class="panel-pane" style="display:none;">
+                                <div class="control-group" style="display: flex; align-items: center; gap: 10px;">
+                                    <button id="clear-selection-btn" class="control-btn" data-i18n="ui.clearSelection">Clear Selection</button>
+                                    <div style="display: flex; align-items: center; gap: 5px; margin-left: auto;">
+                                        <label for="export-loop-count" style="font-size: 0.9em;">Loops:</label>
+                                        <input type="number" id="export-loop-count" value="10" min="1" style="width: 50px; padding: 2px;">
+                                        <button id="export-selection-btn" class="control-btn" data-i18n="ui.export">Export TJA</button>
+                                    </div>
+                                </div>
                             </div>
-                            <p style="font-size: 0.9em; color: #666; margin-top: 5px;" data-i18n="ui.annotation.desc">Click on Don/Ka notes to toggle L/R annotation.</p>
-                        </div>
-                </div>
-            </div>
-            </div>
+
+                            <!-- Annotation Pane -->
+                            <div id="do-tab-annotation" class="panel-pane" style="display:none;">
+                                <div class="control-group" style="display: flex; align-items: center; gap: 10px;">
+                                    <button id="auto-annotate-btn" class="control-btn" data-i18n="ui.autoAnnotate">Auto Annotate</button>
+                                    <button id="clear-annotations-btn" class="control-btn" data-i18n="ui.clearAnnotations">Clear Annotations</button>
+                                    <button class="control-btn export-image-trigger" data-i18n="ui.exportImage">Save Image</button>
+                                </div>
+                                <p style="font-size: 0.9em; color: #666; margin-top: 5px;" data-i18n="ui.annotation.desc">Click on Don/Ka notes to toggle L/R annotation.</p>
+                            </div>
+                        </div> <!-- End panel-content -->
+                    </div> <!-- End options-body -->
+                </div> <!-- End chart-options-panel -->
+            </div> <!-- End sticky-header -->
 
             <div id="note-stats-display"></div>
-        </div>
+        </div> <!-- End controls-container -->
 
-        <div class="canvas-container">
-            <canvas id="chart-canvas"></canvas>
-        </div>
-        
-        <div class="app-footer">
-            <div class="footer-left">
-                <span id="app-version">v0.0.0</span>
-                <span class="separator">|</span>
-                <span>Made by Jack</span>
+        <button id="layout-toggle-btn">&lt;</button>
+
+        <div id="chart-container">
+            <div class="canvas-container">
+                <canvas id="chart-canvas"></canvas>
             </div>
-            <button id="changelog-btn" class="text-btn">Changelog</button>
+            
+            <div class="app-footer">
+                <div class="footer-left">
+                    <span id="app-version">v0.0.0</span>
+                    <span class="separator">|</span>
+                    <span>Made by Jack</span>
+                </div>
+                <button id="changelog-btn" class="text-btn">Changelog</button>
+            </div>
         </div>
     </div>
 

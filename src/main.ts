@@ -82,6 +82,12 @@ const changelogModal = document.getElementById('changelog-modal') as HTMLDivElem
 const changelogCloseBtn = changelogModal ? changelogModal.querySelector('.close-btn') as HTMLElement : null;
 const changelogList = document.getElementById('changelog-list') as HTMLDivElement;
 
+// Layout Elements
+const controlsContainer = document.getElementById('controls-container') as HTMLDivElement;
+const chartContainer = document.getElementById('chart-container') as HTMLDivElement;
+const layoutToggleBtn = document.getElementById('layout-toggle-btn') as HTMLButtonElement;
+const CONTROLS_WIDTH = 350; // Estimated width for 3 stats columns + padding
+
 // Display Options Tabs
 const doTabs = document.querySelectorAll('#chart-options-panel .panel-tab');
 const doPanes = document.querySelectorAll('#chart-options-panel .panel-pane');
@@ -804,7 +810,80 @@ function readFileAsText(file: File): Promise<string> {
     });
 }
 
+function updateLayout() {
+    if (!controlsContainer || !layoutToggleBtn) return;
+    
+    const windowWidth = window.innerWidth;
+    // If controls width is less than 40% of window width, use horizontal layout
+    const shouldUseHorizontal = CONTROLS_WIDTH < (windowWidth * 0.4);
+    
+    if (shouldUseHorizontal) {
+        document.body.classList.add('horizontal-layout');
+        
+        // Update state based on collapse status
+        if (!document.body.classList.contains('controls-collapsed')) {
+            controlsContainer.style.width = `${CONTROLS_WIDTH}px`;
+            layoutToggleBtn.style.left = `${CONTROLS_WIDTH}px`;
+            layoutToggleBtn.innerHTML = '<span class="icon">&lt;</span>';
+            layoutToggleBtn.title = i18n.t('ui.collapse');
+        } else {
+             controlsContainer.style.width = '0px';
+             layoutToggleBtn.style.left = '0px';
+             layoutToggleBtn.innerHTML = '<span class="icon">&gt;</span>';
+             layoutToggleBtn.title = i18n.t('ui.expand');
+        }
+    } else {
+        document.body.classList.remove('horizontal-layout');
+        // Reset styles for vertical layout
+        controlsContainer.style.width = '';
+        layoutToggleBtn.style.left = '';
+    }
+}
+
+function handleLayoutToggle() {
+    if (!controlsContainer || !layoutToggleBtn) return;
+
+    document.body.classList.toggle('controls-collapsed');
+    const isCollapsed = document.body.classList.contains('controls-collapsed');
+    
+    if (isCollapsed) {
+        controlsContainer.style.width = '0px';
+        layoutToggleBtn.style.left = '0px';
+        layoutToggleBtn.innerHTML = '<span class="icon">&gt;</span>';
+        layoutToggleBtn.title = i18n.t('ui.expand');
+    } else {
+        controlsContainer.style.width = `${CONTROLS_WIDTH}px`;
+        layoutToggleBtn.style.left = `${CONTROLS_WIDTH}px`;
+        layoutToggleBtn.innerHTML = '<span class="icon">&lt;</span>';
+        layoutToggleBtn.title = i18n.t('ui.collapse');
+    }
+    
+    // Refresh chart after transition to ensure correct width
+    setTimeout(() => {
+        refreshChart();
+    }, 350);
+}
+
 function init(): void {
+    // Layout Init
+    if (layoutToggleBtn) {
+        layoutToggleBtn.addEventListener('click', handleLayoutToggle);
+    }
+    window.addEventListener('resize', () => {
+        updateLayout();
+        refreshChart();
+    });
+    
+    // ResizeObserver for canvas
+    if (canvas) {
+        const resizeObserver = new ResizeObserver(() => {
+            refreshChart();
+        });
+        resizeObserver.observe(canvas);
+    }
+
+    // Initial call
+    updateLayout();
 
     if (!canvas) {
 

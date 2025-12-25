@@ -997,6 +997,7 @@ test.describe('Selection Interaction', () => {
 
         // Switch to Selection Tab
         await page.click('button[data-do-tab="selection"]');
+        await page.waitForTimeout(500);
 
         const dimensions = await page.evaluate(() => {
             const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement;
@@ -1013,16 +1014,18 @@ test.describe('Selection Interaction', () => {
         
         // Bar 0 (Start), Bar 1, Bar 2
         const x0 = 20; 
-        const x1 = 20 + barWidth;
-        const x2 = 20 + 2 * barWidth;
+        const x1 = 20 + barWidth + 2; // Nudge slightly into the bar
+        const x2 = 20 + 2 * barWidth + 2;
 
         // 1. Click Start Note (Bar 0 - DON)
-        await canvas.click({ position: { x: x0, y }, force: true });
+        await canvas.click({ position: { x: x0, y } });
         const stats = page.locator('#note-stats-display');
         await expect(stats).toContainText('DON');
 
+        await page.waitForTimeout(200);
+
         // 2. Click End Note (Bar 1 - DON)
-        await canvas.click({ position: { x: x1, y }, force: true });
+        await canvas.click({ position: { x: x1, y } });
         await expect(stats).toContainText('DON'); 
 
         // 3. Click Third Note (Bar 2 - Balloon) (Restart Selection)
