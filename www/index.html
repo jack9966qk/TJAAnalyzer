@@ -79,14 +79,14 @@
                             <p data-i18n="ui.test.desc">Simulate incoming judgement events on the currently loaded chart.</p>
                             <button id="test-stream-btn" data-i18n="ui.test.start">Start Test Stream</button>
                         </div>
-
                         <!-- Shared Difficulty Selector -->
-                        <div id="difficulty-selector-container" class="control-group" hidden style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
-                            <label for="difficulty-selector" data-i18n="ui.difficulty">Difficulty:</label>
-                            <select id="difficulty-selector"></select>
-
+                        <div id="difficulty-selector-container" class="control-group" hidden style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; gap: 10px 30px;">
+                            <span style="display: flex; align-items: center; gap: 10px;">
+                                <label for="difficulty-selector" data-i18n="ui.difficulty">Difficulty:</label>
+                                <select id="difficulty-selector"></select>
+                            </span>
                             <!-- Branch Selector -->
-                            <span id="branch-selector-container" hidden style="margin-left: 20px;">
+                            <span id="branch-selector-container" hidden style="display: flex; align-items: center; gap: 10px;">
                                 <label for="branch-selector" data-i18n="ui.branch">Branch:</label>
                                 <select id="branch-selector">
                                     <option value="all" data-i18n="branch.all" selected>All</option>
