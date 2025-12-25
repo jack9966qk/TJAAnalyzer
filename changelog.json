@@ -1,5 +1,70 @@
 [
   {
+    "hash": "2d82359",
+    "message": "Update version to 0.6.0.",
+    "date": "2025-12-26"
+  },
+  {
+    "hash": "a1245e0",
+    "message": "Fix unwanted left padding when the branch selection is wrapped into a new row.",
+    "date": "2025-12-26"
+  },
+  {
+    "hash": "252ba0f",
+    "message": "Slightly increase the width of controls column in horizontal layout.",
+    "date": "2025-12-26"
+  },
+  {
+    "hash": "2b3d6f7",
+    "message": "Fix the issue of sticky chart options and notes stats panel in vertical layout.",
+    "date": "2025-12-26"
+  },
+  {
+    "hash": "9965a12",
+    "message": "Increase left padding of chart canvas in horizontal layout to avoid overlap with toggle button.",
+    "date": "2025-12-26"
+  },
+  {
+    "hash": "99d03bb",
+    "message": "In horizontal layout, move the footer from the chart column to the controls column.",
+    "date": "2025-12-26"
+  },
+  {
+    "hash": "3f6b394",
+    "message": "Basic support of horizontal UI layout, which leaves more vertical space for the rendered chart.",
+    "date": "2025-12-26"
+  },
+  {
+    "hash": "f222016",
+    "message": "Update version to 0.5.0.",
+    "date": "2025-12-26"
+  },
+  {
+    "hash": "34d416c",
+    "message": "Exapnd auto annotation to cover some notes in changing color in the middle or end of a segment.",
+    "date": "2025-12-25"
+  },
+  {
+    "hash": "4e09eed",
+    "message": "Introduce the concept of note segmentation and use it to refine automatic hand annotation note selection.",
+    "date": "2025-12-25"
+  },
+  {
+    "hash": "ff0e4e0",
+    "message": "Basic auto hand annotation functionality.",
+    "date": "2025-12-25"
+  },
+  {
+    "hash": "dc19c63",
+    "message": "Update selected note style to have a yellow border.",
+    "date": "2025-12-25"
+  },
+  {
+    "hash": "aeef317",
+    "message": "Add save image button to judgement and annotate tabs.",
+    "date": "2025-12-25"
+  },
+  {
     "hash": "b14897d",
     "message": "Update version to 0.4.0",
     "date": "2025-12-24"
@@ -433,55 +498,5 @@
     "hash": "999d003",
     "message": "Minor UI polish.",
     "date": "2025-12-14"
-  },
-  {
-    "hash": "f06368f",
-    "message": "TJA loading from manually picked file, or from the game start event.",
-    "date": "2025-12-14"
-  },
-  {
-    "hash": "bfdd486",
-    "message": "Improved drumroll (yellow capsule) rendering.",
-    "date": "2025-12-13"
-  },
-  {
-    "hash": "bd52829",
-    "message": "Update judgement style with fill colors. More helpful judgement snapshot image.",
-    "date": "2025-12-13"
-  },
-  {
-    "hash": "fcd2eae",
-    "message": "Basic judgement listening and rendering support.",
-    "date": "2025-12-13"
-  },
-  {
-    "hash": "8719bcc",
-    "message": "Fix notes draw ordering near barline. Align not positioning with barline.",
-    "date": "2025-12-13"
-  },
-  {
-    "hash": "0eb1893",
-    "message": "Make bar height and note size scale with bar width.",
-    "date": "2025-12-13"
-  },
-  {
-    "hash": "1c1673b",
-    "message": "Update bar background color and add note black border.",
-    "date": "2025-12-13"
-  },
-  {
-    "hash": "f70e0b1",
-    "message": "Basic rendering tests with snapshot functionality.",
-    "date": "2025-12-13"
-  },
-  {
-    "hash": "f594480",
-    "message": "Rewrite in TypeScript.",
-    "date": "2025-12-13"
-  },
-  {
-    "hash": "38c10f9",
-    "message": "Initial commit",
-    "date": "2025-12-13"
   }
 ]

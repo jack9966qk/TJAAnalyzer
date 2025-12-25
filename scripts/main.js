@@ -1,7 +1,7 @@
 import { parseTJA } from './tja-parser.js';
 import { generateTJAFromSelection } from './tja-exporter.js';
 import { shareFile } from './file-share.js';
-import { renderChart, getNoteAt, getGradientColor, exportChartImage, PALETTE } from './renderer.js';
+import { renderChart, getNoteAt, getGradientColor, exportChartImage, PALETTE, calculateInferredHands } from './renderer.js';
 import { exampleTJA } from './example-data.js';
 import { JudgementClient } from './judgement-client.js';
 import { i18n } from './i18n.js';
@@ -63,17 +63,23 @@ const zoomOutBtn = document.getElementById('zoom-out-btn');
 const zoomInBtn = document.getElementById('zoom-in-btn');
 const zoomResetBtn = document.getElementById('zoom-reset-btn');
 // Footer & Changelog
+const appFooter = document.querySelector('.app-footer');
 const changelogBtn = document.getElementById('changelog-btn');
 const changelogModal = document.getElementById('changelog-modal');
 const changelogCloseBtn = changelogModal ? changelogModal.querySelector('.close-btn') : null;
 const changelogList = document.getElementById('changelog-list');
+// Layout Elements
+const controlsContainer = document.getElementById('controls-container');
+const chartContainer = document.getElementById('chart-container');
+const layoutToggleBtn = document.getElementById('layout-toggle-btn');
+const CONTROLS_WIDTH = 390; // Estimated width for 3 stats columns + padding
 // Display Options Tabs
 const doTabs = document.querySelectorAll('#chart-options-panel .panel-tab');
 const doPanes = document.querySelectorAll('#chart-options-panel .panel-pane');
 const clearSelectionBtn = document.getElementById('clear-selection-btn');
 const exportSelectionBtn = document.getElementById('export-selection-btn');
-const exportImageBtn = document.getElementById('export-image-btn');
 const clearAnnotationsBtn = document.getElementById('clear-annotations-btn');
+const autoAnnotateBtn = document.getElementById('auto-annotate-btn');
 const chartModeStatus = document.getElementById('chart-mode-status');
 // Data Source UI
 const dsTabs = document.querySelectorAll('#data-source-panel .panel-tab');
@@ -741,7 +747,83 @@ function readFileAsText(file) {
         }
     });
 }
+function updateLayout() {
+    if (!controlsContainer || !layoutToggleBtn)
+        return;
+    const windowWidth = window.innerWidth;
+    // If controls width is less than 40% of window width, use horizontal layout
+    const shouldUseHorizontal = CONTROLS_WIDTH < (windowWidth * 0.4);
+    if (shouldUseHorizontal) {
+        document.body.classList.add('horizontal-layout');
+        // Move footer to controls container
+        if (appFooter && appFooter.parentElement !== controlsContainer) {
+            controlsContainer.appendChild(appFooter);
+        }
+        // Update state based on collapse status
+        if (!document.body.classList.contains('controls-collapsed')) {
+            controlsContainer.style.width = `${CONTROLS_WIDTH}px`;
+            layoutToggleBtn.style.left = `${CONTROLS_WIDTH}px`;
+            layoutToggleBtn.innerHTML = '<span class="icon">&lt;</span>';
+            layoutToggleBtn.title = i18n.t('ui.collapse');
+        }
+        else {
+            controlsContainer.style.width = '0px';
+            layoutToggleBtn.style.left = '0px';
+            layoutToggleBtn.innerHTML = '<span class="icon">&gt;</span>';
+            layoutToggleBtn.title = i18n.t('ui.expand');
+        }
+    }
+    else {
+        document.body.classList.remove('horizontal-layout');
+        // Move footer back to chart container
+        if (appFooter && appFooter.parentElement !== chartContainer) {
+            chartContainer.appendChild(appFooter);
+        }
+        // Reset styles for vertical layout
+        controlsContainer.style.width = '';
+        layoutToggleBtn.style.left = '';
+    }
+}
+function handleLayoutToggle() {
+    if (!controlsContainer || !layoutToggleBtn)
+        return;
+    document.body.classList.toggle('controls-collapsed');
+    const isCollapsed = document.body.classList.contains('controls-collapsed');
+    if (isCollapsed) {
+        controlsContainer.style.width = '0px';
+        layoutToggleBtn.style.left = '0px';
+        layoutToggleBtn.innerHTML = '<span class="icon">&gt;</span>';
+        layoutToggleBtn.title = i18n.t('ui.expand');
+    }
+    else {
+        controlsContainer.style.width = `${CONTROLS_WIDTH}px`;
+        layoutToggleBtn.style.left = `${CONTROLS_WIDTH}px`;
+        layoutToggleBtn.innerHTML = '<span class="icon">&lt;</span>';
+        layoutToggleBtn.title = i18n.t('ui.collapse');
+    }
+    // Refresh chart after transition to ensure correct width
+    setTimeout(() => {
+        refreshChart();
+    }, 350);
+}
 function init() {
+    // Layout Init
+    if (layoutToggleBtn) {
+        layoutToggleBtn.addEventListener('click', handleLayoutToggle);
+    }
+    window.addEventListener('resize', () => {
+        updateLayout();
+        refreshChart();
+    });
+    // ResizeObserver for canvas
+    if (canvas) {
+        const resizeObserver = new ResizeObserver(() => {
+            refreshChart();
+        });
+        resizeObserver.observe(canvas);
+    }
+    // Initial call
+    updateLayout();
     if (!canvas) {
         console.error("Canvas element with ID 'chart-canvas' not found.");
         return;
@@ -810,8 +892,9 @@ function init() {
             }
         });
     }
-    if (exportImageBtn) {
-        exportImageBtn.addEventListener('click', async () => {
+    const exportImageBtns = document.querySelectorAll('.export-image-trigger');
+    exportImageBtns.forEach(btn => {
+        btn.addEventListener('click', async () => {
             if (!currentChart)
                 return;
             try {
@@ -845,11 +928,16 @@ function init() {
                 updateStatus('status.exportImageFailed');
             }
         });
-    }
+    });
     if (clearAnnotationsBtn) {
         clearAnnotationsBtn.addEventListener('click', () => {
             annotations = {};
             refreshChart();
+        });
+    }
+    if (autoAnnotateBtn) {
+        autoAnnotateBtn.addEventListener('click', () => {
+            performAutoAnnotation();
         });
     }
     // Setup Collapse Button
@@ -1529,6 +1617,123 @@ function refreshChart() {
         viewOptions.isAnnotationMode = (mode === 'annotation');
         renderChart(currentChart, canvas, judgements, judgementDeltas, viewOptions, texts);
         updateLoopControls();
+    }
+}
+function performAutoAnnotation() {
+    if (!currentChart)
+        return;
+    // Pass current annotations so inference respects them (source of truth rule)
+    const inferred = calculateInferredHands(currentChart.bars, annotations);
+    const notes = [];
+    let currentBeat = 0;
+    for (let i = 0; i < currentChart.bars.length; i++) {
+        const bar = currentChart.bars[i];
+        const params = currentChart.barParams[i];
+        // Default measure ratio is 1.0 (4/4)
+        const measureRatio = params ? params.measureRatio : 1.0;
+        const barLengthBeats = 4 * measureRatio;
+        if (bar && bar.length > 0) {
+            const step = barLengthBeats / bar.length;
+            for (let j = 0; j < bar.length; j++) {
+                const char = bar[j];
+                // Only Don/Ka (Small/Large) are annotatable
+                if (['1', '2', '3', '4'].includes(char)) {
+                    const id = `${i}_${j}`;
+                    const hand = inferred.get(id);
+                    if (hand) {
+                        notes.push({ id, beat: currentBeat + (j * step), hand, type: char });
+                    }
+                }
+            }
+        }
+        currentBeat += barLengthBeats;
+    }
+    // Identify notes to annotate
+    const toAnnotate = new Set();
+    const segments = [];
+    let currentSegment = [];
+    for (let k = 0; k < notes.length; k++) {
+        const note = notes[k];
+        if (currentSegment.length === 0) {
+            currentSegment.push(note);
+            continue;
+        }
+        const prev = notes[k - 1];
+        const next = notes[k + 1];
+        const gapBefore = note.beat - prev.beat;
+        if (!next) {
+            // End of chart
+            currentSegment.push(note);
+            segments.push({ notes: [...currentSegment], gap: gapBefore });
+            currentSegment = [];
+            continue;
+        }
+        const gapAfter = next.beat - note.beat;
+        const epsilon = 0.0001;
+        if (Math.abs(gapBefore - gapAfter) < epsilon) {
+            // Consistent gap
+            currentSegment.push(note);
+        }
+        else if (gapBefore < gapAfter - epsilon) {
+            // Gap before < gap after (Slowing down: 0.25 -> 0.5)
+            // Pivot belongs to faster stream (Before)
+            // Include in current, then end
+            currentSegment.push(note);
+            segments.push({ notes: [...currentSegment], gap: gapBefore });
+            currentSegment = [];
+        }
+        else if (gapBefore > gapAfter + epsilon) {
+            // Gap before > gap after (Speeding up: 0.5 -> 0.25)
+            // Pivot belongs to faster stream (After)
+            // End current (without pivot), Start new with pivot
+            segments.push({ notes: [...currentSegment], gap: gapBefore });
+            currentSegment = [note];
+        }
+    }
+    // Process segments to find annotation targets
+    for (const seg of segments) {
+        if (seg.notes.length === 0)
+            continue;
+        const first = seg.notes[0];
+        const [barIdxStr] = first.id.split('_');
+        const barIdx = parseInt(barIdxStr, 10);
+        const params = currentChart.barParams[barIdx];
+        const measureRatio = params ? params.measureRatio : 1.0;
+        const quarterNote = measureRatio;
+        if (seg.gap < quarterNote - 0.0001) {
+            toAnnotate.add(first.id);
+            // Check for 3 opposite color notes before
+            const getColor = (c) => (c === '1' || c === '3') ? 'd' : 'k';
+            for (let i = 3; i < seg.notes.length; i++) {
+                const current = seg.notes[i];
+                const prev1 = seg.notes[i - 1];
+                const prev2 = seg.notes[i - 2];
+                const prev3 = seg.notes[i - 3];
+                const cCurr = getColor(current.type);
+                const c1 = getColor(prev1.type);
+                const c2 = getColor(prev2.type);
+                const c3 = getColor(prev3.type);
+                if (c1 === c2 && c2 === c3 && c1 !== cCurr) {
+                    toAnnotate.add(current.id);
+                }
+            }
+        }
+    }
+    // Update annotations
+    let changed = false;
+    toAnnotate.forEach(id => {
+        const hand = inferred.get(id);
+        if (hand && annotations[id] !== hand) {
+            annotations[id] = hand;
+            changed = true;
+        }
+        else if (hand && !annotations[id]) {
+            annotations[id] = hand;
+            changed = true;
+        }
+    });
+    if (changed) {
+        refreshChart();
     }
 }
 function getGapInfo(chart, currentBarIdx, currentCharIdx) {

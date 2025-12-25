@@ -34,7 +34,8 @@ export const PALETTE = {
         border: {
             white: '#fff',
             black: '#000',
-            grey: '#ccc'
+            grey: '#ccc',
+            yellow: '#ff0'
         }
     },
     courses: {
@@ -98,7 +99,7 @@ const DEFAULT_TEXTS = {
         'edit': 'Oni (Ura)'
     }
 };
-function calculateInferredHands(bars, annotations) {
+export function calculateInferredHands(bars, annotations) {
     const inferred = new Map();
     let lastHand = 'L'; // Initialize to L so the first note (which triggers reset or flip) can become R
     let shouldResetToRight = true;
@@ -1368,16 +1369,20 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
             ctx.arc(noteX, centerY, radius, 0, Math.PI * 2);
             // Black border (outside)
             let effectiveBorderOuterW = borderOuterW;
+            let effectiveBorderInnerW = borderInnerW;
+            let effectiveInnerBorderColor = borderColor;
             if (isNoteSelected(originalBarIndex, i, selection)) {
-                effectiveBorderOuterW = borderOuterW * 2.5; // Wider border for selected note
+                effectiveBorderOuterW = borderOuterW * 2; // 2x the width
+                effectiveBorderInnerW = borderInnerW * 2; // 2x the width
+                effectiveInnerBorderColor = PALETTE.notes.border.yellow;
             }
             ctx.lineWidth = effectiveBorderOuterW;
             ctx.strokeStyle = PALETTE.notes.border.black;
             ctx.stroke();
             ctx.fillStyle = color;
             ctx.fill();
-            ctx.lineWidth = borderInnerW;
-            ctx.strokeStyle = borderColor; // Dynamic border
+            ctx.lineWidth = effectiveBorderInnerW;
+            ctx.strokeStyle = effectiveInnerBorderColor; // Dynamic border
             ctx.stroke();
             // Annotation Rendering
             if (options.annotations && ['1', '2', '3', '4'].includes(noteChar)) {

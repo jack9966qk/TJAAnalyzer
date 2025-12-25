@@ -531,3 +531,119 @@ canvas {
     font-size: 1em;
     color: #333;
 }
+
+/* Layout Refactoring */
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: 20px;
+}
+
+#controls-container {
+    width: 100%;
+    display: contents;
+}
+
+#chart-container {
+    width: 100%;
+}
+
+#layout-toggle-btn {
+    display: none;
+    position: absolute;
+    z-index: 200;
+    width: 24px;
+    height: 48px;
+    padding: 0;
+    border: 1px solid #ccc;
+    background: #fff;
+    border-left: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: bold;
+    color: #666;
+    transition: left 0.3s ease;
+}
+
+#layout-toggle-btn:hover {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+/* Horizontal Layout Styles */
+body.horizontal-layout {
+    overflow: hidden; /* Prevent body scroll */
+}
+
+body.horizontal-layout #app {
+    max-width: none;
+    margin: 0;
+    height: 100vh;
+    border-radius: 0;
+    display: flex;
+    flex-direction: row;
+    overflow: hidden;
+    position: relative;
+    box-shadow: none;
+}
+
+body.horizontal-layout #controls-container {
+    display: block;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    border-right: 1px solid #ddd;
+    flex-shrink: 0;
+    background: #fff;
+    transition: width 0.3s ease;
+    /* Width will be set by JS */
+    position: relative;
+    z-index: 10;
+}
+
+body.horizontal-layout #chart-container {
+    flex-grow: 1;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    background: #fafafa;
+    min-width: 0; /* Enable shrinking */
+}
+
+body.horizontal-layout .canvas-container {
+    flex-grow: 1;
+    padding: 20px 20px 20px 35px;
+    background: #fafafa;
+}
+
+body.horizontal-layout .app-footer {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    flex-shrink: 0;
+}
+
+body.horizontal-layout #layout-toggle-btn {
+    display: flex;
+}
+
+/* Collapsed State for Horizontal Layout */
+body.horizontal-layout.controls-collapsed #controls-container {
+    width: 0 !important;
+    border-right: none;
+}
+
+body.horizontal-layout.controls-collapsed #layout-toggle-btn {
+    left: 0 !important;
+    border-left: 1px solid #ccc;
+}
