@@ -1974,6 +1974,7 @@ function performAutoAnnotation() {
         id: string;
         beat: number;
         hand: string;
+        type: string;
     }
 
     const notes: NoteTiming[] = [];
@@ -1995,7 +1996,7 @@ function performAutoAnnotation() {
                     const id = `${i}_${j}`;
                     const hand = inferred.get(id);
                     if (hand) {
-                         notes.push({ id, beat: currentBeat + (j * step), hand });
+                         notes.push({ id, beat: currentBeat + (j * step), hand, type: char });
                     }
                 }
             }
@@ -2068,6 +2069,25 @@ function performAutoAnnotation() {
 
         if (seg.gap < quarterNote - 0.0001) {
             toAnnotate.add(first.id);
+
+            // Check for 3 opposite color notes before
+            const getColor = (c: string) => (c === '1' || c === '3') ? 'd' : 'k';
+            
+            for (let i = 3; i < seg.notes.length; i++) {
+                const current = seg.notes[i];
+                const prev1 = seg.notes[i - 1];
+                const prev2 = seg.notes[i - 2];
+                const prev3 = seg.notes[i - 3];
+                
+                const cCurr = getColor(current.type);
+                const c1 = getColor(prev1.type);
+                const c2 = getColor(prev2.type);
+                const c3 = getColor(prev3.type);
+                
+                if (c1 === c2 && c2 === c3 && c1 !== cCurr) {
+                    toAnnotate.add(current.id);
+                }
+            }
         }
     }
     

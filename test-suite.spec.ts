@@ -1470,5 +1470,64 @@ LEVEL:10
         await page.click('#auto-annotate-btn');
         await expect(page.locator('#chart-canvas')).toHaveScreenshot('s-to-e.png');
     });
+
+    test('Rule: 3 Opposite Color Notes', async ({ page }) => {
+        await page.goto('/');
+        await page.waitForTimeout(500);
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(100);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(100);
+            }
+        }
+        await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
+
+        const canvas = page.locator('#chart-canvas');
+        await expect(canvas).toBeVisible();
+
+        // Switch to File Tab
+        await page.click('button[data-mode="file"]');
+        
+        // 8th notes (gap 0.5 < 1.0)
+        // Bar 1: 20202010 (k k k d) ...
+        // Bar 2: 10101020 (d d d k) ...
+        const tjaContent = `TITLE:Opposite Color Test
+BPM:120
+COURSE:Oni
+LEVEL:10
+#START
+2020201020000000,
+1010102010000000,
+#END`;
+        
+        await page.locator('#tja-file-picker').setInputFiles({
+            name: 'opposite_color.tja',
+            mimeType: 'text/plain',
+            buffer: Buffer.from(tjaContent)
+        });
+        
+        await page.waitForTimeout(500);
+
+        // Switch to Annotation Tab
+        await page.click('button[data-do-tab="annotation"]');
+        
+        // Click Auto Annotate
+        await page.click('#auto-annotate-btn');
+        await page.waitForTimeout(500);
+        
+        await expect(canvas).toHaveScreenshot('auto-annotate-opposite-color.png');
+    });
 });
 
