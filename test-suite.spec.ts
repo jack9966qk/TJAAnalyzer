@@ -1312,5 +1312,163 @@ LEVEL:10
 
         await expect(canvas).toHaveScreenshot('rule-eighth-sixteenth.png');
     });
+
+    test('Rule: Segmentation - Quarter (No Annotate) -> Eighth (Annotate)', async ({ page }) => {
+        await page.goto('/');
+        await page.waitForTimeout(500);
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+             const classes = await optionsBody.getAttribute('class');
+             if (classes && classes.includes('collapsed')) {
+                 await page.click('#options-collapse-btn');
+                 await page.waitForTimeout(100);
+             }
+        }
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+             const classes = await dsBody.getAttribute('class');
+             if (classes && classes.includes('collapsed')) {
+                 await page.click('#ds-collapse-btn');
+                 await page.waitForTimeout(100);
+             }
+        }
+        await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
+
+        const tjaContent = `TITLE:Q to E
+BPM:120
+COURSE:Oni
+LEVEL:10
+#START
+1000100010001000,
+1010101010101010,
+#END`;
+        await page.click('button[data-mode="file"]');
+        await page.locator('#tja-file-picker').setInputFiles({
+            name: 'q_to_e.tja',
+            mimeType: 'text/plain',
+            buffer: Buffer.from(tjaContent)
+        });
+        await page.click('button[data-do-tab="annotation"]');
+        await page.click('#auto-annotate-btn');
+        await expect(page.locator('#chart-canvas')).toHaveScreenshot('q-to-e.png');
+    });
+
+    test('Rule: Segmentation - Eighth (Annotate) -> Quarter (No Annotate)', async ({ page }) => {
+        await page.goto('/');
+        await page.waitForTimeout(500);
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+             const classes = await optionsBody.getAttribute('class');
+             if (classes && classes.includes('collapsed')) {
+                 await page.click('#options-collapse-btn');
+                 await page.waitForTimeout(100);
+             }
+        }
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+             const classes = await dsBody.getAttribute('class');
+             if (classes && classes.includes('collapsed')) {
+                 await page.click('#ds-collapse-btn');
+                 await page.waitForTimeout(100);
+             }
+        }
+        await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
+
+        const tjaContent = `TITLE:E to Q
+BPM:120
+COURSE:Oni
+LEVEL:10
+#START
+1010101010101010,
+1000100010001000,
+#END`;
+        await page.click('button[data-mode="file"]');
+        await page.locator('#tja-file-picker').setInputFiles({
+            name: 'e_to_q.tja',
+            mimeType: 'text/plain',
+            buffer: Buffer.from(tjaContent)
+        });
+        await page.click('button[data-do-tab="annotation"]');
+        await page.click('#auto-annotate-btn');
+        await expect(page.locator('#chart-canvas')).toHaveScreenshot('e-to-q.png');
+    });
+
+    test('Rule: Segmentation - Eighth (Annotate) -> Sixteenth (Annotate)', async ({ page }) => {
+        await page.goto('/');
+        await page.waitForTimeout(500);
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+             const classes = await optionsBody.getAttribute('class');
+             if (classes && classes.includes('collapsed')) {
+                 await page.click('#options-collapse-btn');
+                 await page.waitForTimeout(100);
+             }
+        }
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+             const classes = await dsBody.getAttribute('class');
+             if (classes && classes.includes('collapsed')) {
+                 await page.click('#ds-collapse-btn');
+                 await page.waitForTimeout(100);
+             }
+        }
+        await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
+
+        const tjaContent = `TITLE:E to S
+BPM:120
+COURSE:Oni
+LEVEL:10
+#START
+1010101011111111,
+#END`;
+        await page.click('button[data-mode="file"]');
+        await page.locator('#tja-file-picker').setInputFiles({
+            name: 'e_to_s.tja',
+            mimeType: 'text/plain',
+            buffer: Buffer.from(tjaContent)
+        });
+        await page.click('button[data-do-tab="annotation"]');
+        await page.click('#auto-annotate-btn');
+        await expect(page.locator('#chart-canvas')).toHaveScreenshot('e-to-s.png');
+    });
+    
+    test('Rule: Segmentation - Sixteenth (Annotate) -> Eighth (Annotate)', async ({ page }) => {
+        await page.goto('/');
+        await page.waitForTimeout(500);
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+             const classes = await optionsBody.getAttribute('class');
+             if (classes && classes.includes('collapsed')) {
+                 await page.click('#options-collapse-btn');
+                 await page.waitForTimeout(100);
+             }
+        }
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+             const classes = await dsBody.getAttribute('class');
+             if (classes && classes.includes('collapsed')) {
+                 await page.click('#ds-collapse-btn');
+                 await page.waitForTimeout(100);
+             }
+        }
+        await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
+
+        const tjaContent = `TITLE:S to E
+BPM:120
+COURSE:Oni
+LEVEL:10
+#START
+1111111110101010,
+#END`;
+        await page.click('button[data-mode="file"]');
+        await page.locator('#tja-file-picker').setInputFiles({
+            name: 's_to_e.tja',
+            mimeType: 'text/plain',
+            buffer: Buffer.from(tjaContent)
+        });
+        await page.click('button[data-do-tab="annotation"]');
+        await page.click('#auto-annotate-btn');
+        await expect(page.locator('#chart-canvas')).toHaveScreenshot('s-to-e.png');
+    });
 });
 

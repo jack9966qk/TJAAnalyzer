@@ -2005,39 +2005,69 @@ function performAutoAnnotation() {
 
     // Identify notes to annotate
     const toAnnotate = new Set<string>();
-    
+
+    interface Segment {
+        notes: NoteTiming[];
+        gap: number;
+    }
+    const segments: Segment[] = [];
+    let currentSegment: NoteTiming[] = [];
+
     for (let k = 0; k < notes.length; k++) {
         const note = notes[k];
-        
-        // 1. First note
-        if (k === 0) {
-            toAnnotate.add(note.id);
+
+        if (currentSegment.length === 0) {
+            currentSegment.push(note);
             continue;
         }
-        
-        // 2. Gap logic
-        // We need next note to compare gaps
-        if (k < notes.length - 1) {
-            const prev = notes[k-1];
-            const next = notes[k+1];
-            
-            const gapPrev = note.beat - prev.beat;
-            const gapNext = next.beat - note.beat;
 
-            // Get measure ratio for current note to determine "quarter note" duration (1/4 of a bar)
-            const [barIdxStr] = note.id.split('_');
-            const barIdx = parseInt(barIdxStr, 10);
-            const params = currentChart.barParams[barIdx];
-            const measureRatio = params ? params.measureRatio : 1.0;
-            // 1/4 of a bar = (4 * measureRatio) / 4 = measureRatio (in beats)
-            const quarterNoteGap = measureRatio;
-            
-            // "if the gap between it and the next note is smaller than the gap between it and the previous note"
-            // AND "gap to next note has to be smaller than a forth note"
-            // Use a small epsilon for float comparison stability
-            if (gapNext < gapPrev - 0.0001 && gapNext < quarterNoteGap - 0.0001) {
-                toAnnotate.add(note.id);
-            }
+        const prev = notes[k - 1];
+        const next = notes[k + 1];
+        const gapBefore = note.beat - prev.beat;
+
+        if (!next) {
+            // End of chart
+            currentSegment.push(note);
+            segments.push({ notes: [...currentSegment], gap: gapBefore });
+            currentSegment = [];
+            continue;
+        }
+
+        const gapAfter = next.beat - note.beat;
+        const epsilon = 0.0001;
+
+        if (Math.abs(gapBefore - gapAfter) < epsilon) {
+            // Consistent gap
+            currentSegment.push(note);
+        } else if (gapBefore < gapAfter - epsilon) {
+            // Gap before < gap after (Slowing down: 0.25 -> 0.5)
+            // Pivot belongs to faster stream (Before)
+            // Include in current, then end
+            currentSegment.push(note);
+            segments.push({ notes: [...currentSegment], gap: gapBefore });
+            currentSegment = [];
+        } else if (gapBefore > gapAfter + epsilon) {
+            // Gap before > gap after (Speeding up: 0.5 -> 0.25)
+            // Pivot belongs to faster stream (After)
+            // End current (without pivot), Start new with pivot
+            segments.push({ notes: [...currentSegment], gap: gapBefore });
+            currentSegment = [note];
+        }
+    }
+
+    // Process segments to find annotation targets
+    for (const seg of segments) {
+        if (seg.notes.length === 0) continue;
+
+        const first = seg.notes[0];
+        const [barIdxStr] = first.id.split('_');
+        const barIdx = parseInt(barIdxStr, 10);
+        const params = currentChart.barParams[barIdx];
+        const measureRatio = params ? params.measureRatio : 1.0;
+        const quarterNote = measureRatio;
+
+        if (seg.gap < quarterNote - 0.0001) {
+            toAnnotate.add(first.id);
         }
     }
     
