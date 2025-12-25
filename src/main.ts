@@ -87,7 +87,7 @@ const changelogList = document.getElementById('changelog-list') as HTMLDivElemen
 const controlsContainer = document.getElementById('controls-container') as HTMLDivElement;
 const chartContainer = document.getElementById('chart-container') as HTMLDivElement;
 const layoutToggleBtn = document.getElementById('layout-toggle-btn') as HTMLButtonElement;
-const CONTROLS_WIDTH = 350; // Estimated width for 3 stats columns + padding
+const CONTROLS_WIDTH = 390; // Estimated width for 3 stats columns + padding
 
 // Display Options Tabs
 const doTabs = document.querySelectorAll('#chart-options-panel .panel-tab');
