@@ -77,6 +77,7 @@ const zoomInBtn = document.getElementById('zoom-in-btn') as HTMLButtonElement;
 const zoomResetBtn = document.getElementById('zoom-reset-btn') as HTMLButtonElement;
 
 // Footer & Changelog
+const appFooter = document.querySelector('.app-footer') as HTMLDivElement;
 const changelogBtn = document.getElementById('changelog-btn') as HTMLButtonElement;
 const changelogModal = document.getElementById('changelog-modal') as HTMLDivElement;
 const changelogCloseBtn = changelogModal ? changelogModal.querySelector('.close-btn') as HTMLElement : null;
@@ -820,6 +821,11 @@ function updateLayout() {
     if (shouldUseHorizontal) {
         document.body.classList.add('horizontal-layout');
         
+        // Move footer to controls container
+        if (appFooter && appFooter.parentElement !== controlsContainer) {
+            controlsContainer.appendChild(appFooter);
+        }
+
         // Update state based on collapse status
         if (!document.body.classList.contains('controls-collapsed')) {
             controlsContainer.style.width = `${CONTROLS_WIDTH}px`;
@@ -834,6 +840,12 @@ function updateLayout() {
         }
     } else {
         document.body.classList.remove('horizontal-layout');
+
+        // Move footer back to chart container
+        if (appFooter && appFooter.parentElement !== chartContainer) {
+            chartContainer.appendChild(appFooter);
+        }
+
         // Reset styles for vertical layout
         controlsContainer.style.width = '';
         layoutToggleBtn.style.left = '';
