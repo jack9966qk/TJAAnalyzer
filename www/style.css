@@ -619,7 +619,7 @@ body.horizontal-layout #chart-container {
 
 body.horizontal-layout .canvas-container {
     flex-grow: 1;
-    padding: 20px;
+    padding: 20px 20px 20px 35px;
     background: #fafafa;
 }
 
