@@ -18,6 +18,32 @@ test.describe('Visual Regression', () => {
         await expect(canvas).toHaveScreenshot('initial-render.png');
     });
 
+    test('Note Selected', async ({ page }) => {
+        await page.goto('/chart-only.html');
+        await page.waitForFunction(() => {
+            const chart = document.querySelector('tja-chart');
+            return chart && chart.shadowRoot && chart.shadowRoot.querySelector('canvas');
+        });
+
+        await page.evaluate(() => {
+            (window as any).setOptions({
+                viewMode: 'original',
+                coloringMode: 'categorical',
+                visibility: { perfect: true, good: true, poor: true },
+                collapsedLoop: false,
+                beatsPerLine: 16,
+                selection: { start: { originalBarIndex: 0, charIndex: 0 }, end: null },
+                annotations: {},
+                isAnnotationMode: false,
+                showAllBranches: false
+            });
+        });
+
+        const canvas = page.locator('#chart-component');
+        await expect(canvas).toBeVisible();
+        await expect(canvas).toHaveScreenshot('note-selected.png');
+    });
+
     test('BPM Change Tooltip', async ({ page }) => {
         await page.goto('/');
         await page.waitForTimeout(500);
@@ -838,7 +864,8 @@ test.describe('Selection Interaction', () => {
         await expect(stats).toContainText('DON');
 
         // 3. Take Snapshot of Selection
-        await expect(canvas).toHaveScreenshot('note-selected.png');
+        // Moved to 'Visual Regression' > 'Note Selected'
+        // await expect(canvas).toHaveScreenshot('note-selected.png');
 
         // 4. Hover away to empty space (e.g. x + 100, same y)
         await canvas.hover({ position: { x: notePos.x + 100, y: notePos.y }, force: true });
