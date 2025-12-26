@@ -1,13 +1,17 @@
 import { parseTJA, ParsedChart } from './tja-parser.js';
 import { generateTJAFromSelection } from './tja-exporter.js';
 import { shareFile } from './file-share.js';
-import { renderChart, getNoteAt, HitInfo, getGradientColor, JudgementVisibility, ViewOptions, RenderTexts, exportChartImage, PALETTE, calculateInferredHands } from './renderer.js';
+import { HitInfo, getGradientColor, ViewOptions, RenderTexts, PALETTE, calculateInferredHands } from './renderer.js';
 import { exampleTJA } from './example-data.js';
 import { JudgementClient, ServerEvent } from './judgement-client.js';
 import { i18n } from './i18n.js';
 import { EseClient, GitNode } from './ese-client.js';
+import { TJAChart, ChartClickEventDetail } from './tja-chart.js';
 
-const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement | null;
+// Ensure TJAChart is imported for side-effects (custom element registration)
+console.log('TJAChart module loaded', TJAChart);
+
+const tjaChart = document.getElementById('chart-component') as TJAChart;
 let parsedTJACharts: Record<string, ParsedChart> | null = null;
 let currentChart: ParsedChart | null = null;
 
@@ -886,23 +890,12 @@ function init(): void {
         refreshChart();
     });
     
-    // ResizeObserver for canvas
-    if (canvas) {
-        const resizeObserver = new ResizeObserver(() => {
-            refreshChart();
-        });
-        resizeObserver.observe(canvas);
-    }
-
     // Initial call
     updateLayout();
 
-    if (!canvas) {
-
-        console.error("Canvas element with ID 'chart-canvas' not found.");
-
+    if (!tjaChart) {
+        console.error("tja-chart element not found.");
         return;
-
     }
 
 
@@ -1001,22 +994,13 @@ function init(): void {
             if (!currentChart) return;
             
             try {
-                const texts: RenderTexts = {
-                    loopPattern: i18n.t('renderer.loop'),
-                    judgement: {
-                        perfect: i18n.t('renderer.judge.perfect'),
-                        good: i18n.t('renderer.judge.good'),
-                        poor: i18n.t('renderer.judge.poor')
-                    }
-                };
-                
                 // Determine annotation mode state for rendering
                 // We should respect the current state
                 const activeTab = document.querySelector('#chart-options-panel .panel-tab.active');
                 const mode = activeTab ? activeTab.getAttribute('data-do-tab') : 'view';
                 const optionsForExport = { ...viewOptions, isAnnotationMode: (mode === 'annotation') };
 
-                const dataURL = exportChartImage(currentChart, judgements, judgementDeltas, optionsForExport, texts);
+                const dataURL = tjaChart.exportImage(optionsForExport);
                 
                 // Convert DataURL to Uint8Array
                 const base64Data = dataURL.split(',')[1];
@@ -1475,93 +1459,69 @@ function init(): void {
 
     // Canvas Interaction
     
-                const handleCanvasInteraction = (event: MouseEvent) => {
+    // Listen to custom events
+    tjaChart.addEventListener('chart-hover', (e: Event) => {
+         const detail = (e as CustomEvent).detail;
+         const hit = detail.hit as HitInfo | null;
+         
+         // Note: Logic for selection/annotation in hover was minimal (cursor only)
+         // Cursor is handled by component now.
+         
+         // Render stats
+         const statsHit = selectedNoteHitInfo || hit;
+         renderStats(statsHit, currentChart, viewOptions, judgements);
+    });
     
-                    if (!currentChart) return;
-    
-                    // Check active tab
-                    const activeTab = document.querySelector('#chart-options-panel .panel-tab.active');
-                    const mode = activeTab ? activeTab.getAttribute('data-do-tab') : 'view';
-                    if (viewOptions.showAllBranches && (mode === 'annotation' || mode === 'selection')) {
-                        canvas.style.cursor = 'default';
-                        return;
-                    }    
+    tjaChart.addEventListener('chart-click', (e: Event) => {
+         const detail = (e as CustomEvent).detail;
+         const hit = detail.hit as HitInfo | null;
+         
+         if (!currentChart) return;
+         const activeTab = document.querySelector('#chart-options-panel .panel-tab.active');
+         const mode = activeTab ? activeTab.getAttribute('data-do-tab') : 'view';
 
-                    const rect = canvas.getBoundingClientRect();        
-                    const x = event.clientX - rect.left;
-                    const y = event.clientY - rect.top;
-                    const hit = getNoteAt(x, y, currentChart, canvas, judgements, viewOptions);
-    
-        
-    
-                    
-    
-                    if (event.type === 'click') {
-    
-                         if (mode === 'annotation') {
-                      if (hit && ['1', '2', '3', '4'].includes(hit.type)) {
-                           const noteId = `${hit.originalBarIndex}_${hit.charIndex}`;
-                           const current = annotations[noteId];
-                           if (!current) annotations[noteId] = 'L';
-                           else if (current === 'L') annotations[noteId] = 'R';
-                           else delete annotations[noteId];
-                           
-                           refreshChart();
-                      }
-                      return; // Don't trigger selection logic if in annotation mode
-                 }
+         if (viewOptions.showAllBranches && (mode === 'annotation' || mode === 'selection')) return;
 
-                 if (mode !== 'selection') return;
+         if (mode === 'annotation') {
+              if (hit && ['1', '2', '3', '4'].includes(hit.type)) {
+                   const noteId = `${hit.originalBarIndex}_${hit.charIndex}`;
+                   const current = annotations[noteId];
+                   if (!current) annotations[noteId] = 'L';
+                   else if (current === 'L') annotations[noteId] = 'R';
+                   else delete annotations[noteId];
+                   
+                   refreshChart();
+              }
+              return;
+         }
 
-                 if (hit) {
-                     // Check existing selection state
-                     if (!viewOptions.selection) {
-                         // Case 1: Initial Selection
-                         viewOptions.selection = { start: { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex }, end: null };
-                         selectedNoteHitInfo = hit;
-                     } else if (viewOptions.selection.start && !viewOptions.selection.end) {
-                         // Case 2: Range Selection (End)
-                         if (viewOptions.selection.start.originalBarIndex === hit.originalBarIndex && viewOptions.selection.start.charIndex === hit.charIndex) {
-                             viewOptions.selection = null;
-                             selectedNoteHitInfo = null;
-                         } else {
-                             viewOptions.selection.end = { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex };
-                             selectedNoteHitInfo = hit; 
-                         }
-                     } else {
-                         // Case 3: Restart selection (Range already exists)
-                         viewOptions.selection = { start: { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex }, end: null };
-                         selectedNoteHitInfo = hit;
-                     }
-                 } else {
-                     // Click on empty space - Deselect
+         if (mode !== 'selection') return;
+         
+         // Selection Logic (same as before)
+         if (hit) {
+             if (!viewOptions.selection) {
+                 viewOptions.selection = { start: { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex }, end: null };
+                 selectedNoteHitInfo = hit;
+             } else if (viewOptions.selection.start && !viewOptions.selection.end) {
+                 if (viewOptions.selection.start.originalBarIndex === hit.originalBarIndex && viewOptions.selection.start.charIndex === hit.charIndex) {
                      viewOptions.selection = null;
                      selectedNoteHitInfo = null;
+                 } else {
+                     viewOptions.selection.end = { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex };
+                     selectedNoteHitInfo = hit; 
                  }
-                 refreshChart();
-                 updateSelectionUI();
-            }
-
-            if (hit) {
-                canvas.style.cursor = 'pointer';
-            } else {
-                canvas.style.cursor = 'default';
-            }
-            
-            // Render Stats: Use selected note if active, otherwise hover hit
-            // If range selected, we probably want to show stats for the last clicked note (captured in selectedNoteHitInfo)
-            const statsHit = selectedNoteHitInfo || hit;
-            renderStats(statsHit, currentChart, viewOptions, judgements);
-
-        };
-
-
-
-    canvas.addEventListener('mousemove', handleCanvasInteraction);
-
-    canvas.addEventListener('click', handleCanvasInteraction);
-
-
+             } else {
+                 viewOptions.selection = { start: { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex }, end: null };
+                 selectedNoteHitInfo = hit;
+             }
+         } else {
+             viewOptions.selection = null;
+             selectedNoteHitInfo = null;
+         }
+         refreshChart();
+         updateSelectionUI();
+         renderStats(selectedNoteHitInfo, currentChart, viewOptions, judgements);
+    });
 
     difficultySelector.addEventListener('change', () => {
         updateBranchSelectorState(true);
@@ -1929,30 +1889,12 @@ function updateParsedCharts(content: string) {
 }
 
 function refreshChart() {
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
+    if (!tjaChart) return;
 
     // 1. Check for Stream Waiting State
     if ((isStreamConnected || isSimulating) && !hasReceivedGameStart) {
-        // Clear and draw placeholder
-        const width = canvas.clientWidth || 800;
-        const height = 400; // Arbitrary height
-        // Set canvas size
-        canvas.width = width;
-        canvas.height = height;
-        canvas.style.height = height + 'px';
-        
-        ctx.fillStyle = PALETTE.ui.streamWaiting.background;
-        ctx.fillRect(0, 0, width, height);
-        
-        ctx.fillStyle = PALETTE.ui.streamWaiting.text;
-        ctx.font = 'bold 24px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(i18n.t('ui.stream.waitingStart'), width / 2, height / 2);
-        
-        updateLoopControls(); // Likely hides it
+        tjaChart.showMessage(i18n.t('ui.stream.waitingStart'), 'info');
+        updateLoopControls();
         return;
     }
 
@@ -1963,71 +1905,23 @@ function refreshChart() {
 
         // 1. Check for All Branches + Selection/Annotation Mode
         if (viewOptions.showAllBranches && (mode === 'selection' || mode === 'annotation')) {
-            const width = canvas.clientWidth || 800;
-            const height = 400;
-            canvas.width = width;
-            canvas.height = height;
-            canvas.style.height = height + 'px';
-            
-            ctx.fillStyle = PALETTE.ui.warning.background;
-            ctx.fillRect(0, 0, width, height);
-            
-            ctx.fillStyle = PALETTE.ui.warning.text;
-            ctx.font = 'bold 20px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            
-            const msg = i18n.t('ui.error.branchAllMode');
-            ctx.fillText(msg, width / 2, height / 2);
-            
-            updateLoopControls();
-            return;
+             tjaChart.showMessage(i18n.t('ui.error.branchAllMode'), 'warning');
+             updateLoopControls();
+             return;
         }
 
         // 2. Check for Branching + Judgement Mode
         const isJudgementMode = viewOptions.viewMode.startsWith('judgements');
-        const hasBranching = currentChart.branchType !== undefined || (currentChart.branches !== undefined);
-        
-        // Note: parsedTJACharts[diff] returns the root which has .branches. 
-        // currentChart might be a specific branch (which doesn't have .branches usually, but we check if we are in a branched context)
-        // However, checking logic: 
-        // If currentChart is one of the branches, we can render it.
-        // But the requirement says "chart has branching".
-        // If we are viewing a specific branch, technically we are supporting it?
-        // "When there is judgement to display and the chart has branching, do not render the chart."
-        // This implies the current implementation of judgement display might be broken for branched charts (alignment issues etc).
-        // So we should block it even if we selected a branch.
-        
-        // Actually, currentChart is set to a branch target in updateBranchSelectorState.
-        // But the judgement display logic (deltas mapping) might assume linear non-branched progression or sync issues.
-        // So if the ORIGINAL chart had branches, we block it.
-        // We can check if `branchSelectorContainer` is visible (implies branching available).
-        
+        // Check if branching UI is active/visible as a proxy for "chart has branching"
         const branchSelectorVisible = branchSelectorContainer && !branchSelectorContainer.hidden;
 
         if (isJudgementMode && branchSelectorVisible) {
-            const width = canvas.clientWidth || 800;
-            const height = 400;
-            canvas.width = width;
-            canvas.height = height;
-            canvas.style.height = height + 'px';
-            
-            ctx.fillStyle = PALETTE.ui.warning.background; // Light red background
-            ctx.fillRect(0, 0, width, height);
-            
-            ctx.fillStyle = PALETTE.ui.warning.text;
-            ctx.font = 'bold 20px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            
-            const msg = i18n.t('ui.judgement.branchingNotSupported');
-            // Wrap text if needed? Canvas doesn't wrap. 
-            // Just draw it.
-            ctx.fillText(msg, width / 2, height / 2);
-            
+            tjaChart.showMessage(i18n.t('ui.judgement.branchingNotSupported'), 'warning');
             updateLoopControls();
             return;
         }
+
+        tjaChart.clearMessage();
 
         const texts: RenderTexts = {
             loopPattern: i18n.t('renderer.loop'),
@@ -2045,12 +1939,17 @@ function refreshChart() {
                 'ura': i18n.t('ui.difficulty.edit')
             }
         };
+        
         // Update viewOptions annotations
         viewOptions.annotations = annotations;
-        
         viewOptions.isAnnotationMode = (mode === 'annotation');
 
-        renderChart(currentChart, canvas, judgements, judgementDeltas, viewOptions, texts);
+        tjaChart.chart = currentChart;
+        tjaChart.viewOptions = viewOptions;
+        tjaChart.judgements = judgements;
+        tjaChart.judgementDeltas = judgementDeltas;
+        tjaChart.texts = texts;
+
         updateLoopControls();
     }
 }

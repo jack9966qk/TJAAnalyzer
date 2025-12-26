@@ -24,7 +24,7 @@ test.describe('Visual Regression', () => {
                 await page.waitForTimeout(500);
             }
         }
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
         
         await page.waitForTimeout(2000); 
@@ -52,7 +52,7 @@ test.describe('Visual Regression', () => {
                 await page.waitForTimeout(500);
             }
         }
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
         await page.waitForTimeout(1000);
 
@@ -86,7 +86,7 @@ test.describe('Visual Regression', () => {
                 await page.waitForTimeout(500);
             }
         }
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
         await page.waitForTimeout(1000);
 
@@ -154,7 +154,7 @@ test.describe('Visual Regression', () => {
             (window as any).setJudgements(judgements);
         });
 
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
         await page.waitForTimeout(500);
 
@@ -222,7 +222,7 @@ test.describe('Visual Regression', () => {
             (window as any).setJudgements(judgements);
         });
 
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
         await page.waitForTimeout(500);
 
@@ -290,7 +290,7 @@ test.describe('Visual Regression', () => {
             (window as any).setJudgements(judgements);
         });
 
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
         await page.waitForTimeout(500);
 
@@ -370,7 +370,7 @@ test.describe('Visual Regression', () => {
             (window as any).setJudgements(judgements, deltas);
         });
 
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
         await page.waitForTimeout(500);
 
@@ -398,7 +398,7 @@ test.describe('Visual Regression', () => {
                 await page.waitForTimeout(500);
             }
         }
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
 
         // Switch to File Tab
@@ -437,7 +437,7 @@ test.describe('Visual Regression', () => {
                 await page.waitForTimeout(500);
             }
         }
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
 
         // Switch to File Tab
@@ -483,7 +483,7 @@ BALLOON:5,10
                 await page.waitForTimeout(500);
             }
         }
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
 
         // Switch to File Tab
@@ -533,7 +533,7 @@ LEVEL:10
                 await page.waitForTimeout(500);
             }
         }
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
 
         // Switch to File Tab
@@ -801,7 +801,7 @@ test.describe('Loop Controls Interaction', () => {
                 await page.waitForTimeout(500);
             }
         }
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
 
         // Switch to File Tab
@@ -916,7 +916,7 @@ test.describe('Selection Interaction', () => {
                 await page.waitForTimeout(500);
             }
         }
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
         await page.waitForTimeout(2000);
         await page.selectOption('#difficulty-selector', 'oni');
@@ -926,7 +926,7 @@ test.describe('Selection Interaction', () => {
         await page.click('button[data-do-tab="selection"]');
 
         const dimensions = await page.evaluate(() => {
-            const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement;
+            const canvas = document.getElementById('chart-component') as HTMLElement;
             const PADDING = 20;
             const BARS_PER_ROW = 4;
             const availableWidth = canvas.clientWidth - (PADDING * 2);
@@ -989,7 +989,7 @@ test.describe('Selection Interaction', () => {
         }
         await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
         
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
         await page.waitForTimeout(2000);
         await page.selectOption('#difficulty-selector', 'oni');
@@ -999,37 +999,37 @@ test.describe('Selection Interaction', () => {
         await page.click('button[data-do-tab="selection"]');
         await page.waitForTimeout(500);
 
-        const dimensions = await page.evaluate(() => {
-            const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement;
-            const PADDING = 20;
-            const BARS_PER_ROW = 4;
-            const availableWidth = canvas.clientWidth - (PADDING * 2);
-            const barWidth = availableWidth / BARS_PER_ROW;
-            const headerHeight = barWidth * 0.35;
-            const y = PADDING + headerHeight + PADDING + (barWidth * 0.14) / 2;
-            return { barWidth, y };
+        const coordinates = await page.evaluate(() => {
+            const tjaChart = document.getElementById('chart-component') as any;
+            if (tjaChart.getNoteCoordinates) {
+                // Bar 0, Note 0 (DON)
+                const p0 = tjaChart.getNoteCoordinates(0, 0);
+                // Bar 1, Note 0 (DON)
+                const p1 = tjaChart.getNoteCoordinates(1, 0);
+                // Bar 2, Note 0 (Balloon)
+                const p2 = tjaChart.getNoteCoordinates(2, 0);
+                return { p0, p1, p2 };
+            }
+            return null;
         });
         
-        const { barWidth, y } = dimensions;
-        
-        // Bar 0 (Start), Bar 1, Bar 2
-        const x0 = 20; 
-        const x1 = 20 + barWidth + 2; // Nudge slightly into the bar
-        const x2 = 20 + 2 * barWidth + 2;
+        expect(coordinates).not.toBeNull();
+        if (!coordinates) return;
+        const { p0, p1, p2 } = coordinates;
 
         // 1. Click Start Note (Bar 0 - DON)
-        await canvas.click({ position: { x: x0, y } });
+        await canvas.click({ position: p0, force: true });
         const stats = page.locator('#note-stats-display');
         await expect(stats).toContainText('DON');
 
         await page.waitForTimeout(200);
 
         // 2. Click End Note (Bar 1 - DON)
-        await canvas.click({ position: { x: x1, y } });
+        await canvas.click({ position: p1, force: true });
         await expect(stats).toContainText('DON'); 
 
         // 3. Click Third Note (Bar 2 - Balloon) (Restart Selection)
-        await canvas.click({ position: { x: x2, y }, force: true });
+        await canvas.click({ position: p2, force: true });
         await expect(stats).toContainText('balloon');
     });
 });
@@ -1058,7 +1058,7 @@ test.describe('Annotation Interaction', () => {
         }
         await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
         
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
         await page.waitForTimeout(2000);
         await page.selectOption('#difficulty-selector', 'oni');
@@ -1074,7 +1074,7 @@ test.describe('Annotation Interaction', () => {
         await expect(canvas).toHaveScreenshot('annotation-mode-initial.png');
 
         const dimensions = await page.evaluate(() => {
-            const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement;
+            const canvas = document.getElementById('chart-component') as HTMLElement;
             const PADDING = 20;
             const BARS_PER_ROW = 4;
             const availableWidth = canvas.clientWidth - (PADDING * 2);
@@ -1123,7 +1123,7 @@ test.describe('Annotation Interaction', () => {
         }
         await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
         
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
 
         // Switch to File Tab
@@ -1187,7 +1187,7 @@ LEVEL:10
         }
         await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
 
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
 
         const tjaContent = `TITLE:Half to Quarter
@@ -1238,7 +1238,7 @@ LEVEL:10
         }
         await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
 
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
 
         const tjaContent = `TITLE:Quarter to Eighth
@@ -1289,7 +1289,7 @@ LEVEL:10
         }
         await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
 
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
 
         const tjaContent = `TITLE:Eighth to Sixteenth
@@ -1353,7 +1353,7 @@ LEVEL:10
         });
         await page.click('button[data-do-tab="annotation"]');
         await page.click('#auto-annotate-btn');
-        await expect(page.locator('#chart-canvas')).toHaveScreenshot('q-to-e.png');
+        await expect(page.locator('#chart-component')).toHaveScreenshot('q-to-e.png');
     });
 
     test('Rule: Segmentation - Eighth (Annotate) -> Quarter (No Annotate)', async ({ page }) => {
@@ -1393,7 +1393,7 @@ LEVEL:10
         });
         await page.click('button[data-do-tab="annotation"]');
         await page.click('#auto-annotate-btn');
-        await expect(page.locator('#chart-canvas')).toHaveScreenshot('e-to-q.png');
+        await expect(page.locator('#chart-component')).toHaveScreenshot('e-to-q.png');
     });
 
     test('Rule: Segmentation - Eighth (Annotate) -> Sixteenth (Annotate)', async ({ page }) => {
@@ -1432,7 +1432,7 @@ LEVEL:10
         });
         await page.click('button[data-do-tab="annotation"]');
         await page.click('#auto-annotate-btn');
-        await expect(page.locator('#chart-canvas')).toHaveScreenshot('e-to-s.png');
+        await expect(page.locator('#chart-component')).toHaveScreenshot('e-to-s.png');
     });
     
     test('Rule: Segmentation - Sixteenth (Annotate) -> Eighth (Annotate)', async ({ page }) => {
@@ -1471,7 +1471,7 @@ LEVEL:10
         });
         await page.click('button[data-do-tab="annotation"]');
         await page.click('#auto-annotate-btn');
-        await expect(page.locator('#chart-canvas')).toHaveScreenshot('s-to-e.png');
+        await expect(page.locator('#chart-component')).toHaveScreenshot('s-to-e.png');
     });
 
     test('Rule: 3 Opposite Color Notes', async ({ page }) => {
@@ -1497,7 +1497,7 @@ LEVEL:10
         }
         await page.addStyleTag({ content: '#sticky-header { position: static !important; }' });
 
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
 
         // Switch to File Tab

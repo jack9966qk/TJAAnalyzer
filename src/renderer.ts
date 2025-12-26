@@ -537,18 +537,38 @@ export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTML
     return null;
 }
 
-export function exportChartImage(chart: ParsedChart, judgements: string[] = [], judgementDeltas: (number | undefined)[] = [], options: ViewOptions, texts: RenderTexts = DEFAULT_TEXTS): string {
-    const canvas = document.createElement('canvas');
-    const TARGET_WIDTH = 1024;
+export function getNotePosition(chart: ParsedChart, canvas: HTMLCanvasElement, options: ViewOptions, targetBarIndex: number, targetCharIndex: number): { x: number, y: number } | null {
+    const logicalCanvasWidth: number = canvas.clientWidth || 800;
+    const availableWidth = logicalCanvasWidth - (PADDING * 2);
+    const baseBarWidth: number = availableWidth / (options.beatsPerLine / 4);
+    const headerHeight = baseBarWidth * RATIOS.HEADER_HEIGHT;
+    const offsetY = PADDING + headerHeight + PADDING;
     
-    // We want the final image to be exactly 1024px wide.
-    // We force DPR to 1 so that logical width == physical width.
-    canvas.width = TARGET_WIDTH;
+    const globalBarStartIndices = calculateGlobalBarStartIndices(chart.bars);
+    const virtualBars = getVirtualBars(chart, options, [], globalBarStartIndices);
     
-    // renderChart will resize height
-    renderChart(chart, canvas, judgements, judgementDeltas, options, texts, 1);
-    
-    return canvas.toDataURL('image/png');
+    const { layouts } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offsetY);
+
+    for (let index = 0; index < virtualBars.length; index++) {
+        const info = virtualBars[index];
+        if (info.originalIndex === targetBarIndex) {
+            const layout = layouts[index];
+            const bar = info.bar; 
+            if (!bar || bar.length === 0) return null;
+
+            const noteStep = layout.width / bar.length;
+            const x = layout.x + (targetCharIndex * noteStep);
+            
+            let y = layout.y + layout.height / 2;
+            
+            if (options.showAllBranches && chart.branches && chart.barParams[info.originalIndex].isBranched) {
+                 y = layout.y + (layout.height / 6);
+            }
+            
+            return { x, y };
+        }
+    }
+    return null;
 }
 
 export function getGradientColor(delta: number): string {
