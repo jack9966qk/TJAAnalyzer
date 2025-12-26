@@ -3,6 +3,9 @@ import { parseTJA } from './tja-parser.js';
 import { ViewOptions } from './renderer.js';
 import { exampleTJA } from './example-data.js';
 
+// Ensure side-effects
+console.log('TJAChart module loaded', TJAChart);
+
 console.log('Chart Only Main Loaded');
 
 const tjaChart = document.getElementById('chart-component') as TJAChart;

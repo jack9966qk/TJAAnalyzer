@@ -425,6 +425,7 @@ export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTML
     
     const { layouts, constants } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offsetY);
     const { NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG } = constants;
+    const maxRadius = NOTE_RADIUS_BIG;
 
     const isAllBranches = options.showAllBranches && !!chart.branches;
 
@@ -435,7 +436,7 @@ export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTML
         const layout = layouts[index];
         
         // Quick bounding box check
-        if (x < layout.x || x > layout.x + layout.width || y < layout.y || y > layout.y + layout.height) {
+        if (x < layout.x - maxRadius || x > layout.x + layout.width + maxRadius || y < layout.y - maxRadius || y > layout.y + layout.height + maxRadius) {
             continue;
         }
 

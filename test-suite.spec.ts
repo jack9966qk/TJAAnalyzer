@@ -973,38 +973,36 @@ test.describe('Selection Interaction', () => {
 
         // Switch to Selection Tab
         await page.click('button[data-do-tab="selection"]');
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(2000);
 
-        const coordinates = await page.evaluate(() => {
-            const tjaChart = document.getElementById('chart-component') as any;
-            if (tjaChart.getNoteCoordinates) {
-                // Bar 0, Note 0 (DON)
-                const p0 = tjaChart.getNoteCoordinates(0, 0);
-                // Bar 1, Note 0 (DON)
-                const p1 = tjaChart.getNoteCoordinates(1, 0);
-                // Bar 2, Note 0 (Balloon)
-                const p2 = tjaChart.getNoteCoordinates(2, 0);
-                return { p0, p1, p2 };
-            }
-            return null;
+        // 1. Click Start Note (Bar 0, Note 0)
+        const p0 = await page.evaluate(() => {
+            const chart = document.getElementById('chart-component') as any;
+            return chart.getNoteCoordinates(0, 0);
         });
-        
-        expect(coordinates).not.toBeNull();
-        if (!coordinates) return;
-        const { p0, p1, p2 } = coordinates;
-
-        // 1. Click Start Note (Bar 0 - DON)
+        expect(p0).not.toBeNull();
         await canvas.click({ position: p0, force: true });
+        
         const stats = page.locator('#note-stats-display');
         await expect(stats).toContainText('DON');
 
         await page.waitForTimeout(200);
 
-        // 2. Click End Note (Bar 1 - DON)
+        // 2. Click End Note (Bar 1, Note 0)
+        const p1 = await page.evaluate(() => {
+            const chart = document.getElementById('chart-component') as any;
+            return chart.getNoteCoordinates(1, 0);
+        });
+        expect(p1).not.toBeNull();
         await canvas.click({ position: p1, force: true });
         await expect(stats).toContainText('DON'); 
 
-        // 3. Click Third Note (Bar 2 - Balloon) (Restart Selection)
+        // 3. Click Third Note (Bar 2, Note 0 - Balloon) (Restart Selection)
+        const p2 = await page.evaluate(() => {
+            const chart = document.getElementById('chart-component') as any;
+            return chart.getNoteCoordinates(2, 0);
+        });
+        expect(p2).not.toBeNull();
         await canvas.click({ position: p2, force: true });
         await expect(stats).toContainText('balloon');
     });

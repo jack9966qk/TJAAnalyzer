@@ -22,7 +22,7 @@ test.describe('Annotation Inference', () => {
                 await page.waitForTimeout(500);
             }
         }
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('tja-chart canvas');
         await expect(canvas).toBeVisible();
         await page.waitForTimeout(2000);
         await page.selectOption('#difficulty-selector', 'oni');
@@ -34,10 +34,12 @@ test.describe('Annotation Inference', () => {
     });
 
     test('Inference Coloring - Mismatch Sequence', async ({ page }) => {
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('tja-chart canvas');
         
         const dimensions = await page.evaluate(() => {
-            const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement;
+            const chart = document.querySelector('tja-chart');
+            const canvas = chart?.shadowRoot?.querySelector('canvas') as HTMLCanvasElement;
+            if (!canvas) throw new Error('Canvas not found');
             const PADDING = 20;
             const BARS_PER_ROW = 4;
             const availableWidth = canvas.clientWidth - (PADDING * 2);
@@ -65,9 +67,11 @@ test.describe('Annotation Inference', () => {
     });
 
     test('Inference Coloring - Match Sequence', async ({ page }) => {
-        const canvas = page.locator('#chart-canvas');
+        const canvas = page.locator('tja-chart canvas');
         const dimensions = await page.evaluate(() => {
-            const canvas = document.getElementById('chart-canvas') as HTMLCanvasElement;
+            const chart = document.querySelector('tja-chart');
+            const canvas = chart?.shadowRoot?.querySelector('canvas') as HTMLCanvasElement;
+            if (!canvas) throw new Error('Canvas not found');
             const PADDING = 20;
             const BARS_PER_ROW = 4;
             const availableWidth = canvas.clientWidth - (PADDING * 2);
