@@ -4,30 +4,17 @@ import path from 'path';
 test.describe('Visual Regression', () => {
 
     test('Initial Render', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForTimeout(500);
-        // Ensure options panel is expanded
-        const optionsBody = page.locator('#options-body');
-        if (await optionsBody.count() > 0) {
-            const classes = await optionsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
-                await page.click('#options-collapse-btn');
-                await page.waitForTimeout(500);
-            }
-        }
-        // Ensure data source panel is expanded
-        const dsBody = page.locator('#ds-body');
-        if (await dsBody.count() > 0) {
-            const classes = await dsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
-                await page.click('#ds-collapse-btn');
-                await page.waitForTimeout(500);
-            }
-        }
+        await page.goto('/chart-only.html');
+        // Wait for render
+        await page.waitForFunction(() => {
+            const chart = document.querySelector('tja-chart');
+            if (!chart || !chart.shadowRoot) return false;
+            const canvas = chart.shadowRoot.querySelector('canvas');
+            return canvas && canvas.height > 0;
+        }, { timeout: 10000 });
+
         const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
-        
-        await page.waitForTimeout(2000); 
         await expect(canvas).toHaveScreenshot('initial-render.png');
     });
 
@@ -378,70 +365,80 @@ test.describe('Visual Regression', () => {
     });
 
     test('Loop Collapsed', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForTimeout(500);
-        // Ensure options panel is expanded
-        const optionsBody = page.locator('#options-body');
-        if (await optionsBody.count() > 0) {
-            const classes = await optionsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
-                await page.click('#options-collapse-btn');
-                await page.waitForTimeout(500);
-            }
-        }
-        // Ensure data source panel is expanded
-        const dsBody = page.locator('#ds-body');
-        if (await dsBody.count() > 0) {
-            const classes = await dsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
-                await page.click('#ds-collapse-btn');
-                await page.waitForTimeout(500);
-            }
-        }
+        await page.goto('/chart-only.html');
+        await page.waitForFunction(() => {
+            const chart = document.querySelector('tja-chart');
+            if (!chart || !chart.shadowRoot) return false;
+            const canvas = chart.shadowRoot.querySelector('canvas');
+            return canvas && canvas.height > 0;
+        });
+
+        const loopTJA = `TITLE:exTora 27
+// SUBTITLE:
+BPM:150
+// WAVE:DON.mp3
+// OFFSET:-1.3
+DEMOSTART:0
+SEVOL:41
+
+COURSE:Oni
+LEVEL:10
+BALLOON:
+SCOREINIT:a
+SCOREDIFF:
+
+#START
+,
+100100102020100100102020100000200000500008000000,
+,
+100100102020100100102020100000200000500008000000,
+,
+100100102020100100102020100000200000500008000000,
+,
+100100102020100100102020100000200000500008000000,
+,
+100100102020100100102020100000200000500008000000,
+,
+100100102020100100102020100000200000500008000000,
+,
+100100102020100100102020100000200000500008000000,
+,
+100100102020100100102020100000200000500008000000,
+,
+100100102020100100102020100000200000500008000000,
+,
+100100102020100100102020100000200000500008000000,
+,
+,
+#END`;
+
+        await page.evaluate((tja) => {
+            (window as any).loadChart(tja, 'oni');
+            (window as any).setOptions({
+                viewMode: 'original',
+                coloringMode: 'categorical',
+                visibility: { perfect: true, good: true, poor: true },
+                collapsedLoop: true,
+                selectedLoopIteration: undefined,
+                beatsPerLine: 16,
+                selection: null,
+                annotations: {},
+                isAnnotationMode: false
+            });
+        }, loopTJA);
+
         const canvas = page.locator('#chart-component');
-        await expect(canvas).toBeVisible();
-
-        // Switch to File Tab
-        await page.click('button[data-mode="file"]');
-
-        const filePath = path.join(process.cwd(), 'dev_instructions', 'loop_example.tja');
-        await page.setInputFiles('#tja-file-picker', filePath);
-
-        await page.waitForTimeout(1000);
-
-        await page.check('#collapse-loop-checkbox');
-
-        await page.waitForTimeout(1000);
-
         await expect(canvas).toHaveScreenshot('loop-collapsed.png');
     });
 
     test('Balloon Render', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForTimeout(500);
-        // Ensure options panel is expanded
-        const optionsBody = page.locator('#options-body');
-        if (await optionsBody.count() > 0) {
-            const classes = await optionsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
-                await page.click('#options-collapse-btn');
-                await page.waitForTimeout(500);
-            }
-        }
-        // Ensure data source panel is expanded
-        const dsBody = page.locator('#ds-body');
-        if (await dsBody.count() > 0) {
-            const classes = await dsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
-                await page.click('#ds-collapse-btn');
-                await page.waitForTimeout(500);
-            }
-        }
-        const canvas = page.locator('#chart-component');
-        await expect(canvas).toBeVisible();
-
-        // Switch to File Tab
-        await page.click('button[data-mode="file"]');
+        await page.goto('/chart-only.html');
+        await page.waitForFunction(() => {
+            const chart = document.querySelector('tja-chart');
+            if (!chart || !chart.shadowRoot) return false;
+            const canvas = chart.shadowRoot.querySelector('canvas');
+            return canvas && canvas.height > 0;
+        });
 
         const tjaContent = `TITLE:Balloon Test
 BPM:120
@@ -453,41 +450,22 @@ BALLOON:5,10
 700000000000000000000008,
 #END`;
         
-        await page.locator('#tja-file-picker').setInputFiles({
-            name: 'balloon.tja',
-            mimeType: 'text/plain',
-            buffer: Buffer.from(tjaContent)
-        });
+        await page.evaluate((tja) => {
+            (window as any).loadChart(tja, 'oni');
+        }, tjaContent);
 
-        await page.waitForTimeout(1000);
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toHaveScreenshot('balloon-render.png');
     });
 
     test('Gogo Time Render', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForTimeout(500);
-        const optionsBody = page.locator('#options-body');
-        if (await optionsBody.count() > 0) {
-            const classes = await optionsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
-                await page.click('#options-collapse-btn');
-                await page.waitForTimeout(500);
-            }
-        }
-        // Ensure data source panel is expanded
-        const dsBody = page.locator('#ds-body');
-        if (await dsBody.count() > 0) {
-            const classes = await dsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
-                await page.click('#ds-collapse-btn');
-                await page.waitForTimeout(500);
-            }
-        }
-        const canvas = page.locator('#chart-component');
-        await expect(canvas).toBeVisible();
-
-        // Switch to File Tab
-        await page.click('button[data-mode="file"]');
+        await page.goto('/chart-only.html');
+        await page.waitForFunction(() => {
+            const chart = document.querySelector('tja-chart');
+            if (!chart || !chart.shadowRoot) return false;
+            const canvas = chart.shadowRoot.querySelector('canvas');
+            return canvas && canvas.height > 0;
+        });
 
         const tjaContent = `TITLE:Gogo Test
 BPM:120
@@ -502,13 +480,11 @@ LEVEL:10
 1000,
 #END`;
         
-        await page.locator('#tja-file-picker').setInputFiles({
-            name: 'gogo.tja',
-            mimeType: 'text/plain',
-            buffer: Buffer.from(tjaContent)
-        });
+        await page.evaluate((tja) => {
+            (window as any).loadChart(tja, 'oni');
+        }, tjaContent);
 
-        await page.waitForTimeout(1000);
+        const canvas = page.locator('#chart-component');
         await expect(canvas).toHaveScreenshot('gogo-render.png');
     });
 

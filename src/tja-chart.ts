@@ -45,11 +45,25 @@ export class TJAChart extends HTMLElement {
     }
 
     connectedCallback() {
+        this.upgradeProperty('chart');
+        this.upgradeProperty('viewOptions');
+        this.upgradeProperty('judgements');
+        this.upgradeProperty('judgementDeltas');
+        this.upgradeProperty('texts');
+
         this.resizeObserver.observe(this);
         this.render();
         
         this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
         this.canvas.addEventListener('click', this.handleClick.bind(this));
+    }
+
+    private upgradeProperty(prop: string) {
+        if (this.hasOwnProperty(prop)) {
+            let value = (this as any)[prop];
+            delete (this as any)[prop];
+            (this as any)[prop] = value;
+        }
     }
 
     disconnectedCallback() {

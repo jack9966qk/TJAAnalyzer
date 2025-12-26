@@ -1695,7 +1695,7 @@ function init(): void {
         switchDataSourceMode('ese');
     } else {
         switchDataSourceMode('example');
-        loadExampleBtn.click();
+        if (loadExampleBtn) loadExampleBtn.click();
     }
 
     initializePanelVisibility();
@@ -2184,6 +2184,17 @@ window.addEventListener('resize', () => {
     judgementDeltas = newDeltas || [];
     refreshChart();
     renderStats(null, currentChart, viewOptions, judgements);
+};
+
+(window as any).loadTJAContent = (content: string) => {
+    loadedTJAContent = content;
+    updateParsedCharts(content);
+    updateStatus('status.fileLoaded');
+};
+
+(window as any).setViewOptions = (opts: any) => {
+    viewOptions = { ...viewOptions, ...opts };
+    refreshChart();
 };
 
 init();

@@ -39,6 +39,7 @@ fs.writeFileSync(path.join(destDir, '.nojekyll'), '');
 // Files/Dirs to copy
 const files = [
     { src: 'www/index.html', dest: 'index.html' },
+    { src: 'www/chart-only.html', dest: 'chart-only.html' },
     { src: 'www/style.css', dest: 'style.css' },
     { src: 'www/icon_simple.png', dest: 'icon_simple.png' },
     { src: 'www/ese', dest: 'ese' },
