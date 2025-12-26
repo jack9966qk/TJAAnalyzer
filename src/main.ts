@@ -1,7 +1,7 @@
 import { parseTJA, ParsedChart } from './tja-parser.js';
 import { generateTJAFromSelection } from './tja-exporter.js';
 import { shareFile } from './file-share.js';
-import { HitInfo, getGradientColor, ViewOptions, RenderTexts, PALETTE, calculateInferredHands } from './renderer.js';
+import { HitInfo, getGradientColor, ViewOptions, RenderTexts, PALETTE } from './renderer.js';
 import { exampleTJA } from './example-data.js';
 import { JudgementClient, ServerEvent } from './judgement-client.js';
 import { i18n } from './i18n.js';
@@ -1029,7 +1029,7 @@ function init(): void {
 
     if (autoAnnotateBtn) {
         autoAnnotateBtn.addEventListener('click', () => {
-            performAutoAnnotation();
+            tjaChart.autoAnnotate();
         });
     }
 
@@ -1460,6 +1460,12 @@ function init(): void {
     // Canvas Interaction
     
     // Listen to custom events
+    tjaChart.addEventListener('annotations-change', (e: Event) => {
+         const newAnnotations = (e as CustomEvent).detail;
+         annotations = newAnnotations;
+         refreshChart();
+    });
+
     tjaChart.addEventListener('chart-hover', (e: Event) => {
          const detail = (e as CustomEvent).detail;
          const hit = detail.hit as HitInfo | null;
@@ -1482,18 +1488,8 @@ function init(): void {
 
          if (viewOptions.showAllBranches && (mode === 'annotation' || mode === 'selection')) return;
 
-         if (mode === 'annotation') {
-              if (hit && ['1', '2', '3', '4'].includes(hit.type)) {
-                   const noteId = `${hit.originalBarIndex}_${hit.charIndex}`;
-                   const current = annotations[noteId];
-                   if (!current) annotations[noteId] = 'L';
-                   else if (current === 'L') annotations[noteId] = 'R';
-                   else delete annotations[noteId];
-                   
-                   refreshChart();
-              }
-              return;
-         }
+         // Annotation logic moved to component (annotations-change event)
+         if (mode === 'annotation') return;
 
          if (mode !== 'selection') return;
          
@@ -1954,150 +1950,7 @@ function refreshChart() {
     }
 }
 
-function performAutoAnnotation() {
-    if (!currentChart) return;
-    
-    // Pass current annotations so inference respects them (source of truth rule)
-    const inferred = calculateInferredHands(currentChart.bars, annotations);
 
-    interface NoteTiming {
-        id: string;
-        beat: number;
-        hand: string;
-        type: string;
-    }
-
-    const notes: NoteTiming[] = [];
-    let currentBeat = 0;
-    
-    for (let i = 0; i < currentChart.bars.length; i++) {
-        const bar = currentChart.bars[i];
-        const params = currentChart.barParams[i];
-        // Default measure ratio is 1.0 (4/4)
-        const measureRatio = params ? params.measureRatio : 1.0;
-        const barLengthBeats = 4 * measureRatio;
-        
-        if (bar && bar.length > 0) {
-            const step = barLengthBeats / bar.length;
-            for (let j = 0; j < bar.length; j++) {
-                const char = bar[j];
-                // Only Don/Ka (Small/Large) are annotatable
-                if (['1', '2', '3', '4'].includes(char)) {
-                    const id = `${i}_${j}`;
-                    const hand = inferred.get(id);
-                    if (hand) {
-                         notes.push({ id, beat: currentBeat + (j * step), hand, type: char });
-                    }
-                }
-            }
-        }
-        currentBeat += barLengthBeats;
-    }
-
-    // Identify notes to annotate
-    const toAnnotate = new Set<string>();
-
-    interface Segment {
-        notes: NoteTiming[];
-        gap: number;
-    }
-    const segments: Segment[] = [];
-    let currentSegment: NoteTiming[] = [];
-
-    for (let k = 0; k < notes.length; k++) {
-        const note = notes[k];
-
-        if (currentSegment.length === 0) {
-            currentSegment.push(note);
-            continue;
-        }
-
-        const prev = notes[k - 1];
-        const next = notes[k + 1];
-        const gapBefore = note.beat - prev.beat;
-
-        if (!next) {
-            // End of chart
-            currentSegment.push(note);
-            segments.push({ notes: [...currentSegment], gap: gapBefore });
-            currentSegment = [];
-            continue;
-        }
-
-        const gapAfter = next.beat - note.beat;
-        const epsilon = 0.0001;
-
-        if (Math.abs(gapBefore - gapAfter) < epsilon) {
-            // Consistent gap
-            currentSegment.push(note);
-        } else if (gapBefore < gapAfter - epsilon) {
-            // Gap before < gap after (Slowing down: 0.25 -> 0.5)
-            // Pivot belongs to faster stream (Before)
-            // Include in current, then end
-            currentSegment.push(note);
-            segments.push({ notes: [...currentSegment], gap: gapBefore });
-            currentSegment = [];
-        } else if (gapBefore > gapAfter + epsilon) {
-            // Gap before > gap after (Speeding up: 0.5 -> 0.25)
-            // Pivot belongs to faster stream (After)
-            // End current (without pivot), Start new with pivot
-            segments.push({ notes: [...currentSegment], gap: gapBefore });
-            currentSegment = [note];
-        }
-    }
-
-    // Process segments to find annotation targets
-    for (const seg of segments) {
-        if (seg.notes.length === 0) continue;
-
-        const first = seg.notes[0];
-        const [barIdxStr] = first.id.split('_');
-        const barIdx = parseInt(barIdxStr, 10);
-        const params = currentChart.barParams[barIdx];
-        const measureRatio = params ? params.measureRatio : 1.0;
-        const quarterNote = measureRatio;
-
-        if (seg.gap < quarterNote - 0.0001) {
-            toAnnotate.add(first.id);
-
-            // Check for 3 opposite color notes before
-            const getColor = (c: string) => (c === '1' || c === '3') ? 'd' : 'k';
-            
-            for (let i = 3; i < seg.notes.length; i++) {
-                const current = seg.notes[i];
-                const prev1 = seg.notes[i - 1];
-                const prev2 = seg.notes[i - 2];
-                const prev3 = seg.notes[i - 3];
-                
-                const cCurr = getColor(current.type);
-                const c1 = getColor(prev1.type);
-                const c2 = getColor(prev2.type);
-                const c3 = getColor(prev3.type);
-                
-                if (c1 === c2 && c2 === c3 && c1 !== cCurr) {
-                    toAnnotate.add(current.id);
-                }
-            }
-        }
-    }
-    
-    // Update annotations
-    let changed = false;
-    toAnnotate.forEach(id => {
-        const hand = inferred.get(id);
-        if (hand && annotations[id] !== hand) {
-            annotations[id] = hand;
-            changed = true;
-        } else if (hand && !annotations[id]) {
-            annotations[id] = hand;
-            changed = true;
-        }
-    });
-    
-    if (changed) {
-        refreshChart();
-    }
-}
 
 function getGapInfo(chart: ParsedChart, currentBarIdx: number, currentCharIdx: number): string | null {
     const currentBar = chart.bars[currentBarIdx];

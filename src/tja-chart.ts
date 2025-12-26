@@ -1,5 +1,6 @@
 import { ParsedChart } from './tja-parser.js';
 import { ViewOptions, renderChart, getNoteAt, getNotePosition, RenderTexts, PALETTE } from './renderer.js';
+import { generateAutoAnnotations } from './auto-annotation.js';
 
 export interface ChartClickEventDetail {
     x: number;
@@ -216,8 +217,40 @@ export class TJAChart extends HTMLElement {
         
         const hit = getNoteAt(x, y, this._chart, this.canvas, this._judgements, this._viewOptions);
 
+        // Handle Annotation Mode Click
+        if (this._viewOptions.isAnnotationMode) {
+             if (hit && ['1', '2', '3', '4'].includes(hit.type)) {
+                   const noteId = `${hit.originalBarIndex}_${hit.charIndex}`;
+                   const annotations = { ...(this._viewOptions.annotations || {}) };
+                   const current = annotations[noteId];
+                   
+                   if (!current) annotations[noteId] = 'L';
+                   else if (current === 'L') annotations[noteId] = 'R';
+                   else delete annotations[noteId];
+                   
+                   this.dispatchEvent(new CustomEvent('annotations-change', { 
+                       detail: annotations,
+                       bubbles: true,
+                       composed: true
+                   }));
+             }
+             // Don't return, still emit chart-click for generic listeners
+        }
+
         this.dispatchEvent(new CustomEvent('chart-click', { 
             detail: { x, y, hit, originalEvent: event },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    autoAnnotate() {
+        if (!this._chart) return;
+        const currentAnnotations = this._viewOptions?.annotations || {};
+        const newAnnotations = generateAutoAnnotations(this._chart, currentAnnotations);
+        
+        this.dispatchEvent(new CustomEvent('annotations-change', { 
+            detail: newAnnotations,
             bubbles: true,
             composed: true
         }));

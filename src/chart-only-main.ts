@@ -31,6 +31,22 @@ const tjaChart = document.getElementById('chart-component') as TJAChart;
     tjaChart.viewOptions = options;
 };
 
+// Listen for annotation changes from the component
+tjaChart.addEventListener('annotations-change', (e: Event) => {
+    const newAnnotations = (e as CustomEvent).detail;
+    // Update options with new annotations
+    if (tjaChart.viewOptions) {
+        tjaChart.viewOptions = {
+            ...tjaChart.viewOptions,
+            annotations: newAnnotations
+        };
+    }
+});
+
+(window as any).autoAnnotate = () => {
+    tjaChart.autoAnnotate();
+};
+
 // Initial Setup
 // Ensure tja-chart is defined (imported above)
 
