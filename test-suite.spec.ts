@@ -87,40 +87,25 @@ test.describe('Visual Regression', () => {
     });
 
     test('Judgements View', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForTimeout(500);
-        // Ensure options panel is expanded
-        const optionsBody = page.locator('#options-body');
-        if (await optionsBody.count() > 0) {
-            const classes = await optionsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
-                await page.click('#options-collapse-btn');
-                await page.waitForTimeout(500);
-            }
-        }
-        // Ensure data source panel is expanded
-        const dsBody = page.locator('#ds-body');
-        if (await dsBody.count() > 0) {
-            const classes = await dsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
-                await page.click('#ds-collapse-btn');
-                await page.waitForTimeout(500);
-            }
-        }
-
-        await page.evaluate(() => {
-            window.setInterval = () => 0 as any;
+        await page.goto('/chart-only.html');
+        await page.waitForFunction(() => {
+            const chart = document.querySelector('tja-chart');
+            return chart && chart.shadowRoot && chart.shadowRoot.querySelector('canvas');
         });
 
-        // Switch to Test Tab
-        await page.click('button[data-mode="test"]');
-
-        await page.click('#test-stream-btn');
-        // Switch to Judgements Tab
-        await page.click('button[data-do-tab="judgements"]');
-        await page.waitForTimeout(500);
-
         await page.evaluate(() => {
+            (window as any).setOptions({
+                viewMode: 'judgements',
+                coloringMode: 'categorical',
+                visibility: { perfect: true, good: true, poor: true },
+                collapsedLoop: false,
+                beatsPerLine: 16,
+                selection: null,
+                annotations: {},
+                isAnnotationMode: false,
+                showAllBranches: false
+            });
+
             let seed = 12345;
             const nextRandom = () => {
                 seed = (1103515245 * seed + 12345) % 2147483648;
@@ -138,57 +123,34 @@ test.describe('Visual Regression', () => {
                     judgements.push('Poor');
                 }
             }
-            (window as any).setJudgements(judgements);
+            (window as any).setJudgements(judgements, []);
         });
 
         const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
-        await page.waitForTimeout(500);
-
         await expect(canvas).toHaveScreenshot('judgements-view.png');
     });
 
     test('Judgements Underline View', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForTimeout(500);
-        // Ensure options panel is expanded
-        const optionsBody = page.locator('#options-body');
-        if (await optionsBody.count() > 0) {
-            const classes = await optionsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
-                await page.click('#options-collapse-btn');
-                await page.waitForTimeout(500);
-            }
-        }
-        // Ensure data source panel is expanded
-        const dsBody = page.locator('#ds-body');
-        if (await dsBody.count() > 0) {
-            const classes = await dsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
-                await page.click('#ds-collapse-btn');
-                await page.waitForTimeout(500);
-            }
-        }
-
-        await page.evaluate(() => {
-            window.setInterval = () => 0 as any;
+        await page.goto('/chart-only.html');
+        await page.waitForFunction(() => {
+            const chart = document.querySelector('tja-chart');
+            return chart && chart.shadowRoot && chart.shadowRoot.querySelector('canvas');
         });
 
-        // Switch to Test Tab
-        await page.click('button[data-mode="test"]');
-
-        await page.click('#test-stream-btn');
-        await page.waitForTimeout(500); 
-        
-        // 1. Switch to Judgements Tab
-        await page.click('button[data-do-tab="judgements"]');
-        await page.waitForTimeout(500);
-        
-        // 2. Select Underline Style
-        const underlineRadio = page.locator('input[name="judgementStyle"][value="underline"]');
-        await underlineRadio.check();
-
         await page.evaluate(() => {
+            (window as any).setOptions({
+                viewMode: 'judgements-underline',
+                coloringMode: 'categorical',
+                visibility: { perfect: true, good: true, poor: true },
+                collapsedLoop: false,
+                beatsPerLine: 16,
+                selection: null,
+                annotations: {},
+                isAnnotationMode: false,
+                showAllBranches: false
+            });
+
             let seed = 12345;
             const nextRandom = () => {
                 seed = (1103515245 * seed + 12345) % 2147483648;
@@ -206,57 +168,34 @@ test.describe('Visual Regression', () => {
                     judgements.push('Poor');
                 }
             }
-            (window as any).setJudgements(judgements);
+            (window as any).setJudgements(judgements, []);
         });
 
         const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
-        await page.waitForTimeout(500);
-
         await expect(canvas).toHaveScreenshot('judgements-underline-view.png');
     });
 
     test('Judgements Text View', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForTimeout(500);
-        // Ensure options panel is expanded
-        const optionsBody = page.locator('#options-body');
-        if (await optionsBody.count() > 0) {
-            const classes = await optionsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
-                await page.click('#options-collapse-btn');
-                await page.waitForTimeout(500);
-            }
-        }
-        // Ensure data source panel is expanded
-        const dsBody = page.locator('#ds-body');
-        if (await dsBody.count() > 0) {
-            const classes = await dsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
-                await page.click('#ds-collapse-btn');
-                await page.waitForTimeout(500);
-            }
-        }
-
-        await page.evaluate(() => {
-            window.setInterval = () => 0 as any;
+        await page.goto('/chart-only.html');
+        await page.waitForFunction(() => {
+            const chart = document.querySelector('tja-chart');
+            return chart && chart.shadowRoot && chart.shadowRoot.querySelector('canvas');
         });
 
-        // Switch to Test Tab
-        await page.click('button[data-mode="test"]');
-
-        await page.click('#test-stream-btn');
-        await page.waitForTimeout(500); 
-        
-        // 1. Switch to Judgements Tab
-        await page.click('button[data-do-tab="judgements"]');
-        await page.waitForTimeout(500);
-        
-        // 2. Select Text Style
-        const textRadio = page.locator('input[name="judgementStyle"][value="text"]');
-        await textRadio.check();
-
         await page.evaluate(() => {
+            (window as any).setOptions({
+                viewMode: 'judgements-text',
+                coloringMode: 'categorical',
+                visibility: { perfect: true, good: true, poor: true },
+                collapsedLoop: false,
+                beatsPerLine: 16,
+                selection: null,
+                annotations: {},
+                isAnnotationMode: false,
+                showAllBranches: false
+            });
+
             let seed = 12345;
             const nextRandom = () => {
                 seed = (1103515245 * seed + 12345) % 2147483648;
@@ -274,57 +213,34 @@ test.describe('Visual Regression', () => {
                     judgements.push('Poor');
                 }
             }
-            (window as any).setJudgements(judgements);
+            (window as any).setJudgements(judgements, []);
         });
 
         const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
-        await page.waitForTimeout(500);
-
         await expect(canvas).toHaveScreenshot('judgements-text-view.png');
     });
 
     test('Gradient Coloring View', async ({ page }) => {
-        await page.goto('/');
-        await page.waitForTimeout(500);
-        // Ensure options panel is expanded
-        const optionsBody = page.locator('#options-body');
-        if (await optionsBody.count() > 0) {
-            const classes = await optionsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
-                await page.click('#options-collapse-btn');
-                await page.waitForTimeout(500);
-            }
-        }
-        // Ensure data source panel is expanded
-        const dsBody = page.locator('#ds-body');
-        if (await dsBody.count() > 0) {
-            const classes = await dsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
-                await page.click('#ds-collapse-btn');
-                await page.waitForTimeout(500);
-            }
-        }
-
-        await page.evaluate(() => {
-            window.setInterval = () => 0 as any;
+        await page.goto('/chart-only.html');
+        await page.waitForFunction(() => {
+            const chart = document.querySelector('tja-chart');
+            return chart && chart.shadowRoot && chart.shadowRoot.querySelector('canvas');
         });
 
-        // Switch to Test Tab
-        await page.click('button[data-mode="test"]');
-
-        await page.click('#test-stream-btn');
-        await page.waitForTimeout(500); 
-        
-        // 1. Switch to Judgements Tab
-        await page.click('button[data-do-tab="judgements"]');
-        await page.waitForTimeout(500);
-        
-        // 2. Select Gradient Coloring
-        const gradientRadio = page.locator('input[name="judgementColoring"][value="gradient"]');
-        await gradientRadio.check();
-
         await page.evaluate(() => {
+            (window as any).setOptions({
+                viewMode: 'judgements',
+                coloringMode: 'gradient',
+                visibility: { perfect: true, good: true, poor: true },
+                collapsedLoop: false,
+                beatsPerLine: 16,
+                selection: null,
+                annotations: {},
+                isAnnotationMode: false,
+                showAllBranches: false
+            });
+
             let seed = 12345;
             const nextRandom = () => {
                 seed = (1103515245 * seed + 12345) % 2147483648;
@@ -359,8 +275,6 @@ test.describe('Visual Regression', () => {
 
         const canvas = page.locator('#chart-component');
         await expect(canvas).toBeVisible();
-        await page.waitForTimeout(500);
-
         await expect(canvas).toHaveScreenshot('gradient-coloring-view.png');
     });
 

@@ -47,6 +47,11 @@ tjaChart.addEventListener('annotations-change', (e: Event) => {
     tjaChart.autoAnnotate();
 };
 
+(window as any).setJudgements = (judgements: string[], deltas: (number | undefined)[]) => {
+    tjaChart.judgements = judgements;
+    tjaChart.judgementDeltas = deltas || [];
+};
+
 // Initial Setup
 // Ensure tja-chart is defined (imported above)
 
