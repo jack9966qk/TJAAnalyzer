@@ -750,48 +750,31 @@ function updateBranchSelectorState(resetBranch: boolean = false) {
     refreshChart();
 }
 
-
-
 function updateCollapseLoopState() {
-
     if (!collapseLoopCheckbox) return;
-
-
-
     const hasLoop = currentChart && currentChart.loop;
-
-    
-
+    const optionSection = collapseLoopCheckbox.closest('.option-section') as HTMLElement;
     if (hasLoop) {
-
         collapseLoopCheckbox.disabled = false;
-
         if (collapseLoopCheckbox.parentElement) {
-
             collapseLoopCheckbox.parentElement.classList.remove('disabled-text');
-
         }
-
+        if (optionSection) {
+            optionSection.style.display = '';
+        }
     } else {
-
         collapseLoopCheckbox.disabled = true;
-
         collapseLoopCheckbox.checked = false;
-
         viewOptions.collapsedLoop = false;
-
         if (collapseLoopCheckbox.parentElement) {
-
             collapseLoopCheckbox.parentElement.classList.add('disabled-text');
-
-        }
-
-    }
-
-    // Note: refreshChart() is usually called after this or before this in the flow. 
-
-    // If we changed 'collapsedLoop' state here, we might need to ensure refresh happens.
-
+       }
+       if (optionSection) {
+           optionSection.style.display = 'none';
+       }
+   }
+   // Note: refreshChart() is usually called after this or before this in the flow. 
+   // If we changed 'collapsedLoop' state here, we might need to ensure refresh happens.
 }
 
 function updateZoomDisplay() {
@@ -914,17 +897,16 @@ function init(): void {
 
     
     // Initial Loop State
-
     if (collapseLoopCheckbox) {
-
         collapseLoopCheckbox.disabled = true;
-
         if (collapseLoopCheckbox.parentElement) {
-
             collapseLoopCheckbox.parentElement.classList.add('disabled-text');
-
         }
 
+        const optionSection = collapseLoopCheckbox.closest('.option-section') as HTMLElement;
+        if (optionSection) {
+            optionSection.style.display = 'none';
+        }
     }
 
 
@@ -1033,111 +1015,64 @@ function init(): void {
         });
     }
 
-    // Setup Collapse Button
-
-            if (dsCollapseBtn && dsBody) {
-
-                dsCollapseBtn.addEventListener('click', () => {
-
-                    if (dsBody.classList.contains('collapsed')) {
-
-                        dsBody.classList.remove('collapsed');
-
-                        dsCollapseBtn.innerText = i18n.t('ui.collapse');
-
-                    } else {
-
-                        dsBody.classList.add('collapsed');
-
-                        dsCollapseBtn.innerText = i18n.t('ui.expand');
-
-                    }
-
-                });
-
-            }
-
-
-
-        
-
-
-
-            // Setup Display Options Collapse Button
-
-
-
-            if (optionsCollapseBtn && optionsBody) {
-
-
-
-                optionsCollapseBtn.addEventListener('click', () => {
-
-
-
-                    if (optionsBody.classList.contains('collapsed')) {
-
-
-
-                        optionsBody.classList.remove('collapsed');
-
-
-
-                        optionsCollapseBtn.innerText = i18n.t('ui.collapse');
-
-
-
-                    } else {
-
-
-
-                        optionsBody.classList.add('collapsed');
-
-
-
-                        optionsCollapseBtn.innerText = i18n.t('ui.expand');
-
-
-
-                    }
-
-
-
-                });
-
-
-
-            }
-
-
-
+        // Setup Collapse Button
     
-
-
-
-        // Setup Stats Toggle
-
-
-
-        if (showStatsCheckbox && noteStatsDisplay) {
-
-
-
-            showStatsCheckbox.addEventListener('change', () => {
-
-
-
-                noteStatsDisplay.style.display = showStatsCheckbox.checked ? '' : 'none';
-
-
-
+        if (dsCollapseBtn && dsBody) {
+    
+            dsCollapseBtn.addEventListener('click', () => {
+    
+                if (dsBody.classList.contains('collapsed')) {
+    
+                    dsBody.classList.remove('collapsed');
+    
+                    dsCollapseBtn.innerText = i18n.t('ui.collapse');
+    
+                } else {
+    
+                    dsBody.classList.add('collapsed');
+    
+                    dsCollapseBtn.innerText = i18n.t('ui.expand');
+    
+                }
+    
             });
-
-
-
+    
         }
+    
+        // Setup Display Options Collapse Button
+    if (optionsCollapseBtn && optionsBody) {
 
+        optionsCollapseBtn.addEventListener('click', () => {
 
+            if (optionsBody.classList.contains('collapsed')) {
+
+                optionsBody.classList.remove('collapsed');
+
+                optionsCollapseBtn.innerText = i18n.t('ui.collapse');
+
+            } else {
+
+                optionsBody.classList.add('collapsed');
+
+                optionsCollapseBtn.innerText = i18n.t('ui.expand');
+
+            }
+
+        });
+
+    }
+
+    // Setup Stats Toggle
+
+    if (showStatsCheckbox && noteStatsDisplay) {
+
+        showStatsCheckbox.addEventListener('change', () => {
+
+            noteStatsDisplay.style.display = showStatsCheckbox.checked ? '' : 'none';
+
+        });
+
+    }
 
     // Setup Load Example Button
 
@@ -1146,7 +1081,6 @@ function init(): void {
         loadExampleBtn.addEventListener('click', () => {
 
             loadedTJAContent = exampleTJA;
-
             try {
                 updateParsedCharts(loadedTJAContent);
                 updateStatus('status.exampleLoaded');
@@ -1160,8 +1094,6 @@ function init(): void {
         });
 
     }
-
-
 
     // Setup File Picker
 
@@ -1209,7 +1141,6 @@ function init(): void {
     }
 
     // Setup Stream Controls
-
     if (connectBtn && hostInput && portInput) {
 
         connectBtn.addEventListener('click', () => {
@@ -1230,8 +1161,6 @@ function init(): void {
 
     }
 
-
-
     if (testStreamBtn) {
 
         testStreamBtn.addEventListener('click', () => {
@@ -1247,35 +1176,19 @@ function init(): void {
 
     }
 
+    if (collapseLoopCheckbox) {
 
+        collapseLoopCheckbox.addEventListener('change', (event) => {
 
-        if (collapseLoopCheckbox) {
+            viewOptions.collapsedLoop = (event.target as HTMLInputElement).checked;
 
+            refreshChart();
 
+            renderStats(null, currentChart, viewOptions, judgements);
 
-            collapseLoopCheckbox.addEventListener('change', (event) => {
+        });
 
-
-
-                viewOptions.collapsedLoop = (event.target as HTMLInputElement).checked;
-
-
-
-                refreshChart();
-
-
-
-                renderStats(null, currentChart, viewOptions, judgements);
-
-
-
-            });
-
-
-
-        }
-
-
+    }
 
     // Loop Controls
 
@@ -1309,8 +1222,6 @@ function init(): void {
 
     }
 
-    
-
     if (loopPrevBtn) {
 
         loopPrevBtn.addEventListener('click', () => {
@@ -1326,8 +1237,6 @@ function init(): void {
         });
 
     }
-
-
 
     if (loopNextBtn) {
 
@@ -1529,8 +1438,6 @@ function init(): void {
         });
     }
 
-
-
     // Judgement Client Callbacks
 
     judgementClient.onMessage(async (event: ServerEvent) => {
@@ -1552,7 +1459,7 @@ function init(): void {
             selectedNoteHitInfo = null;
             updateSelectionUI();
 
-                        updateStatus('status.receiving');
+            updateStatus('status.receiving');
 
             if (event.tjaSummaries && event.tjaSummaries.length > 0) {
                 // Sort by player to ensure we get Player 1
@@ -1570,41 +1477,21 @@ function init(): void {
 
             updateCollapseLoopState();
 
-            
+            refreshChart();
 
-                        refreshChart();
+        } else if (event.type === 'judgement') {
 
-            
+            judgements.push(event.judgement);
 
-                    } else if (event.type === 'judgement') {
+            judgementDeltas.push(event.msDelta);
 
-            
+            refreshChart();
 
-                        judgements.push(event.judgement);
+        }
 
-            
+    });
 
-                        judgementDeltas.push(event.msDelta);
-
-            
-
-                        refreshChart();
-
-            
-
-                    }
-
-            
-
-                });
-
-            
-
-            
-
-            
-
-                judgementClient.onStatusChange((status: string) => {
+    judgementClient.onStatusChange((status: string) => {
 
                     if (connectBtn) {
                         if (status === 'Connected') {
@@ -1727,71 +1614,17 @@ function initializePanelVisibility() {
 
 
 function updateParsedCharts(content: string) {
-
-
-
-
-
-
-
     parsedTJACharts = parseTJA(content);
 
-    
-        // Clear selection
-        viewOptions.selection = null;
-        selectedNoteHitInfo = null;
-        updateSelectionUI();
+    // Clear selection
+    viewOptions.selection = null;
+    selectedNoteHitInfo = null;
+    updateSelectionUI();
 
-        // Clear Annotations
-        annotations = {};
+    // Clear Annotations
+    annotations = {};
 
-
-
-    
-
-
-
-    
-
-
-
-    
-
-
-
-        
-
-
-
-    
-
-
-
-    
-
-
-
-    
-
-
-
-    
-
-
-
-    
-
-
-
-    
-
-
-
-    
-
-
-
-        difficultySelector.innerHTML = '';
+    difficultySelector.innerHTML = '';
 
     const difficulties = Object.keys(parsedTJACharts);
 
@@ -1822,20 +1655,10 @@ function updateParsedCharts(content: string) {
         difficultySelectorContainer.hidden = false;
     }
 
+    renderStats(null, currentChart, viewOptions, judgements);
+}
 
-        renderStats(null, currentChart, viewOptions, judgements);
-
-
-
-    }
-
-
-
-    
-
-
-
-    function updateLoopControls() {
+function updateLoopControls() {
     if (!loopControls || !currentChart) return;
 
     // Use .style.display for loop controls as they are dynamic and shouldn't take space if irrelevant
