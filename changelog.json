@@ -1,5 +1,70 @@
 [
   {
+    "hash": "57eca50",
+    "message": "Update version to 0.6.1.",
+    "date": "2025-12-29"
+  },
+  {
+    "hash": "f5d2187",
+    "message": "Update TJAChart placeholder/error messages to be rendered as a div element instead of using canvas.",
+    "date": "2025-12-29"
+  },
+  {
+    "hash": "3144f5e",
+    "message": "Merge remote and test stream tabs into a single 'Stream Input' tab.",
+    "date": "2025-12-29"
+  },
+  {
+    "hash": "4675abe",
+    "message": "Merge \"example data\" and \"ESE\" tabs into a single \"chart list\" tab.",
+    "date": "2025-12-29"
+  },
+  {
+    "hash": "f1894a1",
+    "message": "Hide annotations when the annotation tab is not active.",
+    "date": "2025-12-28"
+  },
+  {
+    "hash": "31f20ba",
+    "message": "Hide the collapse loop button if the chart is not compatible",
+    "date": "2025-12-27"
+  },
+  {
+    "hash": "224ad70",
+    "message": "Fix note-selected test case by using chart-only.html",
+    "date": "2025-12-27"
+  },
+  {
+    "hash": "28c7df2",
+    "message": "Update judgement display test cases to use chart-only page.",
+    "date": "2025-12-27"
+  },
+  {
+    "hash": "bd253b1",
+    "message": "Update annotation tests to use chart-only page and clean up snapshots.",
+    "date": "2025-12-27"
+  },
+  {
+    "hash": "d6d65a0",
+    "message": "Refactor annotation tests to use chart-only page and extract auto-annotation logic.",
+    "date": "2025-12-27"
+  },
+  {
+    "hash": "b65c818",
+    "message": "Fix component registration in chart-only mode and resolve test flakiness.",
+    "date": "2025-12-27"
+  },
+  {
+    "hash": "ca59379",
+    "message": "Introduce a separate page for the rendered chart only and use it for some test cases.",
+    "date": "2025-12-27"
+  },
+  {
+    "hash": "857b238",
+    "message": "Refactor rendered chart to Web Component with polyfill support.",
+    "date": "2025-12-26"
+  },
+  {
     "hash": "2d82359",
     "message": "Update version to 0.6.0.",
     "date": "2025-12-26"
@@ -433,70 +498,5 @@
     "hash": "dab7661",
     "message": "Rearrange test cases.",
     "date": "2025-12-15"
-  },
-  {
-    "hash": "820f721",
-    "message": "UI refinements. Sticky view options and note stats panel.",
-    "date": "2025-12-15"
-  },
-  {
-    "hash": "434c89a",
-    "message": "Fix BPM and HS display when there is a change within the same bar.",
-    "date": "2025-12-15"
-  },
-  {
-    "hash": "7c91d15",
-    "message": "Merge branch 'main' of https://github.com/jack9966qk/TJAAnalyzer",
-    "date": "2025-12-14"
-  },
-  {
-    "hash": "c7f7262",
-    "message": "Fix BPM and SCROLL parsing.",
-    "date": "2025-12-14"
-  },
-  {
-    "hash": "0082290",
-    "message": "Fix BPM and SCROLL parsing.",
-    "date": "2025-12-14"
-  },
-  {
-    "hash": "e2a9729",
-    "message": "Note stats UI refinements. Add BPM and HS display.",
-    "date": "2025-12-14"
-  },
-  {
-    "hash": "d61f531",
-    "message": "Basic note status display on hover.",
-    "date": "2025-12-14"
-  },
-  {
-    "hash": "dee7d41",
-    "message": "Basic loop detection and collapsing.",
-    "date": "2025-12-14"
-  },
-  {
-    "hash": "47ad336",
-    "message": "Add proper difficulty selection and fix some tests.",
-    "date": "2025-12-14"
-  },
-  {
-    "hash": "f5fe59f",
-    "message": "Change default port to 2354!",
-    "date": "2025-12-14"
-  },
-  {
-    "hash": "e277fa8",
-    "message": "Fix blurry rendering.",
-    "date": "2025-12-14"
-  },
-  {
-    "hash": "7707c44",
-    "message": "Render bar numbers and slightly adjust elements sizing.",
-    "date": "2025-12-14"
-  },
-  {
-    "hash": "999d003",
-    "message": "Minor UI polish.",
-    "date": "2025-12-14"
   }
 ]

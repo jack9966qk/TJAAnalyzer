@@ -330,6 +330,7 @@ export function getNoteAt(x, y, chart, canvas, judgements = [], options) {
     const virtualBars = getVirtualBars(chart, options, judgements, globalBarStartIndices);
     const { layouts, constants } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offsetY);
     const { NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG } = constants;
+    const maxRadius = NOTE_RADIUS_BIG;
     const isAllBranches = options.showAllBranches && !!chart.branches;
     // Hit testing loop
     // Iterate backwards as per rendering order (notes on top)
@@ -337,7 +338,7 @@ export function getNoteAt(x, y, chart, canvas, judgements = [], options) {
         const info = virtualBars[index];
         const layout = layouts[index];
         // Quick bounding box check
-        if (x < layout.x || x > layout.x + layout.width || y < layout.y || y > layout.y + layout.height) {
+        if (x < layout.x - maxRadius || x > layout.x + layout.width + maxRadius || y < layout.y - maxRadius || y > layout.y + layout.height + maxRadius) {
             continue;
         }
         let barX = layout.x;
@@ -425,15 +426,32 @@ export function getNoteAt(x, y, chart, canvas, judgements = [], options) {
     }
     return null;
 }
-export function exportChartImage(chart, judgements = [], judgementDeltas = [], options, texts = DEFAULT_TEXTS) {
-    const canvas = document.createElement('canvas');
-    const TARGET_WIDTH = 1024;
-    // We want the final image to be exactly 1024px wide.
-    // We force DPR to 1 so that logical width == physical width.
-    canvas.width = TARGET_WIDTH;
-    // renderChart will resize height
-    renderChart(chart, canvas, judgements, judgementDeltas, options, texts, 1);
-    return canvas.toDataURL('image/png');
+export function getNotePosition(chart, canvas, options, targetBarIndex, targetCharIndex) {
+    const logicalCanvasWidth = canvas.clientWidth || 800;
+    const availableWidth = logicalCanvasWidth - (PADDING * 2);
+    const baseBarWidth = availableWidth / (options.beatsPerLine / 4);
+    const headerHeight = baseBarWidth * RATIOS.HEADER_HEIGHT;
+    const offsetY = PADDING + headerHeight + PADDING;
+    const globalBarStartIndices = calculateGlobalBarStartIndices(chart.bars);
+    const virtualBars = getVirtualBars(chart, options, [], globalBarStartIndices);
+    const { layouts } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offsetY);
+    for (let index = 0; index < virtualBars.length; index++) {
+        const info = virtualBars[index];
+        if (info.originalIndex === targetBarIndex) {
+            const layout = layouts[index];
+            const bar = info.bar;
+            if (!bar || bar.length === 0)
+                return null;
+            const noteStep = layout.width / bar.length;
+            const x = layout.x + (targetCharIndex * noteStep);
+            let y = layout.y + layout.height / 2;
+            if (options.showAllBranches && chart.branches && chart.barParams[info.originalIndex].isBranched) {
+                y = layout.y + (layout.height / 6);
+            }
+            return { x, y };
+        }
+    }
+    return null;
 }
 export function getGradientColor(delta) {
     const clamped = Math.max(-100, Math.min(100, delta));
@@ -1385,7 +1403,7 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
             ctx.strokeStyle = effectiveInnerBorderColor; // Dynamic border
             ctx.stroke();
             // Annotation Rendering
-            if (options.annotations && ['1', '2', '3', '4'].includes(noteChar)) {
+            if (options.isAnnotationMode && options.annotations && ['1', '2', '3', '4'].includes(noteChar)) {
                 const noteId = `${originalBarIndex}_${i}`;
                 const annotation = options.annotations[noteId];
                 if (annotation) {
