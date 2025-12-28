@@ -971,6 +971,74 @@ test.describe('Selection Interaction', () => {
         await canvas.click({ position: p2, force: true });
         await expect(stats.locator('.stat-value', { hasText: /balloon/i })).toBeVisible();
     });
+
+    test('Hover Interaction', async ({ page }) => {
+        await page.goto('/');
+        await page.waitForTimeout(500);
+        
+        // Ensure options panel is expanded
+        const optionsBody = page.locator('#options-body');
+        if (await optionsBody.count() > 0) {
+            const classes = await optionsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#options-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+        
+        const canvas = page.locator('#chart-component');
+        await expect(canvas).toBeVisible();
+        await page.waitForTimeout(2000);
+        await page.selectOption('#difficulty-selector', 'oni');
+
+        // Ensure stats are visible
+        const showStatsCheckbox = page.locator('#show-stats-checkbox');
+        await expect(showStatsCheckbox).toBeChecked();
+
+        // 1. Hover over a note
+        const p0 = await page.evaluate(() => {
+            const chart = document.getElementById('chart-component') as any;
+            return chart.getNoteCoordinates(0, 0);
+        });
+        expect(p0).not.toBeNull();
+        await canvas.hover({ position: p0, force: true });
+        
+        // Verify viewOptions.hoveredNote is set
+        const hoveredNote = await page.evaluate(() => {
+            const chart = document.getElementById('chart-component') as any;
+            return chart.viewOptions.hoveredNote;
+        });
+        expect(hoveredNote).toEqual({ originalBarIndex: 0, charIndex: 0 });
+
+        // 2. Hide stats
+        await showStatsCheckbox.uncheck();
+        
+        // Verify hoveredNote is cleared
+        const hoveredNoteHidden = await page.evaluate(() => {
+            const chart = document.getElementById('chart-component') as any;
+            return chart.viewOptions.hoveredNote;
+        });
+        expect(hoveredNoteHidden).toBeNull();
+
+        // 3. Hover again (stats hidden)
+        await canvas.hover({ position: { x: 0, y: 0 }, force: true }); // Move away
+        await canvas.hover({ position: p0, force: true }); // Move back
+
+        const hoveredNoteStillNull = await page.evaluate(() => {
+            const chart = document.getElementById('chart-component') as any;
+            return chart.viewOptions.hoveredNote;
+        });
+        expect(hoveredNoteStillNull).toBeNull();
+    });
 });
 
 

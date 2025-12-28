@@ -103,6 +103,7 @@ export interface ViewOptions {
         start: { originalBarIndex: number, charIndex: number };
         end: { originalBarIndex: number, charIndex: number } | null;
     } | null;
+    hoveredNote?: { originalBarIndex: number, charIndex: number } | null;
     annotations?: Record<string, string>;
     isAnnotationMode?: boolean;
 }
@@ -1624,9 +1625,14 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
             let effectiveBorderInnerW = borderInnerW;
             let effectiveInnerBorderColor = borderColor;
 
-            if (isNoteSelected(originalBarIndex, i, selection)) {
+            const isSelected = isNoteSelected(originalBarIndex, i, selection);
+            const isHovered = options.hoveredNote && options.hoveredNote.originalBarIndex === originalBarIndex && options.hoveredNote.charIndex === i;
+
+            if (isSelected) {
                 effectiveBorderOuterW = borderOuterW * 2; // 2x the width
                 effectiveBorderInnerW = borderInnerW * 2; // 2x the width
+                effectiveInnerBorderColor = PALETTE.notes.border.yellow;
+            } else if (isHovered) {
                 effectiveInnerBorderColor = PALETTE.notes.border.yellow;
             }
 

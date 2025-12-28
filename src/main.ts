@@ -854,6 +854,14 @@ function init(): void {
         showStatsCheckbox.addEventListener('change', () => {
 
             noteStatsDisplay.style.display = showStatsCheckbox.checked ? '' : 'none';
+            
+            // Clear hover effect if hidden
+            if (!showStatsCheckbox.checked) {
+                if (viewOptions.hoveredNote) {
+                    viewOptions.hoveredNote = null;
+                    refreshChart();
+                }
+            }
 
         });
 
@@ -1182,12 +1190,29 @@ function init(): void {
          const detail = (e as CustomEvent).detail;
          const hit = detail.hit as HitInfo | null;
          
-         // Note: Logic for selection/annotation in hover was minimal (cursor only)
-         // Cursor is handled by component now.
-         
          // Render stats
          const statsHit = selectedNoteHitInfo || hit;
          updateStatsComponent(statsHit);
+
+         // Update Hover Style
+         const isStatsVisible = showStatsCheckbox ? showStatsCheckbox.checked : false;
+         const newHoveredNote = (isStatsVisible && hit) ? { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex } : null;
+         
+         const currentHovered = viewOptions.hoveredNote;
+         let changed = false;
+         
+         if (!currentHovered && !newHoveredNote) {
+             changed = false;
+         } else if (!currentHovered || !newHoveredNote) {
+             changed = true;
+         } else {
+             changed = (currentHovered.originalBarIndex !== newHoveredNote.originalBarIndex || currentHovered.charIndex !== newHoveredNote.charIndex);
+         }
+         
+         if (changed) {
+             viewOptions.hoveredNote = newHoveredNote;
+             refreshChart();
+         }
     });
     
     tjaChart.addEventListener('chart-click', (e: Event) => {
