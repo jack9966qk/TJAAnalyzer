@@ -191,4 +191,41 @@ LEVEL:10
 #END`;
         await testAutoAnnotateRule(page, tja, 'auto-annotate-opposite-color.png');
     });
+
+    test('Hide annotations when not in annotation mode', async ({ page }) => {
+        await page.evaluate(() => {
+            const tja = `TITLE:Hidden Annotation Test
+BPM:120
+COURSE:Oni
+LEVEL:10
+#START
+1000100010001000,
+#END`;
+            (window as any).loadChart(tja, 'oni');
+            (window as any).testOptions = {
+                viewMode: 'original',
+                coloringMode: 'categorical',
+                visibility: { perfect: true, good: true, poor: true },
+                collapsedLoop: false,
+                beatsPerLine: 16,
+                selection: null,
+                annotations: { '0_0': 'L' }, // Pre-annotate
+                isAnnotationMode: true, // Initially true
+                showAllBranches: false
+            };
+            (window as any).setOptions((window as any).testOptions);
+        });
+
+        const canvas = page.locator('#chart-component');
+        // Should show 'L'
+        await expect(canvas).toHaveScreenshot('annotation-visible-when-active.png');
+
+        await page.evaluate(() => {
+            (window as any).testOptions.isAnnotationMode = false;
+            (window as any).setOptions((window as any).testOptions);
+        });
+
+        // Should NOT show 'L'
+        await expect(canvas).toHaveScreenshot('annotation-hidden-when-inactive.png');
+    });
 });

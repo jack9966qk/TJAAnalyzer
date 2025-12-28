@@ -1642,7 +1642,7 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
             ctx.stroke();
 
             // Annotation Rendering
-            if (options.annotations && ['1', '2', '3', '4'].includes(noteChar)) {
+            if (options.isAnnotationMode && options.annotations && ['1', '2', '3', '4'].includes(noteChar)) {
                 const noteId = `${originalBarIndex}_${i}`;
                 const annotation = options.annotations[noteId];
                 if (annotation) {
