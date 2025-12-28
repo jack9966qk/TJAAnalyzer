@@ -200,13 +200,10 @@ function filterEseResults(query: string) {
         return node.path.toLowerCase().includes(q) ||
                (node.title && node.title.toLowerCase().includes(q)) ||
                (node.titleJp && node.titleJp.toLowerCase().includes(q));
-    }) : [];
+    }) : eseTree;
     
-    if (results.length === 0 && !query) {
-         eseResults.innerHTML = `<div style="padding: 10px; color: #888; font-style: italic;">Search for songs...</div>`;
-         return;
-    } else if (results.length === 0) {
-         eseResults.innerHTML = `<div style="padding: 10px; color: #888; font-style: italic;">No results found.</div>`;
+    if (results.length === 0) {
+         eseResults.innerHTML = `<div style="padding: 10px; color: #888; font-style: italic;">${i18n.t('ui.ese.noResults')}</div>`;
          return;
     }
 
@@ -265,6 +262,15 @@ function filterEseResults(query: string) {
         
         eseResults.appendChild(div);
     });
+
+    if (results.length > 100) {
+        const truncationMsg = document.createElement('div');
+        truncationMsg.style.padding = '10px';
+        truncationMsg.style.fontStyle = 'italic';
+        truncationMsg.style.color = '#888';
+        truncationMsg.innerText = i18n.t('ui.ese.truncated');
+        eseResults.appendChild(truncationMsg);
+    }
 }
 
 function switchDataSourceMode(mode: string) {
@@ -404,6 +410,10 @@ function updateUIText() {
             }
         }
     });
+
+    if (eseSearchInput) {
+        eseSearchInput.placeholder = i18n.t('ui.ese.searchPlaceholder');
+    }
 
     // Dynamic Elements
     updateStatus(currentStatusKey);
