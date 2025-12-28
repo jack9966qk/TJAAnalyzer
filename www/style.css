@@ -585,7 +585,8 @@ body.horizontal-layout #app {
 }
 
 body.horizontal-layout #controls-container {
-    display: block;
+    display: flex;
+    flex-direction: column;
     height: 100%;
     overflow-y: auto;
     overflow-x: hidden;
@@ -596,6 +597,16 @@ body.horizontal-layout #controls-container {
     /* Width will be set by JS */
     position: relative;
     z-index: 10;
+}
+
+body.horizontal-layout #sticky-header {
+    position: static;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+body.horizontal-layout #controls-container > * {
+    flex-shrink: 0;
 }
 
 body.horizontal-layout #chart-container {
@@ -621,6 +632,7 @@ body.horizontal-layout .app-footer {
     border-right: none;
     border-bottom: none;
     flex-shrink: 0;
+    margin-top: auto;
 }
 
 body.horizontal-layout #layout-toggle-btn {
