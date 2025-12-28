@@ -279,8 +279,8 @@ function switchDataSourceMode(mode: string) {
         }
     });
 
-    // Logic: Disconnect if moving away from stream/test and currently connected
-    if (mode !== 'stream' && mode !== 'test') {
+    // Logic: Disconnect if moving away from stream and currently connected
+    if (mode !== 'stream') {
         // Check if connected
         if (connectBtn && (connectBtn.innerText === 'Disconnect' || isSimulating)) {
             judgementClient.disconnect();
@@ -327,7 +327,7 @@ function switchDataSourceMode(mode: string) {
 
     // Difficulty Selector Visibility
     if (difficultySelectorContainer) {
-        if (mode === 'stream' || mode === 'test') {
+        if (mode === 'stream') {
             difficultySelectorContainer.hidden = true;
         } else {
             // Show only if charts are parsed
@@ -1680,7 +1680,7 @@ function updateParsedCharts(content: string) {
     difficultySelector.value = defaultDifficulty;
     updateBranchSelectorState(true);
     
-    if (activeDataSourceMode === 'stream' || activeDataSourceMode === 'test') {
+    if (activeDataSourceMode === 'stream') {
         difficultySelectorContainer.hidden = true;
     } else {
         difficultySelectorContainer.hidden = false;

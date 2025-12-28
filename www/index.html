@@ -31,8 +31,7 @@
                     <div class="panel-tabs">
                         <button class="panel-tab" data-mode="list" data-i18n="ui.tab.list">Chart List</button>
                         <button class="panel-tab" data-mode="file" data-i18n="ui.tab.file">Local File</button>
-                        <button class="panel-tab" data-mode="stream" data-i18n="ui.tab.stream">Remote Stream</button>
-                        <button class="panel-tab" data-mode="test" data-i18n="ui.tab.test">Test Stream</button>
+                        <button class="panel-tab" data-mode="stream" data-i18n="ui.tab.stream">Stream Input</button>
                     </div>
 
                     <div class="panel-content">
@@ -60,21 +59,25 @@
                             </div>
                         </div>
 
-                        <!-- Stream Mode -->
+                        <!-- Stream Mode (Merged) -->
                         <div id="tab-stream" class="panel-pane" style="display:none;">
-                            <p data-i18n="ui.stream.desc">Connect to an external program that broadcasts currently played chart and judgement events. For example, <a href="https://github.com/jack9966qk/TJAAnalyzer/releases/tag/OpenTaikoPatched" target="_blank">this patched version</a> of OpenTaiko listens to connections at port 2354 (need to run as admin).</p>
-                            <div class="control-group">
-                                <label><span data-i18n="ui.stream.host">Host:</span> <input type="text" id="host-input" value="127.0.0.1"></label>
-                                <label><span data-i18n="ui.stream.port">Port:</span> <input type="number" id="port-input" value="2354"></label>
-                                <button id="connect-btn" data-i18n="ui.stream.connect">Connect</button>
+                            <div class="option-section">
+                                <h4 data-i18n="ui.stream.remote" style="margin: 0 0 10px 0; font-size: 1em; color: #555;">Remote Connection</h4>
+                                <p data-i18n="ui.stream.desc" style="margin-bottom: 10px;">Connect to an external program that broadcasts currently played chart and judgement events. For example, <a href="https://github.com/jack9966qk/TJAAnalyzer/releases/tag/OpenTaikoPatched" target="_blank">this patched version</a> of OpenTaiko listens to connections at port 2354 (need to run as admin).</p>
+                                <div class="control-group">
+                                    <label><span data-i18n="ui.stream.host">Host:</span> <input type="text" id="host-input" value="127.0.0.1"></label>
+                                    <label><span data-i18n="ui.stream.port">Port:</span> <input type="number" id="port-input" value="2354"></label>
+                                    <button id="connect-btn" data-i18n="ui.stream.connect">Connect</button>
+                                </div>
+                            </div>
+                            
+                            <div class="option-section" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                                <h4 data-i18n="ui.stream.test" style="margin: 0 0 10px 0; font-size: 1em; color: #555;">Test Simulation</h4>
+                                <p data-i18n="ui.test.desc">Simulate incoming judgement events on the currently loaded chart.</p>
+                                <button id="test-stream-btn" data-i18n="ui.test.start">Start Test Stream</button>
                             </div>
                         </div>
 
-                        <!-- Test Mode -->
-                        <div id="tab-test" class="panel-pane" style="display:none;">
-                            <p data-i18n="ui.test.desc">Simulate incoming judgement events on the currently loaded chart.</p>
-                            <button id="test-stream-btn" data-i18n="ui.test.start">Start Test Stream</button>
-                        </div>
                         <!-- Shared Difficulty Selector -->
                         <div id="difficulty-selector-container" class="control-group" hidden style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; gap: 10px 30px;">
                             <span style="display: flex; align-items: center; gap: 10px;">
