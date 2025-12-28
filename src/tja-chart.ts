@@ -11,6 +11,7 @@ export interface ChartClickEventDetail {
 
 export class TJAChart extends HTMLElement {
     private canvas: HTMLCanvasElement;
+    private messageContainer: HTMLDivElement;
     private _chart: ParsedChart | null = null;
     private _viewOptions: ViewOptions | null = null;
     private _judgements: string[] = [];
@@ -34,10 +35,29 @@ export class TJAChart extends HTMLElement {
                 display: block;
                 width: 100%;
             }
+            #message-container {
+                width: 100%;
+                height: 400px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                font-weight: bold;
+                font-size: 24px;
+                font-family: sans-serif;
+                box-sizing: border-box;
+            }
+            .hidden {
+                display: none !important;
+            }
         `;
         
+        this.messageContainer = document.createElement('div');
+        this.messageContainer.id = 'message-container';
+        this.messageContainer.classList.add('hidden');
+
         this.canvas = document.createElement('canvas');
         this.shadowRoot!.appendChild(style);
+        this.shadowRoot!.appendChild(this.messageContainer);
         this.shadowRoot!.appendChild(this.canvas);
 
         this.resizeObserver = new ResizeObserver(() => {
@@ -125,40 +145,31 @@ export class TJAChart extends HTMLElement {
     render() {
         if (!this.isConnected) return;
         
-        const ctx = this.canvas.getContext('2d');
-        if (!ctx) return;
-
         const width = this.clientWidth || 800;
         
         // Handle Message State
         if (this._message) {
-            const height = 400; // Arbitrary height for message
-            this.canvas.width = width;
-            this.canvas.height = height;
-            this.canvas.style.height = height + 'px';
-            this.canvas.style.width = width + 'px';
-
-            // Background
-            if (this._message.type === 'warning') {
-                ctx.fillStyle = PALETTE.ui.warning.background;
-            } else {
-                ctx.fillStyle = PALETTE.ui.streamWaiting.background;
-            }
-            ctx.fillRect(0, 0, width, height);
-
-            // Text
-            if (this._message.type === 'warning') {
-                ctx.fillStyle = PALETTE.ui.warning.text;
-            } else {
-                ctx.fillStyle = PALETTE.ui.streamWaiting.text;
-            }
+            this.canvas.classList.add('hidden');
+            this.messageContainer.classList.remove('hidden');
             
-            ctx.font = 'bold 24px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(this._message.text, width / 2, height / 2);
+            this.messageContainer.textContent = this._message.text;
+            
+            if (this._message.type === 'warning') {
+                this.messageContainer.style.backgroundColor = PALETTE.ui.warning.background;
+                this.messageContainer.style.color = PALETTE.ui.warning.text;
+            } else {
+                this.messageContainer.style.backgroundColor = PALETTE.ui.streamWaiting.background;
+                this.messageContainer.style.color = PALETTE.ui.streamWaiting.text;
+            }
             return;
         }
+
+        // Hide message
+        this.messageContainer.classList.add('hidden');
+        this.canvas.classList.remove('hidden');
+
+        const ctx = this.canvas.getContext('2d');
+        if (!ctx) return;
 
         // If no chart, maybe clear?
         if (!this._chart || !this._viewOptions) {
