@@ -7,9 +7,12 @@ import { JudgementClient, ServerEvent } from './judgement-client.js';
 import { i18n } from './i18n.js';
 import { EseClient, GitNode } from './ese-client.js';
 import { TJAChart, ChartClickEventDetail } from './tja-chart.js';
+import { NoteStatsDisplay } from './note-stats.js';
 
 // Ensure TJAChart is imported for side-effects (custom element registration)
 console.log('TJAChart module loaded', TJAChart);
+// Ensure NoteStatsDisplay is imported for side-effects
+console.log('NoteStatsDisplay module loaded', NoteStatsDisplay);
 
 const tjaChart = document.getElementById('chart-component') as TJAChart;
 let parsedTJACharts: Record<string, ParsedChart> | null = null;
@@ -47,7 +50,7 @@ let judgementDeltas: (number | undefined)[] = []; // Store deltas
 
 // UI Elements
 const statusDisplay = document.getElementById('status-display') as HTMLElement;
-const noteStatsDisplay = document.getElementById('note-stats-display') as HTMLDivElement;
+const noteStatsDisplay = document.getElementById('note-stats-display') as NoteStatsDisplay;
 const languageSelector = document.getElementById('language-selector') as HTMLSelectElement;
 
 const judgementWarning = document.getElementById('judgement-warning') as HTMLDivElement;
@@ -141,9 +144,13 @@ function resetExampleButton() {
     }
 }
 
-function updateNoteStats(html: string) {
+function updateStatsComponent(hit: HitInfo | null) {
     if (noteStatsDisplay) {
-        noteStatsDisplay.innerHTML = html;
+        noteStatsDisplay.chart = currentChart;
+        noteStatsDisplay.viewOptions = viewOptions;
+        noteStatsDisplay.judgements = judgements;
+        noteStatsDisplay.judgementDeltas = judgementDeltas;
+        noteStatsDisplay.hit = hit;
     }
 }
 
@@ -434,241 +441,8 @@ function updateUIText() {
     // If nothing selected, stats box is usually empty or showing last hover?
     // Actually renderStats is called on mousemove.
     if (selectedNoteHitInfo) {
-        renderStats(selectedNoteHitInfo, currentChart, viewOptions, judgements);
+        updateStatsComponent(selectedNoteHitInfo);
     }
-}
-
-function createStatBox(label: string, value: string, highlight: boolean = false): string {
-    return `
-        <div class="stat-box">
-            <div class="stat-label">${label}</div>
-            <div class="stat-value ${highlight ? 'stat-value-highlight' : ''}">${value}</div>
-        </div>
-    `;
-}
-
-function formatBPM(val: number): string {
-    return val % 1 === 0 ? val.toFixed(0) : val.toFixed(2);
-}
-
-function formatHS(val: number): string {
-    return val % 1 === 0 ? val.toFixed(1) : val.toFixed(2);
-}
-
-function renderStats(hit: HitInfo | null, chart: ParsedChart | null, options: ViewOptions, judgements: string[]) {
-    let html = '';
-    const def = '-';
-    const { collapsedLoop: collapsed, viewMode, coloringMode, visibility: judgementVisibility } = options;
-
-    // 1. Type
-    html += createStatBox(i18n.t('stats.type'), hit ? getNoteName(hit.type) : def);
-    
-    // 2. Gap
-    let gap = def;
-    if (hit && chart) {
-        const g = getGapInfo(chart, hit.originalBarIndex, hit.charIndex);
-        if (g) gap = g;
-    }
-    html += createStatBox(i18n.t('stats.gap'), gap);
-    
-    // 3. BPM
-    html += createStatBox(i18n.t('stats.bpm'), hit ? formatBPM(hit.bpm) : def);
-    
-    // 4. HS
-    html += createStatBox(i18n.t('stats.hs'), hit ? formatHS(hit.scroll) : def);
-    
-    // 5. Perceived BPM
-    html += createStatBox(i18n.t('stats.seenBpm'), hit ? formatBPM(hit.bpm * hit.scroll) : def);
-
-    // 6. Judgements (Deltas)
-    let deltaVal = def;
-    let avgDeltaVal = def;
-    let allDeltasStr = '';
-    
-    if (hit && (viewMode === 'judgements' || viewMode === 'judgements-underline' || viewMode === 'judgements-text') && hit.judgeableNoteIndex !== null && chart) {
-        const deltas: number[] = [];
-        
-        if (collapsed && chart.loop) {
-            const loop = chart.loop;
-            if (hit.originalBarIndex >= loop.startBarIndex && hit.originalBarIndex < loop.startBarIndex + loop.period) {
-                // Loop Logic
-                let baseIndex = 0;
-                for (let b = 0; b < hit.originalBarIndex; b++) {
-                    const bar = chart.bars[b];
-                    if (bar) {
-                        for(const c of bar) if (['1', '2', '3', '4'].includes(c)) baseIndex++;
-                    }
-                }
-                let offsetInBar = 0;
-                const targetBar = chart.bars[hit.originalBarIndex];
-                for(let c = 0; c < hit.charIndex; c++) {
-                        if (['1', '2', '3', '4'].includes(targetBar[c])) offsetInBar++;
-                }
-                const noteIndexInFirstIter = baseIndex + offsetInBar;
-                
-                let notesPerLoop = 0;
-                for (let k = 0; k < loop.period; k++) {
-                    const bar = chart.bars[loop.startBarIndex + k];
-                    if (bar) {
-                        for (const c of bar) if (['1', '2', '3', '4'].includes(c)) notesPerLoop++;
-                    }
-                }
-
-                // Determine current iteration index for bolding
-                let currentIterationIdx = -1;
-                
-                // If manual selection, use it. Else calculate like renderer
-                if (options.selectedLoopIteration !== undefined) {
-                    currentIterationIdx = options.selectedLoopIteration;
-                } else {
-                     let preLoopNotes = 0;
-                     for(let i=0; i<loop.startBarIndex; i++) {
-                         const bar = chart.bars[i];
-                         if(bar) for(const c of bar) if(['1','2','3','4'].includes(c)) preLoopNotes++;
-                     }
-                     const lastJudgedIndex = judgements.length - 1;
-                     if (lastJudgedIndex >= preLoopNotes && notesPerLoop > 0) {
-                         const relativeIndex = lastJudgedIndex - preLoopNotes;
-                         currentIterationIdx = Math.floor(relativeIndex / notesPerLoop);
-                     }
-                }
-                if (currentIterationIdx < 0) currentIterationIdx = 0;
-                
-                let deltasStrings: string[] = [];
-                for (let iter = 0; iter < loop.iterations; iter++) {
-                    const globalIdx = noteIndexInFirstIter + (iter * notesPerLoop);
-                    if (globalIdx < judgementDeltas.length) {
-                        const delta = judgementDeltas[globalIdx];
-                        const judge = judgements[globalIdx];
-
-                        // Check visibility
-                        let isVisible = true;
-                        if (judge === 'Perfect' && !judgementVisibility.perfect) isVisible = false;
-                        else if (judge === 'Good' && !judgementVisibility.good) isVisible = false;
-                        else if (judge === 'Poor' && !judgementVisibility.poor) isVisible = false;
-
-                        if (!isVisible) continue;
-
-                        if (delta !== undefined) deltas.push(delta);
-                        
-                        let s = delta !== undefined ? delta.toString() : '?';
-
-                        let color = '';
-                        if (coloringMode === 'gradient') {
-                            if ((judge === 'Perfect' || judge === 'Good' || judge === 'Poor') && delta !== undefined) {
-                                color = getGradientColor(delta);
-                            } else {
-                                color = PALETTE.judgements.miss; // Dark Grey for non-standard
-                            }
-                        } else {
-                            if (judge === 'Perfect') color = PALETTE.judgements.perfect;
-                            else if (judge === 'Good') color = PALETTE.judgements.good;
-                            else if (judge === 'Poor') color = PALETTE.judgements.poor;
-                        }
-
-                        if (color) {
-                            s = `<span style="color: ${color}">${s}</span>`;
-                        }
-
-                        if (iter === currentIterationIdx) {
-                            s = `<b>${s}</b>`;
-                        }
-                        deltasStrings.push(s);
-                    }
-                }
-                
-                if (deltas.length > 0) {
-                    const avg = deltas.reduce((a, b) => a + b, 0) / deltas.length;
-                    avgDeltaVal = `${avg.toFixed(1)}ms`;
-                    
-                    if (coloringMode === 'gradient') {
-                        const avgColor = getGradientColor(avg);
-                        avgDeltaVal = `<span style="color: ${avgColor}">${avgDeltaVal}</span>`;
-                    }
-                    
-                    allDeltasStr = deltasStrings.join(', ');
-                }
-                
-            } else {
-                 if (hit.judgeableNoteIndex < judgementDeltas.length) {
-                     const delta = judgementDeltas[hit.judgeableNoteIndex];
-                     const judge = judgements[hit.judgeableNoteIndex];
-
-                     // Check visibility
-                     let isVisible = true;
-                     if (judge === 'Perfect' && !judgementVisibility.perfect) isVisible = false;
-                     else if (judge === 'Good' && !judgementVisibility.good) isVisible = false;
-                     else if (judge === 'Poor' && !judgementVisibility.poor) isVisible = false;
-
-                     if (isVisible && delta !== undefined) {
-                         avgDeltaVal = `${delta}ms`;
-                         
-                         let s = delta.toString();
-                         let color = '';
-                         
-                         if (coloringMode === 'gradient') {
-                             if (judge === 'Perfect' || judge === 'Good' || judge === 'Poor') {
-                                 color = getGradientColor(delta);
-                             } else {
-                                 color = PALETTE.judgements.miss;
-                             }
-                         } else {
-                             if (judge === 'Perfect') color = PALETTE.judgements.perfect;
-                             else if (judge === 'Good') color = PALETTE.judgements.good;
-                             else if (judge === 'Poor') color = PALETTE.judgements.poor;
-                         }
-
-                         if (color) s = `<span style="color: ${color}">${s}</span>`;
-                         if (coloringMode === 'gradient' && color) {
-                             avgDeltaVal = `<span style="color: ${color}">${avgDeltaVal}</span>`;
-                         }
-
-                         allDeltasStr = s;
-                     }
-                 }
-            }
-        } else {
-                // Standard Mode
-                if (hit.judgeableNoteIndex < judgementDeltas.length) {
-                    const delta = judgementDeltas[hit.judgeableNoteIndex];
-                    const judge = judgements[hit.judgeableNoteIndex];
-                    
-                    // Check visibility
-                    let isVisible = true;
-                    if (judge === 'Perfect' && !judgementVisibility.perfect) isVisible = false;
-                    else if (judge === 'Good' && !judgementVisibility.good) isVisible = false;
-                    else if (judge === 'Poor' && !judgementVisibility.poor) isVisible = false;
-
-                    if (isVisible && delta !== undefined) {
-                         deltaVal = `${delta}ms`;
-
-                         let color = '';
-                         if (coloringMode === 'gradient') {
-                             if (judge === 'Perfect' || judge === 'Good' || judge === 'Poor') {
-                                 color = getGradientColor(delta);
-                             } else {
-                                 color = PALETTE.judgements.miss;
-                             }
-                         } else {
-                             if (judge === 'Perfect') color = PALETTE.judgements.perfect;
-                             else if (judge === 'Good') color = PALETTE.judgements.good;
-                             else if (judge === 'Poor') color = PALETTE.judgements.poor;
-                         }
-
-                         if (color) deltaVal = `<span style="color: ${color}">${deltaVal}</span>`;
-                    }
-                }
-        }
-    }
-
-    if (collapsed) {
-        html += createStatBox(i18n.t('stats.avgDelta'), avgDeltaVal); 
-        html += `<div class="stat-full-line">Deltas: ${allDeltasStr}</div>`;
-    } else {
-        html += createStatBox(i18n.t('stats.delta'), deltaVal);
-    }
-
-    updateNoteStats(html);
 }
 
 function updateDisplayState() {
@@ -1213,7 +987,7 @@ function init(): void {
 
             refreshChart();
 
-            renderStats(null, currentChart, viewOptions, judgements);
+            updateStatsComponent(null);
 
         });
 
@@ -1413,7 +1187,7 @@ function init(): void {
          
          // Render stats
          const statsHit = selectedNoteHitInfo || hit;
-         renderStats(statsHit, currentChart, viewOptions, judgements);
+         updateStatsComponent(statsHit);
     });
     
     tjaChart.addEventListener('chart-click', (e: Event) => {
@@ -1454,7 +1228,7 @@ function init(): void {
          }
          refreshChart();
          updateSelectionUI();
-         renderStats(selectedNoteHitInfo, currentChart, viewOptions, judgements);
+         updateStatsComponent(selectedNoteHitInfo);
     });
 
     difficultySelector.addEventListener('change', () => {
@@ -1686,7 +1460,7 @@ function updateParsedCharts(content: string) {
         difficultySelectorContainer.hidden = false;
     }
 
-    renderStats(null, currentChart, viewOptions, judgements);
+    updateStatsComponent(null);
 }
 
 function updateLoopControls() {
@@ -1806,74 +1580,6 @@ function refreshChart() {
 
 
 
-function getGapInfo(chart: ParsedChart, currentBarIdx: number, currentCharIdx: number): string | null {
-    const currentBar = chart.bars[currentBarIdx];
-    const currentTotal = currentBar.length;
-    
-    for (let i = currentCharIdx - 1; i >= 0; i--) {
-        if (['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(currentBar[i])) {
-            const prevPos = i / currentTotal;
-            const curPos = currentCharIdx / currentTotal;
-            const diff = curPos - prevPos;
-            return formatGap(diff);
-        }
-    }
-    
-    for (let b = currentBarIdx - 1; b >= 0; b--) {
-        const prevBar = chart.bars[b];
-        if (!prevBar || prevBar.length === 0) {
-            const minGap = (currentCharIdx / currentTotal) + (currentBarIdx - b); 
-            if (minGap > 1.0 + 0.001) return null;
-            continue;
-        }
-        
-        const prevTotal = prevBar.length;
-        
-        for (let i = prevTotal - 1; i >= 0; i--) {
-            if (['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(prevBar[i])) {
-                const distInCurrent = currentCharIdx / currentTotal;
-                const distBetween = (currentBarIdx - b - 1) * 1.0; 
-                const distInPrev = (prevTotal - i) / prevTotal; 
-                
-                const totalGap = distInCurrent + distBetween + distInPrev;
-                
-                if (totalGap <= 1.0 + 0.0001) { 
-                     return formatGap(totalGap);
-                } else {
-                    return null; 
-                }
-            }
-        }
-        
-        const minGap = (currentCharIdx / currentTotal) + (currentBarIdx - b);
-        if (minGap > 1.0) return null;
-    }
-    
-    return null;
-}
-
-function formatGap(gap: number): string {
-    const commonDenominators = [4, 8, 12, 16, 24, 32, 48, 64];
-    for (const d of commonDenominators) {
-        const val = gap * d;
-        if (Math.abs(val - Math.round(val)) < 0.001) {
-             const num = Math.round(val);
-             const gcd = (a: number, b: number): number => b ? gcd(b, a % b) : a;
-             const divisor = gcd(num, d);
-             return `${num/divisor}/${d/divisor}`;
-        }
-    }
-    return gap.toFixed(3);
-}
-
-function getNoteName(char: string): string {
-    const map: Record<string, string> = {
-        '1': 'don', '2': 'ka', '3': 'DON', '4': 'KA',
-        '5': 'roll', '6': 'ROLL', '7': 'balloon', '9': 'Kusudama'
-    };
-    return map[char] || 'unknown';
-}
-
 // Handle resizing
 let resizeTimeout: number | undefined;
 window.addEventListener('resize', () => {
@@ -1890,7 +1596,7 @@ window.addEventListener('resize', () => {
     judgements = newJudgements;
     judgementDeltas = newDeltas || [];
     refreshChart();
-    renderStats(null, currentChart, viewOptions, judgements);
+    updateStatsComponent(null);
 };
 
 (window as any).loadTJAContent = (content: string) => {

@@ -81,20 +81,20 @@ test.describe('Visual Regression', () => {
     test('Note Stats Tooltip', async ({ page }) => {
         await page.goto('/');
         await page.waitForTimeout(500);
-        // Ensure options panel is expanded
+        // Ensure options panel is collapsed
         const optionsBody = page.locator('#options-body');
         if (await optionsBody.count() > 0) {
             const classes = await optionsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
+            if (classes && !classes.includes('collapsed')) {
                 await page.click('#options-collapse-btn');
                 await page.waitForTimeout(500);
             }
         }
-        // Ensure data source panel is expanded
+        // Ensure data source panel is collapsed
         const dsBody = page.locator('#ds-body');
         if (await dsBody.count() > 0) {
             const classes = await dsBody.getAttribute('class');
-            if (classes && classes.includes('collapsed')) {
+            if (classes && !classes.includes('collapsed')) {
                 await page.click('#ds-collapse-btn');
                 await page.waitForTimeout(500);
             }
@@ -107,6 +107,11 @@ test.describe('Visual Regression', () => {
         if (box) {
             await page.mouse.move(box.x + 35, box.y + 33);
             await page.waitForTimeout(500);
+            
+            // Verify stats are visible
+            const stats = page.locator('note-stats');
+            await expect(stats.locator('.stat-value').first()).toBeVisible();
+            
             const app = page.locator('#app');
             await expect(app).toHaveScreenshot('note-stats-tooltip.png');
         }
@@ -878,9 +883,9 @@ test.describe('Selection Interaction', () => {
         await canvas.click({ position: { x: notePos.x, y: notePos.y } });
         
         // 2. Verify Stats
-        const stats = page.locator('#note-stats-display');
-        await expect(stats).toContainText('Type');
-        await expect(stats).toContainText('DON');
+        const stats = page.locator('note-stats');
+        await expect(stats.locator('.stat-label').first()).toBeVisible();
+        await expect(stats.locator('.stat-value', { hasText: /DON/i })).toBeVisible();
 
         // 3. Take Snapshot of Selection
         // Moved to 'Visual Regression' > 'Note Selected'
@@ -890,7 +895,7 @@ test.describe('Selection Interaction', () => {
         await canvas.hover({ position: { x: notePos.x + 100, y: notePos.y }, force: true });
 
         // 5. Verify Stats are STICKY (still showing 'DON')
-        await expect(stats).toContainText('DON');
+        await expect(stats.locator('.stat-value', { hasText: /DON/i })).toBeVisible();
 
         // 6. Click again to unselect
         await canvas.click({ position: { x: notePos.x, y: notePos.y }, force: true });
@@ -899,7 +904,7 @@ test.describe('Selection Interaction', () => {
         await canvas.hover({ position: { x: notePos.x + 100, y: notePos.y }, force: true });
         
         // 8. Stats should be cleared (showing '-')
-        await expect(stats).toContainText('-');
+        await expect(stats.locator('.stat-value').first()).toHaveText('-');
     });
 
     test('Range Selection Interaction', async ({ page }) => {
@@ -943,8 +948,8 @@ test.describe('Selection Interaction', () => {
         expect(p0).not.toBeNull();
         await canvas.click({ position: p0, force: true });
         
-        const stats = page.locator('#note-stats-display');
-        await expect(stats).toContainText('DON');
+        const stats = page.locator('note-stats');
+        await expect(stats.locator('.stat-value', { hasText: /DON/i })).toBeVisible();
 
         await page.waitForTimeout(200);
 
@@ -955,7 +960,7 @@ test.describe('Selection Interaction', () => {
         });
         expect(p1).not.toBeNull();
         await canvas.click({ position: p1, force: true });
-        await expect(stats).toContainText('DON'); 
+        await expect(stats.locator('.stat-value', { hasText: /DON/i })).toBeVisible(); 
 
         // 3. Click Third Note (Bar 2, Note 0 - Balloon) (Restart Selection)
         const p2 = await page.evaluate(() => {
@@ -964,7 +969,7 @@ test.describe('Selection Interaction', () => {
         });
         expect(p2).not.toBeNull();
         await canvas.click({ position: p2, force: true });
-        await expect(stats).toContainText('balloon');
+        await expect(stats.locator('.stat-value', { hasText: /balloon/i })).toBeVisible();
     });
 });
 
