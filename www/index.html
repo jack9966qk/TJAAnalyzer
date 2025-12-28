@@ -29,30 +29,18 @@
                 
                 <div id="ds-body" class="panel-body collapsed">
                     <div class="panel-tabs">
-                        <button class="panel-tab" data-mode="example" data-i18n="ui.tab.example">Example</button>
+                        <button class="panel-tab" data-mode="list" data-i18n="ui.tab.list">Chart List</button>
                         <button class="panel-tab" data-mode="file" data-i18n="ui.tab.file">Local File</button>
                         <button class="panel-tab" data-mode="stream" data-i18n="ui.tab.stream">Remote Stream</button>
                         <button class="panel-tab" data-mode="test" data-i18n="ui.tab.test">Test Stream</button>
-                        <button class="panel-tab" data-mode="ese">ESE</button>
                     </div>
 
                     <div class="panel-content">
-                        <!-- Example Mode -->
-                        <div id="tab-example" class="panel-pane">
-                            <p data-i18n="ui.example.desc">Load the built-in example chart for demonstration.</p>
-                            <button id="load-example-btn" data-i18n="ui.example.load">Load Example Data</button>
-                        </div>
-
-                        <!-- File Mode -->
-                        <div id="tab-file" class="panel-pane" style="display:none;">
-                            <div class="control-group">
-                                <label for="tja-file-picker" data-i18n="ui.file.label">Select TJA File:</label>
-                                <input type="file" id="tja-file-picker" accept=".tja">
+                        <!-- Chart List Mode (Merged Example + ESE) -->
+                        <div id="tab-list" class="panel-pane">
+                            <div class="control-group" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                                <button id="load-example-btn" data-i18n="ui.example.load" style="width: 100%;">Load Example Chart</button>
                             </div>
-                        </div>
-
-                        <!-- ESE Mode -->
-                        <div id="tab-ese" class="panel-pane" style="display:none;">
                             <div class="control-group">
                                 <input type="text" id="ese-search-input" placeholder="Search TJA files..." style="width: 100%; box-sizing: border-box; padding: 5px;">
                             </div>
@@ -61,6 +49,14 @@
                             </div>
                             <div id="ese-results" style="max-height: 200px; overflow-y: auto; margin-top: 10px; border: 1px solid #ddd; background: #fff;">
                                 <div style="padding: 10px; color: #888; font-style: italic;">Search for songs...</div>
+                            </div>
+                        </div>
+
+                        <!-- File Mode -->
+                        <div id="tab-file" class="panel-pane" style="display:none;">
+                            <div class="control-group">
+                                <label for="tja-file-picker" data-i18n="ui.file.label">Select TJA File:</label>
+                                <input type="file" id="tja-file-picker" accept=".tja">
                             </div>
                         </div>
 

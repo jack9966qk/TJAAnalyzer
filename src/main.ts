@@ -29,7 +29,7 @@ let viewOptions: ViewOptions = {
 let loadedTJAContent: string = exampleTJA;
 
 // Application State
-let activeDataSourceMode: string = 'example';
+let activeDataSourceMode: string = 'list';
 let isSimulating: boolean = false;
 let isStreamConnected: boolean = false;
 let hasReceivedGameStart: boolean = false;
@@ -132,6 +132,15 @@ function updateStatus(key: string, params?: Record<string, string | number>) {
     }
 }
 
+function resetExampleButton() {
+    if (loadExampleBtn) {
+        loadExampleBtn.disabled = false;
+        loadExampleBtn.setAttribute('data-i18n', 'ui.example.load');
+        loadExampleBtn.innerText = i18n.t('ui.example.load');
+        loadExampleBtn.classList.remove('disabled');
+    }
+}
+
 function updateNoteStats(html: string) {
     if (noteStatsDisplay) {
         noteStatsDisplay.innerHTML = html;
@@ -227,6 +236,7 @@ function filterEseResults(query: string) {
                  
                  updateParsedCharts(content);
                  updateStatus('status.chartLoaded');
+                 resetExampleButton();
              } catch (e) {
                  console.error(e);
                  const errMsg = (e as any).message || String(e);
@@ -277,8 +287,8 @@ function switchDataSourceMode(mode: string) {
         }
     }
 
-    // ESE Logic
-    if (mode === 'ese') {
+    // List (Example + ESE) Logic
+    if (mode === 'list') {
         if (!eseTree) {
              updateStatus('status.loadingEse');
              // Show loading indicator in results
@@ -306,9 +316,9 @@ function switchDataSourceMode(mode: string) {
         }
     }
     
-    // Disable share button if not in ESE mode or no chart loaded
+    // Disable share button if not in List mode or no chart loaded (ESE specific)
     if (eseShareBtn) {
-        if (mode === 'ese' && currentEsePath) {
+        if (mode === 'list' && currentEsePath) {
             eseShareBtn.disabled = false;
         } else {
             eseShareBtn.disabled = true;
@@ -361,6 +371,7 @@ async function loadEseFromUrl(path: string, diff: string) {
          }
          
          updateStatus('status.chartLoaded');
+         resetExampleButton();
     } catch (e) {
          console.error("Error in loadEseFromUrl", e);
          const errMsg = (e as any).message || String(e);
@@ -1081,6 +1092,21 @@ function init(): void {
         loadExampleBtn.addEventListener('click', () => {
 
             loadedTJAContent = exampleTJA;
+
+            // Disable button
+            loadExampleBtn.disabled = true;
+            loadExampleBtn.setAttribute('data-i18n', 'ui.example.loaded');
+            loadExampleBtn.innerText = i18n.t('ui.example.loaded');
+
+            // Clear ESE state
+            currentEsePath = null;
+            if (eseShareBtn) eseShareBtn.disabled = true;
+            if (eseResults) {
+                // Clear highlights
+                document.querySelectorAll('.ese-result-item').forEach(el => (el as HTMLElement).style.background = 'transparent');
+            }
+            if (eseSearchInput) eseSearchInput.value = '';
+
             try {
                 updateParsedCharts(loadedTJAContent);
                 updateStatus('status.exampleLoaded');
@@ -1089,6 +1115,7 @@ function init(): void {
                 const msg = i18n.t('status.parseError', { error: (e as Error).message });
                 alert(msg);
                 if (statusDisplay) statusDisplay.innerText = msg;
+                resetExampleButton(); // Reset on error
             }
 
         });
@@ -1116,6 +1143,8 @@ function init(): void {
                     updateParsedCharts(content);
 
                     updateStatus('status.fileLoaded');
+                    
+                    resetExampleButton();
 
                 } catch (e) {
 
@@ -1478,6 +1507,8 @@ function init(): void {
             updateCollapseLoopState();
 
             refreshChart();
+            
+            resetExampleButton();
 
         } else if (event.type === 'judgement') {
 
@@ -1575,9 +1606,9 @@ function init(): void {
 
     if (eseParam) {
         pendingEseLoad = { path: eseParam, diff: diffParam || 'oni' };
-        switchDataSourceMode('ese');
+        switchDataSourceMode('list');
     } else {
-        switchDataSourceMode('example');
+        switchDataSourceMode('list');
         if (loadExampleBtn) loadExampleBtn.click();
     }
 

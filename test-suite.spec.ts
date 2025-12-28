@@ -608,24 +608,24 @@ test.describe('UI Logic', () => {
     });
 
     test('Data Source Tabs switch content', async ({ page }) => {
-        const exampleTab = page.locator('button[data-mode="example"]');
+        const listTab = page.locator('button[data-mode="list"]');
         const fileTab = page.locator('button[data-mode="file"]');
         const streamTab = page.locator('button[data-mode="stream"]');
         
-        const examplePane = page.locator('#tab-example');
+        const listPane = page.locator('#tab-list');
         const filePane = page.locator('#tab-file');
         const streamPane = page.locator('#tab-stream');
 
-        // Initial: Example Active
-        await expect(exampleTab).toHaveClass(/active/);
-        await expect(examplePane).toBeVisible();
+        // Initial: List Active
+        await expect(listTab).toHaveClass(/active/);
+        await expect(listPane).toBeVisible();
         await expect(filePane).not.toBeVisible();
 
         // Click File
         await fileTab.click();
         await expect(fileTab).toHaveClass(/active/);
         await expect(filePane).toBeVisible();
-        await expect(examplePane).not.toBeVisible();
+        await expect(listPane).not.toBeVisible();
 
         // Click Stream
         await streamTab.click();
@@ -664,8 +664,27 @@ test.describe('UI Logic', () => {
             ])
         }));
 
-        // Switch to ESE tab
-        await page.click('button[data-mode="ese"]');
+        // Reload to apply mock
+        await page.reload();
+        await page.waitForTimeout(500);
+        
+        // Ensure data source panel is expanded (reload might have collapsed it)
+        const dsBodyReloaded = page.locator('#ds-body');
+        if (await dsBodyReloaded.count() > 0) {
+            const classes = await dsBodyReloaded.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+
+        // Switch to List tab (if not already active, but it should be default)
+        // Just in case click it or check visibility
+        const listTab = page.locator('button[data-mode="list"]');
+        const classAttr = await listTab.getAttribute('class');
+        if (!classAttr?.includes('active')) {
+             await listTab.click();
+        }
         
         // Wait for search input
         const searchInput = page.locator('#ese-search-input');
