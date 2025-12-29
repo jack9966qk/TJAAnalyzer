@@ -696,9 +696,8 @@ test.describe('UI Logic', () => {
         await expect(searchInput).toBeVisible();
         
         // Wait for mocked data to load (UI shows "No results" or results)
-        // Since initial query is empty, it might show nothing or all.
-        // My implementation: if query empty, shows "Search for songs..."
-        await expect(page.locator('#ese-results')).toContainText('Search for songs...');
+        // Since initial query is empty, it should list all charts (mocked one)
+        await expect(page.locator('.ese-result-item')).toContainText('cat/song.tja');
         
         // Search by English Title
         await searchInput.fill('My Song');
