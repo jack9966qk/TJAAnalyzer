@@ -120,4 +120,66 @@ LEVEL:10
         const typeValue = stats.locator('.stat-box', { hasText: 'TYPE' }).locator('.stat-value');
         await expect(typeValue).toHaveText('DON');
     });
+
+    test('Repro: Hovering on unbranched section of a partially branched chart', async ({ page }) => {
+        const canvas = page.locator('#chart-component');
+        await expect(canvas).toBeVisible();
+
+        // Switch to File Tab
+        await page.click('button[data-mode="file"]');
+
+        const tjaContent = `TITLE:Partial Branch Repro
+BPM:120
+COURSE:Oni
+LEVEL:8
+#START
+1000,
+#BRANCHSTART p, 1, 2
+#N
+1000,
+#E
+2000,
+#M
+3000,
+#BRANCHEND
+1000,
+#END`;
+
+        // Load custom TJA via file picker
+        await page.locator('#tja-file-picker').setInputFiles({
+            name: 'repro.tja',
+            mimeType: 'text/plain',
+            buffer: Buffer.from(tjaContent)
+        });
+
+        await page.waitForTimeout(1000);
+
+        // Ensure we are in "All Branches" mode (default for branched chart)
+        const branchSelector = page.locator('#branch-selector');
+        await expect(branchSelector).toBeVisible();
+        await expect(branchSelector).toHaveValue('all');
+
+        // Get coordinates of the first note (Bar 0, Note 0) - Unbranched
+        const p0 = await page.evaluate(() => {
+            const chart = document.getElementById('chart-component') as any;
+            return chart.getNoteCoordinates(0, 0);
+        });
+        expect(p0).not.toBeNull();
+
+        // Hover
+        await canvas.hover({ position: p0, force: true });
+        await page.waitForTimeout(200);
+
+        // Check if hoveredNote is set correctly in viewOptions
+        const hoveredNote = await page.evaluate(() => {
+            const chart = document.getElementById('chart-component') as any;
+            return chart.viewOptions.hoveredNote;
+        });
+        
+        // { originalBarIndex: 0, charIndex: 0, branch: 'normal' }
+        expect(hoveredNote).toEqual({ originalBarIndex: 0, charIndex: 0, branch: 'normal' });
+
+        // Snapshot to verify visual highlight (Yellow Border)
+        await expect(canvas).toHaveScreenshot('repro-hover-unbranched.png');
+    });
 });

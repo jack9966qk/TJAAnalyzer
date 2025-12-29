@@ -839,6 +839,11 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
                 const info = branchVirtualBars[index];
                 const layout = branchLayouts[index];
                 
+                // OPTIMIZATION: If unbranched, only draw for 'normal' branch to avoid overdraw
+                const params = chart.barParams[info.originalIndex];
+                const isBranched = params ? params.isBranched : false;
+                if (!isBranched && b.type !== 'normal') continue;
+
                 const drawOptions = { ...options, annotations: {}, selection: null };
                 
                 drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, drawOptions, 0, [], [], texts, info.originalIndex, b.data.bars, undefined, undefined, b.type as any);
