@@ -25,17 +25,17 @@ export class NoteStatsDisplay extends HTMLElement {
                 flex-wrap: wrap;
                 gap: 10px;
                 padding: 10px;
-                background-color: #f5f5f5;
+                background-color: var(--bg-panel-header, #f5f5f5);
                 align-items: center;
                 justify-content: center;
-                border: 1px solid #e0e0e0;
+                border: 1px solid var(--border-lighter, #e0e0e0);
                 margin-top: 10px;
                 border-radius: 6px;
                 box-sizing: border-box;
             }
             .stat-box {
-                background-color: #37474f;
-                color: #eceff1;
+                background-color: var(--stat-box-bg, #37474f);
+                color: var(--stat-box-text, #eceff1);
                 padding: 6px 12px;
                 border-radius: 6px;
                 display: flex;
@@ -46,7 +46,7 @@ export class NoteStatsDisplay extends HTMLElement {
             }
             .stat-label {
                 font-size: 0.7em;
-                color: #b0bec5;
+                color: var(--stat-label, #b0bec5);
                 text-transform: uppercase;
                 letter-spacing: 1px;
                 margin-bottom: 4px;
@@ -61,8 +61,8 @@ export class NoteStatsDisplay extends HTMLElement {
             }
             .stat-full-line {
                 flex-basis: 100%;
-                background-color: #37474f;
-                color: #eceff1;
+                background-color: var(--stat-box-bg, #37474f);
+                color: var(--stat-box-text, #eceff1);
                 padding: 10px 15px;
                 border-radius: 6px;
                 margin-top: 5px;

@@ -203,7 +203,7 @@ function filterEseResults(query: string) {
     }) : eseTree;
     
     if (results.length === 0) {
-         eseResults.innerHTML = `<div style="padding: 10px; color: #888; font-style: italic;">${i18n.t('ui.ese.noResults')}</div>`;
+         eseResults.innerHTML = `<div class="ese-result-placeholder">${i18n.t('ui.ese.noResults')}</div>`;
          return;
     }
 
@@ -214,24 +214,21 @@ function filterEseResults(query: string) {
     displayResults.forEach(node => {
         const div = document.createElement('div');
         div.className = 'ese-result-item';
-        div.style.padding = '5px 10px';
-        div.style.cursor = 'pointer';
-        div.style.borderBottom = '1px solid #eee';
         
         // Simple highlighting or just text
         div.innerText = node.path;
 
         // Highlight if matches current path
         if (currentEsePath && node.path === currentEsePath) {
-            div.style.background = '#e0e0ff';
+            div.classList.add('selected');
         }
         
         div.addEventListener('click', async () => {
              try {
                  updateStatus('status.loadingChart');
                  // Highlight selection
-                 document.querySelectorAll('.ese-result-item').forEach(el => (el as HTMLElement).style.background = 'transparent');
-                 div.style.background = '#e0e0ff';
+                 document.querySelectorAll('.ese-result-item').forEach(el => el.classList.remove('selected'));
+                 div.classList.add('selected');
 
                  const content = await eseClient.getFileContent(node.path);
                  loadedTJAContent = content;
@@ -249,25 +246,12 @@ function filterEseResults(query: string) {
              }
         });
         
-        div.addEventListener('mouseover', () => { 
-            if (div.style.background !== 'rgb(224, 224, 255)' && div.style.background !== '#e0e0ff') {
-                div.style.backgroundColor = '#f0f0f0'; 
-            }
-        });
-        div.addEventListener('mouseout', () => { 
-            if (div.style.background !== 'rgb(224, 224, 255)' && div.style.background !== '#e0e0ff') {
-                div.style.backgroundColor = 'transparent'; 
-            }
-        });
-        
         eseResults.appendChild(div);
     });
 
     if (results.length > 100) {
         const truncationMsg = document.createElement('div');
-        truncationMsg.style.padding = '10px';
-        truncationMsg.style.fontStyle = 'italic';
-        truncationMsg.style.color = '#888';
+        truncationMsg.className = 'ese-result-placeholder';
         truncationMsg.innerText = i18n.t('ui.ese.truncated');
         eseResults.appendChild(truncationMsg);
     }
@@ -895,7 +879,7 @@ function init(): void {
             if (eseShareBtn) eseShareBtn.disabled = true;
             if (eseResults) {
                 // Clear highlights
-                document.querySelectorAll('.ese-result-item').forEach(el => (el as HTMLElement).style.background = 'transparent');
+                document.querySelectorAll('.ese-result-item').forEach(el => el.classList.remove('selected'));
             }
             if (eseSearchInput) eseSearchInput.value = '';
 
