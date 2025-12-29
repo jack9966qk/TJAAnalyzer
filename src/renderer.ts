@@ -69,6 +69,8 @@ export const PALETTE = {
     gogo: '#f8a33cff'
 };
 
+const FONT_STACK = "'Hiragino Kaku Gothic ProN', 'Meiryo', 'Yu Gothic', sans-serif";
+
 // Helper types for renderer and hit testing
 interface RenderBarInfo {
     bar: string[];
@@ -752,7 +754,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
              // Draw Loop Indicator
             if (info.isLoopStart && loop) {
                 ctx.fillStyle = PALETTE.text.primary;
-                ctx.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px sans-serif`;
+                ctx.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px ${FONT_STACK}`;
                 ctx.textAlign = 'right';
                 const text = texts.loopPattern.replace('{n}', loop.iterations.toString());
                 ctx.fillText(text, layout.x + layout.width, layout.y - constants.BAR_NUMBER_OFFSET_Y);
@@ -787,7 +789,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
             // Draw Loop Indicator
             if (info.isLoopStart && loop) {
                 ctx.fillStyle = PALETTE.text.primary;
-                ctx.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px sans-serif`;
+                ctx.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px ${FONT_STACK}`;
                 ctx.textAlign = 'right';
                 const text = texts.loopPattern.replace('{n}', loop.iterations.toString());
                 ctx.fillText(text, layout.x + layout.width, layout.y - constants.BAR_NUMBER_OFFSET_Y);
@@ -903,14 +905,14 @@ function drawChartHeader(ctx: CanvasRenderingContext2D, chart: ParsedChart, x: n
     
     // Draw Title
     ctx.fillStyle = PALETTE.text.primary;
-    ctx.font = `bold ${titleFontSize}px sans-serif`;
+    ctx.font = `bold ${titleFontSize}px ${FONT_STACK}`;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     ctx.fillText(title, x, y);
 
     // Draw Subtitle (below title)
     if (subtitle) {
-        ctx.font = `${subtitleFontSize}px sans-serif`;
+        ctx.font = `${subtitleFontSize}px ${FONT_STACK}`;
         ctx.fillStyle = PALETTE.text.secondary;
         ctx.fillText(subtitle, x, y + titleFontSize + 5);
     }
@@ -949,12 +951,12 @@ function drawChartHeader(ctx: CanvasRenderingContext2D, chart: ParsedChart, x: n
     }
 
     ctx.fillStyle = courseColor;
-    ctx.font = `bold ${metaFontSize}px sans-serif`;
+    ctx.font = `bold ${metaFontSize}px ${FONT_STACK}`;
     ctx.fillText(courseText, x + width, metaY);
 
     // BPM
     ctx.fillStyle = PALETTE.text.primary;
-    ctx.font = `${metaFontSize}px sans-serif`;
+    ctx.font = `${metaFontSize}px ${FONT_STACK}`;
     ctx.fillText(bpmText, x + width, metaY + metaFontSize + 5);
 
     ctx.restore();
@@ -1254,7 +1256,7 @@ function drawBalloonSegment(ctx: CanvasRenderingContext2D, startX: number, endX:
         // Draw Count
         if (viewMode !== 'judgements') {
             ctx.fillStyle = PALETTE.text.inverted;
-            ctx.font = `bold ${radius * 1.5}px sans-serif`;
+            ctx.font = `bold ${radius * 1.5}px ${FONT_STACK}`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(count.toString(), startX, centerY - (radius * 0.2));
@@ -1537,7 +1539,7 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
     // Phase 1.5: Draw Text (Judgements Text Mode only)
     if (viewMode === 'judgements-text') {
         ctx.save();
-        ctx.font = `bold ${rBig * 1.2}px sans-serif`; 
+        ctx.font = `bold ${rBig * 1.2}px ${FONT_STACK}`; 
         ctx.textAlign = 'center';
         ctx.textBaseline = 'bottom';
         ctx.lineWidth = height * 0.05; // Border width for text
@@ -1670,7 +1672,7 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
 
                     ctx.save();
                     // Larger size
-                    ctx.font = `bold ${rBig * 1.5}px sans-serif`;
+                    ctx.font = `bold ${rBig * 1.5}px ${FONT_STACK}`;
                     ctx.fillStyle = textColor;
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'bottom';
