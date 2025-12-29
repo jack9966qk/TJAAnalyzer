@@ -1389,9 +1389,14 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
             let effectiveBorderOuterW = borderOuterW;
             let effectiveBorderInnerW = borderInnerW;
             let effectiveInnerBorderColor = borderColor;
-            if (isNoteSelected(originalBarIndex, i, selection)) {
+            const isSelected = isNoteSelected(originalBarIndex, i, selection);
+            const isHovered = options.hoveredNote && options.hoveredNote.originalBarIndex === originalBarIndex && options.hoveredNote.charIndex === i;
+            if (isSelected) {
                 effectiveBorderOuterW = borderOuterW * 2; // 2x the width
                 effectiveBorderInnerW = borderInnerW * 2; // 2x the width
+                effectiveInnerBorderColor = PALETTE.notes.border.yellow;
+            }
+            else if (isHovered) {
                 effectiveInnerBorderColor = PALETTE.notes.border.yellow;
             }
             ctx.lineWidth = effectiveBorderOuterW;

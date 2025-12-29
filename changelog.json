@@ -1,5 +1,35 @@
 [
   {
+    "hash": "a4cabc1",
+    "message": "Update version to 0.6.2.",
+    "date": "2025-12-29"
+  },
+  {
+    "hash": "3749905",
+    "message": "Add Japanese language support and improve font rendering.",
+    "date": "2025-12-29"
+  },
+  {
+    "hash": "4ad6217",
+    "message": "Update ESE chart list to show all items by default and indicate truncation. Add translations for search UI.",
+    "date": "2025-12-29"
+  },
+  {
+    "hash": "4bc1634",
+    "message": "Add a hover note style when note stats display is enabled.",
+    "date": "2025-12-29"
+  },
+  {
+    "hash": "ca6297e",
+    "message": "Keep the footer at the bottom in horizontal layout and if there is empty vertical space in the control column.",
+    "date": "2025-12-29"
+  },
+  {
+    "hash": "46bcb0c",
+    "message": "Refactor note stats display as a separate component. Add and fix some test cases.",
+    "date": "2025-12-29"
+  },
+  {
     "hash": "57eca50",
     "message": "Update version to 0.6.1.",
     "date": "2025-12-29"
@@ -467,36 +497,6 @@
   {
     "hash": "b26ef8b",
     "message": "Color \"all delta\" values.",
-    "date": "2025-12-15"
-  },
-  {
-    "hash": "66699ce",
-    "message": "App packaging into executable using neutralinojs.",
-    "date": "2025-12-15"
-  },
-  {
-    "hash": "6ece4b1",
-    "message": "New view mode to display judgement results as bars underline.",
-    "date": "2025-12-15"
-  },
-  {
-    "hash": "eb0f28d",
-    "message": "Ballon rendering.",
-    "date": "2025-12-15"
-  },
-  {
-    "hash": "5f99d03",
-    "message": "Allow manual selection of loop iteration in collapsed mode.",
-    "date": "2025-12-15"
-  },
-  {
-    "hash": "8a7e806",
-    "message": "Scale bar width rendered with MEASURE commands in TJA.",
-    "date": "2025-12-15"
-  },
-  {
-    "hash": "dab7661",
-    "message": "Rearrange test cases.",
     "date": "2025-12-15"
   }
 ]
