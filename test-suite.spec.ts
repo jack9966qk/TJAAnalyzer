@@ -1016,7 +1016,7 @@ test.describe('Selection Interaction', () => {
             const chart = document.getElementById('chart-component') as any;
             return chart.viewOptions.hoveredNote;
         });
-        expect(hoveredNote).toEqual({ originalBarIndex: 0, charIndex: 0 });
+        expect(hoveredNote).toEqual({ originalBarIndex: 0, charIndex: 0, branch: 'normal' });
 
         // 2. Hide stats
         await showStatsCheckbox.uncheck();

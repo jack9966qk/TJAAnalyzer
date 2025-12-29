@@ -212,13 +212,21 @@ export class NoteStatsDisplay extends HTMLElement {
 
         const { collapsedLoop: collapsed, viewMode, coloringMode, visibility: judgementVisibility } = options;
 
+        // Resolve target chart based on branch
+        let targetChart = chart;
+        if (hit && hit.branch && chart && chart.branches) {
+            if (hit.branch === 'normal') targetChart = chart.branches.normal || chart;
+            else if (hit.branch === 'expert') targetChart = chart.branches.expert || chart;
+            else if (hit.branch === 'master') targetChart = chart.branches.master || chart;
+        }
+
         // 1. Type
         html += this.createStatBox(i18n.t('stats.type'), hit ? this.getNoteName(hit.type) : def);
         
         // 2. Gap
         let gap = def;
-        if (hit && chart) {
-            const g = this.getGapInfo(chart, hit.originalBarIndex, hit.charIndex);
+        if (hit && targetChart) {
+            const g = this.getGapInfo(targetChart, hit.originalBarIndex, hit.charIndex);
             if (g) gap = g;
         }
         html += this.createStatBox(i18n.t('stats.gap'), gap);
@@ -237,22 +245,22 @@ export class NoteStatsDisplay extends HTMLElement {
         let avgDeltaVal = def;
         let allDeltasStr = '';
         
-        if (hit && (viewMode === 'judgements' || viewMode === 'judgements-underline' || viewMode === 'judgements-text') && hit.judgeableNoteIndex !== null && chart) {
+        if (hit && (viewMode === 'judgements' || viewMode === 'judgements-underline' || viewMode === 'judgements-text') && hit.judgeableNoteIndex !== null && targetChart) {
             const deltas: number[] = [];
             
-            if (collapsed && chart.loop) {
-                const loop = chart.loop;
+            if (collapsed && targetChart.loop) {
+                const loop = targetChart.loop;
                 if (hit.originalBarIndex >= loop.startBarIndex && hit.originalBarIndex < loop.startBarIndex + loop.period) {
                     // Loop Logic
                     let baseIndex = 0;
                     for (let b = 0; b < hit.originalBarIndex; b++) {
-                        const bar = chart.bars[b];
+                        const bar = targetChart.bars[b];
                         if (bar) {
                             for(const c of bar) if (['1', '2', '3', '4'].includes(c)) baseIndex++;
                         }
                     }
                     let offsetInBar = 0;
-                    const targetBar = chart.bars[hit.originalBarIndex];
+                    const targetBar = targetChart.bars[hit.originalBarIndex];
                     for(let c = 0; c < hit.charIndex; c++) {
                             if (['1', '2', '3', '4'].includes(targetBar[c])) offsetInBar++;
                     }
@@ -260,7 +268,7 @@ export class NoteStatsDisplay extends HTMLElement {
                     
                     let notesPerLoop = 0;
                     for (let k = 0; k < loop.period; k++) {
-                        const bar = chart.bars[loop.startBarIndex + k];
+                        const bar = targetChart.bars[loop.startBarIndex + k];
                         if (bar) {
                             for (const c of bar) if (['1', '2', '3', '4'].includes(c)) notesPerLoop++;
                         }
@@ -274,7 +282,7 @@ export class NoteStatsDisplay extends HTMLElement {
                     } else {
                          let preLoopNotes = 0;
                          for(let i=0; i<loop.startBarIndex; i++) {
-                             const bar = chart.bars[i];
+                             const bar = targetChart.bars[i];
                              if(bar) for(const c of bar) if(['1','2','3','4'].includes(c)) preLoopNotes++;
                          }
                          const lastJudgedIndex = judgements.length - 1;

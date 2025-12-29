@@ -1190,7 +1190,7 @@ function init(): void {
 
          // Update Hover Style
          const isStatsVisible = showStatsCheckbox ? showStatsCheckbox.checked : false;
-         const newHoveredNote = (isStatsVisible && hit) ? { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex } : null;
+         const newHoveredNote = (isStatsVisible && hit) ? { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex, branch: hit.branch } : null;
          
          const currentHovered = viewOptions.hoveredNote;
          let changed = false;
@@ -1200,7 +1200,7 @@ function init(): void {
          } else if (!currentHovered || !newHoveredNote) {
              changed = true;
          } else {
-             changed = (currentHovered.originalBarIndex !== newHoveredNote.originalBarIndex || currentHovered.charIndex !== newHoveredNote.charIndex);
+             changed = (currentHovered.originalBarIndex !== newHoveredNote.originalBarIndex || currentHovered.charIndex !== newHoveredNote.charIndex || currentHovered.branch !== newHoveredNote.branch);
          }
          
          if (changed) {

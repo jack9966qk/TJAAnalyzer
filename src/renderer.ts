@@ -103,7 +103,7 @@ export interface ViewOptions {
         start: { originalBarIndex: number, charIndex: number };
         end: { originalBarIndex: number, charIndex: number } | null;
     } | null;
-    hoveredNote?: { originalBarIndex: number, charIndex: number } | null;
+    hoveredNote?: { originalBarIndex: number, charIndex: number, branch?: 'normal' | 'expert' | 'master' } | null;
     annotations?: Record<string, string>;
     isAnnotationMode?: boolean;
 }
@@ -410,6 +410,7 @@ export interface HitInfo {
     judgeableNoteIndex: number | null; // Global index for judgeable notes (1,2,3,4)
     bpm: number;
     scroll: number;
+    branch?: 'normal' | 'expert' | 'master';
 }
 
 export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTMLCanvasElement, judgements: string[] = [], options: ViewOptions): HitInfo | null {
@@ -445,6 +446,7 @@ export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTML
         let barY = layout.y; 
         
         let targetChart = chart;
+        let currentBranch: 'normal' | 'expert' | 'master' | undefined = chart.branchType;
         const params = chart.barParams[info.originalIndex];
         const isBranchedBar = isAllBranches && params && params.isBranched;
 
@@ -452,12 +454,15 @@ export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTML
             const subHeight = layout.height / 3;
             if (y >= layout.y && y < layout.y + subHeight) {
                 targetChart = chart.branches.normal || chart;
+                currentBranch = 'normal';
                 barY = layout.y;
             } else if (y >= layout.y + subHeight && y < layout.y + 2 * subHeight) {
                 targetChart = chart.branches.expert || chart;
+                currentBranch = 'expert';
                 barY = layout.y + subHeight;
             } else if (y >= layout.y + 2 * subHeight && y < layout.y + 3 * subHeight) {
                 targetChart = chart.branches.master || chart;
+                currentBranch = 'master';
                 barY = layout.y + 2 * subHeight;
             } else {
                 continue; 
@@ -526,7 +531,8 @@ export function getNoteAt(x: number, y: number, chart: ParsedChart, canvas: HTML
                     type: char,
                     judgeableNoteIndex: judgeableIndex,
                     bpm: effectiveBpm,
-                    scroll: effectiveScroll
+                    scroll: effectiveScroll,
+                    branch: currentBranch
                 };
             }
 
@@ -841,7 +847,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
                 
                 const drawOptions = { ...options, annotations: {}, selection: null };
                 
-                drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, drawOptions, 0, [], [], texts, info.originalIndex, b.data.bars, undefined, undefined);
+                drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, drawOptions, 0, [], [], texts, info.originalIndex, b.data.bars, undefined, undefined, b.type as any);
              }
         });
 
@@ -858,7 +864,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
                 ? info.overrideStartIndex 
                 : globalBarStartIndices[info.originalIndex];
 
-            drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, options, startIndex, judgements, judgementDeltas, texts, info.originalIndex, bars, options.collapsedLoop ? loop : undefined, inferredHands);
+            drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, options, startIndex, judgements, judgementDeltas, texts, info.originalIndex, bars, options.collapsedLoop ? loop : undefined, inferredHands, chart.branchType);
         }
     }
 }
@@ -1349,7 +1355,7 @@ function drawCapsule(ctx: CanvasRenderingContext2D, startX: number, endX: number
 }
 
 
-function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, options: ViewOptions, startIndex: number, judgements: string[], judgementDeltas: (number | undefined)[] = [], texts: RenderTexts, originalBarIndex: number = -1, bars: string[][] = [], loopInfo?: LoopInfo, inferredHands?: Map<string, string>): void {
+function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y: number, width: number, height: number, rSmall: number, rBig: number, borderOuterW: number, borderInnerW: number, borderUnderlineW: number, options: ViewOptions, startIndex: number, judgements: string[], judgementDeltas: (number | undefined)[] = [], texts: RenderTexts, originalBarIndex: number = -1, bars: string[][] = [], loopInfo?: LoopInfo, inferredHands?: Map<string, string>, currentBranch?: 'normal' | 'expert' | 'master'): void {
     const { viewMode, coloringMode, visibility: judgementVisibility, selection } = options;
     
     const centerY: number = y + height / 2;
@@ -1626,7 +1632,10 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
             let effectiveInnerBorderColor = borderColor;
 
             const isSelected = isNoteSelected(originalBarIndex, i, selection);
-            const isHovered = options.hoveredNote && options.hoveredNote.originalBarIndex === originalBarIndex && options.hoveredNote.charIndex === i;
+            const isHovered = options.hoveredNote 
+                && options.hoveredNote.originalBarIndex === originalBarIndex 
+                && options.hoveredNote.charIndex === i
+                && (options.hoveredNote.branch === currentBranch); // Match branch
 
             if (isSelected) {
                 effectiveBorderOuterW = borderOuterW * 2; // 2x the width
