@@ -180,7 +180,7 @@ function filterEseResults(query) {
             (node.titleJp && node.titleJp.toLowerCase().includes(q));
     }) : eseTree;
     if (results.length === 0) {
-        eseResults.innerHTML = `<div style="padding: 10px; color: #888; font-style: italic;">${i18n.t('ui.ese.noResults')}</div>`;
+        eseResults.innerHTML = `<div class="ese-result-placeholder">${i18n.t('ui.ese.noResults')}</div>`;
         return;
     }
     // Limit results for performance
@@ -189,21 +189,18 @@ function filterEseResults(query) {
     displayResults.forEach(node => {
         const div = document.createElement('div');
         div.className = 'ese-result-item';
-        div.style.padding = '5px 10px';
-        div.style.cursor = 'pointer';
-        div.style.borderBottom = '1px solid #eee';
         // Simple highlighting or just text
         div.innerText = node.path;
         // Highlight if matches current path
         if (currentEsePath && node.path === currentEsePath) {
-            div.style.background = '#e0e0ff';
+            div.classList.add('selected');
         }
         div.addEventListener('click', async () => {
             try {
                 updateStatus('status.loadingChart');
                 // Highlight selection
-                document.querySelectorAll('.ese-result-item').forEach(el => el.style.background = 'transparent');
-                div.style.background = '#e0e0ff';
+                document.querySelectorAll('.ese-result-item').forEach(el => el.classList.remove('selected'));
+                div.classList.add('selected');
                 const content = await eseClient.getFileContent(node.path);
                 loadedTJAContent = content;
                 currentEsePath = node.path; // Update current ESE path
@@ -220,23 +217,11 @@ function filterEseResults(query) {
                 updateStatus('status.eseError', { error: errMsg });
             }
         });
-        div.addEventListener('mouseover', () => {
-            if (div.style.background !== 'rgb(224, 224, 255)' && div.style.background !== '#e0e0ff') {
-                div.style.backgroundColor = '#f0f0f0';
-            }
-        });
-        div.addEventListener('mouseout', () => {
-            if (div.style.background !== 'rgb(224, 224, 255)' && div.style.background !== '#e0e0ff') {
-                div.style.backgroundColor = 'transparent';
-            }
-        });
         eseResults.appendChild(div);
     });
     if (results.length > 100) {
         const truncationMsg = document.createElement('div');
-        truncationMsg.style.padding = '10px';
-        truncationMsg.style.fontStyle = 'italic';
-        truncationMsg.style.color = '#888';
+        truncationMsg.className = 'ese-result-placeholder';
         truncationMsg.innerText = i18n.t('ui.ese.truncated');
         eseResults.appendChild(truncationMsg);
     }
@@ -779,7 +764,7 @@ function init() {
                 eseShareBtn.disabled = true;
             if (eseResults) {
                 // Clear highlights
-                document.querySelectorAll('.ese-result-item').forEach(el => el.style.background = 'transparent');
+                document.querySelectorAll('.ese-result-item').forEach(el => el.classList.remove('selected'));
             }
             if (eseSearchInput)
                 eseSearchInput.value = '';
@@ -1014,7 +999,7 @@ function init() {
         updateStatsComponent(statsHit);
         // Update Hover Style
         const isStatsVisible = showStatsCheckbox ? showStatsCheckbox.checked : false;
-        const newHoveredNote = (isStatsVisible && hit) ? { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex } : null;
+        const newHoveredNote = (isStatsVisible && hit) ? { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex, branch: hit.branch } : null;
         const currentHovered = viewOptions.hoveredNote;
         let changed = false;
         if (!currentHovered && !newHoveredNote) {
@@ -1024,7 +1009,7 @@ function init() {
             changed = true;
         }
         else {
-            changed = (currentHovered.originalBarIndex !== newHoveredNote.originalBarIndex || currentHovered.charIndex !== newHoveredNote.charIndex);
+            changed = (currentHovered.originalBarIndex !== newHoveredNote.originalBarIndex || currentHovered.charIndex !== newHoveredNote.charIndex || currentHovered.branch !== newHoveredNote.branch);
         }
         if (changed) {
             viewOptions.hoveredNote = newHoveredNote;

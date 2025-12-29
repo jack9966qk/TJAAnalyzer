@@ -1,5 +1,35 @@
 [
   {
+    "hash": "bb199cf",
+    "message": "Update version to 0.6.3.",
+    "date": "2025-12-30"
+  },
+  {
+    "hash": "ccf9dd6",
+    "message": "Update font stack for better Japanese text rendering.",
+    "date": "2025-12-30"
+  },
+  {
+    "hash": "64e5870",
+    "message": "Fix note hovering for branching charts when the note is not in a branching part.",
+    "date": "2025-12-30"
+  },
+  {
+    "hash": "3d938c1",
+    "message": "Make sure all branch starting points are highlighted if there are multiple before a branch end.",
+    "date": "2025-12-30"
+  },
+  {
+    "hash": "ee5337f",
+    "message": "Fix note stats display and hovering when there are multiple branches.",
+    "date": "2025-12-30"
+  },
+  {
+    "hash": "56d983a",
+    "message": "Add dark mode support.",
+    "date": "2025-12-29"
+  },
+  {
     "hash": "a4cabc1",
     "message": "Update version to 0.6.2.",
     "date": "2025-12-29"
@@ -468,35 +498,5 @@
     "hash": "8d27b9f",
     "message": "Rearrange files for more isolated webpage output.",
     "date": "2025-12-16"
-  },
-  {
-    "hash": "b08a7ac",
-    "message": "Smarter chart bar line wrapping given non standard MEASURE values.",
-    "date": "2025-12-16"
-  },
-  {
-    "hash": "8d58e18",
-    "message": "Display options UI refinements.",
-    "date": "2025-12-16"
-  },
-  {
-    "hash": "cc54443",
-    "message": "Refine data source control UI.",
-    "date": "2025-12-16"
-  },
-  {
-    "hash": "cc6a0c2",
-    "message": "Use 5 workers for Playwright tests.",
-    "date": "2025-12-16"
-  },
-  {
-    "hash": "94d2aa3",
-    "message": "Option to color note judgements with gradient color mapping from delta.",
-    "date": "2025-12-16"
-  },
-  {
-    "hash": "b26ef8b",
-    "message": "Color \"all delta\" values.",
-    "date": "2025-12-15"
   }
 ]

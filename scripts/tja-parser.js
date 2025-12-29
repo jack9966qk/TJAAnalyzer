@@ -100,12 +100,13 @@ export function parseTJA(content) {
             let stateE = createInitialState(bpm);
             let stateM = createInitialState(bpm);
             // Parsing helper
-            const parseLines = (linesToParse, bars, params, state, isBranched) => {
+            const parseLines = (linesToParse, bars, params, state, isBranched, markFirstAsBranchStart = false) => {
                 let barStartBpm = state.bpm;
                 let barStartScroll = state.scroll;
                 let barStartGogoTime = state.gogoTime;
                 // Note: Measure ratio logic in TJA is tricky. Usually #MEASURE applies to the NEXT bar.
                 // We use state.measureRatio as the ratio for the CURRENT accumulating bar.
+                let isFirstBar = true;
                 for (const line of linesToParse) {
                     if (line.startsWith('#')) {
                         const upperLine = line.toUpperCase();
@@ -193,10 +194,12 @@ export function parseTJA(content) {
                                 measureRatio: state.measureRatio,
                                 gogoTime: barStartGogoTime,
                                 isBranched: isBranched,
+                                isBranchStart: isBranched && markFirstAsBranchStart && isFirstBar,
                                 bpmChanges: state.currentBarBpmChanges.length > 0 ? [...state.currentBarBpmChanges] : undefined,
                                 scrollChanges: state.currentBarScrollChanges.length > 0 ? [...state.currentBarScrollChanges] : undefined,
                                 gogoChanges: state.currentBarGogoChanges.length > 0 ? [...state.currentBarGogoChanges] : undefined
                             });
+                            isFirstBar = false;
                             barStartBpm = state.bpm;
                             barStartScroll = state.scroll;
                             barStartGogoTime = state.gogoTime;
@@ -234,9 +237,9 @@ export function parseTJA(content) {
                         const srcN = bufferN;
                         const srcE = bufferE.length > 0 ? bufferE : srcN; // Fallback N
                         const srcM = bufferM.length > 0 ? bufferM : srcE; // Fallback E
-                        parseLines(srcN, normalBars, normalParams, stateN, true);
-                        parseLines(srcE, expertBars, expertParams, stateE, true);
-                        parseLines(srcM, masterBars, masterParams, stateM, true);
+                        parseLines(srcN, normalBars, normalParams, stateN, true, true);
+                        parseLines(srcE, expertBars, expertParams, stateE, true, true);
+                        parseLines(srcM, masterBars, masterParams, stateM, true, true);
                     }
                     inBranch = true;
                     currentBranchTarget = 'n';
@@ -249,9 +252,9 @@ export function parseTJA(content) {
                     const srcN = bufferN;
                     const srcE = bufferE.length > 0 ? bufferE : srcN; // Fallback N
                     const srcM = bufferM.length > 0 ? bufferM : srcE; // Fallback E
-                    parseLines(srcN, normalBars, normalParams, stateN, true);
-                    parseLines(srcE, expertBars, expertParams, stateE, true);
-                    parseLines(srcM, masterBars, masterParams, stateM, true);
+                    parseLines(srcN, normalBars, normalParams, stateN, true, true);
+                    parseLines(srcE, expertBars, expertParams, stateE, true, true);
+                    parseLines(srcM, masterBars, masterParams, stateM, true, true);
                     inBranch = false;
                     bufferN = [];
                     bufferE = [];
@@ -286,9 +289,9 @@ export function parseTJA(content) {
                 const srcN = bufferN;
                 const srcE = bufferE.length > 0 ? bufferE : srcN;
                 const srcM = bufferM.length > 0 ? bufferM : srcE;
-                parseLines(srcN, normalBars, normalParams, stateN, true);
-                parseLines(srcE, expertBars, expertParams, stateE, true);
-                parseLines(srcM, masterBars, masterParams, stateM, true);
+                parseLines(srcN, normalBars, normalParams, stateN, true, true);
+                parseLines(srcE, expertBars, expertParams, stateE, true, true);
+                parseLines(srcM, masterBars, masterParams, stateM, true, true);
             }
             else if (bufferCommon.length > 0) {
                 parseLines(bufferCommon, normalBars, normalParams, stateN, false);
