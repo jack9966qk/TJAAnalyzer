@@ -702,13 +702,7 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
         const overExtendWidth = 2 * constants.NOTE_RADIUS_SMALL;
         
         // Detect Branch Start
-        let isBranchStart = false;
-        if (isBranched) {
-             const prevParams = (info.originalIndex > 0) ? chart.barParams[info.originalIndex - 1] : undefined;
-             if (!prevParams || !prevParams.isBranched) {
-                 isBranchStart = true;
-             }
-        }
+        let isBranchStart = params ? !!params.isBranchStart : false;
         
         if (isAllBranches && chart.branches) {
              if (isBranched) {

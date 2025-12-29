@@ -226,6 +226,13 @@ LEVEL:9
     if (seqBarsN[1].join('') !== '11') throw new Error(`Bar 1 content mismatch: ${seqBarsN[1].join('')}`);
     if (seqBarsN[2].join('') !== '1111') throw new Error(`Bar 2 content mismatch: ${seqBarsN[2].join('')}`);
 
+    // Check isBranchStart
+    const seqParams = seqChart.branches.normal.barParams;
+    if (!seqParams[1].isBranchStart) throw new Error("Bar 1 should be Branch Start (1st branch)");
+    if (!seqParams[2].isBranchStart) throw new Error("Bar 2 should be Branch Start (2nd branch)");
+    if (seqParams[0].isBranchStart) throw new Error("Bar 0 should NOT be Branch Start");
+    if (seqParams[3].isBranchStart) throw new Error("Bar 3 should NOT be Branch Start");
+
     console.log("Sequential Branching parser test passed.");
 
     console.log("Parser test passed.");

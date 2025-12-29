@@ -25,6 +25,7 @@ export interface BarParams {
     measureRatio: number;
     gogoTime: boolean;
     isBranched: boolean;
+    isBranchStart?: boolean;
     bpmChanges?: BPMChange[];
     scrollChanges?: ScrollChange[];
     gogoChanges?: GogoChange[];
@@ -174,12 +175,14 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
             let stateM = createInitialState(bpm);
 
             // Parsing helper
-            const parseLines = (linesToParse: string[], bars: string[][], params: BarParams[], state: ParserState, isBranched: boolean) => {
+            const parseLines = (linesToParse: string[], bars: string[][], params: BarParams[], state: ParserState, isBranched: boolean, markFirstAsBranchStart: boolean = false) => {
                 let barStartBpm = state.bpm;
                 let barStartScroll = state.scroll;
                 let barStartGogoTime = state.gogoTime;
                 // Note: Measure ratio logic in TJA is tricky. Usually #MEASURE applies to the NEXT bar.
                 // We use state.measureRatio as the ratio for the CURRENT accumulating bar.
+
+                let isFirstBar = true;
 
                 for (const line of linesToParse) {
                     if (line.startsWith('#')) {
@@ -262,11 +265,14 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                                 measureRatio: state.measureRatio,
                                 gogoTime: barStartGogoTime,
                                 isBranched: isBranched,
+                                isBranchStart: isBranched && markFirstAsBranchStart && isFirstBar,
                                 bpmChanges: state.currentBarBpmChanges.length > 0 ? [...state.currentBarBpmChanges] : undefined,
                                 scrollChanges: state.currentBarScrollChanges.length > 0 ? [...state.currentBarScrollChanges] : undefined,
                                 gogoChanges: state.currentBarGogoChanges.length > 0 ? [...state.currentBarGogoChanges] : undefined
                             });
                             
+                            isFirstBar = false;
+
                             barStartBpm = state.bpm;
                             barStartScroll = state.scroll;
                             barStartGogoTime = state.gogoTime;
@@ -310,9 +316,9 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                         const srcE = bufferE.length > 0 ? bufferE : srcN; // Fallback N
                         const srcM = bufferM.length > 0 ? bufferM : srcE; // Fallback E
 
-                        parseLines(srcN, normalBars, normalParams, stateN, true);
-                        parseLines(srcE, expertBars, expertParams, stateE, true);
-                        parseLines(srcM, masterBars, masterParams, stateM, true);
+                        parseLines(srcN, normalBars, normalParams, stateN, true, true);
+                        parseLines(srcE, expertBars, expertParams, stateE, true, true);
+                        parseLines(srcM, masterBars, masterParams, stateM, true, true);
                     }
 
                     inBranch = true;
@@ -326,9 +332,9 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                     const srcE = bufferE.length > 0 ? bufferE : srcN; // Fallback N
                     const srcM = bufferM.length > 0 ? bufferM : srcE; // Fallback E
 
-                    parseLines(srcN, normalBars, normalParams, stateN, true);
-                    parseLines(srcE, expertBars, expertParams, stateE, true);
-                    parseLines(srcM, masterBars, masterParams, stateM, true);
+                    parseLines(srcN, normalBars, normalParams, stateN, true, true);
+                    parseLines(srcE, expertBars, expertParams, stateE, true, true);
+                    parseLines(srcM, masterBars, masterParams, stateM, true, true);
 
                     inBranch = false;
                     bufferN = [];
@@ -357,9 +363,9 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                 const srcN = bufferN;
                 const srcE = bufferE.length > 0 ? bufferE : srcN;
                 const srcM = bufferM.length > 0 ? bufferM : srcE;
-                parseLines(srcN, normalBars, normalParams, stateN, true);
-                parseLines(srcE, expertBars, expertParams, stateE, true);
-                parseLines(srcM, masterBars, masterParams, stateM, true);
+                parseLines(srcN, normalBars, normalParams, stateN, true, true);
+                parseLines(srcE, expertBars, expertParams, stateE, true, true);
+                parseLines(srcM, masterBars, masterParams, stateM, true, true);
             } else if (bufferCommon.length > 0) {
                  parseLines(bufferCommon, normalBars, normalParams, stateN, false);
                  parseLines(bufferCommon, expertBars, expertParams, stateE, false);
