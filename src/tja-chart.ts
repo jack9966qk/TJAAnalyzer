@@ -19,6 +19,11 @@ export class TJAChart extends HTMLElement {
     private _texts: RenderTexts | undefined;
     private _message: { text: string, type: 'warning' | 'info' } | null = null;
     private resizeObserver: ResizeObserver;
+    
+    // Rendering Optimization State
+    private _renderTask: number | null = null;
+    private _pendingFullRender: boolean = true;
+    private _lastRenderedJudgementsLength: number = 0;
 
     constructor() {
         super();
@@ -61,7 +66,8 @@ export class TJAChart extends HTMLElement {
         this.shadowRoot!.appendChild(this.canvas);
 
         this.resizeObserver = new ResizeObserver(() => {
-            this.render();
+            this._pendingFullRender = true;
+            this.scheduleRender();
         });
     }
 
@@ -73,7 +79,7 @@ export class TJAChart extends HTMLElement {
         this.upgradeProperty('texts');
 
         this.resizeObserver.observe(this);
-        this.render();
+        this.scheduleRender();
         
         this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
         this.canvas.addEventListener('click', this.handleClick.bind(this));
@@ -89,13 +95,24 @@ export class TJAChart extends HTMLElement {
 
     disconnectedCallback() {
         this.resizeObserver.disconnect();
+        if (this._renderTask !== null) {
+            cancelAnimationFrame(this._renderTask);
+            this._renderTask = null;
+        }
         this.canvas.removeEventListener('mousemove', this.handleMouseMove.bind(this));
         this.canvas.removeEventListener('click', this.handleClick.bind(this));
     }
 
+    scheduleRender() {
+        if (this._renderTask === null) {
+            this._renderTask = requestAnimationFrame(() => this.render());
+        }
+    }
+
     set chart(value: ParsedChart | null) {
         this._chart = value;
-        this.render();
+        this._pendingFullRender = true;
+        this.scheduleRender();
     }
 
     get chart(): ParsedChart | null {
@@ -104,7 +121,8 @@ export class TJAChart extends HTMLElement {
 
     set viewOptions(value: ViewOptions | null) {
         this._viewOptions = value;
-        this.render();
+        this._pendingFullRender = true;
+        this.scheduleRender();
     }
 
     get viewOptions(): ViewOptions | null {
@@ -113,27 +131,30 @@ export class TJAChart extends HTMLElement {
     
     set judgements(value: string[]) {
         this._judgements = value;
-        this.render();
+        this.scheduleRender();
     }
     
     set judgementDeltas(value: (number | undefined)[]) {
         this._judgementDeltas = value;
-        this.render();
+        this.scheduleRender();
     }
     
     set texts(value: RenderTexts) {
         this._texts = value;
-        this.render();
+        this._pendingFullRender = true;
+        this.scheduleRender();
     }
 
     showMessage(text: string, type: 'warning' | 'info' = 'info') {
         this._message = { text, type };
-        this.render();
+        this._pendingFullRender = true;
+        this.scheduleRender();
     }
 
     clearMessage() {
         this._message = null;
-        this.render();
+        this._pendingFullRender = true;
+        this.scheduleRender();
     }
 
     // Testing Helper
@@ -143,6 +164,7 @@ export class TJAChart extends HTMLElement {
     }
 
     render() {
+        this._renderTask = null;
         if (!this.isConnected) return;
         
         const width = this.clientWidth || 800;
@@ -181,19 +203,31 @@ export class TJAChart extends HTMLElement {
              return;
         }
         
+        let incrementalStart = 0;
+        if (!this._pendingFullRender && this._judgements.length > this._lastRenderedJudgementsLength) {
+            incrementalStart = this._lastRenderedJudgementsLength;
+        } else {
+            this._pendingFullRender = false;
+        }
+
         renderChart(
             this._chart,
             this.canvas,
             this._judgements,
             this._judgementDeltas,
             this._viewOptions,
-            this._texts
+            this._texts,
+            undefined, // dpr
+            { incrementalStart }
         );
+        
+        this._lastRenderedJudgementsLength = this._judgements.length;
     }
 
     // Public method to force render (e.g. after resizing parent not caught by observer, or manual trigger)
     refresh() {
-        this.render();
+        this._pendingFullRender = true;
+        this.scheduleRender();
     }
 
     private handleMouseMove(event: MouseEvent) {

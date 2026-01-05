@@ -607,7 +607,7 @@ export function getGradientColor(delta: number): string {
     return `rgb(${r}, ${g}, ${b})`;
 }
 
-export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judgements: string[] = [], judgementDeltas: (number | undefined)[] = [], options: ViewOptions, texts: RenderTexts = DEFAULT_TEXTS, customDpr?: number): void {
+export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judgements: string[] = [], judgementDeltas: (number | undefined)[] = [], options: ViewOptions, texts: RenderTexts = DEFAULT_TEXTS, customDpr?: number, renderParams: { incrementalStart?: number } = {}): void {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
         console.error("2D rendering context not found for canvas.");
@@ -615,13 +615,23 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
     }
 
     const { bars, loop } = chart;
+    const { incrementalStart = 0 } = renderParams;
+    const isIncremental = incrementalStart > 0;
     
     // Reset width to 100% to allow measuring the container's available width
-    canvas.style.width = '100%';
-    let logicalCanvasWidth: number = canvas.clientWidth;
+    let logicalCanvasWidth: number;
 
-    if (logicalCanvasWidth === 0) {
-        logicalCanvasWidth = canvas.width || 800;
+    if (!isIncremental) {
+        canvas.style.width = '100%';
+        logicalCanvasWidth = canvas.clientWidth;
+        if (logicalCanvasWidth === 0) {
+            logicalCanvasWidth = canvas.width || 800;
+        }
+    } else {
+        // In incremental mode, we assume width hasn't changed.
+        // We can trust the current canvas style width or width attribute divided by dpr (but we don't know dpr here easily without re-querying).
+        // Actually, logicalCanvasWidth is just clientWidth.
+        logicalCanvasWidth = canvas.clientWidth || (parseFloat(canvas.style.width)) || 800;
     }
 
     // Calculate Header Dimensions
@@ -638,40 +648,48 @@ export function renderChart(chart: ParsedChart, canvas: HTMLCanvasElement, judge
     
     const inferredHands = calculateInferredHands(bars, options.annotations);
 
-    // Adjust for device pixel ratio for sharp rendering
-    let dpr = customDpr !== undefined ? customDpr : (window.devicePixelRatio || 1);
-    
-    // Safety check for canvas limits
-    const MAX_CANVAS_DIMENSION = 32000;
+    if (!isIncremental) {
+        // Adjust for device pixel ratio for sharp rendering
+        const dpr = customDpr !== undefined ? customDpr : (window.devicePixelRatio || 1);
+        
+        // Safety check for canvas limits
+        const MAX_CANVAS_DIMENSION = 32000;
 
-    if (totalHeight * dpr > MAX_CANVAS_DIMENSION) {
-        console.warn(`Chart height (${totalHeight * dpr}px) exceeds canvas limit. Reducing DPR to 1.`);
-        dpr = 1;
+        if (totalHeight * dpr > MAX_CANVAS_DIMENSION) {
+            console.warn(`Chart height (${totalHeight * dpr}px) exceeds canvas limit. Reducing DPR to 1.`);
+            // dpr is const, so we can't reassign. Let's use a let.
+        }
+        
+        // Re-declare dpr as let to allow modification if needed, or just handle logic.
+        let effectiveDpr = dpr;
+        if (totalHeight * effectiveDpr > MAX_CANVAS_DIMENSION) {
+             effectiveDpr = 1;
+        }
+
+        let finalCanvasHeight = totalHeight * effectiveDpr;
+        let finalStyleHeight = totalHeight;
+
+        if (finalCanvasHeight > MAX_CANVAS_DIMENSION) {
+            console.warn(`Chart height (${finalCanvasHeight}px) still exceeds canvas limit. Clamping height.`);
+            finalCanvasHeight = MAX_CANVAS_DIMENSION;
+            finalStyleHeight = MAX_CANVAS_DIMENSION / effectiveDpr;
+        }
+
+        canvas.width = logicalCanvasWidth * effectiveDpr;
+        canvas.height = finalCanvasHeight;
+        
+        canvas.style.width = logicalCanvasWidth + 'px';
+        canvas.style.height = finalStyleHeight + 'px';
+        
+        ctx.scale(effectiveDpr, effectiveDpr);
+
+        // Clear
+        ctx.fillStyle = PALETTE.background;
+        ctx.fillRect(0, 0, logicalCanvasWidth, totalHeight);
+
+        // Layer 0: Header
+        drawChartHeader(ctx, chart, PADDING, PADDING, availableWidth, headerHeight, texts);
     }
-
-    let finalCanvasHeight = totalHeight * dpr;
-    let finalStyleHeight = totalHeight;
-
-    if (finalCanvasHeight > MAX_CANVAS_DIMENSION) {
-        console.warn(`Chart height (${finalCanvasHeight}px) still exceeds canvas limit. Clamping height.`);
-        finalCanvasHeight = MAX_CANVAS_DIMENSION;
-        finalStyleHeight = MAX_CANVAS_DIMENSION / dpr;
-    }
-
-    canvas.width = logicalCanvasWidth * dpr;
-    canvas.height = finalCanvasHeight;
-    
-    canvas.style.width = logicalCanvasWidth + 'px';
-    canvas.style.height = finalStyleHeight + 'px';
-    
-    ctx.scale(dpr, dpr);
-
-    // Clear
-    ctx.fillStyle = PALETTE.background;
-    ctx.fillRect(0, 0, logicalCanvasWidth, totalHeight);
-
-    // Layer 0: Header
-    drawChartHeader(ctx, chart, PADDING, PADDING, availableWidth, headerHeight, texts);
 
     const isAllBranches = options.showAllBranches && !!chart.branches;
     const BASE_LANE_HEIGHT = constants.BAR_HEIGHT;
