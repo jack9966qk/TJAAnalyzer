@@ -101,6 +101,7 @@ const doTabs = document.querySelectorAll('#chart-options-panel .panel-tab');
 const doPanes = document.querySelectorAll('#chart-options-panel .panel-pane');
 const clearSelectionBtn = document.getElementById('clear-selection-btn') as HTMLButtonElement;
 const exportSelectionBtn = document.getElementById('export-selection-btn') as HTMLButtonElement;
+const exportChartNameInput = document.getElementById('export-chart-name') as HTMLInputElement;
 
 const clearAnnotationsBtn = document.getElementById('clear-annotations-btn') as HTMLButtonElement;
 const autoAnnotateBtn = document.getElementById('auto-annotate-btn') as HTMLButtonElement;
@@ -395,8 +396,19 @@ function updateUIText() {
         }
     });
 
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (key) {
+             (el as HTMLInputElement).placeholder = i18n.t(key);
+        }
+    });
+
     if (eseSearchInput) {
         eseSearchInput.placeholder = i18n.t('ui.ese.searchPlaceholder');
+    }
+    
+    if (exportChartNameInput) {
+        exportChartNameInput.placeholder = i18n.t('ui.export.chartName');
     }
 
     // Dynamic Elements
@@ -736,11 +748,14 @@ function init(): void {
 
             const loopCountInput = document.getElementById('export-loop-count') as HTMLInputElement;
             const loopCount = loopCountInput ? parseInt(loopCountInput.value, 10) : 10;
+            
+            const chartNameInput = document.getElementById('export-chart-name') as HTMLInputElement;
+            const chartName = (chartNameInput && chartNameInput.value) ? chartNameInput.value : 'Exported Selection';
 
             try {
-                const tjaContent = generateTJAFromSelection(currentChart, viewOptions.selection, difficultySelector.value, loopCount);
+                const tjaContent = generateTJAFromSelection(currentChart, viewOptions.selection, difficultySelector.value, loopCount, chartName);
                 
-                await shareFile('exported.tja', tjaContent, 'text/plain', 'Export TJA');
+                await shareFile(`${chartName}.tja`, tjaContent, 'text/plain', 'Export TJA');
                 updateStatus('status.exportSuccess');
             } catch (e) {
                 console.error("Export failed:", e);

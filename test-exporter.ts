@@ -280,6 +280,24 @@ BALLOON:3
         assert(reParsed.balloonCounts[1] === 3, `Expected second balloon to be 3`);
     });
 
+    runTest("Test 10: Verify Custom Chart Name", () => {
+        const tjaContent4 = `
+TITLE:Test4
+BPM:120
+COURSE:Oni
+#START
+10000000,
+#END
+`;
+        const parsed4 = parseTJA(tjaContent4)['oni'];
+        const selection: ViewOptions['selection'] = {
+            start: { originalBarIndex: 0, charIndex: 0 },
+            end: { originalBarIndex: 0, charIndex: 7 }
+        };
+        const output = generateTJAFromSelection(parsed4, selection, 'Oni', 1, 'My Custom Chart');
+        assertIncludes(output, 'TITLE:My Custom Chart');
+    });
+
     console.log("\nAll TJA Exporter tests passed.");
 } catch (e: any) {
     console.error("Test suite failed:", e);

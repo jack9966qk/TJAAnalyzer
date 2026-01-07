@@ -51,7 +51,7 @@ function getContextAt(chart: ParsedChart, barIndex: number, charIndex: number): 
     return { bpm, scroll, measureRatio, gogoTime };
 }
 
-export function generateTJAFromSelection(chart: ParsedChart, selection: NonNullable<ViewOptions['selection']>, courseName: string = 'Oni', loopCount: number = 10): string {
+export function generateTJAFromSelection(chart: ParsedChart, selection: NonNullable<ViewOptions['selection']>, courseName: string = 'Oni', loopCount: number = 10, chartName: string = 'Exported Selection'): string {
     const { start, end } = selection;
 
     // Normalize selection range
@@ -124,7 +124,7 @@ export function generateTJAFromSelection(chart: ParsedChart, selection: NonNulla
 
     // 3. Generate Header
     const headers: string[] = [
-        `TITLE:Exported Selection`,
+        `TITLE:${chartName}`,
         `SUBTITLE:--`,
         `BPM:${formatVal(startContext.bpm)}`,
         `WAVE:placeholder.mp3`,
