@@ -83,6 +83,7 @@ const doTabs = document.querySelectorAll('#chart-options-panel .panel-tab');
 const doPanes = document.querySelectorAll('#chart-options-panel .panel-pane');
 const clearSelectionBtn = document.getElementById('clear-selection-btn');
 const exportSelectionBtn = document.getElementById('export-selection-btn');
+const exportChartNameInput = document.getElementById('export-chart-name');
 const clearAnnotationsBtn = document.getElementById('clear-annotations-btn');
 const autoAnnotateBtn = document.getElementById('auto-annotate-btn');
 const chartModeStatus = document.getElementById('chart-mode-status');
@@ -356,8 +357,17 @@ function updateUIText() {
             }
         }
     });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (key) {
+            el.placeholder = i18n.t(key);
+        }
+    });
     if (eseSearchInput) {
         eseSearchInput.placeholder = i18n.t('ui.ese.searchPlaceholder');
+    }
+    if (exportChartNameInput) {
+        exportChartNameInput.placeholder = i18n.t('ui.export.chartName');
     }
     // Dynamic Elements
     updateStatus(currentStatusKey);
@@ -599,6 +609,15 @@ function init() {
     });
     // Initial call
     updateLayout();
+    // Default stats to off in vertical layout
+    if (!document.body.classList.contains('horizontal-layout')) {
+        if (showStatsCheckbox) {
+            showStatsCheckbox.checked = false;
+        }
+        if (noteStatsDisplay) {
+            noteStatsDisplay.style.display = 'none';
+        }
+    }
     if (!tjaChart) {
         console.error("tja-chart element not found.");
         return;
@@ -660,9 +679,11 @@ function init() {
             }
             const loopCountInput = document.getElementById('export-loop-count');
             const loopCount = loopCountInput ? parseInt(loopCountInput.value, 10) : 10;
+            const chartNameInput = document.getElementById('export-chart-name');
+            const chartName = (chartNameInput && chartNameInput.value) ? chartNameInput.value : 'Exported Selection';
             try {
-                const tjaContent = generateTJAFromSelection(currentChart, viewOptions.selection, difficultySelector.value, loopCount);
-                await shareFile('exported.tja', tjaContent, 'text/plain', 'Export TJA');
+                const tjaContent = generateTJAFromSelection(currentChart, viewOptions.selection, difficultySelector.value, loopCount, chartName);
+                await shareFile(`${chartName}.tja`, tjaContent, 'text/plain', 'Export TJA');
                 updateStatus('status.exportSuccess');
             }
             catch (e) {

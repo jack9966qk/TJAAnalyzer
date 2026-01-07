@@ -1,33 +1,38 @@
 function getContextAt(chart, barIndex, charIndex) {
-    let bpm = chart.barParams[0]?.bpm || 120; // Default
-    let scroll = 1.0;
-    let measure = 1.0;
-    // Scan up to barIndex
-    for (let b = 0; b <= barIndex; b++) {
-        const params = chart.barParams[b];
-        if (!params)
-            continue;
-        // Measure updates per bar (active for the whole bar usually, but let's track the latest)
-        measure = params.measureRatio;
-        // Check changes within bar
-        if (params.bpmChanges) {
-            for (const ch of params.bpmChanges) {
-                if (b < barIndex || (b === barIndex && ch.index <= charIndex)) {
-                    bpm = ch.bpm;
-                }
-            }
-        }
-        if (params.scrollChanges) {
-            for (const ch of params.scrollChanges) {
-                if (b < barIndex || (b === barIndex && ch.index <= charIndex)) {
-                    scroll = ch.scroll;
-                }
-            }
+    const params = chart.barParams[barIndex];
+    if (!params) {
+        return {
+            bpm: chart.bpm || 120,
+            scroll: 1.0,
+            measureRatio: 1.0,
+            gogoTime: false
+        };
+    }
+    let bpm = params.bpm;
+    let scroll = params.scroll;
+    let measureRatio = params.measureRatio;
+    let gogoTime = params.gogoTime;
+    if (params.bpmChanges) {
+        for (const ch of params.bpmChanges) {
+            if (ch.index <= charIndex)
+                bpm = ch.bpm;
         }
     }
-    return { bpm, scroll, measureRatio: measure };
+    if (params.scrollChanges) {
+        for (const ch of params.scrollChanges) {
+            if (ch.index <= charIndex)
+                scroll = ch.scroll;
+        }
+    }
+    if (params.gogoChanges) {
+        for (const ch of params.gogoChanges) {
+            if (ch.index <= charIndex)
+                gogoTime = ch.isGogo;
+        }
+    }
+    return { bpm, scroll, measureRatio, gogoTime };
 }
-export function generateTJAFromSelection(chart, selection, courseName = 'Oni', loopCount = 10) {
+export function generateTJAFromSelection(chart, selection, courseName = 'Oni', loopCount = 10, chartName = 'Exported Selection') {
     const { start, end } = selection;
     // Normalize selection range
     let startBar = start.originalBarIndex;
@@ -83,11 +88,15 @@ export function generateTJAFromSelection(chart, selection, courseName = 'Oni', l
     // 2. Determine Contexts
     // Start context: State at the BEGINNING of the start bar (index 0).
     const startContext = getContextAt(chart, startBar, 0);
-    // End context: State at the END of the end bar (effectively infinite index).
+    // End context: State at the END of the end bar.
     const endContext = getContextAt(chart, endBar, 999999);
+    // Determine Gogo status for padding/gaps
+    const startNoteContext = getContextAt(chart, startBar, startChar);
+    const endNoteContext = getContextAt(chart, endBar, endChar);
+    const shouldGapBeGogo = startNoteContext.gogoTime && endNoteContext.gogoTime;
     // 3. Generate Header
     const headers = [
-        `TITLE:Exported Selection`,
+        `TITLE:${chartName}`,
         `SUBTITLE:--`,
         `BPM:${formatVal(startContext.bpm)}`,
         `WAVE:placeholder.mp3`,
@@ -100,17 +109,7 @@ export function generateTJAFromSelection(chart, selection, courseName = 'Oni', l
     }
     let tjaContent = headers.join('\n') + '\n\n#START\n';
     // 4. Generate Content
-    // We pre-calculate the selection string block to avoid re-processing every loop
-    // But wait, "One strategy is to start from the original bar string and replace the unselected notes with empty note".
-    // We need to generate the "Selection Block".
     let selectionBlock = '';
-    // Check initial measure of selection
-    // The selection block itself should start with #MEASURE if the first bar has a specific measure.
-    // But we handle this via "Empty Bar" context setting for the *loop*.
-    // However, if the first bar of selection has a DIFFERENT measure than `startContext.measureRatio`?
-    // `startContext.measureRatio` IS the measure of the first bar (because getContextAt uses `params.measureRatio` of that bar).
-    // So the Empty Bar will set the measure correctly for the start of selection.
-    // Generate the bars for selection
     let lastMeasureRatio = startContext.measureRatio;
     for (let b = startBar; b <= endBar; b++) {
         const bar = chart.bars[b];
@@ -120,9 +119,6 @@ export function generateTJAFromSelection(chart, selection, courseName = 'Oni', l
             continue;
         }
         // Measure Change logic within selection
-        // If this bar has different measure than previous *in the selection flow*, output command.
-        // For first bar (b==startBar), lastMeasureRatio is initialized to startContext.measureRatio.
-        // So if first bar matches startContext (which it should), no redundant #MEASURE.
         if (Math.abs(params.measureRatio - lastMeasureRatio) > 0.0001) {
             selectionBlock += `#MEASURE ${formatMeasure(params.measureRatio)}\n`;
             lastMeasureRatio = params.measureRatio;
@@ -146,6 +142,13 @@ export function generateTJAFromSelection(chart, selection, courseName = 'Oni', l
                 commandsAt[ch.index].push(`#SCROLL ${formatVal(ch.scroll)}`);
             }
         }
+        if (params.gogoChanges) {
+            for (const ch of params.gogoChanges) {
+                if (!commandsAt[ch.index])
+                    commandsAt[ch.index] = [];
+                commandsAt[ch.index].push(ch.isGogo ? '#GOGOSTART' : '#GOGOEND');
+            }
+        }
         let barString = '';
         for (let i = 0; i < bar.length; i++) {
             if (commandsAt[i]) {
@@ -167,12 +170,19 @@ export function generateTJAFromSelection(chart, selection, courseName = 'Oni', l
     }
     // Now assemble the loops
     for (let i = 0; i < loopCount; i++) {
-        // Empty Bar (Context Reset)
+        // Empty Bar (Context Reset / Gap)
         tjaContent += `\n// Loop ${i + 1}\n`;
         tjaContent += `#MEASURE ${formatMeasure(startContext.measureRatio)}\n`;
         tjaContent += `#BPMCHANGE ${formatVal(startContext.bpm)}\n`;
         tjaContent += `#SCROLL ${formatVal(startContext.scroll)}\n`;
+        // Gap Gogo State
+        tjaContent += (shouldGapBeGogo ? '#GOGOSTART' : '#GOGOEND') + '\n';
         tjaContent += `0,\n`;
+        // Selection Start Correction
+        // We need to restore the state expected by the start of the selection block (startContext.gogoTime)
+        if (startContext.gogoTime !== shouldGapBeGogo) {
+            tjaContent += (startContext.gogoTime ? '#GOGOSTART' : '#GOGOEND') + '\n';
+        }
         // Selection
         tjaContent += selectionBlock;
     }
@@ -181,6 +191,8 @@ export function generateTJAFromSelection(chart, selection, courseName = 'Oni', l
     tjaContent += `#MEASURE ${formatMeasure(endContext.measureRatio)}\n`;
     tjaContent += `#BPMCHANGE ${formatVal(endContext.bpm)}\n`;
     tjaContent += `#SCROLL ${formatVal(endContext.scroll)}\n`;
+    // We treat End Padding as a Gap too
+    tjaContent += (shouldGapBeGogo ? '#GOGOSTART' : '#GOGOEND') + '\n';
     tjaContent += `0,\n0,\n0,\n`;
     tjaContent += '#END\n';
     return tjaContent;

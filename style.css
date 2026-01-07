@@ -8,6 +8,8 @@
     --bg-hover: #e0e0e0;
     --bg-modal-content: #fefefe;
     
+    --bg-list-alt: #f7f7f7; /* Alternating row background */
+
     --text-primary: #333;
     --text-secondary: #555;
     --text-tertiary: #666;
@@ -48,6 +50,8 @@
         --bg-hover: #333333;
         --bg-modal-content: #1e1e1e;
         
+        --bg-list-alt: #252525; /* Dark mode alternating row */
+
         --text-primary: #e0e0e0;
         --text-secondary: #b0b0b0;
         --text-tertiary: #888888;
@@ -511,10 +515,20 @@ canvas {
 }
 
 .ese-result-item {
-    padding: 5px 10px;
+    padding: 6px 10px;
     cursor: pointer;
     border-bottom: 1px solid var(--border-lighter);
     color: var(--text-primary);
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.ese-result-item:nth-child(even) {
+    background-color: var(--bg-list-alt);
+}
+
+.ese-result-item:nth-child(odd) {
+    background-color: var(--bg-input);
 }
 
 .ese-result-item:hover {

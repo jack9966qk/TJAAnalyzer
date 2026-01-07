@@ -1,5 +1,30 @@
 [
   {
+    "hash": "2aa6113",
+    "message": "Update version to 0.6.5.",
+    "date": "2026-01-08"
+  },
+  {
+    "hash": "a0ad67b",
+    "message": "Hide note stats by default in vertical layout mode.",
+    "date": "2026-01-08"
+  },
+  {
+    "hash": "584fcb7",
+    "message": "Improve chart list visuals.",
+    "date": "2026-01-08"
+  },
+  {
+    "hash": "eaa4d83",
+    "message": "Add functionality to specify the name of the exported selection chart.",
+    "date": "2026-01-08"
+  },
+  {
+    "hash": "f5ef101",
+    "message": "Fix incorrect gogo time configuration in chart exporting.",
+    "date": "2026-01-08"
+  },
+  {
     "hash": "c30d50c",
     "message": "Update version to 0.6.4.",
     "date": "2026-01-08"
@@ -472,31 +497,6 @@
   {
     "hash": "29ecc29",
     "message": "More realistic judgement class simulation from test stream.",
-    "date": "2025-12-18"
-  },
-  {
-    "hash": "7028de0",
-    "message": "Restore missing gameplay initialization logic and update test snapshots.",
-    "date": "2025-12-18"
-  },
-  {
-    "hash": "bb8e7df",
-    "message": "Fix a bug where the chart may disappear at high zoom level.",
-    "date": "2025-12-18"
-  },
-  {
-    "hash": "d812ed9",
-    "message": "Basic zh-CN language support.",
-    "date": "2025-12-18"
-  },
-  {
-    "hash": "73d979c",
-    "message": "Support selecting a range of notes.",
-    "date": "2025-12-18"
-  },
-  {
-    "hash": "2a165ac",
-    "message": "Add basic note selection functionality.",
     "date": "2025-12-18"
   }
 ]

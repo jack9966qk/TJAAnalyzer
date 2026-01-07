@@ -479,6 +479,14 @@
     "titleJp": "ビビデバ"
   },
   {
+    "path": "01 Pop/Blue Jeans/Blue Jeans.tja",
+    "type": "blob",
+    "sha": "695418d230f5b41abf0cb3c0d8b3d41c68da925b",
+    "url": "ese/01 Pop/Blue Jeans/Blue Jeans.tja",
+    "title": "Blue Jeans",
+    "titleJp": "Blue Jeans"
+  },
+  {
     "path": "01 Pop/Boku no Kimochi/Boku no Kimochi.tja",
     "type": "blob",
     "sha": "442b4a478a196ecc5487fa0436e5286862f129c3",
@@ -821,6 +829,14 @@
     "titleJp": "DREAMERS' PARADISE"
   },
   {
+    "path": "01 Pop/Daddy's Style -Konya wa Daddy Daddy-/Daddy's Style -Konya wa Daddy Daddy-.tja",
+    "type": "blob",
+    "sha": "bf3988aacd8246017fd5a3cf0a049f662ac44e6a",
+    "url": "ese/01 Pop/Daddy's Style -Konya wa Daddy Daddy-/Daddy's Style -Konya wa Daddy Daddy-.tja",
+    "title": "Daddy's Style -Konya wa Daddy Daddy-",
+    "titleJp": "Daddy's Style -今夜はダディダディ-"
+  },
+  {
     "path": "01 Pop/Dai Meiwaku/Dai Meiwaku.tja",
     "type": "blob",
     "sha": "97e421a9d4ef4196f44e5f8db189bf099eb6eace",
@@ -941,7 +957,7 @@
   {
     "path": "01 Pop/Digital Mogura/Digital Mogura.tja",
     "type": "blob",
-    "sha": "8f6bb896a4a2824e1e2224df931c50e32684a4ca",
+    "sha": "be04cffaff978fc2c41ac10049edea4144c656ea",
     "url": "ese/01 Pop/Digital Mogura/Digital Mogura.tja",
     "title": "Digital Mogura",
     "titleJp": "デジタルモグラ"
@@ -961,14 +977,6 @@
     "url": "ese/01 Pop/Do it! Now/Do it! Now.tja",
     "title": "Do it! Now",
     "titleJp": "Do it! Now"
-  },
-  {
-    "path": "01 Pop/Donut Hole/Donut Hole.tja",
-    "type": "blob",
-    "sha": "f17591d87d3bb48368508f6dac1d1ae13a270225",
-    "url": "ese/01 Pop/Donut Hole/Donut Hole.tja",
-    "title": "Donut Hole",
-    "titleJp": "ドーナツホール"
   },
   {
     "path": "01 Pop/Don’ts Don’ts/Donts Donts.tja",
@@ -1067,6 +1075,14 @@
     "url": "ese/01 Pop/Egao ni Kanpai!/Egao ni Kanpai!.tja",
     "title": "Egao ni Kanpai!",
     "titleJp": "笑顔にカンパイ！"
+  },
+  {
+    "path": "01 Pop/Everlasting Love/Everlasting Love.tja",
+    "type": "blob",
+    "sha": "4ccc52d96dcfbcba5bd37ed35b449fbfbe8c55ad",
+    "url": "ese/01 Pop/Everlasting Love/Everlasting Love.tja",
+    "title": "Everlasting Love",
+    "titleJp": "千年之恋"
   },
   {
     "path": "01 Pop/Everyday, Katyusha/Everyday, Katyusha.tja",
@@ -1287,7 +1303,7 @@
   {
     "path": "01 Pop/Gimme Chocolate!!/Gimme Chocolate!!.tja",
     "type": "blob",
-    "sha": "0f8007dce83d8692f03351ff6dcbe73bf9781139",
+    "sha": "29dfe8525984a87e7504e8f0dc7e84855982a222",
     "url": "ese/01 Pop/Gimme Chocolate!!/Gimme Chocolate!!.tja",
     "title": "Gimme Chocolate‼",
     "titleJp": "ギミチョコ！！"
@@ -1493,7 +1509,7 @@
   {
     "path": "01 Pop/Hana/Hana.tja",
     "type": "blob",
-    "sha": "ef018cae95efb21861185dc3c31c218ed18fb36b",
+    "sha": "61a8757d11dfbd4383c912680e4264ef966f5a91",
     "url": "ese/01 Pop/Hana/Hana.tja",
     "title": "Hana",
     "titleJp": "花"
@@ -2121,6 +2137,14 @@
     "titleJp": "風は吹いている"
   },
   {
+    "path": "01 Pop/Kegarenaki Kusoyarou-domo/Kegarenaki Kusoyarou-domo.tja",
+    "type": "blob",
+    "sha": "d9040e022b25da9b5407e05a5baf785c60b0e1a3",
+    "url": "ese/01 Pop/Kegarenaki Kusoyarou-domo/Kegarenaki Kusoyarou-domo.tja",
+    "title": "Kegarenaki Kusoyarou-domo",
+    "titleJp": "汚れなきクソ野郎ども"
+  },
+  {
     "path": "01 Pop/Kenka Joutou/Kenka Joutou.tja",
     "type": "blob",
     "sha": "e2b77dfa0d626ed320ea026b4ed41e2036400849",
@@ -2475,7 +2499,7 @@
   {
     "path": "01 Pop/Labrador Retriever/Labrador Retriever.tja",
     "type": "blob",
-    "sha": "0173227da891929e33d51eeb1b9c04c50a51f485",
+    "sha": "f314ce5cf07d0496e2d0b96a0ccf22fef925e43a",
     "url": "ese/01 Pop/Labrador Retriever/Labrador Retriever.tja",
     "title": "Labrador Retriever",
     "titleJp": "ラブラドール・レトリバー"
@@ -3838,7 +3862,7 @@
   {
     "path": "01 Pop/STAY TUNE/STAY TUNE.tja",
     "type": "blob",
-    "sha": "eaabe2a86efa99d560632d76ebee7b80267c931b",
+    "sha": "42c118c425c856f68e8a015dac3a7375af0e34bf",
     "url": "ese/01 Pop/STAY TUNE/STAY TUNE.tja",
     "title": "STAY TUNE",
     "titleJp": "STAY TUNE"
@@ -3996,14 +4020,6 @@
     "titleJp": "千の夜をこえて"
   },
   {
-    "path": "01 Pop/Senbonzakura -Sachiko Kobayashi Version-/Senbonzakura -Sachiko Kobayashi Version-.tja",
-    "type": "blob",
-    "sha": "1bec937d79372af5271750f06ba771a385e4f0fa",
-    "url": "ese/01 Pop/Senbonzakura -Sachiko Kobayashi Version-/Senbonzakura -Sachiko Kobayashi Version-.tja",
-    "title": "Senbonzakura -Sachiko Kobayashi Version-",
-    "titleJp": "千本桜 ver.小林幸子"
-  },
-  {
     "path": "01 Pop/September/September.tja",
     "type": "blob",
     "sha": "020cff8e998ebafaecd14c2752a9394a8cbc3e6b",
@@ -4054,7 +4070,7 @@
   {
     "path": "01 Pop/Shin Zombie/Shin Zombie.tja",
     "type": "blob",
-    "sha": "12e64c1d02b5a518c4d3ce313ecb0c2328cb7dac",
+    "sha": "36a829b7def4253b739ec33b708c0f17a4ccdcf3",
     "url": "ese/01 Pop/Shin Zombie/Shin Zombie.tja",
     "title": "Shin Zombie",
     "titleJp": "シン・ゾンビ"
@@ -4166,7 +4182,7 @@
   {
     "path": "01 Pop/Silent Jealousy/Silent Jealousy.tja",
     "type": "blob",
-    "sha": "4c486e83dd8dcf3bf49d9674f5fc9c59a9da81b8",
+    "sha": "693194a15de94e1a88881d721e4559c1cd9b35ae",
     "url": "ese/01 Pop/Silent Jealousy/Silent Jealousy.tja",
     "title": "Silent Jealousy",
     "titleJp": "Silent Jealousy"
@@ -4334,7 +4350,7 @@
   {
     "path": "01 Pop/Sukatto Baachan no Uta/Sukatto Baachan no Uta.tja",
     "type": "blob",
-    "sha": "c37d98cb974d5aceb39465baff4a9c4ebfe1046f",
+    "sha": "f7ae13d0388dab11dfdd9fdf822116fabc5958b7",
     "url": "ese/01 Pop/Sukatto Baachan no Uta/Sukatto Baachan no Uta.tja",
     "title": "Sukatto Baachan no Uta",
     "titleJp": "スカッとばあちゃんの歌"
@@ -4542,7 +4558,7 @@
   {
     "path": "01 Pop/Takane no Hanako-san/Takane no Hanako-san.tja",
     "type": "blob",
-    "sha": "d8911ff2bcbff703f743f1f331b8109a2e61dfb3",
+    "sha": "4e19a7ec79f55cdfae237fa1cc4c538512381970",
     "url": "ese/01 Pop/Takane no Hanako-san/Takane no Hanako-san.tja",
     "title": "Takane no Hanako-san",
     "titleJp": "高嶺の花子さん"
@@ -4678,7 +4694,7 @@
   {
     "path": "01 Pop/Tomoni/Tomoni.tja",
     "type": "blob",
-    "sha": "e8e1729bf2755e423764daaa52a4c2ea33bbb923",
+    "sha": "d35e8c7a770a40fa27268ebe479f363e913a6bba",
     "url": "ese/01 Pop/Tomoni/Tomoni.tja",
     "title": "Tomoni",
     "titleJp": "ともに"
@@ -4860,7 +4876,7 @@
   {
     "path": "01 Pop/Unbreakable Love/Unbreakable Love.tja",
     "type": "blob",
-    "sha": "774a0bc651bcdd4a35b2c9d629a1b4f1204f0a58",
+    "sha": "ab822b0f939947e57d702b4e3bc4ea380a60a388",
     "url": "ese/01 Pop/Unbreakable Love/Unbreakable Love.tja",
     "title": "Unbreakable Love",
     "titleJp": "永不失聯的愛 Unbreakable Love"
@@ -5131,7 +5147,7 @@
   {
     "path": "01 Pop/Yattemiyou/Yattemiyou.tja",
     "type": "blob",
-    "sha": "6f2febacf5ecb00b554635dab478d5ce117ed0da",
+    "sha": "eaccf4f60350675ecdd5105cddb8a4e0d451f40e",
     "url": "ese/01 Pop/Yattemiyou/Yattemiyou.tja",
     "title": "Yattemiyou",
     "titleJp": "やってみよう"
@@ -5399,7 +5415,7 @@
   {
     "path": "02 Anime/1・2・3/1 2 3.tja",
     "type": "blob",
-    "sha": "bdf9c69a1ef954f0762d2d9fc100a8d45f557407",
+    "sha": "ad2c758f064be0d9aa1848ed8f4b5cb248388d73",
     "url": "ese/02 Anime/1・2・3/1 2 3.tja",
     "title": "1・2・3"
   },
@@ -5622,7 +5638,7 @@
   {
     "path": "02 Anime/Aozora no Rhapsody/Aozora no Rhapsody.tja",
     "type": "blob",
-    "sha": "9b88d8b3aface4c9018bcbd1e8f6355df47c2d5e",
+    "sha": "263c7aa8eccd95c48f21cce191c9601c4e3e3efb",
     "url": "ese/02 Anime/Aozora no Rhapsody/Aozora no Rhapsody.tja",
     "title": "Aozora no Rhapsody",
     "titleJp": "青空のラプソディ"
@@ -5958,7 +5974,7 @@
   {
     "path": "02 Anime/Checkmate!/Checkmate!.tja",
     "type": "blob",
-    "sha": "905bc04e7be1841765c575a81e2a463b8d28b888",
+    "sha": "4bb2cfcf1e2f3dc80d20938efdc858e42f48364f",
     "url": "ese/02 Anime/Checkmate!/Checkmate!.tja",
     "title": "Checkmate⁉",
     "titleJp": "Checkmate⁉"
@@ -6022,7 +6038,7 @@
   {
     "path": "02 Anime/Clover Kakumation/Clover Kakumation.tja",
     "type": "blob",
-    "sha": "cbc15e352e32130c07697eb59cbbb9a2fac8614c",
+    "sha": "b09c984f323aef362017d626017787242a51982c",
     "url": "ese/02 Anime/Clover Kakumation/Clover Kakumation.tja",
     "title": "Clover♣Kakumation",
     "titleJp": "クローバー♣かくめーしょん"
@@ -6461,7 +6477,7 @@
   {
     "path": "02 Anime/GEED no Akashi/GEED no Akashi.tja",
     "type": "blob",
-    "sha": "2ebf1ff9a402521105763082f68ff6aeaea1ffd7",
+    "sha": "a389cbfdb69b0e67ebb8c1c68f500003b1de6481",
     "url": "ese/02 Anime/GEED no Akashi/GEED no Akashi.tja",
     "title": "GEED no Akashi",
     "titleJp": "GEEDの証"
@@ -6796,7 +6812,7 @@
   {
     "path": "02 Anime/Hacking to the Gate/Hacking to the Gate.tja",
     "type": "blob",
-    "sha": "df2cbaa78ab1aa0dc329862a7f67080608340ba9",
+    "sha": "4a113faaff5bf4c399ce115a9779de95aed64abd",
     "url": "ese/02 Anime/Hacking to the Gate/Hacking to the Gate.tja",
     "title": "Hacking to the Gate",
     "titleJp": "Hacking to the Gate"
@@ -7108,7 +7124,7 @@
   {
     "path": "02 Anime/IRIS OUT/IRIS OUT.tja",
     "type": "blob",
-    "sha": "a317ae8c49e914ad2e1706ce0acb5556e882efda",
+    "sha": "40e6eeb01c5a3c853e6325af04848d62fddacba2",
     "url": "ese/02 Anime/IRIS OUT/IRIS OUT.tja",
     "title": "IRIS OUT",
     "titleJp": "IRIS OUT"
@@ -7404,7 +7420,7 @@
   {
     "path": "02 Anime/Kakushinteki☆Metamaruphose!/Kakushinteki Metamaruphose!.tja",
     "type": "blob",
-    "sha": "b7bac60bf37c7625224daed28d5ba2e93bba6fc4",
+    "sha": "d4c50f50a32c8ab88695efad099f2a0d518fc6ff",
     "url": "ese/02 Anime/Kakushinteki☆Metamaruphose!/Kakushinteki Metamaruphose!.tja",
     "title": "Kakushinteki☆Metamaruphose!",
     "titleJp": "かくしん的☆めたまるふぉ～ぜっ！"
@@ -7852,7 +7868,7 @@
   {
     "path": "02 Anime/Maji LOVE1000percent/Maji LOVE1000percent.tja",
     "type": "blob",
-    "sha": "4c110249d6f270b9232ab7f6dfaec5941c6538ab",
+    "sha": "4fa690c340d3aa32782c9e6b96190258689489dc",
     "url": "ese/02 Anime/Maji LOVE1000percent/Maji LOVE1000percent.tja",
     "title": "Maji LOVE1000%",
     "titleJp": "マジLOVE1000％"
@@ -7932,7 +7948,7 @@
   {
     "path": "02 Anime/Mezase Pokemon Master -20th Anniversary-/Mezase Pokemon Master -20th Anniversary-.tja",
     "type": "blob",
-    "sha": "6eb42cbb4d7c10978a60c24334ce85dc737818d3",
+    "sha": "701d49df781186886cf5047123f71df572e726f3",
     "url": "ese/02 Anime/Mezase Pokemon Master -20th Anniversary-/Mezase Pokemon Master -20th Anniversary-.tja",
     "title": "Mezase Pokémon Master -20th Anniversary-",
     "titleJp": "めざせポケモンマスター -20th Anniversary-"
@@ -7980,7 +7996,7 @@
   {
     "path": "02 Anime/Mirai wa Joe! Joe!/Mirai wa Joe! Joe!.tja",
     "type": "blob",
-    "sha": "a0854184d717e0d5cd1ad8e83007cf26bd8312a8",
+    "sha": "af7d7c9bad0d977f20448d21c7f601a182aea79f",
     "url": "ese/02 Anime/Mirai wa Joe! Joe!/Mirai wa Joe! Joe!.tja",
     "title": "Mirai wa Joe! Joe!",
     "titleJp": "未来はジョー！ジョー！"
@@ -8287,6 +8303,14 @@
     "url": "ese/02 Anime/Ohayou! Shining Day/Ohayou! Shining Day.tja",
     "title": "Ohayou! Shining Day",
     "titleJp": "おはよう！シャイニング・デイ"
+  },
+  {
+    "path": "02 Anime/Ojamajo Carnival!!/Ojamajo Carnival!!.tja",
+    "type": "blob",
+    "sha": "80331ccb81fbc719a3aec238f313813d01de4e63",
+    "url": "ese/02 Anime/Ojamajo Carnival!!/Ojamajo Carnival!!.tja",
+    "title": "Ojamajo Carnival!!",
+    "titleJp": "おジャ魔女カーニバル!!"
   },
   {
     "path": "02 Anime/One day/One day.tja",
@@ -8672,7 +8696,7 @@
   {
     "path": "02 Anime/SHINY (Rin-ne)/SHINY.tja",
     "type": "blob",
-    "sha": "0dbdb5fab42fbd45a55a65e636f2ef50e2cf2890",
+    "sha": "1b987ca965f35f2dfad1741f734f584d4e5ed9cb",
     "url": "ese/02 Anime/SHINY (Rin-ne)/SHINY.tja",
     "title": "SHINY",
     "titleJp": "SHINY"
@@ -10006,7 +10030,7 @@
   {
     "path": "03 Vocaloid/Charles/Charles.tja",
     "type": "blob",
-    "sha": "faab8a499146bd87822bd4afb4b956878d2a6a90",
+    "sha": "9676006926c5512cffdfc34f0d4b96a340ddf33a",
     "url": "ese/03 Vocaloid/Charles/Charles.tja",
     "title": "Charles",
     "titleJp": "シャルル"
@@ -10446,7 +10470,7 @@
   {
     "path": "03 Vocaloid/Lost One no Goukoku/Lost One no Goukoku.tja",
     "type": "blob",
-    "sha": "479c547905db77d5b3c2464871f4e3c236bb176d",
+    "sha": "f5353ada17bce3e872cc1b1999c6df86b401010b",
     "url": "ese/03 Vocaloid/Lost One no Goukoku/Lost One no Goukoku.tja",
     "title": "Lost One no Goukoku",
     "titleJp": "ロストワンの号哭"
@@ -11996,7 +12020,7 @@
   {
     "path": "05 Variety/Asteroid/Asteroid.tja",
     "type": "blob",
-    "sha": "05b61459ec760d9f5720292fcea14edfa103a1ca",
+    "sha": "64c1619f01237b89822a20d8b76acdcf040dc9f8",
     "url": "ese/05 Variety/Asteroid/Asteroid.tja",
     "title": "Asteroid",
     "titleJp": "Asteroid"
@@ -12177,6 +12201,14 @@
     "titleJp": "どかーん"
   },
   {
+    "path": "05 Variety/Donut Hole/Donut Hole.tja",
+    "type": "blob",
+    "sha": "f17591d87d3bb48368508f6dac1d1ae13a270225",
+    "url": "ese/05 Variety/Donut Hole/Donut Hole.tja",
+    "title": "Donut Hole",
+    "titleJp": "ドーナツホール"
+  },
+  {
     "path": "05 Variety/Doppelgangers/Doppelgangers.tja",
     "type": "blob",
     "sha": "3bdeff26d95d42fc1ad0e0631b02fc2805b3001a",
@@ -12315,7 +12347,7 @@
   {
     "path": "05 Variety/HERO Title Theme/“HERO” Title Theme.tja",
     "type": "blob",
-    "sha": "7801c692df83c61ee176c93a9ad1968bcae75cb7",
+    "sha": "47c4406e43f83943bb9dd077b68812b857f2b916",
     "url": "ese/05 Variety/HERO Title Theme/“HERO” Title Theme.tja",
     "title": "“HERO” Title Theme",
     "titleJp": "「HERO」 -Main Title-"
@@ -12411,7 +12443,7 @@
   {
     "path": "05 Variety/INSPION/INSPION.tja",
     "type": "blob",
-    "sha": "2b0d924947bcf8444a90ffeb30d75b5498ce8179",
+    "sha": "c0b889825cda271b74109a1731f6a2cbf1f98c70",
     "url": "ese/05 Variety/INSPION/INSPION.tja",
     "title": "INSPION",
     "titleJp": "INSPION"
@@ -12777,6 +12809,14 @@
     "titleJp": "世界ふしぎ発見！オープニングテーマ"
   },
   {
+    "path": "05 Variety/Senbonzakura -Sachiko Kobayashi Version-/Senbonzakura -Sachiko Kobayashi Version-.tja",
+    "type": "blob",
+    "sha": "75c1f30eef2b96500b62f094d1be51f59d65b000",
+    "url": "ese/05 Variety/Senbonzakura -Sachiko Kobayashi Version-/Senbonzakura -Sachiko Kobayashi Version-.tja",
+    "title": "Senbonzakura -Sachiko Kobayashi Version-",
+    "titleJp": "千本桜 ver.小林幸子"
+  },
+  {
     "path": "05 Variety/Senshaku Zesshou no Fantasia/Senshaku Zesshou no Fantasia.tja",
     "type": "blob",
     "sha": "79b15f2afef983fb598c5b86dfa3381c12984f0b",
@@ -13003,7 +13043,7 @@
   {
     "path": "06 Classical/Charlie Dash!/Charlie Dash!.tja",
     "type": "blob",
-    "sha": "4ffdf71363516d054ce50f71b2d881d5ce662051",
+    "sha": "a06b9aeecc5469a3272f4993ae65f25fb355c5cc",
     "url": "ese/06 Classical/Charlie Dash!/Charlie Dash!.tja",
     "title": "Charlie Dash!",
     "titleJp": "チャーリー ダッシュ！"
@@ -13055,6 +13095,14 @@
     "url": "ese/06 Classical/Classical Medley -Wedding Version-/Classical Medley -Wedding Version-.tja",
     "title": "Classical Medley -Wedding Version-",
     "titleJp": "クラシックメドレー(ウェディング編)"
+  },
+  {
+    "path": "06 Classical/Classical Medley -Winter Break Version-/Classical Medley -Winter Break Version-.tja",
+    "type": "blob",
+    "sha": "272760f8d4b9205d72aba8d53c5ec39f754cb4c7",
+    "url": "ese/06 Classical/Classical Medley -Winter Break Version-/Classical Medley -Winter Break Version-.tja",
+    "title": "Classical Medley -Winter Break Version-",
+    "titleJp": "クラシックメドレー（冬休み編）"
   },
   {
     "path": "06 Classical/Concerto in F -Third Movement-/Concerto in F -Third Movement-.tja",
@@ -13473,11 +13521,19 @@
     "titleJp": "交響曲第五番「運命」"
   },
   {
+    "path": "06 Classical/Symphony No. 09/Symphony No. 9 (old).tja",
+    "type": "blob",
+    "sha": "cecabc1746bbbd2bc20ffa51aa0538503400e5c6",
+    "url": "ese/06 Classical/Symphony No. 09/Symphony No. 9 (old).tja",
+    "title": "Symphony No. 9 -Old Audio/Chart-",
+    "titleJp": "第九交響曲"
+  },
+  {
     "path": "06 Classical/Symphony No. 09/Symphony No. 9.tja",
     "type": "blob",
-    "sha": "e42f0b55125aaf70859c1b283d4e9789226b0161",
+    "sha": "e26d58fc99550afb828c4dd86317a14a83785254",
     "url": "ese/06 Classical/Symphony No. 09/Symphony No. 9.tja",
-    "title": "Symphony No. 9",
+    "title": "Symphony No. 9 -New Audio/Chart-",
     "titleJp": "第九交響曲"
   },
   {
@@ -13635,7 +13691,7 @@
   {
     "path": "07 Game Music/ALRIGHT/ALRIGHT.tja",
     "type": "blob",
-    "sha": "8dbfd64f0899833980bc3f2fb5861d68b8de0bcb",
+    "sha": "bff5769c73cf086cca5c00d286841024a4659ee5",
     "url": "ese/07 Game Music/ALRIGHT/ALRIGHT.tja",
     "title": "ALRIGHT*",
     "titleJp": "ALRIGHT*"
@@ -13675,7 +13731,7 @@
   {
     "path": "07 Game Music/Acceleration/Acceleration.tja",
     "type": "blob",
-    "sha": "0dc7cc75d4d1047c6382d371b33ea69ee1c42866",
+    "sha": "b6cbdc2343046a3546e8237417d05606f1daa248",
     "url": "ese/07 Game Music/Acceleration/Acceleration.tja",
     "title": "Acceleration",
     "titleJp": "アクセルレーション"
@@ -13954,7 +14010,7 @@
   {
     "path": "07 Game Music/CHANGE!!!!/CHANGE!!!!.tja",
     "type": "blob",
-    "sha": "800319bc968e6924794594f75218fefa5d356c15",
+    "sha": "016f1284f3ee3d6d1fddaf190fe22c10592d0732",
     "url": "ese/07 Game Music/CHANGE!!!!/CHANGE!!!!.tja",
     "title": "CHANGE❢",
     "titleJp": "CHANGE!!!!"
@@ -14002,7 +14058,7 @@
   {
     "path": "07 Game Music/Chain Chronicle Final Battle Medley/Chain Chronicle Final Battle Medley.tja",
     "type": "blob",
-    "sha": "28afdd38535d70eef48994e2daeb2595d73a888d",
+    "sha": "0037918a828f034fd119d4d81391860ee2d5dc5e",
     "url": "ese/07 Game Music/Chain Chronicle Final Battle Medley/Chain Chronicle Final Battle Medley.tja",
     "title": "Chain Chronicle Final Battle Medley",
     "titleJp": "チェインクロニクル 最終決戦メドレー"
@@ -14018,7 +14074,7 @@
   {
     "path": "07 Game Music/Chain Chronicle Normal Battle Medley/Chain Chronicle Normal Battle Medley.tja",
     "type": "blob",
-    "sha": "8db9278c0ce64b4298a237f83346279bb2aaeddd",
+    "sha": "5c4be933ac430f6b31ca10218dca1a9027b74b19",
     "url": "ese/07 Game Music/Chain Chronicle Normal Battle Medley/Chain Chronicle Normal Battle Medley.tja",
     "title": "Chain Chronicle Normal Battle Medley",
     "titleJp": "チェインクロニクル 通常バトルメドレー"
@@ -14042,7 +14098,7 @@
   {
     "path": "07 Game Music/Colorful Days -12-colors version-/Colorful Days -12-colors version-.tja",
     "type": "blob",
-    "sha": "13e53f39884b8aae22cbc960ff087988ca2410e9",
+    "sha": "50390566a5c727e866e12fb082c5d96021e15034",
     "url": "ese/07 Game Music/Colorful Days -12-colors version-/Colorful Days -12-colors version-.tja",
     "title": "Colorful Days -12-colors version-",
     "titleJp": "Colorful Days(12 Colors)"
@@ -14090,7 +14146,7 @@
   {
     "path": "07 Game Music/DIAMOND/DIAMOND.tja",
     "type": "blob",
-    "sha": "1b2b97cda9871ac9c53348d8ec44552c02fef6f9",
+    "sha": "122c9bad4bdc0b062374d84a022b1358c5f32baa",
     "url": "ese/07 Game Music/DIAMOND/DIAMOND.tja",
     "title": "DIAMOND",
     "titleJp": "DIAMOND"
@@ -14114,7 +14170,7 @@
   {
     "path": "07 Game Music/Day of the future/Day of the future.tja",
     "type": "blob",
-    "sha": "7e3bbc245c680c6944ee755e4b05ff2e3ef1ed03",
+    "sha": "b7145e6584d6882ad9c1383a61e3647e8c2b0b5c",
     "url": "ese/07 Game Music/Day of the future/Day of the future.tja",
     "title": "Day of the future",
     "titleJp": "Day of the future"
@@ -14338,7 +14394,7 @@
   {
     "path": "07 Game Music/Flower Girl/Flower Girl.tja",
     "type": "blob",
-    "sha": "dc54b2876296f89889a007bc266749a31170335c",
+    "sha": "d5ab65cf030ad63cdac54a62aae8e0e38de760e3",
     "url": "ese/07 Game Music/Flower Girl/Flower Girl.tja",
     "title": "Flower Girl",
     "titleJp": "フラワーガール"
@@ -14346,7 +14402,7 @@
   {
     "path": "07 Game Music/Furufuru Future☆/Furufuru Future.tja",
     "type": "blob",
-    "sha": "942fc83f0a729b710199e06499fbd28adfc19d4e",
+    "sha": "da49c025da2f00651a0cd6f611a78207794c3c5b",
     "url": "ese/07 Game Music/Furufuru Future☆/Furufuru Future.tja",
     "title": "Furufuru Future☆",
     "titleJp": "ふるふるフューチャー☆"
@@ -14354,7 +14410,7 @@
   {
     "path": "07 Game Music/Futari no Kioku/Futari no Kioku.tja",
     "type": "blob",
-    "sha": "88adcedcab3ab4dfe81a81cd22298b5d34047787",
+    "sha": "730726f5cd64bd2d478fc3ad10d6e14743519d33",
     "url": "ese/07 Game Music/Futari no Kioku/Futari no Kioku.tja",
     "title": "Futari no Kioku",
     "titleJp": "フタリの記憶"
@@ -14466,7 +14522,7 @@
   {
     "path": "07 Game Music/Gemmy/Gemmy.tja",
     "type": "blob",
-    "sha": "1c3d247911a68b694d4a53205f025dc295100d09",
+    "sha": "36d80aa1dc8bb77395aecce6bd47677d3bd14491",
     "url": "ese/07 Game Music/Gemmy/Gemmy.tja",
     "title": "Gemmy",
     "titleJp": "ジェミー"
@@ -14482,7 +14538,7 @@
   {
     "path": "07 Game Music/Genki Tripper/Genki Tripper.tja",
     "type": "blob",
-    "sha": "e390441546cd4c7fb72107def134e84fa683fbab",
+    "sha": "f1d8f63fc7d9b5509cb007ae558046af36e9a303",
     "url": "ese/07 Game Music/Genki Tripper/Genki Tripper.tja",
     "title": "Genki Tripper",
     "titleJp": "ゲンキトリッパー"
@@ -14506,7 +14562,7 @@
   {
     "path": "07 Game Music/God Ray/God Ray.tja",
     "type": "blob",
-    "sha": "ba2b7f8c66b5845d8daea17fa7f7825ef26d903d",
+    "sha": "6ab79c69267a69b7f6f7c3d79cf77bc723f9d2a0",
     "url": "ese/07 Game Music/God Ray/God Ray.tja",
     "title": "God Ray",
     "titleJp": "God Ray"
@@ -14690,7 +14746,7 @@
   {
     "path": "07 Game Music/IDOL POWER RAINBOW/IDOL POWER RAINBOW.tja",
     "type": "blob",
-    "sha": "7caa5b201f43a7d0ac5464f739ff75bf932f5ed7",
+    "sha": "9d1f38f41e41543eebcbee12b90e2da53300ffe1",
     "url": "ese/07 Game Music/IDOL POWER RAINBOW/IDOL POWER RAINBOW.tja",
     "title": "IDOL POWER RAINBOW",
     "titleJp": "IDOL POWER RAINBOW"
@@ -14730,7 +14786,7 @@
   {
     "path": "07 Game Music/Ippai Ippai/Ippai Ippai.tja",
     "type": "blob",
-    "sha": "14cba2c8db77ffd979e1b49d06ac15f4257b9a06",
+    "sha": "2162e866471c09da1994fc0c63dcbf4af0ff3ff1",
     "url": "ese/07 Game Music/Ippai Ippai/Ippai Ippai.tja",
     "title": "Ippai Ippai",
     "titleJp": "いっぱいいっぱい"
@@ -14770,7 +14826,7 @@
   {
     "path": "07 Game Music/Jitensha/Jitensha.tja",
     "type": "blob",
-    "sha": "76760cf7016f17c935b9451e39b5f9dee409905b",
+    "sha": "f6d791280655ea1add0e7252cc8592c4d495db90",
     "url": "ese/07 Game Music/Jitensha/Jitensha.tja",
     "title": "Jitensha",
     "titleJp": "自転車"
@@ -14914,7 +14970,7 @@
   {
     "path": "07 Game Music/Kazahana/Kazahana.tja",
     "type": "blob",
-    "sha": "76a1f5de0898c997dd6f6a18d4491608b955d910",
+    "sha": "5276330aa4eec1a58612d6dd28c158d080e4e700",
     "url": "ese/07 Game Music/Kazahana/Kazahana.tja",
     "title": "Kazahana",
     "titleJp": "風花"
@@ -15002,7 +15058,7 @@
   {
     "path": "07 Game Music/Kosmos, Cosmos/Kosmos, Cosmos.tja",
     "type": "blob",
-    "sha": "ec88797ec416a8738e19427817a0946e0b5f3579",
+    "sha": "8ead384384b888917a9457304de88b36d281de99",
     "url": "ese/07 Game Music/Kosmos, Cosmos/Kosmos, Cosmos.tja",
     "title": "Kosmos, Cosmos",
     "titleJp": "Kosmos, Cosmos"
@@ -15074,7 +15130,7 @@
   {
     "path": "07 Game Music/LO VE LY/LO VE LY.tja",
     "type": "blob",
-    "sha": "c6f5c6ba9585fe0e2f71d2cd98ac89da372b5500",
+    "sha": "aebb1e154cf751171295df32982b08c9778c6051",
     "url": "ese/07 Game Music/LO VE LY/LO VE LY.tja",
     "title": "LO♥VE♥LY♥",
     "titleJp": "ラ♥ブ♥リ♥"
@@ -15082,7 +15138,7 @@
   {
     "path": "07 Game Music/LOVE Order Made/LOVE Order Made.tja",
     "type": "blob",
-    "sha": "cfea4ad0eabb2fa3553cf5fdfcf290833c7265f0",
+    "sha": "36479b7ea59ade2d252648fb40409969bb9f11fa",
     "url": "ese/07 Game Music/LOVE Order Made/LOVE Order Made.tja",
     "title": "LOVE Order Made",
     "titleJp": "LOVEオーダーメイド"
@@ -15104,10 +15160,10 @@
     "titleJp": "Last Surprise"
   },
   {
-    "path": "07 Game Music/Let’s Kouken! ～Koi no Choueki ha 1,000,000-Nen～/000,000-Nen～,Lets Kouken! Koi no Choueki ha 1,000,000-Nen,000,000-Nen～.tja",
+    "path": "07 Game Music/Let’s Kouken! ～Koi no Choueki ha 1,000,000-Nen～/Lets Kouken! Koi no Choueki ha 1,000,000-Nen.tja",
     "type": "blob",
-    "sha": "310f1514bec6c854d73907ce90a816e73d38a9bb",
-    "url": "ese/07 Game Music/Let’s Kouken! ～Koi no Choueki ha 1,000,000-Nen～/000,000-Nen～,Lets Kouken! Koi no Choueki ha 1,000,000-Nen,000,000-Nen～.tja",
+    "sha": "d721798a9775f51e3fab9d914156e67337466285",
+    "url": "ese/07 Game Music/Let’s Kouken! ～Koi no Choueki ha 1,000,000-Nen～/Lets Kouken! Koi no Choueki ha 1,000,000-Nen.tja",
     "title": "Let’s Kouken! ～Koi no Choueki ha 1,000,000-Nen～",
     "titleJp": "Let's 貢献！～恋の懲役は1,000,000年～"
   },
@@ -15153,7 +15209,7 @@
   {
     "path": "07 Game Music/Little Match Girl/Little Match Girl -765PRO ALLSTARS Version-.tja",
     "type": "blob",
-    "sha": "4741f999a135e2632a760cb4c95cf9ba8ac47d1f",
+    "sha": "9fc0e7c938bbc42fd87db0396fd8d27006efd18b",
     "url": "ese/07 Game Music/Little Match Girl/Little Match Girl -765PRO ALLSTARS Version-.tja",
     "title": "Little Match Girl -765PRO ALLSTARS Version-",
     "titleJp": "Little Match Girl"
@@ -15201,7 +15257,7 @@
   {
     "path": "07 Game Music/L’isola/Lisola.tja",
     "type": "blob",
-    "sha": "83ea5e0c7077c4467cf5e33e670ab1bb907a9955",
+    "sha": "65a4b4034072c228b5a26d3d7a07accab44eaa1a",
     "url": "ese/07 Game Music/L’isola/Lisola.tja",
     "title": "L’isola",
     "titleJp": "リゾラ"
@@ -15225,7 +15281,7 @@
   {
     "path": "07 Game Music/L・O・V・E/L O V E.tja",
     "type": "blob",
-    "sha": "149e719fecc5b5921149c2873b4c6cd850708369",
+    "sha": "089ea3b333b093ea18b7d8a3442a964797872db1",
     "url": "ese/07 Game Music/L・O・V・E/L O V E.tja",
     "title": "L・O・V・E",
     "titleJp": "L・O・V・E"
@@ -15265,7 +15321,7 @@
   {
     "path": "07 Game Music/MEGARE!/MEGARE!.tja",
     "type": "blob",
-    "sha": "88fad29bf86fcfc9516e6970469ed13cf467fc0c",
+    "sha": "8459c97d9b993d68b518ab9b76639c6fd55d7728",
     "url": "ese/07 Game Music/MEGARE!/MEGARE!.tja",
     "title": "MEGARE!",
     "titleJp": "MEGARE!"
@@ -15393,7 +15449,7 @@
   {
     "path": "07 Game Music/Me ga Au Toki/Me ga Au Toki.tja",
     "type": "blob",
-    "sha": "0986cf106ab26c8dbab401de23c13a4925dd5cfb",
+    "sha": "968efc39cf8b4a511ccaa8903a3e22b73b165f05",
     "url": "ese/07 Game Music/Me ga Au Toki/Me ga Au Toki.tja",
     "title": "Me ga Au Toki",
     "titleJp": "目が逢う瞬間"
@@ -15401,7 +15457,7 @@
   {
     "path": "07 Game Music/Meisou Mind/Meisou Mind.tja",
     "type": "blob",
-    "sha": "767a1949dc6d0fd0f52b80d0839f595fe1066c1d",
+    "sha": "c67e12063897b411b865e7fd83ea348ab47cd675",
     "url": "ese/07 Game Music/Meisou Mind/Meisou Mind.tja",
     "title": "Meisou Mind",
     "titleJp": "迷走Mind"
@@ -15481,7 +15537,7 @@
   {
     "path": "07 Game Music/Monster Hunter 4 Ultimate Medley/Monster Hunter 4 Ultimate Medley.tja",
     "type": "blob",
-    "sha": "303e1ba339450fa1c05ce8670de9564a5bb18c81",
+    "sha": "496fbccf11cf6042cd5475f23537e4128a76c74f",
     "url": "ese/07 Game Music/Monster Hunter 4 Ultimate Medley/Monster Hunter 4 Ultimate Medley.tja",
     "title": "Monster Hunter 4 Ultimate Medley",
     "titleJp": "モンスターハンター4G メドレー"
@@ -15537,7 +15593,7 @@
   {
     "path": "07 Game Music/Mythmaker/Mythmaker.tja",
     "type": "blob",
-    "sha": "84046caf13c7eedb355c2529640d62ab401f3f2a",
+    "sha": "e06c77b9b63b8b440aba50cd4000b1b17c50bc6a",
     "url": "ese/07 Game Music/Mythmaker/Mythmaker.tja",
     "title": "Mythmaker",
     "titleJp": "Mythmaker"
@@ -15585,7 +15641,7 @@
   {
     "path": "07 Game Music/Nando mo Ieru yo/Nando mo Ieru yo.tja",
     "type": "blob",
-    "sha": "827b8baa46750407b3a3331e35152e60a8938816",
+    "sha": "81014be7c834ac7819e15084ba5dfbe6294751e2",
     "url": "ese/07 Game Music/Nando mo Ieru yo/Nando mo Ieru yo.tja",
     "title": "Nando mo Ieru yo",
     "titleJp": "何度も言えるよ"
@@ -15601,7 +15657,7 @@
   {
     "path": "07 Game Music/Nemurihime/Nemurihime.tja",
     "type": "blob",
-    "sha": "126027f15c22e5bb9951db7efe9611012c71d434",
+    "sha": "b33887540ade9a75042474b618cc28b4fa411e76",
     "url": "ese/07 Game Music/Nemurihime/Nemurihime.tja",
     "title": "Nemurihime",
     "titleJp": "眠り姫"
@@ -15673,7 +15729,7 @@
   {
     "path": "07 Game Music/Nijiiro Miracle/Nijiiro Miracle.tja",
     "type": "blob",
-    "sha": "0026f928e609c806218b501d2e59dc065fedca43",
+    "sha": "27121c09279352834c894160f34192f2bbb18fe0",
     "url": "ese/07 Game Music/Nijiiro Miracle/Nijiiro Miracle.tja",
     "title": "Nijiiro Miracle",
     "titleJp": "虹色ミラクル"
@@ -15713,7 +15769,7 @@
   {
     "path": "07 Game Music/Ohayou!! Asagohan/Ohayou!! Asagohan -765PRO ALLSTARS Version-.tja",
     "type": "blob",
-    "sha": "c17811546c711e7f6aa078fff76569aa05777663",
+    "sha": "05a81194158f09794e813fe37ec0574d29e3bb74",
     "url": "ese/07 Game Music/Ohayou!! Asagohan/Ohayou!! Asagohan -765PRO ALLSTARS Version-.tja",
     "title": "Ohayou‼ Asagohan -765PRO ALLSTARS Version-",
     "titleJp": "おはよう！！朝ご飯"
@@ -15777,7 +15833,7 @@
   {
     "path": "07 Game Music/Otome yo Taishi o Idake!!/Otome yo Taishi o Idake!!.tja",
     "type": "blob",
-    "sha": "5d00476546d64901e76407641dca92d167c82f79",
+    "sha": "22a7033b10ef5f1328db9fc056e07fc5ce362f02",
     "url": "ese/07 Game Music/Otome yo Taishi o Idake!!/Otome yo Taishi o Idake!!.tja",
     "title": "Otome yo Taishi o Idake‼",
     "titleJp": "乙女よ大志を抱け！！"
@@ -16009,7 +16065,7 @@
   {
     "path": "07 Game Music/RIDGE RACER USA MIX/RIDGE RACER USA MIX.tja",
     "type": "blob",
-    "sha": "3d3ddb27d05acb613d6413ded2fb35490d0bc2e3",
+    "sha": "8cdc100be111ea89c1939d3752981bd655fe6a75",
     "url": "ese/07 Game Music/RIDGE RACER USA MIX/RIDGE RACER USA MIX.tja",
     "title": "RIDGE RACER USA MIX",
     "titleJp": "Ridge racer (RIDGE RACER USA MIX)"
@@ -16065,7 +16121,7 @@
   {
     "path": "07 Game Music/Reimei Starline/Reimei Starline.tja",
     "type": "blob",
-    "sha": "ced988ac85bb243a286ffcbe81746f2dd045bea4",
+    "sha": "d948f6101deed2bdc8199b1ec02fbf4857d9e231",
     "url": "ese/07 Game Music/Reimei Starline/Reimei Starline.tja",
     "title": "Reimei Starline",
     "titleJp": "黎明スターライン"
@@ -16177,7 +16233,7 @@
   {
     "path": "07 Game Music/START!!/START!!.tja",
     "type": "blob",
-    "sha": "1a5a565375311845ba305067ec22bca708f277b0",
+    "sha": "1edde5103224488bd99cc4f64263387e5be9093d",
     "url": "ese/07 Game Music/START!!/START!!.tja",
     "title": "START‼",
     "titleJp": "START!!"
@@ -16241,7 +16297,7 @@
   {
     "path": "07 Game Music/Sengoku BASARA BGM Medley/Sengoku BASARA BGM Medley.tja",
     "type": "blob",
-    "sha": "4faece2dcb8423d9e49c666a1d70a2fa78d0cf7c",
+    "sha": "70bfe35e9c16265b59808ad83a42c630115f045a",
     "url": "ese/07 Game Music/Sengoku BASARA BGM Medley/Sengoku BASARA BGM Medley.tja",
     "title": "Sengoku BASARA BGM Medley",
     "titleJp": "戦国BASARA BGMメドレー"
@@ -16249,7 +16305,7 @@
   {
     "path": "07 Game Music/Senkou no Yukue/Senkou no Yukue.tja",
     "type": "blob",
-    "sha": "2e9b9c5c277a3476ee259b8aa4f69b284754a109",
+    "sha": "90957a0812d7e79fa4e5d2d9ffd807c24f5defaa",
     "url": "ese/07 Game Music/Senkou no Yukue/Senkou no Yukue.tja",
     "title": "Senkou no Yukue",
     "titleJp": "閃光の行方"
@@ -16265,7 +16321,7 @@
   {
     "path": "07 Game Music/Shocking na Kare/Shocking na Kare.tja",
     "type": "blob",
-    "sha": "07dc2f3bc22ee85ee3f8a5e6070d3e66476b7104",
+    "sha": "154290e0398aaa462004dced6974326ee51cf5f6",
     "url": "ese/07 Game Music/Shocking na Kare/Shocking na Kare.tja",
     "title": "Shocking na Kare",
     "titleJp": "ショッキングな彼"
@@ -16281,7 +16337,7 @@
   {
     "path": "07 Game Music/Smile Taisou/Smile Taisou.tja",
     "type": "blob",
-    "sha": "28d0b599efe1f2835bbd4b51b2c517a395d52ada",
+    "sha": "bb888fb2360c0f79caacde41d79ad840b3b01ab7",
     "url": "ese/07 Game Music/Smile Taisou/Smile Taisou.tja",
     "title": "Smile Taisou",
     "titleJp": "スマイル体操"
@@ -16313,7 +16369,7 @@
   {
     "path": "07 Game Music/Sora/Sora.tja",
     "type": "blob",
-    "sha": "55a8011aecc24093cda2c6fb5c473f5d86c08c14",
+    "sha": "fe05116cc4abbbe597f045378b3bf376412e3549",
     "url": "ese/07 Game Music/Sora/Sora.tja",
     "title": "Sora",
     "titleJp": "空"
@@ -16384,7 +16440,7 @@
   {
     "path": "07 Game Music/Start→Star→/Start Star.tja",
     "type": "blob",
-    "sha": "c3f8ef0a6643f9e73e99e33c64edf9bb3eb5d250",
+    "sha": "c9d91d5effcfb12ab71a79e208be47224eb7ab97",
     "url": "ese/07 Game Music/Start→Star→/Start Star.tja",
     "title": "Start→Star→",
     "titleJp": "スタ→トスタ→"
@@ -16528,7 +16584,7 @@
   {
     "path": "07 Game Music/THE iDOLM@STER Second-mix/THE iDOLMASTER Second-mix.tja",
     "type": "blob",
-    "sha": "989ca702c9e8292dc83a1400a0f9ac2d466f6012",
+    "sha": "e203ad1198b071e2695849134d986a4422b978be",
     "url": "ese/07 Game Music/THE iDOLM@STER Second-mix/THE iDOLMASTER Second-mix.tja",
     "title": "THE iDOLM@STER Second-mix",
     "titleJp": "THE IDOLM@STER 2nd-mix"
@@ -16576,7 +16632,7 @@
   {
     "path": "07 Game Music/TRIAL DANCE/TRIAL DANCE.tja",
     "type": "blob",
-    "sha": "40040e1bff74203187da7c207aa6645f87bdf7e0",
+    "sha": "1cc0dcd1dc23c541f35ae02758e2f081afc28b4c",
     "url": "ese/07 Game Music/TRIAL DANCE/TRIAL DANCE.tja",
     "title": "TRIAL DANCE",
     "titleJp": "TRIAL DANCE"
@@ -16624,7 +16680,7 @@
   {
     "path": "07 Game Music/Tales of Zestiria Medley/Tales of Zestiria Medley.tja",
     "type": "blob",
-    "sha": "0206fe5753d4735c6152abf97d983e5cf5d5ae94",
+    "sha": "7998d88eb4ffd895d14efb6b68640c17bdb523ef",
     "url": "ese/07 Game Music/Tales of Zestiria Medley/Tales of Zestiria Medley.tja",
     "title": "Tales of Zestiria Medley",
     "titleJp": "テイルズ オブ ゼスティリア メドレー"
@@ -16768,7 +16824,7 @@
   {
     "path": "07 Game Music/Thinking ～Must Mix～/Thinking Must Mix.tja",
     "type": "blob",
-    "sha": "d9243a0bd74afc246853b607c90958eeee0953f4",
+    "sha": "df4de7a606914ae171861f3d063e9e8dc9f3d0f2",
     "url": "ese/07 Game Music/Thinking ～Must Mix～/Thinking Must Mix.tja",
     "title": "Thinking ～Must Mix～",
     "titleJp": "Thinking ～Must Mix～"
@@ -16784,7 +16840,7 @@
   {
     "path": "07 Game Music/Tonari ni/Tonari ni....tja",
     "type": "blob",
-    "sha": "6ae1dcfd75cdb0f36068177b02e66ac2feb601b5",
+    "sha": "df65796de62b2d9106661e6d2994631111dc3116",
     "url": "ese/07 Game Music/Tonari ni/Tonari ni....tja",
     "title": "Tonari ni...",
     "titleJp": "隣に…"
@@ -16800,7 +16856,7 @@
   {
     "path": "07 Game Music/Town ～Must Mix～/Town Must Mix.tja",
     "type": "blob",
-    "sha": "0ad2d0b8c0d50f7887fdfd45889ddd8c92010857",
+    "sha": "ff70ea678d13b2fc40faea709f4ba010c74ad2d8",
     "url": "ese/07 Game Music/Town ～Must Mix～/Town Must Mix.tja",
     "title": "Town ～Must Mix～",
     "titleJp": "Town ～Must Mix～"
@@ -16904,7 +16960,7 @@
   {
     "path": "07 Game Music/Vault That Borderline!/Vault That Borderline!.tja",
     "type": "blob",
-    "sha": "d8a2510677f520adb40c697164b0949c94773934",
+    "sha": "9014f6e8e5ee6b972526aec6691c6d529445d093",
     "url": "ese/07 Game Music/Vault That Borderline!/Vault That Borderline!.tja",
     "title": "Vault That Borderline!",
     "titleJp": "Vault That Borderline!"
@@ -16920,7 +16976,7 @@
   {
     "path": "07 Game Music/Visionary/Visionary.tja",
     "type": "blob",
-    "sha": "5d97a315be2a21ed22d8b05b9bf293c89e843468",
+    "sha": "763401c9280456dc1badf2e6d6a5d9ae42f745bf",
     "url": "ese/07 Game Music/Visionary/Visionary.tja",
     "title": "Visionary",
     "titleJp": "ビジョナリー"
@@ -16960,7 +17016,7 @@
   {
     "path": "07 Game Music/Watashi wa Idol/Watashi wa Idol -765PRO ALLSTARS Version-.tja",
     "type": "blob",
-    "sha": "540f9f72c951e23bef7db9664cf33d27487f96cf",
+    "sha": "2cd9318b773b472a039cf3f8bf75e6873eccdaea",
     "url": "ese/07 Game Music/Watashi wa Idol/Watashi wa Idol -765PRO ALLSTARS Version-.tja",
     "title": "Watashi wa Idol♡ -765PRO ALLSTARS Version-",
     "titleJp": "私はアイドル♡"
@@ -16976,7 +17032,7 @@
   {
     "path": "07 Game Music/We Have A Dream/We Have A Dream.tja",
     "type": "blob",
-    "sha": "53fb318f1c9fdb36b36ad3f736a75808c7958aad",
+    "sha": "04d8195c35ed55c70f5aa566557fb3bae73fc6c5",
     "url": "ese/07 Game Music/We Have A Dream/We Have A Dream.tja",
     "title": "We Have A Dream",
     "titleJp": "We Have A Dream"
@@ -17064,7 +17120,7 @@
   {
     "path": "07 Game Music/YOUou MYshin!/YOUou MYshin!.tja",
     "type": "blob",
-    "sha": "810c60cdbebfb26f2c53892e92dd6458223b32de",
+    "sha": "b119668155619db637995315fc5e8798dd034380",
     "url": "ese/07 Game Music/YOUou MYshin!/YOUou MYshin!.tja",
     "title": "YOUou MYshin!",
     "titleJp": "YOU往MY進！"
@@ -17072,7 +17128,7 @@
   {
     "path": "07 Game Music/Yakusoku/Yakusoku.tja",
     "type": "blob",
-    "sha": "4901af6dcfc617e76da22c88d4bf36a24b8c381e",
+    "sha": "b580971afcd59f984234abfbae152e5ac252b277",
     "url": "ese/07 Game Music/Yakusoku/Yakusoku.tja",
     "title": "Yakusoku",
     "titleJp": "約束"
@@ -17136,7 +17192,7 @@
   {
     "path": "07 Game Music/arcadia/arcadia.tja",
     "type": "blob",
-    "sha": "ced44ef66bbc68a24bfc89bc47abc0d7470d0cb9",
+    "sha": "43a24e148b92b0528d33dee60ed0c735e11d586e",
     "url": "ese/07 Game Music/arcadia/arcadia.tja",
     "title": "arcadia",
     "titleJp": "arcadia"
@@ -17144,7 +17200,7 @@
   {
     "path": "07 Game Music/edeN/edeN.tja",
     "type": "blob",
-    "sha": "9a7272b638faab27dd49c6f40076b4cab728cf11",
+    "sha": "536162d4188fecacf8decde9638a108355a0bfea",
     "url": "ese/07 Game Music/edeN/edeN.tja",
     "title": "edeN",
     "titleJp": "edeN"
@@ -17152,7 +17208,7 @@
   {
     "path": "07 Game Music/livE/livE.tja",
     "type": "blob",
-    "sha": "4cc313d935a230e6d1d45c961e7ef3bc1f218f80",
+    "sha": "c10e6a8278140f130ac9d5589b9fbe5fc3b23ff9",
     "url": "ese/07 Game Music/livE/livE.tja",
     "title": "livE",
     "titleJp": "livE"
@@ -17160,7 +17216,7 @@
   {
     "path": "07 Game Music/my song/my song -765PRO ALLSTARS Version-.tja",
     "type": "blob",
-    "sha": "229aef16e55aaab719c8b62b6b8fc8b8a9517128",
+    "sha": "964d5114acc1974b50b5bb2fb7cd869650dea2cf",
     "url": "ese/07 Game Music/my song/my song -765PRO ALLSTARS Version-.tja",
     "title": "my song -765PRO ALLSTARS Version-",
     "titleJp": "my song"
@@ -17240,7 +17296,7 @@
   {
     "path": "07 Game Music/tear/tear.tja",
     "type": "blob",
-    "sha": "fd1473878e0b4ecc02a696f1a3aa0b7b7e573e0c",
+    "sha": "7fa0336bea4256ea92435a1980cd4b7795ec409f",
     "url": "ese/07 Game Music/tear/tear.tja",
     "title": "tear",
     "titleJp": "tear"
@@ -18075,7 +18131,7 @@
   {
     "path": "09 Namco Original/Bubble Lips Rave Machine/Bubble Lips Rave Machine.tja",
     "type": "blob",
-    "sha": "186659fb3f4c635d4228f2a7b786fcb329f6e315",
+    "sha": "d1a53d0bad1dfca6d8cc082e41ea8354d67221ea",
     "url": "ese/09 Namco Original/Bubble Lips Rave Machine/Bubble Lips Rave Machine.tja",
     "title": "Bubble Lips Rave Machine",
     "titleJp": "バブル・リップ・レイヴ・マシン"
@@ -18387,7 +18443,7 @@
   {
     "path": "09 Namco Original/Cross Blue/Cross Blue.tja",
     "type": "blob",
-    "sha": "23e3ad0d75a0b94349117234e9f7def59b3ac3f9",
+    "sha": "b3b4fc026813b23ea5eaa0781b367441256643bc",
     "url": "ese/09 Namco Original/Cross Blue/Cross Blue.tja",
     "title": "Cross Blue",
     "titleJp": "クロス・ブルー"
@@ -18523,7 +18579,7 @@
   {
     "path": "09 Namco Original/Dark Ex Machina/Dark Ex Machina.tja",
     "type": "blob",
-    "sha": "5216028e2d08c8b8a339186e3bae46785df596df",
+    "sha": "8e8491b3672ced2eb1e63323d214520b906b1534",
     "url": "ese/09 Namco Original/Dark Ex Machina/Dark Ex Machina.tja",
     "title": "Dark Ex Machina♡",
     "titleJp": "ダーク・エクス・マキナ♡"
@@ -18599,6 +18655,14 @@
     "url": "ese/09 Namco Original/Diet Padarise/Diet Padarise.tja",
     "title": "Diet Padarise",
     "titleJp": "ダイエット・パダライス"
+  },
+  {
+    "path": "09 Namco Original/Dimpy Dimper/Dimpy Dimper.tja",
+    "type": "blob",
+    "sha": "72821c4a4ea94d818504bf7f16cfc431334937a1",
+    "url": "ese/09 Namco Original/Dimpy Dimper/Dimpy Dimper.tja",
+    "title": "Dimpy Dimper!",
+    "titleJp": "でぃんぴーでぃんぱー！"
   },
   {
     "path": "09 Namco Original/Diving Drive/Diving Drive.tja",
@@ -19099,7 +19163,7 @@
   {
     "path": "09 Namco Original/Garyoutensei/Garyoutensei.tja",
     "type": "blob",
-    "sha": "d9415c4b35297b5389674c034a47b52e38eeb684",
+    "sha": "e49aec7a916a5c7cd09c0e0502df199104f84260",
     "url": "ese/09 Namco Original/Garyoutensei/Garyoutensei.tja",
     "title": "Garyoutensei",
     "titleJp": "画竜点睛"
@@ -19203,7 +19267,7 @@
   {
     "path": "09 Namco Original/Gunslinger Cinderella/Gunslinger Cinderella.tja",
     "type": "blob",
-    "sha": "7787e9b26eaa58c5184804e4296ed859b54a6702",
+    "sha": "4c1699edcf29386ffdc318b3f72ea44a602e2daa",
     "url": "ese/09 Namco Original/Gunslinger Cinderella/Gunslinger Cinderella.tja",
     "title": "Gunslinger Cinderella",
     "titleJp": "ガンスリンガーシンデレラ"
@@ -19243,7 +19307,7 @@
   {
     "path": "09 Namco Original/Hakanaki wa Gensho ni Mau/Hakanaki wa Gensho ni Mau.tja",
     "type": "blob",
-    "sha": "70cdac41ffc9b6cf717283c9ed7179c2791aa0ee",
+    "sha": "1ce8fcfc9b8a4e342ec4b6205cefb305e1e27ef0",
     "url": "ese/09 Namco Original/Hakanaki wa Gensho ni Mau/Hakanaki wa Gensho ni Mau.tja",
     "title": "Hakanaki wa Gensho ni Mau",
     "titleJp": "儚姫は原初に舞う"
@@ -19587,7 +19651,7 @@
   {
     "path": "09 Namco Original/Infinite Rebellion/Infinite Rebellion.tja",
     "type": "blob",
-    "sha": "8f2e3f9231a4c5f3d886c7974ddb6e2e30d2f483",
+    "sha": "4a6204a022466118cbcf4aad0daad9bb836af672",
     "url": "ese/09 Namco Original/Infinite Rebellion/Infinite Rebellion.tja",
     "title": "Infinite Rebellion",
     "titleJp": "Infinite Rebellion"
@@ -19739,7 +19803,7 @@
   {
     "path": "09 Namco Original/Jotei ～Imbiratuula～/Jotei Imbiratuula.tja",
     "type": "blob",
-    "sha": "7581b0738622b94c66c0f30f91148916145864a8",
+    "sha": "e4b1b4cfcb7d80f299e90779c17f5094514c29bb",
     "url": "ese/09 Namco Original/Jotei ～Imbiratuula～/Jotei Imbiratuula.tja",
     "title": "Jotei ～Imbiratuula～",
     "titleJp": "女帝 ～インバラトゥーラ～"
@@ -19763,7 +19827,7 @@
   {
     "path": "09 Namco Original/Ka Ma Se/Ka Ma Se.tja",
     "type": "blob",
-    "sha": "3095ebe892bf5f254e9b95ce9b5f84405c51b826",
+    "sha": "9d183264cdce13f078521c13c227c3a6627d4b64",
     "url": "ese/09 Namco Original/Ka Ma Se/Ka Ma Se.tja",
     "title": "Ka.Ma.Se",
     "titleJp": "Ka.Ma.Se"
@@ -19787,7 +19851,7 @@
   {
     "path": "09 Namco Original/Kagami no Kuni no Alice/Kagami no Kuni no Alice.tja",
     "type": "blob",
-    "sha": "d0b82992ff862a8ffa7eb52137fa4680f24d261b",
+    "sha": "a19482cd86038460d32d19e619abf69e9e7538b1",
     "url": "ese/09 Namco Original/Kagami no Kuni no Alice/Kagami no Kuni no Alice.tja",
     "title": "Kagami no Kuni no Alice",
     "titleJp": "鏡の国のアリス"
@@ -19819,7 +19883,7 @@
   {
     "path": "09 Namco Original/Kaidan/Kaidan.tja",
     "type": "blob",
-    "sha": "3df43dd4d8848c4d10bc6c99efcc666891698024",
+    "sha": "b819a1540415b040331c604a45d8d1285a143e98",
     "url": "ese/09 Namco Original/Kaidan/Kaidan.tja",
     "title": "χdan",
     "titleJp": "χ談"
@@ -19907,7 +19971,7 @@
   {
     "path": "09 Namco Original/Kaze no Kuni no Ryuu to Kishi/Kaze no Kuni no Ryuu to Kishi.tja",
     "type": "blob",
-    "sha": "45c004b22718adbef8ed3a1eb56bab8d78edb910",
+    "sha": "f2a6c5dfb563337241097bcedc5e56a10adfcdb2",
     "url": "ese/09 Namco Original/Kaze no Kuni no Ryuu to Kishi/Kaze no Kuni no Ryuu to Kishi.tja",
     "title": "Kaze no Kuni no Ryuu to Kishi",
     "titleJp": "風の国の龍と騎士"
@@ -20115,7 +20179,7 @@
   {
     "path": "09 Namco Original/Kokushin Chronicle/Kokushin Chronicle.tja",
     "type": "blob",
-    "sha": "9eea099ff44ae93da1ab119d62acfc44932928e1",
+    "sha": "bb913f0f5b5fa60205c2e8fda22e689923f1a1b0",
     "url": "ese/09 Namco Original/Kokushin Chronicle/Kokushin Chronicle.tja",
     "title": "Kokushin Chronicle",
     "titleJp": "黒神クロニクル"
@@ -20386,7 +20450,7 @@
   {
     "path": "09 Namco Original/MM/≠MM.tja",
     "type": "blob",
-    "sha": "5ee1f2947877e5a1be0cf54be930e8d2eca80e1c",
+    "sha": "d47ac9f416b9b5de5c9492dca71e362ba090711e",
     "url": "ese/09 Namco Original/MM/≠MM.tja",
     "title": "≠MM",
     "titleJp": "≠MM"
@@ -20434,10 +20498,10 @@
   {
     "path": "09 Namco Original/Mahoujin -Summon Delta-/Mahoujin -Summon Delta-.tja",
     "type": "blob",
-    "sha": "afa88349a1c11e59e32f5b2348d4b5b7f0c01dd5",
+    "sha": "cff5b8b9730663c9ff9edbb897c952ccfb06461b",
     "url": "ese/09 Namco Original/Mahoujin -Summon Delta-/Mahoujin -Summon Delta-.tja",
     "title": "Mahoujin -Summon Delta-",
-    "titleJp": "魔方陣 ‐サモン・デルタ‐"
+    "titleJp": "魔方陣 -サモン・デルタ-"
   },
   {
     "path": "09 Namco Original/Mahoushiki Tousou Kitan ☆ミ/Mahoushiki Tousou Kitan.tja",
@@ -20498,7 +20562,7 @@
   {
     "path": "09 Namco Original/Marionette Pure/Marionette Pure.tja",
     "type": "blob",
-    "sha": "03bb5bfd81acb24881b605e68585d7fb6b10286b",
+    "sha": "8bbd02808dc2f9c58b054111e8500c707422da23",
     "url": "ese/09 Namco Original/Marionette Pure/Marionette Pure.tja",
     "title": "Marionette Pure",
     "titleJp": "マリオネットピュア"
@@ -20538,7 +20602,7 @@
   {
     "path": "09 Namco Original/Megamina Sekai I/Megamina Sekai I.tja",
     "type": "blob",
-    "sha": "b788be6a0f182f702ac416d5ed56c0b760fb7a4d",
+    "sha": "f9a1ce54fa7e8ea7ee3bb4931998839489820427",
     "url": "ese/09 Namco Original/Megamina Sekai I/Megamina Sekai I.tja",
     "title": "Megamina Sekai Ⅰ",
     "titleJp": "女神な世界 Ⅰ"
@@ -20546,7 +20610,7 @@
   {
     "path": "09 Namco Original/Megamina Sekai II/Megamina Sekai II.tja",
     "type": "blob",
-    "sha": "8c6adb3c3829c54d886e9234aed8036fd6c3d7be",
+    "sha": "1c1e6ccf2fbb7d4ffddd28c98cdff9347f9fb200",
     "url": "ese/09 Namco Original/Megamina Sekai II/Megamina Sekai II.tja",
     "title": "Megamina Sekai Ⅱ",
     "titleJp": "女神な世界 Ⅱ"
@@ -20610,7 +20674,7 @@
   {
     "path": "09 Namco Original/Mitsusegawa Ranbu/Mitsusegawa Ranbu.tja",
     "type": "blob",
-    "sha": "349358f7e73a78f292e7db77ba276f11a640df76",
+    "sha": "dbcd6f3f8c9b92f57c30c84f8d05ce147cd86346",
     "url": "ese/09 Namco Original/Mitsusegawa Ranbu/Mitsusegawa Ranbu.tja",
     "title": "Mitsusegawa Ranbu",
     "titleJp": "三瀬川乱舞"
@@ -20768,11 +20832,19 @@
     "titleJp": "ねがいごと☆ぱずる"
   },
   {
+    "path": "09 Namco Original/Neko Kujira/Neko Kujira -Old Chart-.tja",
+    "type": "blob",
+    "sha": "b8e28d58af78a49e6fcc7591505834e8826e6c58",
+    "url": "ese/09 Namco Original/Neko Kujira/Neko Kujira -Old Chart-.tja",
+    "title": "Neko Kujira -Old Chart-",
+    "titleJp": "ねこくじら"
+  },
+  {
     "path": "09 Namco Original/Neko Kujira/Neko Kujira.tja",
     "type": "blob",
-    "sha": "736297ed6ff607dabc03a919ca2dc1f8b59cc11b",
+    "sha": "fb2d5bbd2825d0e0377e80f5d59a5931d2313c9d",
     "url": "ese/09 Namco Original/Neko Kujira/Neko Kujira.tja",
-    "title": "Neko Kujira",
+    "title": "Neko Kujira -New Chart-",
     "titleJp": "ねこくじら"
   },
   {
@@ -20826,7 +20898,7 @@
   {
     "path": "09 Namco Original/Ninja wa Saikou/Ninja wa Saikou.tja",
     "type": "blob",
-    "sha": "c694d65f3abbbdd3e73a94078d8588bc69b2acc2",
+    "sha": "6758ae5b9ce0804608509258c552dfebd2216772",
     "url": "ese/09 Namco Original/Ninja wa Saikou/Ninja wa Saikou.tja",
     "title": "Ninja wa Saikou",
     "titleJp": "忍者は最高"
@@ -20850,7 +20922,7 @@
   {
     "path": "09 Namco Original/Nosferatu/Nosferatu.tja",
     "type": "blob",
-    "sha": "e5dc486871636cc70031bfcaa256219a24a86208",
+    "sha": "784cac8ee06b01995de1ec835581ba6be0f9f1b9",
     "url": "ese/09 Namco Original/Nosferatu/Nosferatu.tja",
     "title": "Nosferatu",
     "titleJp": "Nosferatu"
@@ -21234,7 +21306,7 @@
   {
     "path": "09 Namco Original/RI/R.I..tja",
     "type": "blob",
-    "sha": "ed64ecf6ae70d4898286dead8e739357ef15703e",
+    "sha": "704787b2118929bc96bdd04ae2c45885dd92adb2",
     "url": "ese/09 Namco Original/RI/R.I..tja",
     "title": "R.I.",
     "titleJp": "R.I."
@@ -21522,7 +21594,7 @@
   {
     "path": "09 Namco Original/Sayonara Varya/Sayonara Varya.tja",
     "type": "blob",
-    "sha": "c4a62c88310dfb1d06d6aa9dc2060b3cc68db22b",
+    "sha": "5de8dd7a7a219d1e9e7253db1eadbea9c8c83e9f",
     "url": "ese/09 Namco Original/Sayonara Varya/Sayonara Varya.tja",
     "title": "Sayonara Varya",
     "titleJp": "さよならワーリャ"
@@ -22338,7 +22410,7 @@
   {
     "path": "09 Namco Original/Toroika 2000/Toroika 2000.tja",
     "type": "blob",
-    "sha": "ca43af9452eac77c7c120b8f2b54d9d348f7316f",
+    "sha": "c154f041853377b0319ad7671d0f65cc469d60a5",
     "url": "ese/09 Namco Original/Toroika 2000/Toroika 2000.tja",
     "title": "Toro-Ika 2000",
     "titleJp": "トロいか2000"
@@ -22378,7 +22450,7 @@
   {
     "path": "09 Namco Original/Tsukuyomi/Tsukuyomi.tja",
     "type": "blob",
-    "sha": "b6b9430fa6dd66462a1fb401767d0e00a0fa6b59",
+    "sha": "5012717fc63f15b373ea157e032ef241a871045c",
     "url": "ese/09 Namco Original/Tsukuyomi/Tsukuyomi.tja",
     "title": "Tsukuyomi",
     "titleJp": "月読命"
@@ -22414,6 +22486,30 @@
     "url": "ese/09 Namco Original/UFO Swingin’/UFO Swingin.tja",
     "title": "UFO Swingin’",
     "titleJp": "UFO Swingin'"
+  },
+  {
+    "path": "09 Namco Original/UMA no Force Train2000ing/UMA no Force Train2000ing (150BPM).tja",
+    "type": "blob",
+    "sha": "3195df5c4e481505dc8efbbd8acd1e5d9ca5930a",
+    "url": "ese/09 Namco Original/UMA no Force Train2000ing/UMA no Force Train2000ing (150BPM).tja",
+    "title": "UMA no Force Train2000ing [150 BPM ver.]",
+    "titleJp": "UMAのフォーストレーニ千グ 【BPM150編】"
+  },
+  {
+    "path": "09 Namco Original/UMA no Force Train2000ing/UMA no Force Train2000ing (180BPM).tja",
+    "type": "blob",
+    "sha": "54ff9def1d72e4387216e2842e5c9c842754fd61",
+    "url": "ese/09 Namco Original/UMA no Force Train2000ing/UMA no Force Train2000ing (180BPM).tja",
+    "title": "UMA no Force Train2000ing [180 BPM ver.]",
+    "titleJp": "UMAのフォーストレーニ千グ 【BPM180編】"
+  },
+  {
+    "path": "09 Namco Original/UMA no Force Train2000ing/UMA no Force Train2000ing (240BPM).tja",
+    "type": "blob",
+    "sha": "58ec5ce05fc7f1dfa0b0ab9c2a6903c71e00f7b0",
+    "url": "ese/09 Namco Original/UMA no Force Train2000ing/UMA no Force Train2000ing (240BPM).tja",
+    "title": "UMA no Force Train2000ing [240 BPM ver.]",
+    "titleJp": "UMAのフォーストレーニ千グ 【BPM240編】"
   },
   {
     "path": "09 Namco Original/UNBIAS/UNBIAS.tja",
@@ -22506,7 +22602,7 @@
   {
     "path": "09 Namco Original/Vixtory/Vixtory.tja",
     "type": "blob",
-    "sha": "70c84e779314140c52e71cb0a5a19022173126fb",
+    "sha": "ef035577bd0f912ab7e262e7e9857b5c77ca6bfa",
     "url": "ese/09 Namco Original/Vixtory/Vixtory.tja",
     "title": "Vixtory",
     "titleJp": "Vixtory"
@@ -22629,6 +22725,14 @@
     "url": "ese/09 Namco Original/YOAKE/YOAKE.tja",
     "title": "YOAKE",
     "titleJp": "YOAKE"
+  },
+  {
+    "path": "09 Namco Original/YOUre our HEROES/YOUre our HEROES.tja",
+    "type": "blob",
+    "sha": "4eb94a49e48bda97998135ef11b45a4bd03e39db",
+    "url": "ese/09 Namco Original/YOUre our HEROES/YOUre our HEROES.tja",
+    "title": "YOU're our HEROES",
+    "titleJp": "YOU're our HEROES"
   },
   {
     "path": "09 Namco Original/YOUre your HERO/YOUre your HERO.tja",
@@ -22841,7 +22945,7 @@
   {
     "path": "09 Namco Original/Zetsubo e no Toccata/Zetsubo e no Toccata.tja",
     "type": "blob",
-    "sha": "4a7dea9bd0f34500c1a3034d5e029ba970986c92",
+    "sha": "e97b12d1ca084b00fa33b227586d5e61ce5eda9c",
     "url": "ese/09 Namco Original/Zetsubo e no Toccata/Zetsubo e no Toccata.tja",
     "title": "Zetsubo e no Toccata",
     "titleJp": "絶望へのトッカータ"
