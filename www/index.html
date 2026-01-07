@@ -120,23 +120,9 @@
                         <div class="panel-content">
                             <!-- View Options Pane -->
                             <div id="do-tab-view" class="panel-pane" style="display:flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
-                                <!-- Loop Section -->
-                                <div class="option-section">
-                                    <div class="section-main">
-                                        <label><input type="checkbox" id="collapse-loop-checkbox"> <span data-i18n="ui.collapseLoops">Collapse Loops</span></label>
-                                    </div>
-                                    <div id="loop-controls" class="loop-subs" style="display:none;">
-                                         <label class="auto-check"><input type="checkbox" id="loop-auto" checked> <span data-i18n="ui.auto">Auto</span></label>
-                                         <div class="loop-stepper">
-                                             <button id="loop-prev" class="tiny-btn">&lt;</button>
-                                             <span id="loop-counter">-</span>
-                                             <button id="loop-next" class="tiny-btn">&gt;</button>
-                                         </div>
-                                    </div>
-                                </div>
 
                                 <!-- Zoom Section -->
-                                <div class="option-section border-left">
+                                <div class="option-section">
                                     <div class="section-main">
                                         <span class="sub-label" style="min-width: auto; margin-right: 10px;" data-i18n="ui.zoom">Zoom:</span>
                                         <div class="zoom-controls" style="display: flex; align-items: center; gap: 5px;">
@@ -167,6 +153,23 @@
                                 <div id="judgement-warning" style="color: #666; font-style: italic; margin-bottom: 10px; display: none;" data-i18n="ui.judgement.notActive">
                                     Judgements are only displayed when a stream is active.
                                 </div>
+                                <!-- Loop Section Wrapper -->
+                                <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                                    <div class="option-section">
+                                        <div class="section-main">
+                                            <label><input type="checkbox" id="collapse-loop-checkbox"> <span data-i18n="ui.collapseLoops">Collapse Loops</span></label>
+                                        </div>
+                                        <div id="loop-controls" class="loop-subs" style="display:none;">
+                                             <label class="auto-check"><input type="checkbox" id="loop-auto" checked> <span data-i18n="ui.auto">Auto</span></label>
+                                             <div class="loop-stepper">
+                                                 <button id="loop-prev" class="tiny-btn">&lt;</button>
+                                                 <span id="loop-counter">-</span>
+                                                 <button id="loop-next" class="tiny-btn">&gt;</button>
+                                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div id="judgement-controls" style="display:flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
                                     <div class="option-section">
                                         <div id="judgement-subcontrols" class="section-subs" style="margin-left: 0;">

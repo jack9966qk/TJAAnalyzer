@@ -750,6 +750,10 @@ test.describe('Loop Controls Interaction', () => {
         await page.setInputFiles('#tja-file-picker', filePath);
         await page.waitForTimeout(1000);
 
+        // Switch to Judgements Tab
+        await page.click('button[data-do-tab="judgements"]');
+        await page.waitForTimeout(500);
+
         await page.check('#collapse-loop-checkbox');
         await page.waitForTimeout(500);
 
