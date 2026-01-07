@@ -225,18 +225,10 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                             }
                         } else if (upperLine.startsWith('#GOGOSTART')) {
                             state.gogoTime = true;
-                            if (state.currentBarBuffer.length === 0) {
-                                barStartGogoTime = true;
-                            } else {
-                                state.currentBarGogoChanges.push({ index: state.currentBarBuffer.length, isGogo: true });
-                            }
+                            state.currentBarGogoChanges.push({ index: state.currentBarBuffer.length, isGogo: true });
                         } else if (upperLine.startsWith('#GOGOEND')) {
                             state.gogoTime = false;
-                            if (state.currentBarBuffer.length === 0) {
-                                barStartGogoTime = false;
-                            } else {
-                                state.currentBarGogoChanges.push({ index: state.currentBarBuffer.length, isGogo: false });
-                            }
+                            state.currentBarGogoChanges.push({ index: state.currentBarBuffer.length, isGogo: false });
                         }
                         // Ignore other commands
                         continue;
