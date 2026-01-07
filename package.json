@@ -1,6 +1,6 @@
 {
   "name": "tja-analyzer",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "type": "module",
   "scripts": {
     "fetch-ese": "node fetch-ese-assets.js",

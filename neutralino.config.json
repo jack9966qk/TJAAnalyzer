@@ -1,6 +1,6 @@
 {
   "applicationId": "js.neutralino.tjaanalyzer",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "defaultMode": "window",
   "documentRoot": "app_package",
   "url": "/index.html",
