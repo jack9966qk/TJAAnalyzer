@@ -667,6 +667,16 @@ function init(): void {
     // Initial call
     updateLayout();
 
+    // Default stats to off in vertical layout
+    if (!document.body.classList.contains('horizontal-layout')) {
+        if (showStatsCheckbox) {
+            showStatsCheckbox.checked = false;
+        }
+        if (noteStatsDisplay) {
+            noteStatsDisplay.style.display = 'none';
+        }
+    }
+
     if (!tjaChart) {
         console.error("tja-chart element not found.");
         return;

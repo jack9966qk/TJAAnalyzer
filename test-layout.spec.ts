@@ -117,4 +117,26 @@ test.describe('Layout Tests', () => {
         // Just checking standard visibility
         await expect(page.locator('text=Spacer')).toBeVisible();
     });
+
+    test('Vertical Layout Default Stats Hidden', async ({ page }) => {
+        // Set viewport to trigger vertical layout (W <= 975)
+        // 390 < 0.4 * W => W > 975 for horizontal.
+        // So 800 should be vertical.
+        await page.setViewportSize({ width: 800, height: 800 });
+        
+        await page.goto('/');
+        await page.waitForTimeout(1000);
+
+        // Verify vertical layout (no horizontal-layout class)
+        const body = page.locator('body');
+        await expect(body).not.toHaveClass(/horizontal-layout/);
+
+        // Verify stats checkbox is unchecked
+        const statsCheckbox = page.locator('#show-stats-checkbox');
+        await expect(statsCheckbox).not.toBeChecked();
+
+        // Verify note stats display is hidden
+        const statsDisplay = page.locator('#note-stats-display');
+        await expect(statsDisplay).toBeHidden();
+    });
 });
