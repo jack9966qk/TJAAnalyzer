@@ -1969,7 +1969,7 @@ function drawBarNotes(ctx: CanvasRenderingContext2D, bar: string[], x: number, y
                     if (judge === 'Perfect' && judgementVisibility.perfect) noteColors[i] = PALETTE.judgements.perfect;
                     else if (judge === 'Good' && judgementVisibility.good) noteColors[i] = PALETTE.judgements.good;
                     else if (judge === 'Poor' && judgementVisibility.poor) noteColors[i] = PALETTE.judgements.poor;
-                    // Miss is null
+                    else if (judge && !['Perfect', 'Good', 'Poor'].includes(judge)) noteColors[i] = PALETTE.judgements.miss;
                 }
             }
         }
