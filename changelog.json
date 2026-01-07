@@ -1,5 +1,35 @@
 [
   {
+    "hash": "c30d50c",
+    "message": "Update version to 0.6.4.",
+    "date": "2026-01-08"
+  },
+  {
+    "hash": "ea790aa",
+    "message": "Update default judgement display to underline. Display a grey underline for misses.",
+    "date": "2026-01-08"
+  },
+  {
+    "hash": "5ced236",
+    "message": "Move loop controls to Judgements tab and update tests.",
+    "date": "2026-01-08"
+  },
+  {
+    "hash": "fb96ac9",
+    "message": "Refactor rendering to separate layout calculation from drawing, implement optimized incremental rendering for judgements, and cache layout for interaction events.",
+    "date": "2026-01-08"
+  },
+  {
+    "hash": "f0da522",
+    "message": "Implement incremental rendering and batched updates.",
+    "date": "2026-01-06"
+  },
+  {
+    "hash": "c1d2dca",
+    "message": "Update note stats tooltip snapshot.",
+    "date": "2026-01-08"
+  },
+  {
     "hash": "bb199cf",
     "message": "Update version to 0.6.3.",
     "date": "2025-12-30"
@@ -468,35 +498,5 @@
     "hash": "2a165ac",
     "message": "Add basic note selection functionality.",
     "date": "2025-12-18"
-  },
-  {
-    "hash": "0425a7e",
-    "message": "Update config for v0.1 release.",
-    "date": "2025-12-17"
-  },
-  {
-    "hash": "958aad0",
-    "message": "Refactor view options parameters into a single object.",
-    "date": "2025-12-17"
-  },
-  {
-    "hash": "bfc5792",
-    "message": "Add judgement display mode that puts text above notes.",
-    "date": "2025-12-16"
-  },
-  {
-    "hash": "0f9ddb0",
-    "message": "Add display option functionality to zoom in/out the chart.",
-    "date": "2025-12-16"
-  },
-  {
-    "hash": "b1aadb6",
-    "message": "Toggle display of judgement for each class separately. Toggle for note stats panel. Button for display options expand/collapse.",
-    "date": "2025-12-16"
-  },
-  {
-    "hash": "8d27b9f",
-    "message": "Rearrange files for more isolated webpage output.",
-    "date": "2025-12-16"
   }
 ]

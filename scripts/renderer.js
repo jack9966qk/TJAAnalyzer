@@ -286,7 +286,7 @@ function calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offset
         const measureRatio = params ? params.measureRatio : 1.0;
         const actualBarWidth = baseBarWidth * measureRatio;
         // Determine if this bar is displayed as branched (3 lanes) or common (1 lane)
-        const isBranchedDisplay = (options.showAllBranches && chart.branches && params && params.isBranched) || false;
+        const isBranchedDisplay = (!!options.showAllBranches && chart.branches && params && params.isBranched) || false;
         const thisBarHeight = isBranchedDisplay ? (BASE_LANE_HEIGHT * 3) : BASE_LANE_HEIGHT;
         // Check for break conditions
         let shouldBreak = false;
@@ -318,21 +318,20 @@ function calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offset
     const totalHeight = layouts.length > 0
         ? currentY + currentRowMaxHeight + PADDING
         : offsetY + PADDING;
-    return { layouts, constants, totalHeight };
+    return { layouts, constants, totalHeight, baseBarWidth };
 }
-export function getNoteAt(x, y, chart, canvas, judgements = [], options) {
-    const logicalCanvasWidth = canvas.clientWidth || 800;
-    // Calculate Header Dimensions (Must match renderChart)
-    const availableWidth = logicalCanvasWidth - (PADDING * 2);
-    const baseBarWidth = availableWidth / (options.beatsPerLine / 4);
-    const headerHeight = baseBarWidth * RATIOS.HEADER_HEIGHT;
-    const offsetY = PADDING + headerHeight + PADDING;
-    const globalBarStartIndices = calculateGlobalBarStartIndices(chart.bars);
-    const virtualBars = getVirtualBars(chart, options, judgements, globalBarStartIndices);
-    const { layouts, constants } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offsetY);
+export function getNoteAt(x, y, chart, canvas, judgements = [], options, layout) {
+    let activeLayout;
+    if (layout) {
+        activeLayout = layout;
+    }
+    else {
+        activeLayout = createLayout(chart, canvas, options, judgements);
+    }
+    const { layouts, constants, virtualBars, globalBarStartIndices } = activeLayout;
     const { NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG } = constants;
     const maxRadius = NOTE_RADIUS_BIG;
-    const isAllBranches = options.showAllBranches && !!chart.branches;
+    const isAllBranches = !!options.showAllBranches && !!chart.branches;
     // Hit testing loop
     // Iterate backwards as per rendering order (notes on top)
     for (let index = virtualBars.length - 1; index >= 0; index--) {
@@ -432,15 +431,16 @@ export function getNoteAt(x, y, chart, canvas, judgements = [], options) {
     }
     return null;
 }
-export function getNotePosition(chart, canvas, options, targetBarIndex, targetCharIndex) {
-    const logicalCanvasWidth = canvas.clientWidth || 800;
-    const availableWidth = logicalCanvasWidth - (PADDING * 2);
-    const baseBarWidth = availableWidth / (options.beatsPerLine / 4);
-    const headerHeight = baseBarWidth * RATIOS.HEADER_HEIGHT;
-    const offsetY = PADDING + headerHeight + PADDING;
-    const globalBarStartIndices = calculateGlobalBarStartIndices(chart.bars);
-    const virtualBars = getVirtualBars(chart, options, [], globalBarStartIndices);
-    const { layouts } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offsetY);
+export function getNotePosition(chart, canvas, options, targetBarIndex, targetCharIndex, layout) {
+    let activeLayout;
+    if (layout) {
+        activeLayout = layout;
+    }
+    else {
+        // For getNotePosition we don't need judgements really, pass empty
+        activeLayout = createLayout(chart, canvas, options, []);
+    }
+    const { layouts, virtualBars } = activeLayout;
     for (let index = 0; index < virtualBars.length; index++) {
         const info = virtualBars[index];
         if (info.originalIndex === targetBarIndex) {
@@ -451,7 +451,7 @@ export function getNotePosition(chart, canvas, options, targetBarIndex, targetCh
             const noteStep = layout.width / bar.length;
             const x = layout.x + (targetCharIndex * noteStep);
             let y = layout.y + layout.height / 2;
-            if (options.showAllBranches && chart.branches && chart.barParams[info.originalIndex].isBranched) {
+            if (!!options.showAllBranches && chart.branches && chart.barParams[info.originalIndex].isBranched) {
                 y = layout.y + (layout.height / 6);
             }
             return { x, y };
@@ -482,13 +482,7 @@ export function getGradientColor(delta) {
     }
     return `rgb(${r}, ${g}, ${b})`;
 }
-export function renderChart(chart, canvas, judgements = [], judgementDeltas = [], options, texts = DEFAULT_TEXTS, customDpr) {
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-        console.error("2D rendering context not found for canvas.");
-        return;
-    }
-    const { bars, loop } = chart;
+export function createLayout(chart, canvas, options, judgements, customDpr) {
     // Reset width to 100% to allow measuring the container's available width
     canvas.style.width = '100%';
     let logicalCanvasWidth = canvas.clientWidth;
@@ -500,37 +494,322 @@ export function renderChart(chart, canvas, judgements = [], judgementDeltas = []
     const baseBarWidth = availableWidth / (options.beatsPerLine / 4);
     const headerHeight = baseBarWidth * RATIOS.HEADER_HEIGHT;
     const offsetY = PADDING + headerHeight + PADDING; // Padding above and below header
+    const { bars, loop } = chart;
     const globalBarStartIndices = calculateGlobalBarStartIndices(bars);
     const balloonIndices = calculateBalloonIndices(bars);
     const virtualBars = getVirtualBars(chart, options, judgements, globalBarStartIndices);
     const { layouts, constants, totalHeight } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offsetY);
     const inferredHands = calculateInferredHands(bars, options.annotations);
     // Adjust for device pixel ratio for sharp rendering
-    let dpr = customDpr !== undefined ? customDpr : (window.devicePixelRatio || 1);
+    const dpr = customDpr !== undefined ? customDpr : (window.devicePixelRatio || 1);
+    return {
+        virtualBars,
+        layouts,
+        constants,
+        totalHeight,
+        globalBarStartIndices,
+        balloonIndices,
+        inferredHands,
+        logicalCanvasWidth,
+        dpr,
+        headerHeight,
+        offsetY,
+        baseBarWidth
+    };
+}
+export function renderLayout(ctx, layout, chart, judgements, judgementDeltas, options, texts) {
+    const { logicalCanvasWidth, dpr, totalHeight, layouts, constants, virtualBars, globalBarStartIndices, balloonIndices, inferredHands, headerHeight } = layout;
     // Safety check for canvas limits
     const MAX_CANVAS_DIMENSION = 32000;
-    if (totalHeight * dpr > MAX_CANVAS_DIMENSION) {
-        console.warn(`Chart height (${totalHeight * dpr}px) exceeds canvas limit. Reducing DPR to 1.`);
-        dpr = 1;
+    let effectiveDpr = dpr;
+    if (totalHeight * effectiveDpr > MAX_CANVAS_DIMENSION) {
+        effectiveDpr = 1;
     }
-    let finalCanvasHeight = totalHeight * dpr;
+    let finalCanvasHeight = totalHeight * effectiveDpr;
     let finalStyleHeight = totalHeight;
     if (finalCanvasHeight > MAX_CANVAS_DIMENSION) {
-        console.warn(`Chart height (${finalCanvasHeight}px) still exceeds canvas limit. Clamping height.`);
         finalCanvasHeight = MAX_CANVAS_DIMENSION;
-        finalStyleHeight = MAX_CANVAS_DIMENSION / dpr;
+        finalStyleHeight = MAX_CANVAS_DIMENSION / effectiveDpr;
     }
-    canvas.width = logicalCanvasWidth * dpr;
+    const canvas = ctx.canvas;
+    canvas.width = logicalCanvasWidth * effectiveDpr;
     canvas.height = finalCanvasHeight;
     canvas.style.width = logicalCanvasWidth + 'px';
     canvas.style.height = finalStyleHeight + 'px';
-    ctx.scale(dpr, dpr);
+    ctx.resetTransform();
+    ctx.scale(effectiveDpr, effectiveDpr);
     // Clear
     ctx.fillStyle = PALETTE.background;
     ctx.fillRect(0, 0, logicalCanvasWidth, totalHeight);
     // Layer 0: Header
+    const availableWidth = logicalCanvasWidth - (PADDING * 2);
     drawChartHeader(ctx, chart, PADDING, PADDING, availableWidth, headerHeight, texts);
-    const isAllBranches = options.showAllBranches && !!chart.branches;
+    const isAllBranches = !!options.showAllBranches && !!chart.branches;
+    const BASE_LANE_HEIGHT = constants.BAR_HEIGHT;
+    // Layer 1: Backgrounds
+    virtualBars.forEach((info, index) => {
+        const layout = layouts[index];
+        drawBarBackgroundWrapper(ctx, layout, info, index, chart, options, constants, virtualBars, layouts, texts, isAllBranches, BASE_LANE_HEIGHT);
+    });
+    // Layer 1.5 & 2: Notes
+    if (isAllBranches && chart.branches) {
+        drawAllBranchesNotes(ctx, chart, virtualBars, layouts, constants, options, judgements, judgementDeltas, texts, balloonIndices, BASE_LANE_HEIGHT);
+    }
+    else {
+        // Layer 1.5: Drumrolls and Balloons
+        drawLongNotes(ctx, virtualBars, layouts, constants, options.viewMode, chart.balloonCounts, balloonIndices);
+        // Layer 2: Notes
+        for (let index = virtualBars.length - 1; index >= 0; index--) {
+            const info = virtualBars[index];
+            const layout = layouts[index];
+            const startIndex = info.overrideStartIndex !== undefined
+                ? info.overrideStartIndex
+                : globalBarStartIndices[info.originalIndex];
+            drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, options, startIndex, judgements, judgementDeltas, texts, info.originalIndex, chart.bars, options.collapsedLoop ? chart.loop : undefined, inferredHands, chart.branchType);
+        }
+    }
+}
+export function renderIncremental(ctx, layout, chart, judgements, judgementDeltas, options, texts, oldJudgementCount) {
+    const { virtualBars, layouts, constants, globalBarStartIndices, balloonIndices, inferredHands } = layout;
+    const isAllBranches = !!options.showAllBranches && !!chart.branches;
+    const BASE_LANE_HEIGHT = constants.BAR_HEIGHT;
+    // 1. Identify Dirty Bars
+    // We look for any bar that contains a note index between oldJudgementCount and current judgements.length
+    const affectedIndices = new Set();
+    const newJudgementCount = judgements.length;
+    for (let i = 0; i < virtualBars.length; i++) {
+        const info = virtualBars[i];
+        const bar = info.bar;
+        if (!bar)
+            continue;
+        const startIndex = info.overrideStartIndex !== undefined
+            ? info.overrideStartIndex
+            : globalBarStartIndices[info.originalIndex];
+        // Count judgeable notes in this bar
+        let judgeableCount = 0;
+        for (const char of bar) {
+            if (['1', '2', '3', '4'].includes(char))
+                judgeableCount++;
+        }
+        const endIndex = startIndex + judgeableCount;
+        // Check intersection
+        // Range of bar: [startIndex, endIndex)
+        // Range of update: [oldJudgementCount, newJudgementCount)
+        if (startIndex < newJudgementCount && endIndex > oldJudgementCount) {
+            affectedIndices.add(i);
+        }
+    }
+    // 2. Redraw Affected Bars
+    affectedIndices.forEach(index => {
+        const info = virtualBars[index];
+        const layout = layouts[index];
+        // Calculate Clip Rect
+        // Add padding for over-extended backgrounds and note radii
+        const pad = constants.NOTE_RADIUS_BIG * 2 + constants.LW_BAR * 2;
+        const clipX = layout.x - pad;
+        const clipY = layout.y - pad;
+        const clipW = layout.width + pad * 2;
+        const clipH = layout.height + pad * 2;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(clipX, clipY, clipW, clipH);
+        ctx.clip();
+        // Clear Rect (to background color)
+        ctx.fillStyle = PALETTE.background;
+        ctx.fillRect(clipX, clipY, clipW, clipH);
+        // Draw Bar Background
+        drawBarBackgroundWrapper(ctx, layout, info, index, chart, options, constants, virtualBars, layouts, texts, isAllBranches, BASE_LANE_HEIGHT);
+        // Draw Notes
+        if (isAllBranches && chart.branches) {
+            // Re-calling drawAllBranchesNotes is simplest, relying on clip.
+            drawAllBranchesNotes(ctx, chart, virtualBars, layouts, constants, options, judgements, judgementDeltas, texts, balloonIndices, BASE_LANE_HEIGHT);
+        }
+        else {
+            // Standard
+            // 1. Long Notes (Clipped)
+            drawLongNotes(ctx, virtualBars, layouts, constants, options.viewMode, chart.balloonCounts, balloonIndices);
+            // 2. Notes (Single Bar)
+            const startIndex = info.overrideStartIndex !== undefined
+                ? info.overrideStartIndex
+                : globalBarStartIndices[info.originalIndex];
+            drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, options, startIndex, judgements, judgementDeltas, texts, info.originalIndex, chart.bars, options.collapsedLoop ? chart.loop : undefined, inferredHands, chart.branchType);
+        }
+        ctx.restore();
+    });
+}
+function drawBarBackgroundWrapper(ctx, layout, info, index, chart, options, constants, virtualBars, layouts, texts, isAllBranches, BASE_LANE_HEIGHT) {
+    const params = chart.barParams[info.originalIndex];
+    const gogoTime = params ? params.gogoTime : false;
+    const gogoChanges = params ? params.gogoChanges : undefined;
+    const noteCount = info.bar ? info.bar.length : 0;
+    const isBranched = params ? params.isBranched : false;
+    // Detect neighbors for over-extension
+    let hasLeftNeighbor = false;
+    if (index > 0) {
+        const prevLayout = layouts[index - 1];
+        if (Math.abs(prevLayout.y - layout.y) < 1.0) {
+            hasLeftNeighbor = true;
+        }
+    }
+    let hasRightNeighbor = false;
+    if (index < virtualBars.length - 1) {
+        const nextLayout = layouts[index + 1];
+        if (Math.abs(nextLayout.y - layout.y) < 1.0) {
+            hasRightNeighbor = true;
+        }
+    }
+    const overExtendWidth = 2 * constants.NOTE_RADIUS_SMALL;
+    let isBranchStart = params ? !!params.isBranchStart : false;
+    if (isAllBranches && chart.branches) {
+        if (isBranched) {
+            const subHeight = BASE_LANE_HEIGHT;
+            drawBarBackground(ctx, layout.x, layout.y, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, 'normal', !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+            drawBarBackground(ctx, layout.x, layout.y + subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, 'expert', !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+            drawBarBackground(ctx, layout.x, layout.y + 2 * subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, 'master', !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+            if (isBranchStart) {
+                ctx.beginPath();
+                ctx.strokeStyle = PALETTE.branches.startLine;
+                ctx.lineWidth = constants.LW_BAR;
+                ctx.moveTo(layout.x, layout.y);
+                ctx.lineTo(layout.x, layout.y + layout.height);
+                ctx.stroke();
+            }
+        }
+        else {
+            drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, false, 'normal', !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+        }
+        if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
+            const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
+            const stripY = layout.y - stripHeight - (constants.LW_BAR / 2);
+            drawGogoIndicator(ctx, layout.x, stripY, stripHeight, layout.width, gogoTime, gogoChanges, noteCount, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+        }
+        if (!options.isAnnotationMode) {
+            drawBarLabels(ctx, info.originalIndex, layout.x, layout.y, layout.width, BASE_LANE_HEIGHT, constants.BAR_NUMBER_FONT_SIZE, constants.STATUS_FONT_SIZE, constants.BAR_NUMBER_OFFSET_Y, params, noteCount, info.originalIndex === 0, constants.LW_BAR, isBranchStart);
+        }
+        if (info.isLoopStart && chart.loop) {
+            ctx.fillStyle = PALETTE.text.primary;
+            ctx.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px ${FONT_STACK}`;
+            ctx.textAlign = 'right';
+            const text = texts.loopPattern.replace('{n}', chart.loop.iterations.toString());
+            ctx.fillText(text, layout.x + layout.width, layout.y - constants.BAR_NUMBER_OFFSET_Y);
+        }
+    }
+    else {
+        drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, isBranched, chart.branchType, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+        if (isBranchStart) {
+            ctx.beginPath();
+            ctx.strokeStyle = PALETTE.branches.startLine;
+            ctx.lineWidth = constants.LW_BAR;
+            ctx.moveTo(layout.x, layout.y);
+            ctx.lineTo(layout.x, layout.y + layout.height);
+            ctx.stroke();
+        }
+        if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
+            const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
+            const stripY = layout.y - stripHeight - (constants.LW_BAR / 2);
+            drawGogoIndicator(ctx, layout.x, stripY, stripHeight, layout.width, gogoTime, gogoChanges, noteCount, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+        }
+        if (!options.isAnnotationMode) {
+            drawBarLabels(ctx, info.originalIndex, layout.x, layout.y, layout.width, layout.height, constants.BAR_NUMBER_FONT_SIZE, constants.STATUS_FONT_SIZE, constants.BAR_NUMBER_OFFSET_Y, params, noteCount, info.originalIndex === 0, constants.LW_BAR, isBranchStart);
+        }
+        if (info.isLoopStart && chart.loop) {
+            ctx.fillStyle = PALETTE.text.primary;
+            ctx.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px ${FONT_STACK}`;
+            ctx.textAlign = 'right';
+            const text = texts.loopPattern.replace('{n}', chart.loop.iterations.toString());
+            ctx.fillText(text, layout.x + layout.width, layout.y - constants.BAR_NUMBER_OFFSET_Y);
+        }
+    }
+}
+function drawAllBranchesNotes(ctx, chart, virtualBars, layouts, constants, options, judgements, judgementDeltas, texts, balloonIndices, BASE_LANE_HEIGHT) {
+    if (!chart.branches)
+        return;
+    const branches = [
+        { type: 'normal', data: chart.branches.normal || chart, yOffset: 0 },
+        { type: 'expert', data: chart.branches.expert || chart, yOffset: BASE_LANE_HEIGHT },
+        { type: 'master', data: chart.branches.master || chart, yOffset: BASE_LANE_HEIGHT * 2 }
+    ];
+    branches.forEach(b => {
+        const branchVirtualBars = virtualBars.map(vb => ({
+            ...vb,
+            bar: b.data.bars[vb.originalIndex]
+        }));
+        const branchLayouts = layouts.map((l, idx) => {
+            const params = chart.barParams[virtualBars[idx].originalIndex];
+            const isBranched = params ? params.isBranched : false;
+            if (isBranched) {
+                return {
+                    ...l,
+                    y: l.y + b.yOffset,
+                    height: BASE_LANE_HEIGHT
+                };
+            }
+            else {
+                return {
+                    ...l,
+                    y: l.y,
+                    height: BASE_LANE_HEIGHT
+                };
+            }
+        });
+        drawLongNotes(ctx, branchVirtualBars, branchLayouts, constants, options.viewMode, b.data.balloonCounts, calculateBalloonIndices(b.data.bars));
+        for (let index = branchVirtualBars.length - 1; index >= 0; index--) {
+            const info = branchVirtualBars[index];
+            const layout = branchLayouts[index];
+            const params = chart.barParams[info.originalIndex];
+            const isBranched = params ? params.isBranched : false;
+            if (!isBranched && b.type !== 'normal')
+                continue;
+            const drawOptions = { ...options, annotations: {}, selection: null };
+            drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, drawOptions, 0, [], [], texts, info.originalIndex, b.data.bars, undefined, undefined, b.type);
+        }
+    });
+}
+export function renderChart(chart, canvas, judgements = [], judgementDeltas = [], options, texts = DEFAULT_TEXTS, customDpr, renderParams = {}) {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        console.error("2D rendering context not found for canvas.");
+        return;
+    }
+    // Use the new createLayout function
+    // Note: This recreates the layout on every call, maintaining existing behavior for now
+    const layout = createLayout(chart, canvas, options, judgements, customDpr);
+    // For now, unpack layout to keep using the existing rendering logic in this function
+    // This is an intermediate step. Later we will replace this with renderLayout()
+    const { virtualBars, layouts, constants, totalHeight, globalBarStartIndices, balloonIndices, inferredHands, logicalCanvasWidth, dpr, headerHeight, offsetY } = layout;
+    const { bars, loop } = chart;
+    const { incrementalStart = 0 } = renderParams;
+    const isIncremental = incrementalStart > 0;
+    if (!isIncremental) {
+        // Safety check for canvas limits
+        const MAX_CANVAS_DIMENSION = 32000;
+        if (totalHeight * dpr > MAX_CANVAS_DIMENSION) {
+            console.warn(`Chart height (${totalHeight * dpr}px) exceeds canvas limit. Reducing DPR to 1.`);
+        }
+        let effectiveDpr = dpr;
+        if (totalHeight * effectiveDpr > MAX_CANVAS_DIMENSION) {
+            effectiveDpr = 1;
+        }
+        let finalCanvasHeight = totalHeight * effectiveDpr;
+        let finalStyleHeight = totalHeight;
+        if (finalCanvasHeight > MAX_CANVAS_DIMENSION) {
+            console.warn(`Chart height (${finalCanvasHeight}px) still exceeds canvas limit. Clamping height.`);
+            finalCanvasHeight = MAX_CANVAS_DIMENSION;
+            finalStyleHeight = MAX_CANVAS_DIMENSION / effectiveDpr;
+        }
+        canvas.width = logicalCanvasWidth * effectiveDpr;
+        canvas.height = finalCanvasHeight;
+        canvas.style.width = logicalCanvasWidth + 'px';
+        canvas.style.height = finalStyleHeight + 'px';
+        ctx.scale(effectiveDpr, effectiveDpr);
+        // Clear
+        ctx.fillStyle = PALETTE.background;
+        ctx.fillRect(0, 0, logicalCanvasWidth, totalHeight);
+        // Layer 0: Header
+        const availableWidth = logicalCanvasWidth - (PADDING * 2);
+        drawChartHeader(ctx, chart, PADDING, PADDING, availableWidth, headerHeight, texts);
+    }
+    const isAllBranches = !!options.showAllBranches && !!chart.branches;
     const BASE_LANE_HEIGHT = constants.BAR_HEIGHT;
     // Layer 1: Backgrounds
     virtualBars.forEach((info, index) => {
@@ -1257,7 +1536,8 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
                         noteColors[i] = PALETTE.judgements.good;
                     else if (judge === 'Poor' && judgementVisibility.poor)
                         noteColors[i] = PALETTE.judgements.poor;
-                    // Miss is null
+                    else if (judge && !['Perfect', 'Good', 'Poor'].includes(judge))
+                        noteColors[i] = PALETTE.judgements.miss;
                 }
             }
         }

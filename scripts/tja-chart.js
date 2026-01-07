@@ -1,4 +1,4 @@
-import { renderChart, getNoteAt, getNotePosition, PALETTE } from './renderer.js';
+import { renderChart, getNoteAt, getNotePosition, PALETTE, createLayout, renderLayout, renderIncremental } from './renderer.js';
 import { generateAutoAnnotations } from './auto-annotation.js';
 export class TJAChart extends HTMLElement {
     canvas;
@@ -10,6 +10,11 @@ export class TJAChart extends HTMLElement {
     _texts;
     _message = null;
     resizeObserver;
+    // Rendering Optimization State
+    _renderTask = null;
+    _pendingFullRender = true;
+    _lastRenderedJudgementsLength = 0;
+    _layout = null;
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
@@ -47,7 +52,8 @@ export class TJAChart extends HTMLElement {
         this.shadowRoot.appendChild(this.messageContainer);
         this.shadowRoot.appendChild(this.canvas);
         this.resizeObserver = new ResizeObserver(() => {
-            this.render();
+            this._pendingFullRender = true;
+            this.scheduleRender();
         });
     }
     connectedCallback() {
@@ -57,7 +63,7 @@ export class TJAChart extends HTMLElement {
         this.upgradeProperty('judgementDeltas');
         this.upgradeProperty('texts');
         this.resizeObserver.observe(this);
-        this.render();
+        this.scheduleRender();
         this.canvas.addEventListener('mousemove', this.handleMouseMove.bind(this));
         this.canvas.addEventListener('click', this.handleClick.bind(this));
     }
@@ -70,50 +76,65 @@ export class TJAChart extends HTMLElement {
     }
     disconnectedCallback() {
         this.resizeObserver.disconnect();
+        if (this._renderTask !== null) {
+            cancelAnimationFrame(this._renderTask);
+            this._renderTask = null;
+        }
         this.canvas.removeEventListener('mousemove', this.handleMouseMove.bind(this));
         this.canvas.removeEventListener('click', this.handleClick.bind(this));
     }
+    scheduleRender() {
+        if (this._renderTask === null) {
+            this._renderTask = requestAnimationFrame(() => this.render());
+        }
+    }
     set chart(value) {
         this._chart = value;
-        this.render();
+        this._pendingFullRender = true;
+        this.scheduleRender();
     }
     get chart() {
         return this._chart;
     }
     set viewOptions(value) {
         this._viewOptions = value;
-        this.render();
+        this._pendingFullRender = true;
+        this.scheduleRender();
     }
     get viewOptions() {
         return this._viewOptions;
     }
     set judgements(value) {
         this._judgements = value;
-        this.render();
+        this.scheduleRender();
     }
     set judgementDeltas(value) {
         this._judgementDeltas = value;
-        this.render();
+        this.scheduleRender();
     }
     set texts(value) {
         this._texts = value;
-        this.render();
+        this._pendingFullRender = true;
+        this.scheduleRender();
     }
     showMessage(text, type = 'info') {
         this._message = { text, type };
-        this.render();
+        this._pendingFullRender = true;
+        this.scheduleRender();
     }
     clearMessage() {
         this._message = null;
-        this.render();
+        this._pendingFullRender = true;
+        this.scheduleRender();
     }
     // Testing Helper
     getNoteCoordinates(originalBarIndex, charIndex) {
         if (!this._chart || !this._viewOptions)
             return null;
-        return getNotePosition(this._chart, this.canvas, this._viewOptions, originalBarIndex, charIndex);
+        return getNotePosition(this._chart, this.canvas, this._viewOptions, originalBarIndex, charIndex, this._layout || undefined);
     }
     render() {
+        this._renderTask = null;
         if (!this.isConnected)
             return;
         const width = this.clientWidth || 800;
@@ -147,11 +168,38 @@ export class TJAChart extends HTMLElement {
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             return;
         }
-        renderChart(this._chart, this.canvas, this._judgements, this._judgementDeltas, this._viewOptions, this._texts);
+        let incrementalStart = 0;
+        // Determine if we can use incremental rendering
+        const hasNewJudgements = this._judgements.length > this._lastRenderedJudgementsLength;
+        const canIncremental = !this._pendingFullRender && hasNewJudgements && !!this._layout;
+        if (canIncremental) {
+            incrementalStart = this._lastRenderedJudgementsLength;
+        }
+        else {
+            // We are doing a full render (either forced or because no incremental update needed/possible)
+            // But we only need to recreate layout if pending full render or layout missing
+            if (this._pendingFullRender || !this._layout) {
+                this._layout = createLayout(this._chart, this.canvas, this._viewOptions, this._judgements);
+                this._pendingFullRender = false;
+            }
+            incrementalStart = 0;
+        }
+        const texts = this._texts || {
+            loopPattern: "Loop x{n}",
+            judgement: { perfect: "良", good: "可", poor: "不可" }
+        };
+        if (incrementalStart > 0 && this._layout) {
+            renderIncremental(ctx, this._layout, this._chart, this._judgements, this._judgementDeltas, this._viewOptions, texts, incrementalStart);
+        }
+        else if (this._layout) {
+            renderLayout(ctx, this._layout, this._chart, this._judgements, this._judgementDeltas, this._viewOptions, texts);
+        }
+        this._lastRenderedJudgementsLength = this._judgements.length;
     }
     // Public method to force render (e.g. after resizing parent not caught by observer, or manual trigger)
     refresh() {
-        this.render();
+        this._pendingFullRender = true;
+        this.scheduleRender();
     }
     handleMouseMove(event) {
         if (this._message) {
@@ -163,7 +211,7 @@ export class TJAChart extends HTMLElement {
         const rect = this.canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
-        const hit = getNoteAt(x, y, this._chart, this.canvas, this._judgements, this._viewOptions);
+        const hit = getNoteAt(x, y, this._chart, this.canvas, this._judgements, this._viewOptions, this._layout || undefined);
         this.dispatchEvent(new CustomEvent('chart-hover', {
             detail: { x, y, hit, originalEvent: event },
             bubbles: true,
@@ -179,7 +227,7 @@ export class TJAChart extends HTMLElement {
         const rect = this.canvas.getBoundingClientRect();
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
-        const hit = getNoteAt(x, y, this._chart, this.canvas, this._judgements, this._viewOptions);
+        const hit = getNoteAt(x, y, this._chart, this.canvas, this._judgements, this._viewOptions, this._layout || undefined);
         // Handle Annotation Mode Click
         if (this._viewOptions.isAnnotationMode) {
             if (hit && ['1', '2', '3', '4'].includes(hit.type)) {
