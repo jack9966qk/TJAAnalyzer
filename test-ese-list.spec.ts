@@ -88,4 +88,44 @@ test.describe('ESE List Behavior', () => {
         // Expect truncation message
         await expect(resultsContainer).toContainText('Showing top 100 results');
     });
+
+    test('Visuals: Displays distinct rows with monospace font', async ({ page }) => {
+        // Mock the ESE index response
+        const mockData = [
+            { path: 'cat1/song1.tja', title: 'Song One', titleJp: '曲１', url: 'ese/cat1/song1.tja', type: 'blob' },
+            { path: 'cat2/song2.tja', title: 'Song Two', titleJp: '曲２', url: 'ese/cat2/song2.tja', type: 'blob' },
+            { path: 'cat3/song3.tja', title: 'Song Three', titleJp: '曲３', url: 'ese/cat3/song3.tja', type: 'blob' },
+            { path: 'cat4/song4.tja', title: 'Song Four', titleJp: '曲４', url: 'ese/cat4/song4.tja', type: 'blob' },
+            { path: 'cat5/song5.tja', title: 'Song Five', titleJp: '曲５', url: 'ese/cat5/song5.tja', type: 'blob' }
+        ];
+
+        await page.route('**/ese_index.json', route => route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify(mockData)
+        }));
+
+        await page.goto('/');
+
+        // Ensure data source panel is expanded
+        const dsBody = page.locator('#ds-body');
+        if (await dsBody.count() > 0) {
+            const classes = await dsBody.getAttribute('class');
+            if (classes && classes.includes('collapsed')) {
+                await page.click('#ds-collapse-btn');
+                await page.waitForTimeout(500);
+            }
+        }
+
+        // Switch to List tab
+        const listTab = page.locator('button[data-mode="list"]');
+        await listTab.click();
+
+        // Wait for results
+        const resultsContainer = page.locator('#ese-results');
+        await expect(resultsContainer.locator('.ese-result-item')).toHaveCount(5);
+
+        // Take snapshot of the results container
+        await expect(resultsContainer).toHaveScreenshot('ese-list-visuals.png');
+    });
 });
