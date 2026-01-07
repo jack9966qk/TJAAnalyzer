@@ -1,5 +1,5 @@
 import { ParsedChart } from './tja-parser.js';
-import { ViewOptions, renderChart, getNoteAt, getNotePosition, RenderTexts, PALETTE } from './renderer.js';
+import { ViewOptions, renderChart, getNoteAt, getNotePosition, RenderTexts, PALETTE, createLayout, renderLayout, renderIncremental, ChartLayout } from './renderer.js';
 import { generateAutoAnnotations } from './auto-annotation.js';
 
 export interface ChartClickEventDetail {
@@ -24,6 +24,7 @@ export class TJAChart extends HTMLElement {
     private _renderTask: number | null = null;
     private _pendingFullRender: boolean = true;
     private _lastRenderedJudgementsLength: number = 0;
+    private _layout: ChartLayout | null = null;
 
     constructor() {
         super();
@@ -160,7 +161,10 @@ export class TJAChart extends HTMLElement {
     // Testing Helper
     getNoteCoordinates(originalBarIndex: number, charIndex: number): { x: number, y: number } | null {
         if (!this._chart || !this._viewOptions) return null;
-        return getNotePosition(this._chart, this.canvas, this._viewOptions, originalBarIndex, charIndex);
+        return getNotePosition(
+            this._chart, this.canvas, this._viewOptions, originalBarIndex, charIndex, 
+            this._layout || undefined
+        );
     }
 
     render() {
@@ -204,22 +208,50 @@ export class TJAChart extends HTMLElement {
         }
         
         let incrementalStart = 0;
-        if (!this._pendingFullRender && this._judgements.length > this._lastRenderedJudgementsLength) {
+        
+        // Determine if we can use incremental rendering
+        const hasNewJudgements = this._judgements.length > this._lastRenderedJudgementsLength;
+        const canIncremental = !this._pendingFullRender && hasNewJudgements && !!this._layout;
+
+        if (canIncremental) {
             incrementalStart = this._lastRenderedJudgementsLength;
         } else {
-            this._pendingFullRender = false;
+            // We are doing a full render (either forced or because no incremental update needed/possible)
+            // But we only need to recreate layout if pending full render or layout missing
+            if (this._pendingFullRender || !this._layout) {
+                this._layout = createLayout(this._chart, this.canvas, this._viewOptions, this._judgements);
+                this._pendingFullRender = false;
+            }
+            incrementalStart = 0;
         }
 
-        renderChart(
-            this._chart,
-            this.canvas,
-            this._judgements,
-            this._judgementDeltas,
-            this._viewOptions,
-            this._texts,
-            undefined, // dpr
-            { incrementalStart }
-        );
+        const texts = this._texts || { 
+            loopPattern: "Loop x{n}", 
+            judgement: { perfect: "良", good: "可", poor: "不可" } 
+        };
+
+        if (incrementalStart > 0 && this._layout) {
+            renderIncremental(
+                ctx, 
+                this._layout, 
+                this._chart, 
+                this._judgements, 
+                this._judgementDeltas, 
+                this._viewOptions, 
+                texts, 
+                incrementalStart
+            );
+        } else if (this._layout) {
+            renderLayout(
+                ctx, 
+                this._layout, 
+                this._chart, 
+                this._judgements, 
+                this._judgementDeltas, 
+                this._viewOptions, 
+                texts
+            );
+        }
         
         this._lastRenderedJudgementsLength = this._judgements.length;
     }
@@ -241,7 +273,10 @@ export class TJAChart extends HTMLElement {
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
         
-        const hit = getNoteAt(x, y, this._chart, this.canvas, this._judgements, this._viewOptions);
+        const hit = getNoteAt(
+            x, y, this._chart, this.canvas, this._judgements, this._viewOptions, 
+            this._layout || undefined
+        );
         
         this.dispatchEvent(new CustomEvent('chart-hover', { 
             detail: { x, y, hit, originalEvent: event },
@@ -260,7 +295,10 @@ export class TJAChart extends HTMLElement {
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
         
-        const hit = getNoteAt(x, y, this._chart, this.canvas, this._judgements, this._viewOptions);
+        const hit = getNoteAt(
+            x, y, this._chart, this.canvas, this._judgements, this._viewOptions, 
+            this._layout || undefined
+        );
 
         // Handle Annotation Mode Click
         if (this._viewOptions.isAnnotationMode) {
