@@ -758,12 +758,15 @@ function init(): void {
 
             const loopCountInput = document.getElementById('export-loop-count') as HTMLInputElement;
             const loopCount = loopCountInput ? parseInt(loopCountInput.value, 10) : 10;
+
+            const gapCountInput = document.getElementById('export-gap-count') as HTMLInputElement;
+            const gapCount = gapCountInput ? parseInt(gapCountInput.value, 10) : 1;
             
             const chartNameInput = document.getElementById('export-chart-name') as HTMLInputElement;
             const chartName = (chartNameInput && chartNameInput.value) ? chartNameInput.value : 'Exported Selection';
 
             try {
-                const tjaContent = generateTJAFromSelection(currentChart, viewOptions.selection, difficultySelector.value, loopCount, chartName);
+                const tjaContent = generateTJAFromSelection(currentChart, viewOptions.selection, difficultySelector.value, loopCount, chartName, gapCount);
                 
                 await shareFile(`${chartName}.tja`, tjaContent, 'text/plain', 'Export TJA');
                 updateStatus('status.exportSuccess');

@@ -298,6 +298,70 @@ COURSE:Oni
         assertIncludes(output, 'TITLE:My Custom Chart');
     });
 
+    runTest("Test 11: Verify Variable Gap Count", () => {
+        const tjaContent5 = `
+TITLE:Test5
+BPM:120
+COURSE:Oni
+#START
+10000000,
+#END
+`;
+        const parsed5 = parseTJA(tjaContent5)['oni'];
+        const selection: ViewOptions['selection'] = {
+            start: { originalBarIndex: 0, charIndex: 0 },
+            end: { originalBarIndex: 0, charIndex: 7 }
+        };
+        // Export with gapCount = 2, loopCount = 1
+        // Expected Structure:
+        // Loop 1
+        // [Gap Bar 1]
+        // [Gap Bar 2]
+        // [Selection]
+        // End Padding
+        // ...
+        const output = generateTJAFromSelection(parsed5, selection, 'Oni', 1, 'Gap Test', 2);
+        
+        // Split by Loop comment
+        const loopParts = output.split('// Loop 1');
+        const contentAfterLoop = loopParts[1];
+        
+        // We expect:
+        // MEASURE/BPM/SCROLL commands
+        // GOGO state
+        // 0, (Gap 1)
+        // 0, (Gap 2)
+        // [Possible Gogo state correction]
+        // 10000000, (Selection)
+        
+        // Count occurrences of "0," BEFORE the selection "10000000,"
+        // Since "0," is on a new line usually
+        
+        // A simple check is to look for consecutive "0,\n" 
+        // Note: the implementation outputs `0,\n` for each gap.
+        
+        // Let's verify by parsing
+        const reParsed = parseTJA(output)['oni'];
+        
+        // Expected Bars: 
+        // 1. Gap
+        // 2. Gap
+        // 3. Selection
+        // 4. End Padding (3 bars)
+        
+        // Total bars before end padding should be 3.
+        // Total bars including end padding should be 6.
+        
+        assert(reParsed.bars.length === 6, `Expected 6 bars (2 gaps + 1 selection + 3 padding), got ${reParsed.bars.length}`);
+        
+        // Bar 0 and 1 should be empty
+        assert(reParsed.bars[0].every(c => c === '0'), "Bar 0 should be empty (Gap)");
+        assert(reParsed.bars[1].every(c => c === '0'), "Bar 1 should be empty (Gap)");
+        
+        // Bar 2 should be selection
+        assert(reParsed.bars[2].join('') === '10000000', "Bar 2 should be selection");
+    });
+
     console.log("\nAll TJA Exporter tests passed.");
 } catch (e: any) {
     console.error("Test suite failed:", e);

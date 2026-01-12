@@ -51,7 +51,7 @@ function getContextAt(chart: ParsedChart, barIndex: number, charIndex: number): 
     return { bpm, scroll, measureRatio, gogoTime };
 }
 
-export function generateTJAFromSelection(chart: ParsedChart, selection: NonNullable<ViewOptions['selection']>, courseName: string = 'Oni', loopCount: number = 10, chartName: string = 'Exported Selection'): string {
+export function generateTJAFromSelection(chart: ParsedChart, selection: NonNullable<ViewOptions['selection']>, courseName: string = 'Oni', loopCount: number = 10, chartName: string = 'Exported Selection', gapCount: number = 1): string {
     const { start, end } = selection;
 
     // Normalize selection range
@@ -218,7 +218,9 @@ export function generateTJAFromSelection(chart: ParsedChart, selection: NonNulla
         // Gap Gogo State
         tjaContent += (shouldGapBeGogo ? '#GOGOSTART' : '#GOGOEND') + '\n';
         
-        tjaContent += `0,\n`;
+        for (let g = 0; g < gapCount; g++) {
+            tjaContent += `0,\n`;
+        }
 
         // Selection Start Correction
         // We need to restore the state expected by the start of the selection block (startContext.gogoTime)
@@ -239,7 +241,9 @@ export function generateTJAFromSelection(chart: ParsedChart, selection: NonNulla
     // We treat End Padding as a Gap too
     tjaContent += (shouldGapBeGogo ? '#GOGOSTART' : '#GOGOEND') + '\n';
 
-    tjaContent += `0,\n0,\n0,\n`;
+    for (let g = 0; g < 3; g++) {
+        tjaContent += `0,\n`;
+    }
 
     tjaContent += '#END\n';
     return tjaContent;
