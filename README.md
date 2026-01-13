@@ -1,21 +1,23 @@
 # TJA Analyzer
 
-A versatile tool for visualizing, analyzing, and annotating TJA charts for Taiko no Tatsujin simulators.
+A versatile tool for visualizing, analyzing, and annotating TJA charts.
 
 ## Features
 
-- **Chart Visualization**: Renders TJA charts with support for standard notes, rolls, balloons, and variable measures. Displays chart metadata (Title, BPM, etc.).
-- **Analysis**:
-  - **Detailed Note Statistics**: Inspect individual note timing, interval, and properties.
-  - **View Options**: Customizable display with zooming, loop collapsing, and bar numbering.
-- **Data Sources**: Load charts from local files, built-in examples, or the **ESE Database**.
-- **Judgement Integration**: Connect to an external judgement stream (SSE) to visualize hit results (Perfect, Good, Poor) in real-time.
-- **Annotation & Editing**:
-  - Select notes and ranges.
-  - Annotate hands (L/R) with automatic inference helper.
-  - Export selected sections as TJA snippets.
-- **Export**: Save rendered charts as high-quality images.
-- **Internationalization**: Supports English and Simplified Chinese.
+### Chart rendering
+
+- Renders TJA charts in native resolution with zooming support.
+- Renders branches (Normal, Expert, Master) individually or stacked together.
+
+### Analysis
+
+- Displays note statistics such as BPM and interval from previous note.
+- Annotate hands (L/R) manually or automatically with hand inference.
+
+### Export
+
+- Exports selected chart section as TJA, with loop customizations.
+- Save rendered charts as high-quality images.
 
 ## Getting Started
 
@@ -52,4 +54,23 @@ npm run build
 To build the standalone executable:
 ```bash
 npm run build:exe
+```
+
+### Development
+
+**Formatting & Linting:**
+This project uses [Biome](https://biomejs.dev/) for formatting and linting.
+```bash
+npm run format
+```
+
+**Testing:**
+```bash
+npm test
+```
+
+**Updating ESE Assets:**
+To fetch the latest charts from the ESE database:
+```bash
+npm run fetch-ese
 ```
