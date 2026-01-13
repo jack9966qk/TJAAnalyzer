@@ -1005,12 +1005,22 @@ function init(): void {
 
         testStreamBtn.addEventListener('click', () => {
 
-            isSimulating = true;
-            updateDisplayState();
+            if (isSimulating) {
+                judgementClient.disconnect();
+                isSimulating = false;
+                testStreamBtn.setAttribute('data-i18n', 'ui.test.start');
+                testStreamBtn.innerText = i18n.t('ui.test.start');
+            } else {
+                isSimulating = true;
+                clearJudgements();
+                updateDisplayState();
 
-            // Use currently loaded content and selected difficulty
+                testStreamBtn.setAttribute('data-i18n', 'ui.test.stop');
+                testStreamBtn.innerText = i18n.t('ui.test.stop');
 
-            judgementClient.startSimulation(loadedTJAContent, difficultySelector.value);
+                // Use currently loaded content and selected difficulty
+                judgementClient.startSimulation(loadedTJAContent, difficultySelector.value);
+            }
 
         });
 
@@ -1393,7 +1403,13 @@ function init(): void {
                         hasReceivedGameStart = false;
                         
                         // Re-enable controls if we were in test mode
-                         if (testStreamBtn) testStreamBtn.disabled = false;
+                         if (testStreamBtn) {
+                             testStreamBtn.disabled = false;
+                             if (isSimulating) {
+                                 testStreamBtn.setAttribute('data-i18n', 'ui.test.start');
+                                 testStreamBtn.innerText = i18n.t('ui.test.start');
+                             }
+                         }
                          if (connectBtn) connectBtn.disabled = false;
                         
                         updateStatus(isSimulating ? 'status.simStopped' : 'status.disconnected');
