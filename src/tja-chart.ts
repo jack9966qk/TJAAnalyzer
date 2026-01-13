@@ -134,6 +134,10 @@ export class TJAChart extends HTMLElement {
         this._judgements = value;
         this.scheduleRender();
     }
+
+    get judgements(): string[] {
+        return this._judgements;
+    }
     
     set judgementDeltas(value: (number | undefined)[]) {
         this._judgementDeltas = value;

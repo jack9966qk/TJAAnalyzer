@@ -501,7 +501,14 @@ function updateDisplayState() {
     refreshChart();
 }
 
+function clearJudgements() {
+    judgements = [];
+    judgementDeltas = [];
+    updateStatsComponent(selectedNoteHitInfo);
+}
+
 function updateBranchSelectorState(resetBranch: boolean = false) {
+    clearJudgements();
     if (!parsedTJACharts) return;
     
     const selectedDiff = difficultySelector.value;
