@@ -1,5 +1,5 @@
 import type { ViewOptions } from "./renderer.js";
-import { BarParams, BPMChange, type ParsedChart, ScrollChange } from "./tja-parser.js";
+import type { ParsedChart } from "./tja-parser.js";
 
 interface ChartContext {
   bpm: number;

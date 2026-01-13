@@ -4,8 +4,8 @@ import { shareFile } from "./file-share.js";
 import { i18n } from "./i18n.js";
 import { JudgementClient, type ServerEvent } from "./judgement-client.js";
 import { NoteStatsDisplay } from "./note-stats.js";
-import { getGradientColor, type HitInfo, PALETTE, type RenderTexts, type ViewOptions } from "./renderer.js";
-import { ChartClickEventDetail, TJAChart } from "./tja-chart.js";
+import type { HitInfo, RenderTexts, ViewOptions } from "./renderer.js";
+import { TJAChart } from "./tja-chart.js";
 import { generateTJAFromSelection } from "./tja-exporter.js";
 import { type ParsedChart, parseTJA } from "./tja-parser.js";
 
