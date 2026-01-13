@@ -1708,7 +1708,7 @@ export function renderChart(
           b.data.bars,
           undefined,
           undefined,
-          b.type,
+          b.type as any,
         );
       }
     });

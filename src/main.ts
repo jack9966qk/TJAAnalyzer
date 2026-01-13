@@ -337,9 +337,12 @@ function switchDataSourceMode(mode: string) {
   if (difficultySelectorContainer) {
     if (mode === "stream") {
       difficultySelectorContainer.hidden = true;
+      difficultySelectorContainer.style.display = "none";
     } else {
       // Show only if charts are parsed
-      difficultySelectorContainer.hidden = !parsedTJACharts;
+      const visible = !!parsedTJACharts;
+      difficultySelectorContainer.hidden = !visible;
+      difficultySelectorContainer.style.display = visible ? "flex" : "none";
     }
   }
 
@@ -530,6 +533,7 @@ function updateBranchSelectorState(resetBranch: boolean = false) {
 
   if (rootChart.branches) {
     branchSelectorContainer.hidden = false;
+    branchSelectorContainer.style.display = "flex";
     if (resetBranch) {
       branchSelector.value = "all";
     }
@@ -552,6 +556,7 @@ function updateBranchSelectorState(resetBranch: boolean = false) {
     }
   } else {
     branchSelectorContainer.hidden = true;
+    branchSelectorContainer.style.display = "none";
     viewOptions.showAllBranches = false;
     currentChart = rootChart;
   }
@@ -1460,6 +1465,7 @@ function updateParsedCharts(content: string) {
 
   if (difficulties.length === 0) {
     difficultySelectorContainer.hidden = true;
+    difficultySelectorContainer.style.display = "none";
     throw new Error(i18n.t("status.noCourses"));
   }
 
@@ -1481,8 +1487,10 @@ function updateParsedCharts(content: string) {
 
   if (activeDataSourceMode === "stream") {
     difficultySelectorContainer.hidden = true;
+    difficultySelectorContainer.style.display = "none";
   } else {
     difficultySelectorContainer.hidden = false;
+    difficultySelectorContainer.style.display = "flex";
   }
 
   updateStatsComponent(null);

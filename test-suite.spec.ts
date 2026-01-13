@@ -548,12 +548,12 @@ LEVEL:10
     const width = await page.evaluate(async () => {
       // Force fallback by removing navigator.share if present
       try {
-        // @ts-expect-error
+        // @ts-ignore
         navigator.share = undefined;
       } catch (e) {}
 
       try {
-        // @ts-expect-error
+        // @ts-ignore
         navigator.canShare = () => false;
       } catch (e) {}
 

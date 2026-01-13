@@ -114,7 +114,10 @@ test.describe("Layout Tests", () => {
       if (!spacer) return false;
       const rect = spacer.getBoundingClientRect();
       const containerRect = container?.getBoundingClientRect();
-      return rect.bottom > containerRect?.top; // Visible in some way
+      if (containerRect) {
+        return rect.bottom > containerRect.top; // Visible in some way
+      }
+      return false;
     });
     // Just checking standard visibility
     await expect(page.locator("text=Spacer")).toBeVisible();
