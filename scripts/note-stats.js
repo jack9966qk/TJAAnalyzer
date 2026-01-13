@@ -1,5 +1,5 @@
-import { getGradientColor, PALETTE } from './renderer.js';
-import { i18n } from './i18n.js';
+import { i18n } from "./i18n.js";
+import { getGradientColor, PALETTE } from "./renderer.js";
 export class NoteStatsDisplay extends HTMLElement {
     _hit = null;
     _chart = null;
@@ -9,8 +9,8 @@ export class NoteStatsDisplay extends HTMLElement {
     container;
     constructor() {
         super();
-        this.attachShadow({ mode: 'open' });
-        const style = document.createElement('style');
+        this.attachShadow({ mode: "open" });
+        const style = document.createElement("style");
         style.textContent = `
             :host {
                 display: block;
@@ -73,10 +73,10 @@ export class NoteStatsDisplay extends HTMLElement {
                 display: none !important;
             }
         `;
-        this.container = document.createElement('div');
-        this.container.id = 'container';
-        this.shadowRoot.appendChild(style);
-        this.shadowRoot.appendChild(this.container);
+        this.container = document.createElement("div");
+        this.container.id = "container";
+        this.shadowRoot?.appendChild(style);
+        this.shadowRoot?.appendChild(this.container);
     }
     connectedCallback() {
         this.render();
@@ -105,7 +105,7 @@ export class NoteStatsDisplay extends HTMLElement {
         return `
             <div class="stat-box">
                 <div class="stat-label">${label}</div>
-                <div class="stat-value ${highlight ? 'stat-value-highlight' : ''}">${value}</div>
+                <div class="stat-value ${highlight ? "stat-value-highlight" : ""}">${value}</div>
             </div>
         `;
     }
@@ -117,10 +117,16 @@ export class NoteStatsDisplay extends HTMLElement {
     }
     getNoteName(char) {
         const map = {
-            '1': 'don', '2': 'ka', '3': 'DON', '4': 'KA',
-            '5': 'roll', '6': 'ROLL', '7': 'balloon', '9': 'Kusudama'
+            "1": "don",
+            "2": "ka",
+            "3": "DON",
+            "4": "KA",
+            "5": "roll",
+            "6": "ROLL",
+            "7": "balloon",
+            "9": "Kusudama",
         };
-        return map[char] || 'unknown';
+        return map[char] || "unknown";
     }
     formatGap(gap) {
         const commonDenominators = [4, 8, 12, 16, 24, 32, 48, 64];
@@ -128,7 +134,7 @@ export class NoteStatsDisplay extends HTMLElement {
             const val = gap * d;
             if (Math.abs(val - Math.round(val)) < 0.001) {
                 const num = Math.round(val);
-                const gcd = (a, b) => b ? gcd(b, a % b) : a;
+                const gcd = (a, b) => (b ? gcd(b, a % b) : a);
                 const divisor = gcd(num, d);
                 return `${num / divisor}/${d / divisor}`;
             }
@@ -139,7 +145,7 @@ export class NoteStatsDisplay extends HTMLElement {
         const currentBar = chart.bars[currentBarIdx];
         const currentTotal = currentBar.length;
         for (let i = currentCharIdx - 1; i >= 0; i--) {
-            if (['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(currentBar[i])) {
+            if (["1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(currentBar[i])) {
                 const prevPos = i / currentTotal;
                 const curPos = currentCharIdx / currentTotal;
                 const diff = curPos - prevPos;
@@ -149,14 +155,14 @@ export class NoteStatsDisplay extends HTMLElement {
         for (let b = currentBarIdx - 1; b >= 0; b--) {
             const prevBar = chart.bars[b];
             if (!prevBar || prevBar.length === 0) {
-                const minGap = (currentCharIdx / currentTotal) + (currentBarIdx - b);
+                const minGap = currentCharIdx / currentTotal + (currentBarIdx - b);
                 if (minGap > 1.0 + 0.001)
                     return null;
                 continue;
             }
             const prevTotal = prevBar.length;
             for (let i = prevTotal - 1; i >= 0; i--) {
-                if (['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(prevBar[i])) {
+                if (["1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(prevBar[i])) {
                     const distInCurrent = currentCharIdx / currentTotal;
                     const distBetween = (currentBarIdx - b - 1) * 1.0;
                     const distInPrev = (prevTotal - i) / prevTotal;
@@ -169,7 +175,7 @@ export class NoteStatsDisplay extends HTMLElement {
                     }
                 }
             }
-            const minGap = (currentCharIdx / currentTotal) + (currentBarIdx - b);
+            const minGap = currentCharIdx / currentTotal + (currentBarIdx - b);
             if (minGap > 1.0)
                 return null;
         }
@@ -178,8 +184,8 @@ export class NoteStatsDisplay extends HTMLElement {
     render() {
         if (!this._viewOptions)
             return;
-        let html = '';
-        const def = '-';
+        let html = "";
+        const def = "-";
         const hit = this._hit;
         const chart = this._chart;
         const options = this._viewOptions;
@@ -188,16 +194,16 @@ export class NoteStatsDisplay extends HTMLElement {
         const { collapsedLoop: collapsed, viewMode, coloringMode, visibility: judgementVisibility } = options;
         // Resolve target chart based on branch
         let targetChart = chart;
-        if (hit && hit.branch && chart && chart.branches) {
-            if (hit.branch === 'normal')
+        if (hit?.branch && chart && chart.branches) {
+            if (hit.branch === "normal")
                 targetChart = chart.branches.normal || chart;
-            else if (hit.branch === 'expert')
+            else if (hit.branch === "expert")
                 targetChart = chart.branches.expert || chart;
-            else if (hit.branch === 'master')
+            else if (hit.branch === "master")
                 targetChart = chart.branches.master || chart;
         }
         // 1. Type
-        html += this.createStatBox(i18n.t('stats.type'), hit ? this.getNoteName(hit.type) : def);
+        html += this.createStatBox(i18n.t("stats.type"), hit ? this.getNoteName(hit.type) : def);
         // 2. Gap
         let gap = def;
         if (hit && targetChart) {
@@ -205,18 +211,21 @@ export class NoteStatsDisplay extends HTMLElement {
             if (g)
                 gap = g;
         }
-        html += this.createStatBox(i18n.t('stats.gap'), gap);
+        html += this.createStatBox(i18n.t("stats.gap"), gap);
         // 3. BPM
-        html += this.createStatBox(i18n.t('stats.bpm'), hit ? this.formatBPM(hit.bpm) : def);
+        html += this.createStatBox(i18n.t("stats.bpm"), hit ? this.formatBPM(hit.bpm) : def);
         // 4. HS
-        html += this.createStatBox(i18n.t('stats.hs'), hit ? this.formatHS(hit.scroll) : def);
+        html += this.createStatBox(i18n.t("stats.hs"), hit ? this.formatHS(hit.scroll) : def);
         // 5. Perceived BPM
-        html += this.createStatBox(i18n.t('stats.seenBpm'), hit ? this.formatBPM(hit.bpm * hit.scroll) : def);
+        html += this.createStatBox(i18n.t("stats.seenBpm"), hit ? this.formatBPM(hit.bpm * hit.scroll) : def);
         // 6. Judgements (Deltas)
         let deltaVal = def;
         let avgDeltaVal = def;
-        let allDeltasStr = '';
-        if (hit && (viewMode === 'judgements' || viewMode === 'judgements-underline' || viewMode === 'judgements-text') && hit.judgeableNoteIndex !== null && targetChart) {
+        let allDeltasStr = "";
+        if (hit &&
+            (viewMode === "judgements" || viewMode === "judgements-underline" || viewMode === "judgements-text") &&
+            hit.judgeableNoteIndex !== null &&
+            targetChart) {
             const deltas = [];
             if (collapsed && targetChart.loop) {
                 const loop = targetChart.loop;
@@ -227,14 +236,14 @@ export class NoteStatsDisplay extends HTMLElement {
                         const bar = targetChart.bars[b];
                         if (bar) {
                             for (const c of bar)
-                                if (['1', '2', '3', '4'].includes(c))
+                                if (["1", "2", "3", "4"].includes(c))
                                     baseIndex++;
                         }
                     }
                     let offsetInBar = 0;
                     const targetBar = targetChart.bars[hit.originalBarIndex];
                     for (let c = 0; c < hit.charIndex; c++) {
-                        if (['1', '2', '3', '4'].includes(targetBar[c]))
+                        if (["1", "2", "3", "4"].includes(targetBar[c]))
                             offsetInBar++;
                     }
                     const noteIndexInFirstIter = baseIndex + offsetInBar;
@@ -243,7 +252,7 @@ export class NoteStatsDisplay extends HTMLElement {
                         const bar = targetChart.bars[loop.startBarIndex + k];
                         if (bar) {
                             for (const c of bar)
-                                if (['1', '2', '3', '4'].includes(c))
+                                if (["1", "2", "3", "4"].includes(c))
                                     notesPerLoop++;
                         }
                     }
@@ -258,7 +267,7 @@ export class NoteStatsDisplay extends HTMLElement {
                             const bar = targetChart.bars[i];
                             if (bar)
                                 for (const c of bar)
-                                    if (['1', '2', '3', '4'].includes(c))
+                                    if (["1", "2", "3", "4"].includes(c))
                                         preLoopNotes++;
                         }
                         const lastJudgedIndex = judgements.length - 1;
@@ -269,28 +278,28 @@ export class NoteStatsDisplay extends HTMLElement {
                     }
                     if (currentIterationIdx < 0)
                         currentIterationIdx = 0;
-                    let deltasStrings = [];
+                    const deltasStrings = [];
                     for (let iter = 0; iter < loop.iterations; iter++) {
-                        const globalIdx = noteIndexInFirstIter + (iter * notesPerLoop);
+                        const globalIdx = noteIndexInFirstIter + iter * notesPerLoop;
                         if (globalIdx < judgementDeltas.length) {
                             const delta = judgementDeltas[globalIdx];
                             const judge = judgements[globalIdx];
                             // Check visibility
                             let isVisible = true;
-                            if (judge === 'Perfect' && !judgementVisibility.perfect)
+                            if (judge === "Perfect" && !judgementVisibility.perfect)
                                 isVisible = false;
-                            else if (judge === 'Good' && !judgementVisibility.good)
+                            else if (judge === "Good" && !judgementVisibility.good)
                                 isVisible = false;
-                            else if (judge === 'Poor' && !judgementVisibility.poor)
+                            else if (judge === "Poor" && !judgementVisibility.poor)
                                 isVisible = false;
                             if (!isVisible)
                                 continue;
                             if (delta !== undefined)
                                 deltas.push(delta);
-                            let s = delta !== undefined ? delta.toString() : '?';
-                            let color = '';
-                            if (coloringMode === 'gradient') {
-                                if ((judge === 'Perfect' || judge === 'Good' || judge === 'Poor') && delta !== undefined) {
+                            let s = delta !== undefined ? delta.toString() : "?";
+                            let color = "";
+                            if (coloringMode === "gradient") {
+                                if ((judge === "Perfect" || judge === "Good" || judge === "Poor") && delta !== undefined) {
                                     color = getGradientColor(delta);
                                 }
                                 else {
@@ -298,11 +307,11 @@ export class NoteStatsDisplay extends HTMLElement {
                                 }
                             }
                             else {
-                                if (judge === 'Perfect')
+                                if (judge === "Perfect")
                                     color = PALETTE.judgements.perfect;
-                                else if (judge === 'Good')
+                                else if (judge === "Good")
                                     color = PALETTE.judgements.good;
-                                else if (judge === 'Poor')
+                                else if (judge === "Poor")
                                     color = PALETTE.judgements.poor;
                             }
                             if (color) {
@@ -317,11 +326,11 @@ export class NoteStatsDisplay extends HTMLElement {
                     if (deltas.length > 0) {
                         const avg = deltas.reduce((a, b) => a + b, 0) / deltas.length;
                         avgDeltaVal = `${avg.toFixed(1)}ms`;
-                        if (coloringMode === 'gradient') {
+                        if (coloringMode === "gradient") {
                             const avgColor = getGradientColor(avg);
                             avgDeltaVal = `<span style="color: ${avgColor}">${avgDeltaVal}</span>`;
                         }
-                        allDeltasStr = deltasStrings.join(', ');
+                        allDeltasStr = deltasStrings.join(", ");
                     }
                 }
                 else {
@@ -330,18 +339,18 @@ export class NoteStatsDisplay extends HTMLElement {
                         const judge = judgements[hit.judgeableNoteIndex];
                         // Check visibility
                         let isVisible = true;
-                        if (judge === 'Perfect' && !judgementVisibility.perfect)
+                        if (judge === "Perfect" && !judgementVisibility.perfect)
                             isVisible = false;
-                        else if (judge === 'Good' && !judgementVisibility.good)
+                        else if (judge === "Good" && !judgementVisibility.good)
                             isVisible = false;
-                        else if (judge === 'Poor' && !judgementVisibility.poor)
+                        else if (judge === "Poor" && !judgementVisibility.poor)
                             isVisible = false;
                         if (isVisible && delta !== undefined) {
                             avgDeltaVal = `${delta}ms`;
                             let s = delta.toString();
-                            let color = '';
-                            if (coloringMode === 'gradient') {
-                                if (judge === 'Perfect' || judge === 'Good' || judge === 'Poor') {
+                            let color = "";
+                            if (coloringMode === "gradient") {
+                                if (judge === "Perfect" || judge === "Good" || judge === "Poor") {
                                     color = getGradientColor(delta);
                                 }
                                 else {
@@ -349,16 +358,16 @@ export class NoteStatsDisplay extends HTMLElement {
                                 }
                             }
                             else {
-                                if (judge === 'Perfect')
+                                if (judge === "Perfect")
                                     color = PALETTE.judgements.perfect;
-                                else if (judge === 'Good')
+                                else if (judge === "Good")
                                     color = PALETTE.judgements.good;
-                                else if (judge === 'Poor')
+                                else if (judge === "Poor")
                                     color = PALETTE.judgements.poor;
                             }
                             if (color)
                                 s = `<span style="color: ${color}">${s}</span>`;
-                            if (coloringMode === 'gradient' && color) {
+                            if (coloringMode === "gradient" && color) {
                                 avgDeltaVal = `<span style="color: ${color}">${avgDeltaVal}</span>`;
                             }
                             allDeltasStr = s;
@@ -373,17 +382,17 @@ export class NoteStatsDisplay extends HTMLElement {
                     const judge = judgements[hit.judgeableNoteIndex];
                     // Check visibility
                     let isVisible = true;
-                    if (judge === 'Perfect' && !judgementVisibility.perfect)
+                    if (judge === "Perfect" && !judgementVisibility.perfect)
                         isVisible = false;
-                    else if (judge === 'Good' && !judgementVisibility.good)
+                    else if (judge === "Good" && !judgementVisibility.good)
                         isVisible = false;
-                    else if (judge === 'Poor' && !judgementVisibility.poor)
+                    else if (judge === "Poor" && !judgementVisibility.poor)
                         isVisible = false;
                     if (isVisible && delta !== undefined) {
                         deltaVal = `${delta}ms`;
-                        let color = '';
-                        if (coloringMode === 'gradient') {
-                            if (judge === 'Perfect' || judge === 'Good' || judge === 'Poor') {
+                        let color = "";
+                        if (coloringMode === "gradient") {
+                            if (judge === "Perfect" || judge === "Good" || judge === "Poor") {
                                 color = getGradientColor(delta);
                             }
                             else {
@@ -391,11 +400,11 @@ export class NoteStatsDisplay extends HTMLElement {
                             }
                         }
                         else {
-                            if (judge === 'Perfect')
+                            if (judge === "Perfect")
                                 color = PALETTE.judgements.perfect;
-                            else if (judge === 'Good')
+                            else if (judge === "Good")
                                 color = PALETTE.judgements.good;
-                            else if (judge === 'Poor')
+                            else if (judge === "Poor")
                                 color = PALETTE.judgements.poor;
                         }
                         if (color)
@@ -405,13 +414,13 @@ export class NoteStatsDisplay extends HTMLElement {
             }
         }
         if (collapsed) {
-            html += this.createStatBox(i18n.t('stats.avgDelta'), avgDeltaVal);
+            html += this.createStatBox(i18n.t("stats.avgDelta"), avgDeltaVal);
             html += `<div class="stat-full-line">Deltas: ${allDeltasStr}</div>`;
         }
         else {
-            html += this.createStatBox(i18n.t('stats.delta'), deltaVal);
+            html += this.createStatBox(i18n.t("stats.delta"), deltaVal);
         }
         this.container.innerHTML = html;
     }
 }
-customElements.define('note-stats', NoteStatsDisplay);
+customElements.define("note-stats", NoteStatsDisplay);

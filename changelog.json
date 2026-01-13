@@ -1,5 +1,50 @@
 [
   {
+    "hash": "cdf347e",
+    "message": "Update version to 0.6.7.",
+    "date": "2026-01-14"
+  },
+  {
+    "hash": "d2c60c0",
+    "message": "Update README.",
+    "date": "2026-01-14"
+  },
+  {
+    "hash": "6e1dd20",
+    "message": "Enable Biome noUnusedImports and address reported issues.",
+    "date": "2026-01-14"
+  },
+  {
+    "hash": "1155b90",
+    "message": "Enable Biome noUnusedVariables and address reported issues.",
+    "date": "2026-01-14"
+  },
+  {
+    "hash": "3ae5ccb",
+    "message": "Fix more Biome linting issues and fix a regression on branch selector display.",
+    "date": "2026-01-14"
+  },
+  {
+    "hash": "497cfee",
+    "message": "Fix more Biome linting issues.",
+    "date": "2026-01-14"
+  },
+  {
+    "hash": "ab1abe3",
+    "message": "Address some Biome linting suggestions.",
+    "date": "2026-01-14"
+  },
+  {
+    "hash": "1c53d2b",
+    "message": "Apply automatic formatting with the Biome formatter.",
+    "date": "2026-01-14"
+  },
+  {
+    "hash": "973e6cc",
+    "message": "Add Biome formatter and npm command for formatting.",
+    "date": "2026-01-14"
+  },
+  {
     "hash": "0774d82",
     "message": "Update version to 0.6.6.",
     "date": "2026-01-14"
@@ -453,50 +498,5 @@
     "hash": "e47eedc",
     "message": "Slight adjustment of ballon number positioning.",
     "date": "2025-12-20"
-  },
-  {
-    "hash": "5d1f386",
-    "message": "Fix sticky chart options, make it collapsed by default, fix some tests.",
-    "date": "2025-12-20"
-  },
-  {
-    "hash": "66a8879",
-    "message": "Fix note selection hit detection offset caused by chart header.",
-    "date": "2025-12-20"
-  },
-  {
-    "hash": "ce58539",
-    "message": "Use system share sheet for TJA/image export where available.",
-    "date": "2025-12-20"
-  },
-  {
-    "hash": "cee9204",
-    "message": "Support saving the rendered chart as image.",
-    "date": "2025-12-20"
-  },
-  {
-    "hash": "43ced0e",
-    "message": "Add header to rendered chart for properties such as title.",
-    "date": "2025-12-20"
-  },
-  {
-    "hash": "a882174",
-    "message": "Update version to 0.3.",
-    "date": "2025-12-20"
-  },
-  {
-    "hash": "a8cb008",
-    "message": "Add functionality to load from ESE database. Database is downloaded to host before build time.",
-    "date": "2025-12-20"
-  },
-  {
-    "hash": "fc2d12a",
-    "message": "Add annotation coloring based on hand inference.",
-    "date": "2025-12-19"
-  },
-  {
-    "hash": "1bbbec5",
-    "message": "Add basic hand annotation functionality.",
-    "date": "2025-12-19"
   }
 ]

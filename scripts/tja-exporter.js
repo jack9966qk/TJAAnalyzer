@@ -1,3 +1,4 @@
+// Helper to determine if a note is selected
 function getContextAt(chart, barIndex, charIndex) {
     const params = chart.barParams[barIndex];
     if (!params) {
@@ -5,12 +6,12 @@ function getContextAt(chart, barIndex, charIndex) {
             bpm: chart.bpm || 120,
             scroll: 1.0,
             measureRatio: 1.0,
-            gogoTime: false
+            gogoTime: false,
         };
     }
     let bpm = params.bpm;
     let scroll = params.scroll;
-    let measureRatio = params.measureRatio;
+    const measureRatio = params.measureRatio;
     let gogoTime = params.gogoTime;
     if (params.bpmChanges) {
         for (const ch of params.bpmChanges) {
@@ -32,7 +33,7 @@ function getContextAt(chart, barIndex, charIndex) {
     }
     return { bpm, scroll, measureRatio, gogoTime };
 }
-export function generateTJAFromSelection(chart, selection, courseName = 'Oni', loopCount = 10, chartName = 'Exported Selection', gapCount = 1) {
+export function generateTJAFromSelection(chart, selection, courseName = "Oni", loopCount = 10, chartName = "Exported Selection", gapCount = 1) {
     const { start, end } = selection;
     // Normalize selection range
     let startBar = start.originalBarIndex;
@@ -51,7 +52,7 @@ export function generateTJAFromSelection(chart, selection, courseName = 'Oni', l
         const bar = chart.bars[b];
         if (bar) {
             for (const c of bar) {
-                if (c === '7' || c === '9')
+                if (c === "7" || c === "9")
                     balloonCursor++;
             }
         }
@@ -62,11 +63,11 @@ export function generateTJAFromSelection(chart, selection, courseName = 'Oni', l
         if (!bar)
             continue;
         // Define valid range for this bar
-        const validStart = (b === startBar) ? startChar : 0;
-        const validEnd = (b === endBar) ? endChar : bar.length - 1;
+        const validStart = b === startBar ? startChar : 0;
+        const validEnd = b === endBar ? endChar : bar.length - 1;
         for (let i = 0; i < bar.length; i++) {
             const c = bar[i];
-            if (c === '7' || c === '9') {
+            if (c === "7" || c === "9") {
                 // If this note is within selection, we keep it and need its value
                 if (i >= validStart && i <= validEnd) {
                     if (balloonCursor < chart.balloonCounts.length) {
@@ -102,20 +103,20 @@ export function generateTJAFromSelection(chart, selection, courseName = 'Oni', l
         `WAVE:placeholder.mp3`,
         `OFFSET:0`,
         `COURSE:${courseName.charAt(0).toUpperCase() + courseName.slice(1)}`,
-        `LEVEL:${chart.headers['LEVEL'] || '10'}`
+        `LEVEL:${chart.headers.LEVEL || "10"}`,
     ];
     if (exportedBalloons.length > 0) {
-        headers.push(`BALLOON:${exportedBalloons.join(',')}`);
+        headers.push(`BALLOON:${exportedBalloons.join(",")}`);
     }
-    let tjaContent = headers.join('\n') + '\n\n#START\n';
+    let tjaContent = `${headers.join("\n")}\n\n#START\n`;
     // 4. Generate Content
-    let selectionBlock = '';
+    let selectionBlock = "";
     let lastMeasureRatio = startContext.measureRatio;
     for (let b = startBar; b <= endBar; b++) {
         const bar = chart.bars[b];
         const params = chart.barParams[b];
         if (!bar || !params) {
-            selectionBlock += ',\n';
+            selectionBlock += ",\n";
             continue;
         }
         // Measure Change logic within selection
@@ -126,8 +127,8 @@ export function generateTJAFromSelection(chart, selection, courseName = 'Oni', l
         // Collect commands
         const commandsAt = {};
         // Define valid range
-        const validStart = (b === startBar) ? startChar : 0;
-        const validEnd = (b === endBar) ? endChar : bar.length - 1;
+        const validStart = b === startBar ? startChar : 0;
+        const validEnd = b === endBar ? endChar : bar.length - 1;
         if (params.bpmChanges) {
             for (const ch of params.bpmChanges) {
                 if (!commandsAt[ch.index])
@@ -146,27 +147,27 @@ export function generateTJAFromSelection(chart, selection, courseName = 'Oni', l
             for (const ch of params.gogoChanges) {
                 if (!commandsAt[ch.index])
                     commandsAt[ch.index] = [];
-                commandsAt[ch.index].push(ch.isGogo ? '#GOGOSTART' : '#GOGOEND');
+                commandsAt[ch.index].push(ch.isGogo ? "#GOGOSTART" : "#GOGOEND");
             }
         }
-        let barString = '';
+        let barString = "";
         for (let i = 0; i < bar.length; i++) {
             if (commandsAt[i]) {
-                if (barString.length > 0 && !barString.endsWith('\n'))
-                    barString += '\n';
-                barString += commandsAt[i].join('\n') + '\n';
+                if (barString.length > 0 && !barString.endsWith("\n"))
+                    barString += "\n";
+                barString += `${commandsAt[i].join("\n")}\n`;
             }
             const char = bar[i];
-            const isSelected = (i >= validStart && i <= validEnd);
-            barString += isSelected ? char : '0';
+            const isSelected = i >= validStart && i <= validEnd;
+            barString += isSelected ? char : "0";
         }
         // Trailing commands
         if (commandsAt[bar.length]) {
-            if (barString.length > 0 && !barString.endsWith('\n'))
-                barString += '\n';
-            barString += commandsAt[bar.length].join('\n') + '\n';
+            if (barString.length > 0 && !barString.endsWith("\n"))
+                barString += "\n";
+            barString += `${commandsAt[bar.length].join("\n")}\n`;
         }
-        selectionBlock += barString + ',\n';
+        selectionBlock += `${barString},\n`;
     }
     // Now assemble the loops
     for (let i = 0; i < loopCount; i++) {
@@ -176,14 +177,14 @@ export function generateTJAFromSelection(chart, selection, courseName = 'Oni', l
         tjaContent += `#BPMCHANGE ${formatVal(startContext.bpm)}\n`;
         tjaContent += `#SCROLL ${formatVal(startContext.scroll)}\n`;
         // Gap Gogo State
-        tjaContent += (shouldGapBeGogo ? '#GOGOSTART' : '#GOGOEND') + '\n';
+        tjaContent += `${shouldGapBeGogo ? "#GOGOSTART" : "#GOGOEND"}\n`;
         for (let g = 0; g < gapCount; g++) {
             tjaContent += `0,\n`;
         }
         // Selection Start Correction
         // We need to restore the state expected by the start of the selection block (startContext.gogoTime)
         if (startContext.gogoTime !== shouldGapBeGogo) {
-            tjaContent += (startContext.gogoTime ? '#GOGOSTART' : '#GOGOEND') + '\n';
+            tjaContent += `${startContext.gogoTime ? "#GOGOSTART" : "#GOGOEND"}\n`;
         }
         // Selection
         tjaContent += selectionBlock;
@@ -194,11 +195,11 @@ export function generateTJAFromSelection(chart, selection, courseName = 'Oni', l
     tjaContent += `#BPMCHANGE ${formatVal(endContext.bpm)}\n`;
     tjaContent += `#SCROLL ${formatVal(endContext.scroll)}\n`;
     // We treat End Padding as a Gap too
-    tjaContent += (shouldGapBeGogo ? '#GOGOSTART' : '#GOGOEND') + '\n';
+    tjaContent += `${shouldGapBeGogo ? "#GOGOSTART" : "#GOGOEND"}\n`;
     for (let g = 0; g < 3; g++) {
         tjaContent += `0,\n`;
     }
-    tjaContent += '#END\n';
+    tjaContent += "#END\n";
     return tjaContent;
 }
 function formatVal(num) {

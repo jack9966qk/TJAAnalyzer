@@ -1,12 +1,13 @@
-import { TJAChart } from './tja-chart.js';
-import { parseTJA } from './tja-parser.js';
-import { exampleTJA } from './example-data.js';
+import { exampleTJA } from "./example-data.js";
+import { TJAChart } from "./tja-chart.js";
+import { parseTJA } from "./tja-parser.js";
 // Ensure side-effects
-console.log('TJAChart module loaded', TJAChart);
-console.log('Chart Only Main Loaded');
-const tjaChart = document.getElementById('chart-component');
+console.log("TJAChart module loaded", TJAChart);
+console.log("Chart Only Main Loaded");
+const tjaChart = document.getElementById("chart-component");
+const w = window;
 // Expose API for Playwright
-window.loadChart = (tjaContent, difficulty = 'oni') => {
+w.loadChart = (tjaContent, difficulty = "oni") => {
     try {
         const parsed = parseTJA(tjaContent);
         const chart = parsed[difficulty] || Object.values(parsed)[0];
@@ -15,31 +16,31 @@ window.loadChart = (tjaContent, difficulty = 'oni') => {
             // Also update difficulty display if we had one, but here we just render
         }
         else {
-            console.error('Difficulty not found');
+            console.error("Difficulty not found");
         }
     }
     catch (e) {
-        console.error('Failed to parse TJA', e);
+        console.error("Failed to parse TJA", e);
     }
 };
-window.setOptions = (options) => {
+w.setOptions = (options) => {
     tjaChart.viewOptions = options;
 };
 // Listen for annotation changes from the component
-tjaChart.addEventListener('annotations-change', (e) => {
+tjaChart.addEventListener("annotations-change", (e) => {
     const newAnnotations = e.detail;
     // Update options with new annotations
     if (tjaChart.viewOptions) {
         tjaChart.viewOptions = {
             ...tjaChart.viewOptions,
-            annotations: newAnnotations
+            annotations: newAnnotations,
         };
     }
 });
-window.autoAnnotate = () => {
+w.autoAnnotate = () => {
     tjaChart.autoAnnotate();
 };
-window.setJudgements = (judgements, deltas) => {
+w.setJudgements = (judgements, deltas) => {
     tjaChart.judgements = judgements;
     tjaChart.judgementDeltas = deltas || [];
 };
@@ -47,8 +48,8 @@ window.setJudgements = (judgements, deltas) => {
 // Ensure tja-chart is defined (imported above)
 // Default Options
 tjaChart.viewOptions = {
-    viewMode: 'original',
-    coloringMode: 'categorical',
+    viewMode: "original",
+    coloringMode: "categorical",
     visibility: { perfect: true, good: true, poor: true },
     collapsedLoop: false,
     selectedLoopIteration: undefined,
@@ -56,14 +57,14 @@ tjaChart.viewOptions = {
     selection: null,
     annotations: {},
     isAnnotationMode: false,
-    showAllBranches: false
+    showAllBranches: false,
 };
 // Load Example by Default
 try {
-    console.log('Loading example chart...');
-    window.loadChart(exampleTJA, 'oni');
-    console.log('Example chart loaded.');
+    console.log("Loading example chart...");
+    w.loadChart(exampleTJA, "oni");
+    console.log("Example chart loaded.");
 }
 catch (e) {
-    console.error('Error loading example chart:', e);
+    console.error("Error loading example chart:", e);
 }

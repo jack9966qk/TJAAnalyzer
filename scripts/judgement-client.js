@@ -4,7 +4,6 @@ export class JudgementClient {
     simulateInterval = null;
     onMessageCallback = null;
     onStatusChangeCallback = null;
-    constructor() { }
     connect(host, port) {
         this.disconnect();
         const url = `http://${host}:${port}/`;
@@ -31,12 +30,12 @@ export class JudgementClient {
                 }
                 catch (e) {
                     // Only log if it looks like valid data failed parsing, ignore keep-alives if any
-                    if (event.data && event.data.trim() !== '') {
+                    if (event.data && event.data.trim() !== "") {
                         console.error("Failed to parse event data", e, event.data);
                     }
                 }
             };
-            this.eventSource.onerror = (e) => {
+            this.eventSource.onerror = (_e) => {
                 // EventSource doesn't give detailed error info
                 console.error("EventSource error.");
                 if (this.eventSource?.readyState === EventSource.CLOSED) {
@@ -78,35 +77,35 @@ export class JudgementClient {
             this.onStatusChangeCallback("Connected");
         if (this.onMessageCallback) {
             const gameplayStartEvent = {
-                type: 'gameplay_start',
+                type: "gameplay_start",
                 tjaSummaries: [
                     {
                         player: 1,
                         tjaContent: tjaContent || exampleTJA,
-                        difficulty: difficulty || 'oni'
-                    }
-                ]
+                        difficulty: difficulty || "oni",
+                    },
+                ],
             };
             this.onMessageCallback(gameplayStartEvent);
         }
         this.simulateInterval = window.setInterval(() => {
             const rand = Math.random();
-            let randomType = 'Perfect';
-            if (rand < 0.90) {
-                randomType = 'Perfect';
+            let randomType = "Perfect";
+            if (rand < 0.9) {
+                randomType = "Perfect";
             }
             else if (rand < 0.99) {
-                randomType = 'Good';
+                randomType = "Good";
             }
             else {
-                randomType = 'Poor';
+                randomType = "Poor";
             }
             // Random delta between -50 and 50 ms
             const randomDelta = Math.floor(Math.random() * 100) - 50;
             const event = {
-                type: 'judgement',
+                type: "judgement",
                 judgement: randomType,
-                msDelta: randomDelta
+                msDelta: randomDelta,
             };
             if (this.onMessageCallback) {
                 this.onMessageCallback(event);

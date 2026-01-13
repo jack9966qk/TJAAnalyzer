@@ -25,22 +25,22 @@ export async function shareFile(fileName, content, mimeType, dialogTitle) {
     }
     catch (e) {
         // AbortError means user cancelled the share sheet, which is fine.
-        if (e.name === 'AbortError') {
+        if (e instanceof Error && e.name === "AbortError") {
             return;
         }
-        console.warn('Web Share API failed, falling back:', e);
+        console.warn("Web Share API failed, falling back:", e);
     }
     // 3. Neutralino (Desktop App)
     const N = window.Neutralino;
-    if (N && N.os && N.os.showSaveDialog) {
+    if (N?.os?.showSaveDialog) {
         try {
-            const extension = fileName.includes('.') ? fileName.split('.').pop() : undefined;
+            const extension = fileName.includes(".") ? fileName.split(".").pop() : undefined;
             const entry = await N.os.showSaveDialog(dialogTitle, {
                 defaultPath: fileName,
-                filters: extension ? [{ name: 'Files', extensions: [extension] }] : []
+                filters: extension ? [{ name: "Files", extensions: [extension] }] : [],
             });
             if (entry) {
-                if (typeof content === 'string') {
+                if (typeof content === "string") {
                     await N.filesystem.writeFile(entry, content);
                 }
                 else {
@@ -54,8 +54,8 @@ export async function shareFile(fileName, content, mimeType, dialogTitle) {
             }
         }
         catch (e) {
-            console.error('Neutralino save failed:', e);
-            // Fallback to web download if Neutralino fails? 
+            console.error("Neutralino save failed:", e);
+            // Fallback to web download if Neutralino fails?
             // Usually if N exists, we shouldn't fallback to web download as it might not work in N window.
             // But let's throw to let caller handle or just stop.
             throw e;
@@ -63,7 +63,7 @@ export async function shareFile(fileName, content, mimeType, dialogTitle) {
     }
     // 4. Web Fallback (Download Link)
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = fileName;
     document.body.appendChild(a); // Required for Firefox

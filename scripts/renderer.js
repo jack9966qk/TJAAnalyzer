@@ -1,74 +1,73 @@
 export const PALETTE = {
-    background: '#d4d4d4ff',
+    background: "#d4d4d4ff",
     text: {
-        primary: '#000',
-        secondary: '#444',
-        inverted: '#000',
-        label: '#333'
+        primary: "#000",
+        secondary: "#444",
+        inverted: "#000",
+        label: "#333",
     },
     ui: {
-        barBorder: '#000',
-        barVerticalLine: '#ffffffff',
-        centerLine: '#ccc',
-        selectionBorder: '#000',
+        barBorder: "#000",
+        barVerticalLine: "#ffffffff",
+        centerLine: "#ccc",
+        selectionBorder: "#000",
         annotation: {
-            match: '#000',
-            mismatch: '#f00'
+            match: "#000",
+            mismatch: "#f00",
         },
         warning: {
-            background: '#fff0f0',
-            text: '#cc0000'
+            background: "#fff0f0",
+            text: "#cc0000",
         },
         streamWaiting: {
-            background: '#f0f0f0',
-            text: '#666'
-        }
+            background: "#f0f0f0",
+            text: "#666",
+        },
     },
     notes: {
-        don: 'rgba(255, 77, 77, 1)',
-        ka: 'rgba(92, 187, 255, 1)',
-        drumroll: '#ff0',
-        balloon: '#ffa500',
-        kusudama: '#ffd700',
-        unjudged: '#999',
+        don: "rgba(255, 77, 77, 1)",
+        ka: "rgba(92, 187, 255, 1)",
+        drumroll: "#ff0",
+        balloon: "#ffa500",
+        kusudama: "#ffd700",
+        unjudged: "#999",
         border: {
-            white: '#fff',
-            black: '#000',
-            grey: '#ccc',
-            yellow: '#ff0'
-        }
+            white: "#fff",
+            black: "#000",
+            grey: "#ccc",
+            yellow: "#ff0",
+        },
     },
     courses: {
-        easy: '#ffa500',
-        normal: '#00aa00',
-        hard: '#555',
-        oni: '#c6006e',
-        edit: '#800080'
+        easy: "#ffa500",
+        normal: "#00aa00",
+        hard: "#555",
+        oni: "#c6006e",
+        edit: "#800080",
     },
     judgements: {
-        perfect: '#ffa500',
-        good: '#fff',
-        poor: '#00f',
-        miss: '#555',
-        textBorder: '#000'
+        perfect: "#ffa500",
+        good: "#fff",
+        poor: "#00f",
+        miss: "#555",
+        textBorder: "#000",
     },
     branches: {
-        normal: '#2C2C2C',
-        expert: '#284E6A',
-        master: '#752168',
-        default: '#999',
-        startLine: '#ff0'
+        normal: "#2C2C2C",
+        expert: "#284E6A",
+        master: "#752168",
+        default: "#999",
+        startLine: "#ff0",
     },
     status: {
-        bpm: '#00008B',
-        hs: '#8B0000',
-        line: '#666'
+        bpm: "#00008B",
+        hs: "#8B0000",
+        line: "#666",
     },
-    gogo: '#f8a33cff'
+    gogo: "#f8a33cff",
 };
 const FONT_STACK = "'Hiragino Kaku Gothic ProN', 'Meiryo', 'Yu Gothic', sans-serif";
 // Configuration Constants
-const BARS_PER_ROW = 4;
 const PADDING = 20;
 const RATIOS = {
     BAR_HEIGHT: 0.14,
@@ -83,26 +82,26 @@ const RATIOS = {
     BAR_NUMBER_FONT_SIZE_RATIO: 0.045,
     STATUS_FONT_SIZE_RATIO: 0.045,
     BAR_NUMBER_OFFSET_Y_RATIO: 0.005,
-    HEADER_HEIGHT: 0.35
+    HEADER_HEIGHT: 0.35,
 };
 const DEFAULT_TEXTS = {
     loopPattern: "Loop x{n}",
     judgement: {
         perfect: "良",
         good: "可",
-        poor: "不可"
+        poor: "不可",
     },
     course: {
-        'easy': 'Easy',
-        'normal': 'Normal',
-        'hard': 'Hard',
-        'oni': 'Oni',
-        'edit': 'Oni (Ura)'
-    }
+        easy: "Easy",
+        normal: "Normal",
+        hard: "Hard",
+        oni: "Oni",
+        edit: "Oni (Ura)",
+    },
 };
 export function calculateInferredHands(bars, annotations) {
     const inferred = new Map();
-    let lastHand = 'L'; // Initialize to L so the first note (which triggers reset or flip) can become R
+    let lastHand = "L"; // Initialize to L so the first note (which triggers reset or flip) can become R
     let shouldResetToRight = true;
     for (let i = 0; i < bars.length; i++) {
         const bar = bars[i];
@@ -111,25 +110,25 @@ export function calculateInferredHands(bars, annotations) {
         for (let j = 0; j < bar.length; j++) {
             const char = bar[j];
             const noteId = `${i}_${j}`;
-            if (['1', '2', '3', '4'].includes(char)) {
-                let currentInferred = 'R';
+            if (["1", "2", "3", "4"].includes(char)) {
+                let currentInferred = "R";
                 if (shouldResetToRight) {
-                    currentInferred = 'R';
+                    currentInferred = "R";
                     shouldResetToRight = false;
                 }
                 else {
-                    currentInferred = (lastHand === 'R') ? 'L' : 'R';
+                    currentInferred = lastHand === "R" ? "L" : "R";
                 }
                 inferred.set(noteId, currentInferred);
                 // Determine source of truth for next note
-                if (annotations && annotations[noteId]) {
+                if (annotations?.[noteId]) {
                     lastHand = annotations[noteId];
                 }
                 else {
                     lastHand = currentInferred;
                 }
             }
-            else if (char === '8') {
+            else if (char === "8") {
                 // End of drumroll/balloon/kusudama
                 shouldResetToRight = true;
             }
@@ -178,13 +177,13 @@ function getVirtualBars(chart, options, judgements, globalBarStartIndices) {
         // Calculate loop logic for judgements
         let currentIter = 0;
         let notesPerLoop = 0;
-        let preLoopNotes = globalBarStartIndices[loop.startBarIndex];
+        const preLoopNotes = globalBarStartIndices[loop.startBarIndex];
         // Calculate notes in one loop iteration
         for (let k = 0; k < loop.period; k++) {
             const bar = bars[loop.startBarIndex + k];
             if (bar) {
                 for (const char of bar) {
-                    if (['1', '2', '3', '4'].includes(char))
+                    if (["1", "2", "3", "4"].includes(char))
                         notesPerLoop++;
                 }
             }
@@ -192,7 +191,10 @@ function getVirtualBars(chart, options, judgements, globalBarStartIndices) {
         if (options.selectedLoopIteration !== undefined) {
             currentIter = options.selectedLoopIteration;
         }
-        else if ((options.viewMode === 'judgements' || options.viewMode === 'judgements-underline' || options.viewMode === 'judgements-text') && judgements.length > 0) {
+        else if ((options.viewMode === "judgements" ||
+            options.viewMode === "judgements-underline" ||
+            options.viewMode === "judgements-text") &&
+            judgements.length > 0) {
             const lastJudgedIndex = judgements.length - 1;
             if (lastJudgedIndex >= preLoopNotes && notesPerLoop > 0) {
                 const relativeIndex = lastJudgedIndex - preLoopNotes;
@@ -210,18 +212,18 @@ function getVirtualBars(chart, options, judgements, globalBarStartIndices) {
         for (let i = 0; i < loop.period; i++) {
             const originalIdx = loop.startBarIndex + i;
             const baseStartIndex = globalBarStartIndices[originalIdx];
-            const effectiveStartIndex = baseStartIndex + (currentIter * notesPerLoop);
+            const effectiveStartIndex = baseStartIndex + currentIter * notesPerLoop;
             virtualBars.push({
                 bar: bars[originalIdx],
                 originalIndex: originalIdx,
                 isLoopStart: i === 0,
                 isLoopEnd: i === loop.period - 1,
-                overrideStartIndex: effectiveStartIndex
+                overrideStartIndex: effectiveStartIndex,
             });
         }
         // Post-loop
         // Start from the end of the full loop sequence
-        const postLoopStartIndex = loop.startBarIndex + (loop.period * loop.iterations);
+        const postLoopStartIndex = loop.startBarIndex + loop.period * loop.iterations;
         for (let i = postLoopStartIndex; i < bars.length; i++) {
             virtualBars.push({ bar: bars[i], originalIndex: i });
         }
@@ -239,7 +241,7 @@ function calculateGlobalBarStartIndices(bars) {
         indices.push(currentGlobalNoteIndex);
         if (bar) {
             for (const char of bar) {
-                if (['1', '2', '3', '4'].includes(char)) {
+                if (["1", "2", "3", "4"].includes(char)) {
                     currentGlobalNoteIndex++;
                 }
             }
@@ -250,8 +252,8 @@ function calculateGlobalBarStartIndices(bars) {
 function calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offsetY = PADDING) {
     // 1. Determine Base Dimensions
     // The full canvas width (minus padding) represents 'beatsPerLine' beats.
-    const availableWidth = logicalCanvasWidth - (PADDING * 2);
-    // Base width is width of one 4/4 bar (4 beats). 
+    const availableWidth = logicalCanvasWidth - PADDING * 2;
+    // Base width is width of one 4/4 bar (4 beats).
     // Number of base bars per row = beatsPerLine / 4
     const baseBarWidth = availableWidth / (options.beatsPerLine / 4);
     // Base dimensions for a SINGLE lane
@@ -271,7 +273,7 @@ function calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offset
         BAR_NUMBER_FONT_SIZE: baseBarWidth * RATIOS.BAR_NUMBER_FONT_SIZE_RATIO,
         STATUS_FONT_SIZE: baseBarWidth * RATIOS.STATUS_FONT_SIZE_RATIO,
         BAR_NUMBER_OFFSET_Y: baseBarWidth * RATIOS.BAR_NUMBER_OFFSET_Y_RATIO,
-        HEADER_HEIGHT: baseBarWidth * RATIOS.HEADER_HEIGHT
+        HEADER_HEIGHT: baseBarWidth * RATIOS.HEADER_HEIGHT,
     };
     // 2. Calculate Layout Positions
     const layouts = [];
@@ -287,11 +289,11 @@ function calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offset
         const actualBarWidth = baseBarWidth * measureRatio;
         // Determine if this bar is displayed as branched (3 lanes) or common (1 lane)
         const isBranchedDisplay = (!!options.showAllBranches && chart.branches && params && params.isBranched) || false;
-        const thisBarHeight = isBranchedDisplay ? (BASE_LANE_HEIGHT * 3) : BASE_LANE_HEIGHT;
+        const thisBarHeight = isBranchedDisplay ? BASE_LANE_HEIGHT * 3 : BASE_LANE_HEIGHT;
         // Check for break conditions
         let shouldBreak = false;
         // 1. Width Overflow
-        if (!isRowEmpty && (currentRowX + actualBarWidth > availableWidth + 1.0)) {
+        if (!isRowEmpty && currentRowX + actualBarWidth > availableWidth + 1.0) {
             shouldBreak = true;
         }
         // 2. Branch State Change (only if not empty row)
@@ -308,16 +310,14 @@ function calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offset
             x: PADDING + currentRowX,
             y: currentY,
             width: actualBarWidth,
-            height: thisBarHeight
+            height: thisBarHeight,
         });
         currentRowX += actualBarWidth;
         currentRowMaxHeight = Math.max(currentRowMaxHeight, thisBarHeight);
         previousIsBranched = isBranchedDisplay;
         isRowEmpty = false;
     }
-    const totalHeight = layouts.length > 0
-        ? currentY + currentRowMaxHeight + PADDING
-        : offsetY + PADDING;
+    const totalHeight = layouts.length > 0 ? currentY + currentRowMaxHeight + PADDING : offsetY + PADDING;
     return { layouts, constants, totalHeight, baseBarWidth };
 }
 export function getNoteAt(x, y, chart, canvas, judgements = [], options, layout) {
@@ -338,10 +338,13 @@ export function getNoteAt(x, y, chart, canvas, judgements = [], options, layout)
         const info = virtualBars[index];
         const layout = layouts[index];
         // Quick bounding box check
-        if (x < layout.x - maxRadius || x > layout.x + layout.width + maxRadius || y < layout.y - maxRadius || y > layout.y + layout.height + maxRadius) {
+        if (x < layout.x - maxRadius ||
+            x > layout.x + layout.width + maxRadius ||
+            y < layout.y - maxRadius ||
+            y > layout.y + layout.height + maxRadius) {
             continue;
         }
-        let barX = layout.x;
+        const barX = layout.x;
         let barY = layout.y;
         let targetChart = chart;
         let currentBranch = chart.branchType;
@@ -351,17 +354,17 @@ export function getNoteAt(x, y, chart, canvas, judgements = [], options, layout)
             const subHeight = layout.height / 3;
             if (y >= layout.y && y < layout.y + subHeight) {
                 targetChart = chart.branches.normal || chart;
-                currentBranch = 'normal';
+                currentBranch = "normal";
                 barY = layout.y;
             }
             else if (y >= layout.y + subHeight && y < layout.y + 2 * subHeight) {
                 targetChart = chart.branches.expert || chart;
-                currentBranch = 'expert';
+                currentBranch = "expert";
                 barY = layout.y + subHeight;
             }
             else if (y >= layout.y + 2 * subHeight && y < layout.y + 3 * subHeight) {
                 targetChart = chart.branches.master || chart;
-                currentBranch = 'master';
+                currentBranch = "master";
                 barY = layout.y + 2 * subHeight;
             }
             else {
@@ -374,32 +377,30 @@ export function getNoteAt(x, y, chart, canvas, judgements = [], options, layout)
             continue;
         const noteStep = layout.width / bar.length;
         // Calculate start index for this bar
-        const startIndex = info.overrideStartIndex !== undefined
-            ? info.overrideStartIndex
-            : globalBarStartIndices[info.originalIndex];
+        const startIndex = info.overrideStartIndex !== undefined ? info.overrideStartIndex : globalBarStartIndices[info.originalIndex];
         let localJudgeCount = 0;
         for (let i = 0; i < bar.length; i++) {
             const char = bar[i];
-            if (!['1', '2', '3', '4', '5', '6', '7', '8', '9'].includes(char))
+            if (!["1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(char))
                 continue;
-            const noteX = barX + (i * noteStep);
+            const noteX = barX + i * noteStep;
             // Check distance
             const dx = x - noteX;
             const dy = y - centerY;
             const dist = Math.sqrt(dx * dx + dy * dy);
             // Determine radius
             let radius = NOTE_RADIUS_SMALL;
-            if (['3', '4', '6', '9'].includes(char))
+            if (["3", "4", "6", "9"].includes(char))
                 radius = NOTE_RADIUS_BIG;
             if (dist <= radius) {
                 // Hit!
                 let judgeableIndex = null;
-                if (!isAllBranches && ['1', '2', '3', '4'].includes(char)) {
+                if (!isAllBranches && ["1", "2", "3", "4"].includes(char)) {
                     judgeableIndex = startIndex + localJudgeCount;
                 }
                 const currentParams = targetChart.barParams[info.originalIndex];
                 let effectiveBpm = currentParams ? currentParams.bpm : 120;
-                if (currentParams && currentParams.bpmChanges) {
+                if (currentParams?.bpmChanges) {
                     for (const change of currentParams.bpmChanges) {
                         if (i >= change.index) {
                             effectiveBpm = change.bpm;
@@ -407,7 +408,7 @@ export function getNoteAt(x, y, chart, canvas, judgements = [], options, layout)
                     }
                 }
                 let effectiveScroll = currentParams ? currentParams.scroll : 1.0;
-                if (currentParams && currentParams.scrollChanges) {
+                if (currentParams?.scrollChanges) {
                     for (const change of currentParams.scrollChanges) {
                         if (i >= change.index) {
                             effectiveScroll = change.scroll;
@@ -421,10 +422,10 @@ export function getNoteAt(x, y, chart, canvas, judgements = [], options, layout)
                     judgeableNoteIndex: judgeableIndex,
                     bpm: effectiveBpm,
                     scroll: effectiveScroll,
-                    branch: currentBranch
+                    branch: currentBranch,
                 };
             }
-            if (['1', '2', '3', '4'].includes(char)) {
+            if (["1", "2", "3", "4"].includes(char)) {
                 localJudgeCount++;
             }
         }
@@ -449,10 +450,10 @@ export function getNotePosition(chart, canvas, options, targetBarIndex, targetCh
             if (!bar || bar.length === 0)
                 return null;
             const noteStep = layout.width / bar.length;
-            const x = layout.x + (targetCharIndex * noteStep);
+            const x = layout.x + targetCharIndex * noteStep;
             let y = layout.y + layout.height / 2;
             if (!!options.showAllBranches && chart.branches && chart.barParams[info.originalIndex].isBranched) {
-                y = layout.y + (layout.height / 6);
+                y = layout.y + layout.height / 6;
             }
             return { x, y };
         }
@@ -461,7 +462,9 @@ export function getNotePosition(chart, canvas, options, targetBarIndex, targetCh
 }
 export function getGradientColor(delta) {
     const clamped = Math.max(-100, Math.min(100, delta));
-    let r, g, b;
+    let r = 0;
+    let g = 0;
+    let b = 0;
     if (clamped < 0) {
         // -100 (#B0CC35: 176, 204, 53) -> 0 (White: 255, 255, 255)
         // t: 0 (at -100) -> 1 (at 0)
@@ -484,24 +487,24 @@ export function getGradientColor(delta) {
 }
 export function createLayout(chart, canvas, options, judgements, customDpr) {
     // Reset width to 100% to allow measuring the container's available width
-    canvas.style.width = '100%';
+    canvas.style.width = "100%";
     let logicalCanvasWidth = canvas.clientWidth;
     if (logicalCanvasWidth === 0) {
         logicalCanvasWidth = canvas.width || 800;
     }
     // Calculate Header Dimensions
-    const availableWidth = logicalCanvasWidth - (PADDING * 2);
+    const availableWidth = logicalCanvasWidth - PADDING * 2;
     const baseBarWidth = availableWidth / (options.beatsPerLine / 4);
     const headerHeight = baseBarWidth * RATIOS.HEADER_HEIGHT;
     const offsetY = PADDING + headerHeight + PADDING; // Padding above and below header
-    const { bars, loop } = chart;
+    const { bars } = chart;
     const globalBarStartIndices = calculateGlobalBarStartIndices(bars);
     const balloonIndices = calculateBalloonIndices(bars);
     const virtualBars = getVirtualBars(chart, options, judgements, globalBarStartIndices);
     const { layouts, constants, totalHeight } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offsetY);
     const inferredHands = calculateInferredHands(bars, options.annotations);
     // Adjust for device pixel ratio for sharp rendering
-    const dpr = customDpr !== undefined ? customDpr : (window.devicePixelRatio || 1);
+    const dpr = customDpr !== undefined ? customDpr : window.devicePixelRatio || 1;
     return {
         virtualBars,
         layouts,
@@ -514,11 +517,11 @@ export function createLayout(chart, canvas, options, judgements, customDpr) {
         dpr,
         headerHeight,
         offsetY,
-        baseBarWidth
+        baseBarWidth,
     };
 }
 export function renderLayout(ctx, layout, chart, judgements, judgementDeltas, options, texts) {
-    const { logicalCanvasWidth, dpr, totalHeight, layouts, constants, virtualBars, globalBarStartIndices, balloonIndices, inferredHands, headerHeight } = layout;
+    const { logicalCanvasWidth, dpr, totalHeight, layouts, constants, virtualBars, globalBarStartIndices, balloonIndices, inferredHands, headerHeight, } = layout;
     // Safety check for canvas limits
     const MAX_CANVAS_DIMENSION = 32000;
     let effectiveDpr = dpr;
@@ -534,15 +537,15 @@ export function renderLayout(ctx, layout, chart, judgements, judgementDeltas, op
     const canvas = ctx.canvas;
     canvas.width = logicalCanvasWidth * effectiveDpr;
     canvas.height = finalCanvasHeight;
-    canvas.style.width = logicalCanvasWidth + 'px';
-    canvas.style.height = finalStyleHeight + 'px';
+    canvas.style.width = `${logicalCanvasWidth}px`;
+    canvas.style.height = `${finalStyleHeight}px`;
     ctx.resetTransform();
     ctx.scale(effectiveDpr, effectiveDpr);
     // Clear
     ctx.fillStyle = PALETTE.background;
     ctx.fillRect(0, 0, logicalCanvasWidth, totalHeight);
     // Layer 0: Header
-    const availableWidth = logicalCanvasWidth - (PADDING * 2);
+    const availableWidth = logicalCanvasWidth - PADDING * 2;
     drawChartHeader(ctx, chart, PADDING, PADDING, availableWidth, headerHeight, texts);
     const isAllBranches = !!options.showAllBranches && !!chart.branches;
     const BASE_LANE_HEIGHT = constants.BAR_HEIGHT;
@@ -562,9 +565,7 @@ export function renderLayout(ctx, layout, chart, judgements, judgementDeltas, op
         for (let index = virtualBars.length - 1; index >= 0; index--) {
             const info = virtualBars[index];
             const layout = layouts[index];
-            const startIndex = info.overrideStartIndex !== undefined
-                ? info.overrideStartIndex
-                : globalBarStartIndices[info.originalIndex];
+            const startIndex = info.overrideStartIndex !== undefined ? info.overrideStartIndex : globalBarStartIndices[info.originalIndex];
             drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, options, startIndex, judgements, judgementDeltas, texts, info.originalIndex, chart.bars, options.collapsedLoop ? chart.loop : undefined, inferredHands, chart.branchType);
         }
     }
@@ -582,13 +583,11 @@ export function renderIncremental(ctx, layout, chart, judgements, judgementDelta
         const bar = info.bar;
         if (!bar)
             continue;
-        const startIndex = info.overrideStartIndex !== undefined
-            ? info.overrideStartIndex
-            : globalBarStartIndices[info.originalIndex];
+        const startIndex = info.overrideStartIndex !== undefined ? info.overrideStartIndex : globalBarStartIndices[info.originalIndex];
         // Count judgeable notes in this bar
         let judgeableCount = 0;
         for (const char of bar) {
-            if (['1', '2', '3', '4'].includes(char))
+            if (["1", "2", "3", "4"].includes(char))
                 judgeableCount++;
         }
         const endIndex = startIndex + judgeableCount;
@@ -600,7 +599,7 @@ export function renderIncremental(ctx, layout, chart, judgements, judgementDelta
         }
     }
     // 2. Redraw Affected Bars
-    affectedIndices.forEach(index => {
+    affectedIndices.forEach((index) => {
         const info = virtualBars[index];
         const layout = layouts[index];
         // Calculate Clip Rect
@@ -629,9 +628,7 @@ export function renderIncremental(ctx, layout, chart, judgements, judgementDelta
             // 1. Long Notes (Clipped)
             drawLongNotes(ctx, virtualBars, layouts, constants, options.viewMode, chart.balloonCounts, balloonIndices);
             // 2. Notes (Single Bar)
-            const startIndex = info.overrideStartIndex !== undefined
-                ? info.overrideStartIndex
-                : globalBarStartIndices[info.originalIndex];
+            const startIndex = info.overrideStartIndex !== undefined ? info.overrideStartIndex : globalBarStartIndices[info.originalIndex];
             drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, options, startIndex, judgements, judgementDeltas, texts, info.originalIndex, chart.bars, options.collapsedLoop ? chart.loop : undefined, inferredHands, chart.branchType);
         }
         ctx.restore();
@@ -659,13 +656,13 @@ function drawBarBackgroundWrapper(ctx, layout, info, index, chart, options, cons
         }
     }
     const overExtendWidth = 2 * constants.NOTE_RADIUS_SMALL;
-    let isBranchStart = params ? !!params.isBranchStart : false;
+    const isBranchStart = params ? !!params.isBranchStart : false;
     if (isAllBranches && chart.branches) {
         if (isBranched) {
             const subHeight = BASE_LANE_HEIGHT;
-            drawBarBackground(ctx, layout.x, layout.y, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, 'normal', !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
-            drawBarBackground(ctx, layout.x, layout.y + subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, 'expert', !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
-            drawBarBackground(ctx, layout.x, layout.y + 2 * subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, 'master', !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+            drawBarBackground(ctx, layout.x, layout.y, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, "normal", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+            drawBarBackground(ctx, layout.x, layout.y + subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, "expert", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+            drawBarBackground(ctx, layout.x, layout.y + 2 * subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, "master", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
             if (isBranchStart) {
                 ctx.beginPath();
                 ctx.strokeStyle = PALETTE.branches.startLine;
@@ -676,11 +673,11 @@ function drawBarBackgroundWrapper(ctx, layout, info, index, chart, options, cons
             }
         }
         else {
-            drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, false, 'normal', !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+            drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, false, "normal", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
         }
         if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
             const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
-            const stripY = layout.y - stripHeight - (constants.LW_BAR / 2);
+            const stripY = layout.y - stripHeight - constants.LW_BAR / 2;
             drawGogoIndicator(ctx, layout.x, stripY, stripHeight, layout.width, gogoTime, gogoChanges, noteCount, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
         }
         if (!options.isAnnotationMode) {
@@ -689,8 +686,8 @@ function drawBarBackgroundWrapper(ctx, layout, info, index, chart, options, cons
         if (info.isLoopStart && chart.loop) {
             ctx.fillStyle = PALETTE.text.primary;
             ctx.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px ${FONT_STACK}`;
-            ctx.textAlign = 'right';
-            const text = texts.loopPattern.replace('{n}', chart.loop.iterations.toString());
+            ctx.textAlign = "right";
+            const text = texts.loopPattern.replace("{n}", chart.loop.iterations.toString());
             ctx.fillText(text, layout.x + layout.width, layout.y - constants.BAR_NUMBER_OFFSET_Y);
         }
     }
@@ -706,7 +703,7 @@ function drawBarBackgroundWrapper(ctx, layout, info, index, chart, options, cons
         }
         if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
             const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
-            const stripY = layout.y - stripHeight - (constants.LW_BAR / 2);
+            const stripY = layout.y - stripHeight - constants.LW_BAR / 2;
             drawGogoIndicator(ctx, layout.x, stripY, stripHeight, layout.width, gogoTime, gogoChanges, noteCount, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
         }
         if (!options.isAnnotationMode) {
@@ -715,24 +712,24 @@ function drawBarBackgroundWrapper(ctx, layout, info, index, chart, options, cons
         if (info.isLoopStart && chart.loop) {
             ctx.fillStyle = PALETTE.text.primary;
             ctx.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px ${FONT_STACK}`;
-            ctx.textAlign = 'right';
-            const text = texts.loopPattern.replace('{n}', chart.loop.iterations.toString());
+            ctx.textAlign = "right";
+            const text = texts.loopPattern.replace("{n}", chart.loop.iterations.toString());
             ctx.fillText(text, layout.x + layout.width, layout.y - constants.BAR_NUMBER_OFFSET_Y);
         }
     }
 }
-function drawAllBranchesNotes(ctx, chart, virtualBars, layouts, constants, options, judgements, judgementDeltas, texts, balloonIndices, BASE_LANE_HEIGHT) {
+function drawAllBranchesNotes(ctx, chart, virtualBars, layouts, constants, options, _judgements, _judgementDeltas, texts, _balloonIndices, BASE_LANE_HEIGHT) {
     if (!chart.branches)
         return;
     const branches = [
-        { type: 'normal', data: chart.branches.normal || chart, yOffset: 0 },
-        { type: 'expert', data: chart.branches.expert || chart, yOffset: BASE_LANE_HEIGHT },
-        { type: 'master', data: chart.branches.master || chart, yOffset: BASE_LANE_HEIGHT * 2 }
+        { type: "normal", data: chart.branches.normal || chart, yOffset: 0 },
+        { type: "expert", data: chart.branches.expert || chart, yOffset: BASE_LANE_HEIGHT },
+        { type: "master", data: chart.branches.master || chart, yOffset: BASE_LANE_HEIGHT * 2 },
     ];
-    branches.forEach(b => {
-        const branchVirtualBars = virtualBars.map(vb => ({
+    branches.forEach((b) => {
+        const branchVirtualBars = virtualBars.map((vb) => ({
             ...vb,
-            bar: b.data.bars[vb.originalIndex]
+            bar: b.data.bars[vb.originalIndex],
         }));
         const branchLayouts = layouts.map((l, idx) => {
             const params = chart.barParams[virtualBars[idx].originalIndex];
@@ -741,14 +738,14 @@ function drawAllBranchesNotes(ctx, chart, virtualBars, layouts, constants, optio
                 return {
                     ...l,
                     y: l.y + b.yOffset,
-                    height: BASE_LANE_HEIGHT
+                    height: BASE_LANE_HEIGHT,
                 };
             }
             else {
                 return {
                     ...l,
                     y: l.y,
-                    height: BASE_LANE_HEIGHT
+                    height: BASE_LANE_HEIGHT,
                 };
             }
         });
@@ -758,15 +755,17 @@ function drawAllBranchesNotes(ctx, chart, virtualBars, layouts, constants, optio
             const layout = branchLayouts[index];
             const params = chart.barParams[info.originalIndex];
             const isBranched = params ? params.isBranched : false;
-            if (!isBranched && b.type !== 'normal')
+            if (!isBranched && b.type !== "normal")
                 continue;
             const drawOptions = { ...options, annotations: {}, selection: null };
-            drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, drawOptions, 0, [], [], texts, info.originalIndex, b.data.bars, undefined, undefined, b.type);
+            drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, drawOptions, 0, [], [], texts, info.originalIndex, b.data.bars, undefined, undefined, 
+            // biome-ignore lint/suspicious/noExplicitAny: Branch type mismatch
+            b.type);
         }
     });
 }
 export function renderChart(chart, canvas, judgements = [], judgementDeltas = [], options, texts = DEFAULT_TEXTS, customDpr, renderParams = {}) {
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) {
         console.error("2D rendering context not found for canvas.");
         return;
@@ -776,7 +775,7 @@ export function renderChart(chart, canvas, judgements = [], judgementDeltas = []
     const layout = createLayout(chart, canvas, options, judgements, customDpr);
     // For now, unpack layout to keep using the existing rendering logic in this function
     // This is an intermediate step. Later we will replace this with renderLayout()
-    const { virtualBars, layouts, constants, totalHeight, globalBarStartIndices, balloonIndices, inferredHands, logicalCanvasWidth, dpr, headerHeight, offsetY } = layout;
+    const { virtualBars, layouts, constants, totalHeight, globalBarStartIndices, balloonIndices, inferredHands, logicalCanvasWidth, dpr, headerHeight, } = layout;
     const { bars, loop } = chart;
     const { incrementalStart = 0 } = renderParams;
     const isIncremental = incrementalStart > 0;
@@ -799,14 +798,14 @@ export function renderChart(chart, canvas, judgements = [], judgementDeltas = []
         }
         canvas.width = logicalCanvasWidth * effectiveDpr;
         canvas.height = finalCanvasHeight;
-        canvas.style.width = logicalCanvasWidth + 'px';
-        canvas.style.height = finalStyleHeight + 'px';
+        canvas.style.width = `${logicalCanvasWidth}px`;
+        canvas.style.height = `${finalStyleHeight}px`;
         ctx.scale(effectiveDpr, effectiveDpr);
         // Clear
         ctx.fillStyle = PALETTE.background;
         ctx.fillRect(0, 0, logicalCanvasWidth, totalHeight);
         // Layer 0: Header
-        const availableWidth = logicalCanvasWidth - (PADDING * 2);
+        const availableWidth = logicalCanvasWidth - PADDING * 2;
         drawChartHeader(ctx, chart, PADDING, PADDING, availableWidth, headerHeight, texts);
     }
     const isAllBranches = !!options.showAllBranches && !!chart.branches;
@@ -836,16 +835,16 @@ export function renderChart(chart, canvas, judgements = [], judgementDeltas = []
         }
         const overExtendWidth = 2 * constants.NOTE_RADIUS_SMALL;
         // Detect Branch Start
-        let isBranchStart = params ? !!params.isBranchStart : false;
+        const isBranchStart = params ? !!params.isBranchStart : false;
         if (isAllBranches && chart.branches) {
             if (isBranched) {
                 // For branched bar, layout.height should already be 3 * BASE_LANE_HEIGHT (from calculateLayout)
                 // We split this into 3 stacked lanes.
                 const subHeight = BASE_LANE_HEIGHT;
                 // Draw 3 lanes
-                drawBarBackground(ctx, layout.x, layout.y, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, 'normal', !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
-                drawBarBackground(ctx, layout.x, layout.y + subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, 'expert', !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
-                drawBarBackground(ctx, layout.x, layout.y + 2 * subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, 'master', !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+                drawBarBackground(ctx, layout.x, layout.y, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, "normal", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+                drawBarBackground(ctx, layout.x, layout.y + subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, "expert", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+                drawBarBackground(ctx, layout.x, layout.y + 2 * subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, "master", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
                 // Yellow Branch Start Line
                 if (isBranchStart) {
                     ctx.beginPath();
@@ -860,14 +859,14 @@ export function renderChart(chart, canvas, judgements = [], judgementDeltas = []
             else {
                 // Unbranched (Common) Bar
                 // layout.height should be H (single lane)
-                drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, false, 'normal', !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+                drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, false, "normal", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
             }
             // Common Elements for All Branches Mode (Gogo, Labels, Loop)
             // Place above the top lane (or the single lane)
             // Draw Gogo Indicator
             if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
                 const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
-                const stripY = layout.y - stripHeight - (constants.LW_BAR / 2);
+                const stripY = layout.y - stripHeight - constants.LW_BAR / 2;
                 drawGogoIndicator(ctx, layout.x, stripY, stripHeight, layout.width, gogoTime, gogoChanges, noteCount, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
             }
             // Draw Bar Labels
@@ -881,8 +880,8 @@ export function renderChart(chart, canvas, judgements = [], judgementDeltas = []
             if (info.isLoopStart && loop) {
                 ctx.fillStyle = PALETTE.text.primary;
                 ctx.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px ${FONT_STACK}`;
-                ctx.textAlign = 'right';
-                const text = texts.loopPattern.replace('{n}', loop.iterations.toString());
+                ctx.textAlign = "right";
+                const text = texts.loopPattern.replace("{n}", loop.iterations.toString());
                 ctx.fillText(text, layout.x + layout.width, layout.y - constants.BAR_NUMBER_OFFSET_Y);
             }
         }
@@ -901,7 +900,7 @@ export function renderChart(chart, canvas, judgements = [], judgementDeltas = []
             // Draw Gogo Indicator
             if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
                 const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
-                const stripY = layout.y - stripHeight - (constants.LW_BAR / 2);
+                const stripY = layout.y - stripHeight - constants.LW_BAR / 2;
                 drawGogoIndicator(ctx, layout.x, stripY, stripHeight, layout.width, gogoTime, gogoChanges, noteCount, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
             }
             // Draw Bar Labels (Number, BPM, HS)
@@ -912,8 +911,8 @@ export function renderChart(chart, canvas, judgements = [], judgementDeltas = []
             if (info.isLoopStart && loop) {
                 ctx.fillStyle = PALETTE.text.primary;
                 ctx.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px ${FONT_STACK}`;
-                ctx.textAlign = 'right';
-                const text = texts.loopPattern.replace('{n}', loop.iterations.toString());
+                ctx.textAlign = "right";
+                const text = texts.loopPattern.replace("{n}", loop.iterations.toString());
                 ctx.fillText(text, layout.x + layout.width, layout.y - constants.BAR_NUMBER_OFFSET_Y);
             }
         }
@@ -921,15 +920,15 @@ export function renderChart(chart, canvas, judgements = [], judgementDeltas = []
     // Layer 1.5 & 2: Notes
     if (isAllBranches && chart.branches) {
         const branches = [
-            { type: 'normal', data: chart.branches.normal || chart, yOffset: 0 },
-            { type: 'expert', data: chart.branches.expert || chart, yOffset: BASE_LANE_HEIGHT },
-            { type: 'master', data: chart.branches.master || chart, yOffset: BASE_LANE_HEIGHT * 2 }
+            { type: "normal", data: chart.branches.normal || chart, yOffset: 0 },
+            { type: "expert", data: chart.branches.expert || chart, yOffset: BASE_LANE_HEIGHT },
+            { type: "master", data: chart.branches.master || chart, yOffset: BASE_LANE_HEIGHT * 2 },
         ];
-        branches.forEach(b => {
+        branches.forEach((b) => {
             // Create virtualBars for this branch
-            const branchVirtualBars = virtualBars.map(vb => ({
+            const branchVirtualBars = virtualBars.map((vb) => ({
                 ...vb,
-                bar: b.data.bars[vb.originalIndex]
+                bar: b.data.bars[vb.originalIndex],
             }));
             // Dynamically calculate layouts for this branch
             const branchLayouts = layouts.map((l, idx) => {
@@ -940,7 +939,7 @@ export function renderChart(chart, canvas, judgements = [], judgementDeltas = []
                     return {
                         ...l,
                         y: l.y + b.yOffset,
-                        height: BASE_LANE_HEIGHT
+                        height: BASE_LANE_HEIGHT,
                     };
                 }
                 else {
@@ -949,7 +948,7 @@ export function renderChart(chart, canvas, judgements = [], judgementDeltas = []
                     return {
                         ...l,
                         y: l.y,
-                        height: BASE_LANE_HEIGHT
+                        height: BASE_LANE_HEIGHT,
                     };
                 }
             });
@@ -960,7 +959,7 @@ export function renderChart(chart, canvas, judgements = [], judgementDeltas = []
                 // OPTIMIZATION: If unbranched, only draw for 'normal' branch to avoid overdraw
                 const params = chart.barParams[info.originalIndex];
                 const isBranched = params ? params.isBranched : false;
-                if (!isBranched && b.type !== 'normal')
+                if (!isBranched && b.type !== "normal")
                     continue;
                 const drawOptions = { ...options, annotations: {}, selection: null };
                 drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, drawOptions, 0, [], [], texts, info.originalIndex, b.data.bars, undefined, undefined, b.type);
@@ -974,19 +973,17 @@ export function renderChart(chart, canvas, judgements = [], judgementDeltas = []
         for (let index = virtualBars.length - 1; index >= 0; index--) {
             const info = virtualBars[index];
             const layout = layouts[index];
-            const startIndex = info.overrideStartIndex !== undefined
-                ? info.overrideStartIndex
-                : globalBarStartIndices[info.originalIndex];
+            const startIndex = info.overrideStartIndex !== undefined ? info.overrideStartIndex : globalBarStartIndices[info.originalIndex];
             drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, options, startIndex, judgements, judgementDeltas, texts, info.originalIndex, bars, options.collapsedLoop ? loop : undefined, inferredHands, chart.branchType);
         }
     }
 }
 function drawChartHeader(ctx, chart, x, y, width, height, texts) {
-    const title = chart.title || 'Untitled';
-    const subtitle = chart.subtitle || '';
+    const title = chart.title || "Untitled";
+    const subtitle = chart.subtitle || "";
     const startBpm = chart.bpm || 120;
     const level = chart.level || 0;
-    const course = chart.course || 'Oni';
+    const course = chart.course || "Oni";
     // Calculate BPM Range
     let minBpm = startBpm;
     let maxBpm = startBpm;
@@ -1006,7 +1003,7 @@ function drawChartHeader(ctx, chart, x, y, width, height, texts) {
             }
         }
     }
-    const bpmText = (minBpm === maxBpm) ? `BPM: ${minBpm}` : `BPM: ${minBpm}-${maxBpm}`;
+    const bpmText = minBpm === maxBpm ? `BPM: ${minBpm}` : `BPM: ${minBpm}-${maxBpm}`;
     const titleFontSize = height * 0.4;
     const subtitleFontSize = height * 0.25;
     const metaFontSize = height * 0.25;
@@ -1014,8 +1011,8 @@ function drawChartHeader(ctx, chart, x, y, width, height, texts) {
     // Draw Title
     ctx.fillStyle = PALETTE.text.primary;
     ctx.font = `bold ${titleFontSize}px ${FONT_STACK}`;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
     ctx.fillText(title, x, y);
     // Draw Subtitle (below title)
     if (subtitle) {
@@ -1025,11 +1022,11 @@ function drawChartHeader(ctx, chart, x, y, width, height, texts) {
     }
     // Draw Metadata (Right aligned)
     const metaY = y;
-    ctx.textAlign = 'right';
+    ctx.textAlign = "right";
     // Course & Level
     const courseKey = course.toLowerCase();
     let courseName = course.charAt(0).toUpperCase() + course.slice(1);
-    if (texts.course && texts.course[courseKey]) {
+    if (texts.course?.[courseKey]) {
         courseName = texts.course[courseKey];
     }
     let courseText = courseName;
@@ -1039,19 +1036,19 @@ function drawChartHeader(ctx, chart, x, y, width, height, texts) {
     // Determine course color
     let courseColor = PALETTE.text.primary;
     const c = course.toLowerCase();
-    if (c.includes('edit') || c.includes('ura')) {
+    if (c.includes("edit") || c.includes("ura")) {
         courseColor = PALETTE.courses.edit; // Purple
     }
-    else if (c.includes('oni')) {
+    else if (c.includes("oni")) {
         courseColor = PALETTE.courses.oni; // Pink (Unchanged)
     }
-    else if (c.includes('hard')) {
+    else if (c.includes("hard")) {
         courseColor = PALETTE.courses.hard; // Dark Grey
     }
-    else if (c.includes('normal')) {
+    else if (c.includes("normal")) {
         courseColor = PALETTE.courses.normal; // Green
     }
-    else if (c.includes('easy')) {
+    else if (c.includes("easy")) {
         courseColor = PALETTE.courses.easy; // Orange
     }
     ctx.fillStyle = courseColor;
@@ -1063,15 +1060,15 @@ function drawChartHeader(ctx, chart, x, y, width, height, texts) {
     ctx.fillText(bpmText, x + width, metaY + metaFontSize + 5);
     ctx.restore();
 }
-function drawBarBackground(ctx, x, y, width, height, borderW, centerW, isBranched, branchType = 'normal', drawLeftExt = false, drawRightExt = false, overExtendWidth = 0) {
+function drawBarBackground(ctx, x, y, width, height, borderW, centerW, isBranched, branchType = "normal", drawLeftExt = false, drawRightExt = false, overExtendWidth = 0) {
     const centerY = y + height / 2;
     let fillColor = PALETTE.branches.default;
     if (isBranched) {
-        if (branchType === 'normal')
+        if (branchType === "normal")
             fillColor = PALETTE.branches.normal; // Normal
-        if (branchType === 'expert')
+        if (branchType === "expert")
             fillColor = PALETTE.branches.expert; // Professional
-        else if (branchType === 'master')
+        else if (branchType === "master")
             fillColor = PALETTE.branches.master; // Master
     }
     // Helper for extensions
@@ -1180,7 +1177,7 @@ function drawBarBackground(ctx, x, y, width, height, borderW, centerW, isBranche
     ctx.stroke();
 }
 function hexToRgba(hex, alpha) {
-    const h = hex.replace('#', '');
+    const h = hex.replace("#", "");
     let r = 0, g = 0, b = 0;
     if (h.length === 3) {
         r = parseInt(h[0] + h[0], 16);
@@ -1207,7 +1204,7 @@ function calculateBalloonIndices(bars) {
         if (!bar)
             continue;
         for (let j = 0; j < bar.length; j++) {
-            if (bar[j] === '7' || bar[j] === '9') {
+            if (bar[j] === "7" || bar[j] === "9") {
                 map.set(`${i}_${j}`, balloonCount);
                 balloonCount++;
             }
@@ -1215,8 +1212,10 @@ function calculateBalloonIndices(bars) {
     }
     return map;
 }
-function drawLongNotes(ctx, virtualBars, layouts, constants, viewMode, balloonCounts, balloonIndices) {
-    const { NOTE_RADIUS_SMALL: rSmall, NOTE_RADIUS_BIG: rBig, LW_NOTE_OUTER: borderOuterW, LW_NOTE_INNER: borderInnerW } = constants;
+function drawLongNotes(ctx, virtualBars, layouts, 
+// biome-ignore lint/suspicious/noExplicitAny: RenderConstants type complexity
+constants, viewMode, balloonCounts, balloonIndices) {
+    const { NOTE_RADIUS_SMALL: rSmall, NOTE_RADIUS_BIG: rBig, LW_NOTE_OUTER: borderOuterW, LW_NOTE_INNER: borderInnerW, } = constants;
     let currentLongNote = null;
     // Iterate all bars
     for (let i = 0; i < virtualBars.length; i++) {
@@ -1236,25 +1235,25 @@ function drawLongNotes(ctx, virtualBars, layouts, constants, viewMode, balloonCo
         let segmentActive = !!currentLongNote;
         for (let j = 0; j < noteCount; j++) {
             const char = bar[j];
-            if (char === '5' || char === '6' || char === '7' || char === '9') {
+            if (char === "5" || char === "6" || char === "7" || char === "9") {
                 // Start a new long note
                 currentLongNote = { type: char, startBarIdx: i, startNoteIdx: j, originalBarIdx, originalNoteIdx: j };
                 segmentActive = true;
                 segmentStartIdx = j;
             }
-            else if (char === '8') {
+            else if (char === "8") {
                 if (currentLongNote) {
                     // End the long note
-                    const radius = (currentLongNote.type === '6' || currentLongNote.type === '9') ? rBig : rSmall;
-                    const startX = barX + (segmentStartIdx * noteStep);
-                    const endX = barX + (j * noteStep);
-                    const hasStartCap = (segmentStartIdx === currentLongNote.startNoteIdx && i === currentLongNote.startBarIdx);
+                    const radius = currentLongNote.type === "6" || currentLongNote.type === "9" ? rBig : rSmall;
+                    const startX = barX + segmentStartIdx * noteStep;
+                    const endX = barX + j * noteStep;
+                    const hasStartCap = segmentStartIdx === currentLongNote.startNoteIdx && i === currentLongNote.startBarIdx;
                     const hasEndCap = true;
-                    if (currentLongNote.type === '7' || currentLongNote.type === '9') {
+                    if (currentLongNote.type === "7" || currentLongNote.type === "9") {
                         // Balloon
                         const balloonIdx = balloonIndices.get(`${currentLongNote.originalBarIdx}_${currentLongNote.originalNoteIdx}`);
                         const count = balloonIdx !== undefined && balloonCounts[balloonIdx] !== undefined ? balloonCounts[balloonIdx] : 5;
-                        drawBalloonSegment(ctx, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, count, currentLongNote.type === '9');
+                        drawBalloonSegment(ctx, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, count, currentLongNote.type === "9");
                     }
                     else {
                         // Drumroll
@@ -1267,15 +1266,15 @@ function drawLongNotes(ctx, virtualBars, layouts, constants, viewMode, balloonCo
         }
         // If still active at end of bar, draw segment to end
         if (segmentActive && currentLongNote) {
-            const radius = (currentLongNote.type === '6' || currentLongNote.type === '9') ? rBig : rSmall;
-            const startX = barX + (segmentStartIdx * noteStep);
+            const radius = currentLongNote.type === "6" || currentLongNote.type === "9" ? rBig : rSmall;
+            const startX = barX + segmentStartIdx * noteStep;
             const endX = barX + layout.width; // Visual end of bar
-            const hasStartCap = (segmentStartIdx === currentLongNote.startNoteIdx && i === currentLongNote.startBarIdx);
+            const hasStartCap = segmentStartIdx === currentLongNote.startNoteIdx && i === currentLongNote.startBarIdx;
             const hasEndCap = false; // Continuation
-            if (currentLongNote.type === '7' || currentLongNote.type === '9') {
+            if (currentLongNote.type === "7" || currentLongNote.type === "9") {
                 const balloonIdx = balloonIndices.get(`${currentLongNote.originalBarIdx}_${currentLongNote.originalNoteIdx}`);
                 const count = balloonIdx !== undefined && balloonCounts[balloonIdx] !== undefined ? balloonCounts[balloonIdx] : 5;
-                drawBalloonSegment(ctx, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, count, currentLongNote.type === '9');
+                drawBalloonSegment(ctx, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, count, currentLongNote.type === "9");
             }
             else {
                 drawDrumrollSegment(ctx, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, currentLongNote.type);
@@ -1283,10 +1282,10 @@ function drawLongNotes(ctx, virtualBars, layouts, constants, viewMode, balloonCo
         }
     }
 }
-function drawDrumrollSegment(ctx, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, viewMode, type) {
+function drawDrumrollSegment(ctx, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, viewMode, _type) {
     let fillColor = PALETTE.notes.drumroll;
     let innerBorderColor = PALETTE.notes.border.white;
-    if (viewMode === 'judgements') {
+    if (viewMode === "judgements") {
         fillColor = PALETTE.notes.unjudged;
         innerBorderColor = PALETTE.notes.border.grey;
     }
@@ -1295,7 +1294,7 @@ function drawDrumrollSegment(ctx, startX, endX, centerY, radius, startCap, endCa
 function drawBalloonSegment(ctx, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, viewMode, count, isKusudama) {
     let fillColor = PALETTE.notes.balloon; // Orangeish for balloon body
     let innerBorderColor = PALETTE.notes.border.white;
-    if (viewMode === 'judgements') {
+    if (viewMode === "judgements") {
         fillColor = PALETTE.notes.unjudged;
         innerBorderColor = PALETTE.notes.border.grey;
     }
@@ -1309,7 +1308,7 @@ function drawBalloonSegment(ctx, startX, endX, centerY, radius, startCap, endCap
         let headColor = PALETTE.notes.balloon; // Orange
         if (isKusudama)
             headColor = PALETTE.notes.kusudama; // Gold
-        if (viewMode === 'judgements') {
+        if (viewMode === "judgements") {
             headColor = PALETTE.notes.unjudged;
         }
         // Draw Head
@@ -1324,12 +1323,12 @@ function drawBalloonSegment(ctx, startX, endX, centerY, radius, startCap, endCap
         ctx.strokeStyle = innerBorderColor;
         ctx.stroke();
         // Draw Count
-        if (viewMode !== 'judgements') {
+        if (viewMode !== "judgements") {
             ctx.fillStyle = PALETTE.text.inverted;
             ctx.font = `bold ${radius * 1.5}px ${FONT_STACK}`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText(count.toString(), startX, centerY - (radius * 0.2));
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(count.toString(), startX, centerY - radius * 0.2);
         }
     }
 }
@@ -1421,31 +1420,33 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
     const judgeableIndicesInBar = new Array(noteCount).fill(null);
     let localCount = 0;
     for (let k = 0; k < noteCount; k++) {
-        if (['1', '2', '3', '4'].includes(bar[k])) {
+        if (["1", "2", "3", "4"].includes(bar[k])) {
             judgeableIndicesInBar[k] = startIndex + localCount;
             localCount++;
         }
     }
     // Pre-calculate colors for judgeable notes if needed
     const noteColors = new Array(noteCount).fill(null);
-    if (viewMode === 'judgements' || viewMode === 'judgements-underline' || viewMode === 'judgements-text') {
+    if (viewMode === "judgements" || viewMode === "judgements-underline" || viewMode === "judgements-text") {
         for (let i = 0; i < noteCount; i++) {
             const globalIndex = judgeableIndicesInBar[i];
             if (globalIndex === null)
                 continue;
-            if (coloringMode === 'gradient') {
+            if (coloringMode === "gradient") {
                 // Gradient Logic (with Loop Averaging)
                 let effectiveDelta;
                 let isValidJudge = false;
                 let isJudgedButMiss = false; // "None of perfect, good or poor"
-                if (loopInfo && originalBarIndex >= loopInfo.startBarIndex && originalBarIndex < loopInfo.startBarIndex + loopInfo.period) {
+                if (loopInfo &&
+                    originalBarIndex >= loopInfo.startBarIndex &&
+                    originalBarIndex < loopInfo.startBarIndex + loopInfo.period) {
                     // Collapsed Loop
                     let preLoopNotes = 0;
                     for (let b = 0; b < loopInfo.startBarIndex; b++) {
                         const bBar = bars[b];
                         if (bBar)
                             for (const c of bBar)
-                                if (['1', '2', '3', '4'].includes(c))
+                                if (["1", "2", "3", "4"].includes(c))
                                     preLoopNotes++;
                     }
                     let notesPerLoop = 0;
@@ -1453,7 +1454,7 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
                         const bBar = bars[loopInfo.startBarIndex + k];
                         if (bBar)
                             for (const c of bBar)
-                                if (['1', '2', '3', '4'].includes(c))
+                                if (["1", "2", "3", "4"].includes(c))
                                     notesPerLoop++;
                     }
                     if (globalIndex >= preLoopNotes && notesPerLoop > 0) {
@@ -1463,18 +1464,18 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
                         let count = 0;
                         let judgedCount = 0;
                         for (let iter = 0; iter < loopInfo.iterations; iter++) {
-                            const gIdx = preLoopNotes + noteIndexInLoop + (iter * notesPerLoop);
+                            const gIdx = preLoopNotes + noteIndexInLoop + iter * notesPerLoop;
                             if (gIdx < judgements.length) {
                                 const j = judgements[gIdx];
                                 // Check visibility
-                                if (j === 'Perfect' && !judgementVisibility.perfect)
+                                if (j === "Perfect" && !judgementVisibility.perfect)
                                     continue;
-                                if (j === 'Good' && !judgementVisibility.good)
+                                if (j === "Good" && !judgementVisibility.good)
                                     continue;
-                                if (j === 'Poor' && !judgementVisibility.poor)
+                                if (j === "Poor" && !judgementVisibility.poor)
                                     continue;
                                 judgedCount++;
-                                if (j === 'Perfect' || j === 'Good' || j === 'Poor') {
+                                if (j === "Perfect" || j === "Good" || j === "Poor") {
                                     const d = judgementDeltas[gIdx];
                                     if (d !== undefined) {
                                         sum += d;
@@ -1500,14 +1501,14 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
                         const j = judgements[globalIndex];
                         // Check visibility
                         let isVisible = true;
-                        if (j === 'Perfect' && !judgementVisibility.perfect)
+                        if (j === "Perfect" && !judgementVisibility.perfect)
                             isVisible = false;
-                        else if (j === 'Good' && !judgementVisibility.good)
+                        else if (j === "Good" && !judgementVisibility.good)
                             isVisible = false;
-                        else if (j === 'Poor' && !judgementVisibility.poor)
+                        else if (j === "Poor" && !judgementVisibility.poor)
                             isVisible = false;
                         if (isVisible) {
-                            if (j === 'Perfect' || j === 'Good' || j === 'Poor') {
+                            if (j === "Perfect" || j === "Good" || j === "Poor") {
                                 effectiveDelta = judgementDeltas[globalIndex];
                                 if (effectiveDelta !== undefined)
                                     isValidJudge = true;
@@ -1530,37 +1531,37 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
                 // Categorical Logic
                 if (globalIndex < judgements.length) {
                     const judge = judgements[globalIndex];
-                    if (judge === 'Perfect' && judgementVisibility.perfect)
+                    if (judge === "Perfect" && judgementVisibility.perfect)
                         noteColors[i] = PALETTE.judgements.perfect;
-                    else if (judge === 'Good' && judgementVisibility.good)
+                    else if (judge === "Good" && judgementVisibility.good)
                         noteColors[i] = PALETTE.judgements.good;
-                    else if (judge === 'Poor' && judgementVisibility.poor)
+                    else if (judge === "Poor" && judgementVisibility.poor)
                         noteColors[i] = PALETTE.judgements.poor;
-                    else if (judge && !['Perfect', 'Good', 'Poor'].includes(judge))
+                    else if (judge && !["Perfect", "Good", "Poor"].includes(judge))
                         noteColors[i] = PALETTE.judgements.miss;
                 }
             }
         }
     }
     // Phase 1: Draw Underlines (Judgements Underline Mode only)
-    if (viewMode === 'judgements-underline') {
+    if (viewMode === "judgements-underline") {
         const barBottom = y + height;
-        const lineY = barBottom + (height * 0.1); // Slightly below bar
+        const lineY = barBottom + height * 0.1; // Slightly below bar
         const lineWidth = height * 0.15; // Visible thickness
         // Pass 1.1: Draw Black Borders (Backwards iteration)
         ctx.save();
-        ctx.lineCap = 'round';
+        ctx.lineCap = "round";
         ctx.strokeStyle = PALETTE.ui.barBorder;
-        ctx.lineWidth = lineWidth + (borderUnderlineW * 2);
+        ctx.lineWidth = lineWidth + borderUnderlineW * 2;
         for (let i = noteCount - 1; i >= 0; i--) {
             const noteChar = bar[i];
             // Only for judgeable notes
-            if (!['1', '2', '3', '4'].includes(noteChar))
+            if (!["1", "2", "3", "4"].includes(noteChar))
                 continue;
             // Only draw if we have a valid color
             if (noteColors[i]) {
-                const noteX = x + (i * noteStep);
-                let radius = (['3', '4'].includes(noteChar)) ? rBig : rSmall;
+                const noteX = x + i * noteStep;
+                const radius = ["3", "4"].includes(noteChar) ? rBig : rSmall;
                 ctx.beginPath();
                 ctx.moveTo(noteX - radius, lineY);
                 ctx.lineTo(noteX + radius, lineY);
@@ -1570,16 +1571,16 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
         ctx.restore();
         // Pass 1.2: Draw Colored Lines (Backwards iteration)
         ctx.save();
-        ctx.lineCap = 'round';
+        ctx.lineCap = "round";
         ctx.lineWidth = lineWidth;
         for (let i = noteCount - 1; i >= 0; i--) {
             const noteChar = bar[i];
-            if (!['1', '2', '3', '4'].includes(noteChar))
+            if (!["1", "2", "3", "4"].includes(noteChar))
                 continue;
             const color = noteColors[i];
             if (color) {
-                const noteX = x + (i * noteStep);
-                let radius = (['3', '4'].includes(noteChar)) ? rBig : rSmall;
+                const noteX = x + i * noteStep;
+                const radius = ["3", "4"].includes(noteChar) ? rBig : rSmall;
                 ctx.strokeStyle = color;
                 ctx.beginPath();
                 ctx.moveTo(noteX - radius, lineY);
@@ -1590,34 +1591,34 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
         ctx.restore();
     }
     // Phase 1.5: Draw Text (Judgements Text Mode only)
-    if (viewMode === 'judgements-text') {
+    if (viewMode === "judgements-text") {
         ctx.save();
         ctx.font = `bold ${rBig * 1.2}px ${FONT_STACK}`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'bottom';
+        ctx.textAlign = "center";
+        ctx.textBaseline = "bottom";
         ctx.lineWidth = height * 0.05; // Border width for text
         ctx.strokeStyle = PALETTE.judgements.textBorder;
         for (let i = 0; i < noteCount; i++) {
             const noteChar = bar[i];
-            if (!['1', '2', '3', '4'].includes(noteChar))
+            if (!["1", "2", "3", "4"].includes(noteChar))
                 continue;
             const color = noteColors[i];
-            // We need to look up the judgement text. 
+            // We need to look up the judgement text.
             // noteColors might be gradient, but text content depends on class.
             // We can look up judgement class again using globalIndex.
             const globalIndex = judgeableIndicesInBar[i];
             if (color && globalIndex !== null && globalIndex < judgements.length) {
                 const judge = judgements[globalIndex];
-                let text = '';
-                if (judge === 'Perfect')
+                let text = "";
+                if (judge === "Perfect")
                     text = texts.judgement.perfect;
-                else if (judge === 'Good')
+                else if (judge === "Good")
                     text = texts.judgement.good;
-                else if (judge === 'Poor')
+                else if (judge === "Poor")
                     text = texts.judgement.poor;
                 if (text) {
-                    const noteX = x + (i * noteStep);
-                    const noteTopY = centerY - (['3', '4'].includes(noteChar) ? rBig : rSmall);
+                    const noteX = x + i * noteStep;
+                    const noteTopY = centerY - (["3", "4"].includes(noteChar) ? rBig : rSmall);
                     // Slightly above note
                     const textY = noteTopY;
                     ctx.strokeText(text, noteX, textY);
@@ -1631,33 +1632,30 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
     // Phase 2: Draw Note Heads
     for (let i = noteCount - 1; i >= 0; i--) {
         const noteChar = bar[i];
-        const noteX = x + (i * noteStep);
+        const noteX = x + i * noteStep;
         let color = null;
         let radius = 0;
-        let isBig = false;
         switch (noteChar) {
-            case '1': // Don (Red Small)
+            case "1": // Don (Red Small)
                 color = PALETTE.notes.don;
                 radius = rSmall;
                 break;
-            case '2': // Ka (Blue Small)
+            case "2": // Ka (Blue Small)
                 color = PALETTE.notes.ka;
                 radius = rSmall;
                 break;
-            case '3': // Don (Red Big)
+            case "3": // Don (Red Big)
                 color = PALETTE.notes.don;
                 radius = rBig;
-                isBig = true;
                 break;
-            case '4': // Ka (Blue Big)
+            case "4": // Ka (Blue Big)
                 color = PALETTE.notes.ka;
                 radius = rBig;
-                isBig = true;
                 break;
         }
         if (color) {
             let borderColor = PALETTE.notes.border.white; // Default white border
-            if (viewMode === 'judgements') {
+            if (viewMode === "judgements") {
                 color = PALETTE.notes.unjudged; // Default unjudged fill color (Grey)
                 borderColor = PALETTE.notes.border.grey; // Default unjudged border color (Grey)
                 const assignedColor = noteColors[i];
@@ -1675,10 +1673,10 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
             let effectiveBorderInnerW = borderInnerW;
             let effectiveInnerBorderColor = borderColor;
             const isSelected = isNoteSelected(originalBarIndex, i, selection);
-            const isHovered = options.hoveredNote
-                && options.hoveredNote.originalBarIndex === originalBarIndex
-                && options.hoveredNote.charIndex === i
-                && (options.hoveredNote.branch === currentBranch); // Match branch
+            const isHovered = options.hoveredNote &&
+                options.hoveredNote.originalBarIndex === originalBarIndex &&
+                options.hoveredNote.charIndex === i &&
+                options.hoveredNote.branch === currentBranch; // Match branch
             if (isSelected) {
                 effectiveBorderOuterW = borderOuterW * 2; // 2x the width
                 effectiveBorderInnerW = borderInnerW * 2; // 2x the width
@@ -1696,7 +1694,7 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
             ctx.strokeStyle = effectiveInnerBorderColor; // Dynamic border
             ctx.stroke();
             // Annotation Rendering
-            if (options.isAnnotationMode && options.annotations && ['1', '2', '3', '4'].includes(noteChar)) {
+            if (options.isAnnotationMode && options.annotations && ["1", "2", "3", "4"].includes(noteChar)) {
                 const noteId = `${originalBarIndex}_${i}`;
                 const annotation = options.annotations[noteId];
                 if (annotation) {
@@ -1711,8 +1709,8 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
                     // Larger size
                     ctx.font = `bold ${rBig * 1.5}px ${FONT_STACK}`;
                     ctx.fillStyle = textColor;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'bottom';
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "bottom";
                     // Position at the top of the bar, similar to bar numbers
                     const textY = y;
                     ctx.fillText(annotation, noteX, textY);
@@ -1748,8 +1746,8 @@ function drawBarLabels(ctx, originalBarIndex, x, y, width, height, numFontSize, 
     // 1. Draw Bar Number
     ctx.font = `bold ${numFontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
     ctx.fillStyle = PALETTE.text.label;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'bottom';
+    ctx.textAlign = "left";
+    ctx.textBaseline = "bottom";
     const barNumY = y - offsetY;
     ctx.fillText((originalBarIndex + 1).toString(), x + textPadding, barNumY);
     if (!params) {
@@ -1758,23 +1756,23 @@ function drawBarLabels(ctx, originalBarIndex, x, y, width, height, numFontSize, 
     }
     const labels = [];
     if (isFirstBar) {
-        labels.push({ type: 'BPM', val: params.bpm, index: 0 });
+        labels.push({ type: "BPM", val: params.bpm, index: 0 });
         if (params.scroll !== 1.0) {
-            labels.push({ type: 'HS', val: params.scroll, index: 0 });
+            labels.push({ type: "HS", val: params.scroll, index: 0 });
         }
     }
     if (params.bpmChanges) {
         for (const c of params.bpmChanges) {
-            const exists = labels.some(l => l.type === 'BPM' && l.index === c.index);
+            const exists = labels.some((l) => l.type === "BPM" && l.index === c.index);
             if (!exists)
-                labels.push({ type: 'BPM', val: c.bpm, index: c.index });
+                labels.push({ type: "BPM", val: c.bpm, index: c.index });
         }
     }
     if (params.scrollChanges) {
         for (const c of params.scrollChanges) {
-            const exists = labels.some(l => l.type === 'HS' && l.index === c.index);
+            const exists = labels.some((l) => l.type === "HS" && l.index === c.index);
             if (!exists)
-                labels.push({ type: 'HS', val: c.scroll, index: c.index });
+                labels.push({ type: "HS", val: c.scroll, index: c.index });
         }
     }
     if (labels.length === 0) {
@@ -1787,7 +1785,7 @@ function drawBarLabels(ctx, originalBarIndex, x, y, width, height, numFontSize, 
     // Process Mid-Bar Lines (Dark Grey)
     // Collect unique indices > 0
     const changeIndices = new Set();
-    labels.forEach(l => {
+    labels.forEach((l) => {
         if (l.index > 0)
             changeIndices.add(l.index);
     });
@@ -1795,7 +1793,7 @@ function drawBarLabels(ctx, originalBarIndex, x, y, width, height, numFontSize, 
         ctx.beginPath();
         ctx.strokeStyle = PALETTE.status.line; // Dark Grey
         ctx.lineWidth = barBorderWidth * 0.8; // Slightly thinner
-        changeIndices.forEach(idx => {
+        changeIndices.forEach((idx) => {
             const lineX = x + (idx / noteCount) * width;
             ctx.moveTo(lineX, y + height); // From bottom of bar
             ctx.lineTo(lineX, topY); // To top of labels
@@ -1810,11 +1808,11 @@ function drawBarLabels(ctx, originalBarIndex, x, y, width, height, numFontSize, 
         }
         // Shift text
         const drawX = labelX + textPadding;
-        if (label.type === 'BPM') {
+        if (label.type === "BPM") {
             ctx.fillStyle = PALETTE.status.bpm;
             ctx.fillText(`BPM ${label.val}`, drawX, bpmY);
         }
-        else if (label.type === 'HS') {
+        else if (label.type === "HS") {
             ctx.fillStyle = PALETTE.status.hs;
             ctx.fillText(`HS ${label.val}`, drawX, hsY);
         }
@@ -1844,7 +1842,7 @@ function drawGogoIndicator(ctx, x, y, height, width, gogoTime, gogoChanges, note
         ctx.fillStyle = grad;
         ctx.fillRect(exX, y, exW, height);
     };
-    let isStartGogo = gogoTime;
+    const isStartGogo = gogoTime;
     let isEndGogo = gogoTime;
     if (gogoChanges && gogoChanges.length > 0) {
         // Sort changes by index just in case
@@ -1864,7 +1862,7 @@ function drawGogoIndicator(ctx, x, y, height, width, gogoTime, gogoChanges, note
         }
         if (currentX < x + width && isGogo) {
             ctx.fillStyle = GOGO_COLOR;
-            ctx.fillRect(currentX, y, (x + width) - currentX, height);
+            ctx.fillRect(currentX, y, x + width - currentX, height);
         }
     }
     else {

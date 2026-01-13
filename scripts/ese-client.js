@@ -1,5 +1,5 @@
 export class EseClient {
-    indexUrl = 'ese_index.json';
+    indexUrl = "ese_index.json";
     treeCache = null;
     async getTjaFiles() {
         if (this.treeCache) {
@@ -29,7 +29,7 @@ export class EseClient {
         try {
             // Path is like "Category/Song.tja"
             // We serve files under "ese/"
-            const encodedPath = path.split('/').map(encodeURIComponent).join('/');
+            const encodedPath = path.split("/").map(encodeURIComponent).join("/");
             const url = `ese/${encodedPath}`;
             const response = await fetch(url);
             if (!response.ok) {

@@ -1,6 +1,6 @@
-import { calculateInferredHands } from './renderer.js';
+import { calculateInferredHands } from "./renderer.js";
 export function generateAutoAnnotations(chart, existingAnnotations) {
-    // Clone existing annotations to avoid side-effects if not desired, 
+    // Clone existing annotations to avoid side-effects if not desired,
     // though the caller can handle that. We'll return a new object with updates.
     const annotations = { ...existingAnnotations };
     const inferred = calculateInferredHands(chart.bars, annotations);
@@ -17,11 +17,11 @@ export function generateAutoAnnotations(chart, existingAnnotations) {
             for (let j = 0; j < bar.length; j++) {
                 const char = bar[j];
                 // Only Don/Ka (Small/Large) are annotatable
-                if (['1', '2', '3', '4'].includes(char)) {
+                if (["1", "2", "3", "4"].includes(char)) {
                     const id = `${i}_${j}`;
                     const hand = inferred.get(id);
                     if (hand) {
-                        notes.push({ id, beat: currentBeat + (j * step), hand, type: char });
+                        notes.push({ id, beat: currentBeat + j * step, hand, type: char });
                     }
                 }
             }
@@ -75,7 +75,7 @@ export function generateAutoAnnotations(chart, existingAnnotations) {
         if (seg.notes.length === 0)
             continue;
         const first = seg.notes[0];
-        const [barIdxStr] = first.id.split('_');
+        const [barIdxStr] = first.id.split("_");
         const barIdx = parseInt(barIdxStr, 10);
         const params = chart.barParams[barIdx];
         const measureRatio = params ? params.measureRatio : 1.0;
@@ -83,7 +83,7 @@ export function generateAutoAnnotations(chart, existingAnnotations) {
         if (seg.gap < quarterNote - 0.0001) {
             toAnnotate.add(first.id);
             // Check for 3 opposite color notes before
-            const getColor = (c) => (c === '1' || c === '3') ? 'd' : 'k';
+            const getColor = (c) => (c === "1" || c === "3" ? "d" : "k");
             for (let i = 3; i < seg.notes.length; i++) {
                 const current = seg.notes[i];
                 const prev1 = seg.notes[i - 1];
@@ -100,7 +100,7 @@ export function generateAutoAnnotations(chart, existingAnnotations) {
         }
     }
     // Update annotations
-    toAnnotate.forEach(id => {
+    toAnnotate.forEach((id) => {
         const hand = inferred.get(id);
         if (hand) {
             annotations[id] = hand;
