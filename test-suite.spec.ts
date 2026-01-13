@@ -548,14 +548,13 @@ LEVEL:10
     const width = await page.evaluate(async () => {
       // Force fallback by removing navigator.share if present
       try {
-        // @ts-ignore
-        navigator.share = undefined;
-      } catch (e) {}
+        // biome-ignore lint/suspicious/noExplicitAny: Need to modify readonly property for testing
+        (navigator as any).share = undefined;
+      } catch (_e) {}
 
       try {
-        // @ts-ignore
         navigator.canShare = () => false;
-      } catch (e) {}
+      } catch (_e) {}
 
       return new Promise<number>((resolve) => {
         const originalCreateElement = document.createElement;

@@ -108,7 +108,7 @@ test.describe("Layout Tests", () => {
     // So Footer is somewhere above it.
 
     // Let's verify we can scroll to the spacer
-    const spacerVisible = await page.evaluate(() => {
+    await page.evaluate(() => {
       const container = document.getElementById("controls-container");
       const spacer = container?.lastElementChild as HTMLElement;
       if (!spacer) return false;

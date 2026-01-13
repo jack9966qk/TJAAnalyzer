@@ -79,19 +79,6 @@ function createInitialState(bpm: number): ParserState {
   };
 }
 
-function cloneState(s: ParserState): ParserState {
-  return {
-    bpm: s.bpm,
-    scroll: s.scroll,
-    measureRatio: s.measureRatio,
-    gogoTime: s.gogoTime,
-    currentBarBuffer: s.currentBarBuffer,
-    currentBarBpmChanges: [...s.currentBarBpmChanges],
-    currentBarScrollChanges: [...s.currentBarScrollChanges],
-    currentBarGogoChanges: [...s.currentBarGogoChanges],
-  };
-}
-
 export function parseTJA(content: string): Record<string, ParsedChart> {
   const lines: string[] = content.split(/\r?\n/);
   const courses: Record<string, string[]> = {};
@@ -438,7 +425,6 @@ function detectLoop(bars: string[][]): LoopInfo | undefined {
 
     // Check how many times this pattern repeats
     let iterations = 0;
-    const isPatternMatch = true;
     let currentIdx = firstNonEmpty;
 
     while (currentIdx + period <= bars.length) {

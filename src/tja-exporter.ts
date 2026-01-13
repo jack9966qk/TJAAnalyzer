@@ -1,17 +1,14 @@
 import type { ViewOptions } from "./renderer.js";
 import { BarParams, BPMChange, type ParsedChart, ScrollChange } from "./tja-parser.js";
 
-interface ExportContext {
-  chart: ParsedChart;
-  selection: NonNullable<ViewOptions["selection"]>;
-}
-
 interface ChartContext {
   bpm: number;
   scroll: number;
   measureRatio: number;
   gogoTime: boolean;
 }
+
+// Helper to determine if a note is selected
 
 function getContextAt(chart: ParsedChart, barIndex: number, charIndex: number): ChartContext {
   const params = chart.barParams[barIndex];

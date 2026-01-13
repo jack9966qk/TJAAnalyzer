@@ -326,10 +326,6 @@ COURSE:Oni
     // ...
     const output = generateTJAFromSelection(parsed5, selection, "Oni", 1, "Gap Test", 2);
 
-    // Split by Loop comment
-    const loopParts = output.split("// Loop 1");
-    const contentAfterLoop = loopParts[1];
-
     // We expect:
     // MEASURE/BPM/SCROLL commands
     // GOGO state

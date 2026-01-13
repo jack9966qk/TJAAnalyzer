@@ -36,7 +36,6 @@ LEVEL:10
   });
 
   test("Inference Coloring - Mismatch Sequence", async ({ page }) => {
-    const canvas = page.locator("tja-chart").locator("canvas"); // Access canvas inside shadow root? No, locator('tja-chart canvas') won't work easily if shadow.
     // Playwright handles shadow DOM automatically with locators if properly targeted,
     // but 'tja-chart canvas' selector might fail if not explicitly penetrating shadow.
     // However, the previous test used `page.locator('tja-chart canvas')` which implies tja-chart didn't use shadow DOM or Playwright handled it.

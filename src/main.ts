@@ -425,7 +425,7 @@ function updateUIText() {
   }
 
   // Dynamic Elements
-  updateStatus(currentStatusKey);
+  updateStatus(currentStatusKey, currentStatusParams);
 
   // Update difficulty selector options
   if (difficultySelector) {
@@ -457,7 +457,6 @@ function updateUIText() {
   // Refresh chart (redraws text on canvas) and stats
   refreshChart();
   // Re-render stats if a note is selected
-  const statsHit = selectedNoteHitInfo; // || hit (but we don't have hit here)
   // We can't easily re-render hover stats without a mouse event, but selected note stats persist.
   // If nothing selected, stats box is usually empty or showing last hover?
   // Actually renderStats is called on mousemove.

@@ -12,7 +12,7 @@ export async function shareFile(
   dialogTitle: string,
 ): Promise<void> {
   // 1. Prepare Blob
-  const blob = new Blob([content as any], { type: mimeType });
+  const blob = new Blob([content as BlobPart], { type: mimeType });
 
   // 2. Web Share API
   // Note: 'files' support in navigator.share is limited.

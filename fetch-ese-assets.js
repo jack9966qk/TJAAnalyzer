@@ -123,7 +123,7 @@ async function main() {
           const meta = extractMetadata(content);
           title = meta.title;
           titleJp = meta.titleJp;
-        } catch (e) {
+        } catch (_e) {
           console.warn(`Failed to read local file for metadata: ${targetPath}`);
         }
       } else {

@@ -85,8 +85,6 @@ LEVEL:10
       // Let's use getNoteAt logic to reverse engineer or just calculate based on known layout.
 
       // Note is at index 0 of bar 0.
-      const noteStep = baseBarWidth / 4; // 4 chars in bar
-      const noteX = barX + 0 * noteStep + noteStep / 2; // Center of first char slot?
       // Actually renderer uses: x = layout.x + (i * noteStep)
       // For note 0: x = layout.x
       const x = barX;

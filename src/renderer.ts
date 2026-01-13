@@ -142,7 +142,6 @@ export interface ViewOptions {
 }
 
 // Configuration Constants
-const BARS_PER_ROW: number = 4;
 const PADDING: number = 20;
 const RATIOS = {
   BAR_HEIGHT: 0.14,
@@ -692,7 +691,7 @@ export function createLayout(
   const headerHeight = baseBarWidth * RATIOS.HEADER_HEIGHT;
   const offsetY = PADDING + headerHeight + PADDING; // Padding above and below header
 
-  const { bars, loop } = chart;
+  const { bars } = chart;
   const globalBarStartIndices = calculateGlobalBarStartIndices(bars);
   const balloonIndices = calculateBalloonIndices(bars);
   const virtualBars = getVirtualBars(chart, options, judgements, globalBarStartIndices);
@@ -1340,7 +1339,6 @@ export function renderChart(
     logicalCanvasWidth,
     dpr,
     headerHeight,
-    offsetY,
   } = layout;
 
   const { bars, loop } = chart;
@@ -1708,7 +1706,7 @@ export function renderChart(
           b.data.bars,
           undefined,
           undefined,
-          b.type as any,
+          b.type as "normal" | "expert" | "master",
         );
       }
     });
@@ -2648,7 +2646,6 @@ function drawBarNotes(
 
     let color: string | null = null;
     let radius: number = 0;
-    let isBig: boolean = false;
 
     switch (noteChar) {
       case "1": // Don (Red Small)
@@ -2662,12 +2659,10 @@ function drawBarNotes(
       case "3": // Don (Red Big)
         color = PALETTE.notes.don;
         radius = rBig;
-        isBig = true;
         break;
       case "4": // Ka (Blue Big)
         color = PALETTE.notes.ka;
         radius = rBig;
-        isBig = true;
         break;
     }
 
