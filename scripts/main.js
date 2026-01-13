@@ -453,7 +453,13 @@ function updateDisplayState() {
     }
     refreshChart();
 }
+function clearJudgements() {
+    judgements = [];
+    judgementDeltas = [];
+    updateStatsComponent(selectedNoteHitInfo);
+}
 function updateBranchSelectorState(resetBranch = false) {
+    clearJudgements();
     if (!parsedTJACharts)
         return;
     const selectedDiff = difficultySelector.value;
@@ -679,10 +685,12 @@ function init() {
             }
             const loopCountInput = document.getElementById('export-loop-count');
             const loopCount = loopCountInput ? parseInt(loopCountInput.value, 10) : 10;
+            const gapCountInput = document.getElementById('export-gap-count');
+            const gapCount = gapCountInput ? parseInt(gapCountInput.value, 10) : 1;
             const chartNameInput = document.getElementById('export-chart-name');
             const chartName = (chartNameInput && chartNameInput.value) ? chartNameInput.value : 'Exported Selection';
             try {
-                const tjaContent = generateTJAFromSelection(currentChart, viewOptions.selection, difficultySelector.value, loopCount, chartName);
+                const tjaContent = generateTJAFromSelection(currentChart, viewOptions.selection, difficultySelector.value, loopCount, chartName, gapCount);
                 await shareFile(`${chartName}.tja`, tjaContent, 'text/plain', 'Export TJA');
                 updateStatus('status.exportSuccess');
             }
@@ -853,10 +861,21 @@ function init() {
     }
     if (testStreamBtn) {
         testStreamBtn.addEventListener('click', () => {
-            isSimulating = true;
-            updateDisplayState();
-            // Use currently loaded content and selected difficulty
-            judgementClient.startSimulation(loadedTJAContent, difficultySelector.value);
+            if (isSimulating) {
+                judgementClient.disconnect();
+                isSimulating = false;
+                testStreamBtn.setAttribute('data-i18n', 'ui.test.start');
+                testStreamBtn.innerText = i18n.t('ui.test.start');
+            }
+            else {
+                isSimulating = true;
+                clearJudgements();
+                updateDisplayState();
+                testStreamBtn.setAttribute('data-i18n', 'ui.test.stop');
+                testStreamBtn.innerText = i18n.t('ui.test.stop');
+                // Use currently loaded content and selected difficulty
+                judgementClient.startSimulation(loadedTJAContent, difficultySelector.value);
+            }
         });
     }
     if (collapseLoopCheckbox) {
@@ -1165,8 +1184,13 @@ function init() {
             isStreamConnected = false;
             hasReceivedGameStart = false;
             // Re-enable controls if we were in test mode
-            if (testStreamBtn)
+            if (testStreamBtn) {
                 testStreamBtn.disabled = false;
+                if (isSimulating) {
+                    testStreamBtn.setAttribute('data-i18n', 'ui.test.start');
+                    testStreamBtn.innerText = i18n.t('ui.test.start');
+                }
+            }
             if (connectBtn)
                 connectBtn.disabled = false;
             updateStatus(isSimulating ? 'status.simStopped' : 'status.disconnected');

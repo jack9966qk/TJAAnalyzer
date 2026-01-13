@@ -153,10 +153,14 @@ export function parseTJA(content) {
                         else if (upperLine.startsWith('#GOGOSTART')) {
                             state.gogoTime = true;
                             state.currentBarGogoChanges.push({ index: state.currentBarBuffer.length, isGogo: true });
+                            if (state.currentBarBuffer.length === 0)
+                                barStartGogoTime = true;
                         }
                         else if (upperLine.startsWith('#GOGOEND')) {
                             state.gogoTime = false;
                             state.currentBarGogoChanges.push({ index: state.currentBarBuffer.length, isGogo: false });
+                            if (state.currentBarBuffer.length === 0)
+                                barStartGogoTime = false;
                         }
                         // Ignore other commands
                         continue;

@@ -32,7 +32,7 @@ function getContextAt(chart, barIndex, charIndex) {
     }
     return { bpm, scroll, measureRatio, gogoTime };
 }
-export function generateTJAFromSelection(chart, selection, courseName = 'Oni', loopCount = 10, chartName = 'Exported Selection') {
+export function generateTJAFromSelection(chart, selection, courseName = 'Oni', loopCount = 10, chartName = 'Exported Selection', gapCount = 1) {
     const { start, end } = selection;
     // Normalize selection range
     let startBar = start.originalBarIndex;
@@ -177,7 +177,9 @@ export function generateTJAFromSelection(chart, selection, courseName = 'Oni', l
         tjaContent += `#SCROLL ${formatVal(startContext.scroll)}\n`;
         // Gap Gogo State
         tjaContent += (shouldGapBeGogo ? '#GOGOSTART' : '#GOGOEND') + '\n';
-        tjaContent += `0,\n`;
+        for (let g = 0; g < gapCount; g++) {
+            tjaContent += `0,\n`;
+        }
         // Selection Start Correction
         // We need to restore the state expected by the start of the selection block (startContext.gogoTime)
         if (startContext.gogoTime !== shouldGapBeGogo) {
@@ -193,7 +195,9 @@ export function generateTJAFromSelection(chart, selection, courseName = 'Oni', l
     tjaContent += `#SCROLL ${formatVal(endContext.scroll)}\n`;
     // We treat End Padding as a Gap too
     tjaContent += (shouldGapBeGogo ? '#GOGOSTART' : '#GOGOEND') + '\n';
-    tjaContent += `0,\n0,\n0,\n`;
+    for (let g = 0; g < 3; g++) {
+        tjaContent += `0,\n`;
+    }
     tjaContent += '#END\n';
     return tjaContent;
 }

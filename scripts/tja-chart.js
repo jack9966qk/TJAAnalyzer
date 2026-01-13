@@ -108,6 +108,9 @@ export class TJAChart extends HTMLElement {
         this._judgements = value;
         this.scheduleRender();
     }
+    get judgements() {
+        return this._judgements;
+    }
     set judgementDeltas(value) {
         this._judgementDeltas = value;
         this.scheduleRender();

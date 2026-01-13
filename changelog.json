@@ -1,5 +1,30 @@
 [
   {
+    "hash": "0774d82",
+    "message": "Update version to 0.6.6.",
+    "date": "2026-01-14"
+  },
+  {
+    "hash": "9dbe399",
+    "message": "Update the test stream start button as a stop button when the stream is active.",
+    "date": "2026-01-14"
+  },
+  {
+    "hash": "53e2006",
+    "message": "Fix the issue where gogo time status may be incorrect at the beginning of chart.",
+    "date": "2026-01-13"
+  },
+  {
+    "hash": "5c47d9b",
+    "message": "Clear judgements when switching charts.",
+    "date": "2026-01-13"
+  },
+  {
+    "hash": "3a5d4f6",
+    "message": "Allow customization of gap length in chart exporting. Update outdated snapshots.",
+    "date": "2026-01-12"
+  },
+  {
     "hash": "2aa6113",
     "message": "Update version to 0.6.5.",
     "date": "2026-01-08"
@@ -473,30 +498,5 @@
     "hash": "1bbbec5",
     "message": "Add basic hand annotation functionality.",
     "date": "2025-12-19"
-  },
-  {
-    "hash": "3d00da4",
-    "message": "Update version to 0.2.",
-    "date": "2025-12-19"
-  },
-  {
-    "hash": "c204292",
-    "message": "Add looping support to TJA export, fix timing logic, and improve error handling",
-    "date": "2025-12-19"
-  },
-  {
-    "hash": "881eec8",
-    "message": "Add basic note selection export functionality.",
-    "date": "2025-12-19"
-  },
-  {
-    "hash": "6e09c89",
-    "message": "Update test snapshots for darwin environment",
-    "date": "2025-12-19"
-  },
-  {
-    "hash": "29ecc29",
-    "message": "More realistic judgement class simulation from test stream.",
-    "date": "2025-12-18"
   }
 ]
