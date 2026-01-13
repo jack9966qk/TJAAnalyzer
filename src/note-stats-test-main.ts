@@ -7,7 +7,19 @@ console.log("NoteStatsDisplay module loaded", NoteStatsDisplay);
 
 const noteStats = document.getElementById("note-stats") as NoteStatsDisplay;
 
-(window as any).setStats = (
+interface CustomWindow extends Window {
+  setStats: (
+    hit: HitInfo | null,
+    chart: ParsedChart | null,
+    viewOptions: ViewOptions | null,
+    judgements?: string[],
+    judgementDeltas?: (number | undefined)[],
+  ) => void;
+}
+
+const w = window as unknown as CustomWindow;
+
+w.setStats = (
   hit: HitInfo | null,
   chart: ParsedChart | null,
   viewOptions: ViewOptions | null,

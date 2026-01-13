@@ -7,8 +7,12 @@ function runTest(name: string, fn: () => void) {
     console.log(`\n--- ${name} ---`);
     fn();
     console.log("PASS");
-  } catch (e: any) {
-    console.error(`FAIL: ${e.message}`);
+  } catch (e) {
+    if (e instanceof Error) {
+      console.error(`FAIL: ${e.message}`);
+    } else {
+      console.error(`FAIL: ${e}`);
+    }
     process.exit(1);
   }
 }
@@ -47,7 +51,7 @@ LEVEL:10
 90000000,
 #END
 `;
-  const parsed = parseTJA(tjaContent)["oni"];
+  const parsed = parseTJA(tjaContent).oni;
 
   runTest("Test 1: Full selection with Balloon (Middle)", () => {
     const selection: ViewOptions["selection"] = {
@@ -90,7 +94,7 @@ COURSE:Oni
 10001000,
 #END
 `;
-    const parsed2 = parseTJA(tjaContent2)["oni"];
+    const parsed2 = parseTJA(tjaContent2).oni;
     const selection: ViewOptions["selection"] = {
       start: { originalBarIndex: 1, charIndex: 0 },
       end: { originalBarIndex: 1, charIndex: 7 },
@@ -114,7 +118,7 @@ LEVEL:8
 10000000,
 #END
 `;
-    const parsed3 = parseTJA(tjaContent3)["hard"];
+    const parsed3 = parseTJA(tjaContent3).hard;
     const selection: ViewOptions["selection"] = {
       start: { originalBarIndex: 0, charIndex: 0 },
       end: { originalBarIndex: 0, charIndex: 7 },
@@ -137,7 +141,7 @@ COURSE:Oni
 20002000,
 #END
 `;
-    const parsedLoop = parseTJA(tjaLoop)["oni"];
+    const parsedLoop = parseTJA(tjaLoop).oni;
     // Select Bar 0
     const selection: ViewOptions["selection"] = {
       start: { originalBarIndex: 0, charIndex: 0 },
@@ -175,7 +179,7 @@ BALLOON:10
 70000000,
 #END
 `;
-    const parsedBalloonLoop = parseTJA(tjaBalloonLoop)["oni"];
+    const parsedBalloonLoop = parseTJA(tjaBalloonLoop).oni;
     const selection: ViewOptions["selection"] = {
       start: { originalBarIndex: 0, charIndex: 0 },
       end: { originalBarIndex: 0, charIndex: 7 },
@@ -203,7 +207,7 @@ BPM:100
     // Index 2: '0'
     // Index 3: '0'
 
-    const parsedMidBar = parseTJA(tjaMidBar)["oni"];
+    const parsedMidBar = parseTJA(tjaMidBar).oni;
 
     // Select just the first note (Index 0)
     const selection: ViewOptions["selection"] = {
@@ -244,7 +248,7 @@ BALLOON:3
 10700000,
 #END
 `;
-    const parsedCycle = parseTJA(tjaCycle)["oni"];
+    const parsedCycle = parseTJA(tjaCycle).oni;
     const selection: ViewOptions["selection"] = {
       start: { originalBarIndex: 0, charIndex: 0 },
       end: { originalBarIndex: 0, charIndex: 7 },
@@ -254,7 +258,7 @@ BALLOON:3
 
     // Parse it back
     const reParsedMap = parseTJA(exportedTja);
-    const reParsed = reParsedMap["oni"];
+    const reParsed = reParsedMap.oni;
 
     assert(!!reParsed, "Re-parsed chart should contain 'Oni' course");
 
@@ -289,7 +293,7 @@ COURSE:Oni
 10000000,
 #END
 `;
-    const parsed4 = parseTJA(tjaContent4)["oni"];
+    const parsed4 = parseTJA(tjaContent4).oni;
     const selection: ViewOptions["selection"] = {
       start: { originalBarIndex: 0, charIndex: 0 },
       end: { originalBarIndex: 0, charIndex: 7 },
@@ -307,7 +311,7 @@ COURSE:Oni
 10000000,
 #END
 `;
-    const parsed5 = parseTJA(tjaContent5)["oni"];
+    const parsed5 = parseTJA(tjaContent5).oni;
     const selection: ViewOptions["selection"] = {
       start: { originalBarIndex: 0, charIndex: 0 },
       end: { originalBarIndex: 0, charIndex: 7 },
@@ -341,7 +345,7 @@ COURSE:Oni
     // Note: the implementation outputs `0,\n` for each gap.
 
     // Let's verify by parsing
-    const reParsed = parseTJA(output)["oni"];
+    const reParsed = parseTJA(output).oni;
 
     // Expected Bars:
     // 1. Gap
@@ -372,7 +376,7 @@ COURSE:Oni
   });
 
   console.log("\nAll TJA Exporter tests passed.");
-} catch (e: any) {
+} catch (e) {
   console.error("Test suite failed:", e);
   process.exit(1);
 }

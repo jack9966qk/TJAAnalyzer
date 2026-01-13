@@ -427,7 +427,9 @@ export class I18n {
   }
 
   private notify() {
-    this.listeners.forEach((cb) => cb());
+    this.listeners.forEach((cb) => {
+      cb();
+    });
   }
 }
 

@@ -10,8 +10,17 @@ console.log("Chart Only Main Loaded");
 
 const tjaChart = document.getElementById("chart-component") as TJAChart;
 
+interface CustomWindow extends Window {
+  loadChart: (tjaContent: string, difficulty?: string) => void;
+  setOptions: (options: ViewOptions) => void;
+  autoAnnotate: () => void;
+  setJudgements: (judgements: string[], deltas: (number | undefined)[]) => void;
+}
+
+const w = window as unknown as CustomWindow;
+
 // Expose API for Playwright
-(window as any).loadChart = (tjaContent: string, difficulty: string = "oni") => {
+w.loadChart = (tjaContent: string, difficulty: string = "oni") => {
   try {
     const parsed = parseTJA(tjaContent);
     const chart = parsed[difficulty] || Object.values(parsed)[0];
@@ -27,7 +36,7 @@ const tjaChart = document.getElementById("chart-component") as TJAChart;
   }
 };
 
-(window as any).setOptions = (options: ViewOptions) => {
+w.setOptions = (options: ViewOptions) => {
   tjaChart.viewOptions = options;
 };
 
@@ -43,11 +52,11 @@ tjaChart.addEventListener("annotations-change", (e: Event) => {
   }
 });
 
-(window as any).autoAnnotate = () => {
+w.autoAnnotate = () => {
   tjaChart.autoAnnotate();
 };
 
-(window as any).setJudgements = (judgements: string[], deltas: (number | undefined)[]) => {
+w.setJudgements = (judgements: string[], deltas: (number | undefined)[]) => {
   tjaChart.judgements = judgements;
   tjaChart.judgementDeltas = deltas || [];
 };
@@ -72,7 +81,7 @@ tjaChart.viewOptions = {
 // Load Example by Default
 try {
   console.log("Loading example chart...");
-  (window as any).loadChart(exampleTJA, "oni");
+  w.loadChart(exampleTJA, "oni");
   console.log("Example chart loaded.");
 } catch (e) {
   console.error("Error loading example chart:", e);

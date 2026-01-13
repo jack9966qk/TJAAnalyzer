@@ -1,5 +1,5 @@
+import path from "node:path";
 import { expect, test } from "@playwright/test";
-import path from "path";
 
 test.describe("Visual Regression", () => {
   test("Initial Render", async ({ page }) => {
@@ -24,7 +24,7 @@ test.describe("Visual Regression", () => {
     await page.goto("/chart-only.html");
     await page.waitForFunction(() => {
       const chart = document.querySelector("tja-chart");
-      return chart && chart.shadowRoot && chart.shadowRoot.querySelector("canvas");
+      return chart?.shadowRoot?.querySelector("canvas");
     });
 
     await page.evaluate(() => {
@@ -53,7 +53,7 @@ test.describe("Visual Regression", () => {
     const optionsBody = page.locator("#options-body");
     if ((await optionsBody.count()) > 0) {
       const classes = await optionsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#options-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -62,7 +62,7 @@ test.describe("Visual Regression", () => {
     const dsBody = page.locator("#ds-body");
     if ((await dsBody.count()) > 0) {
       const classes = await dsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#ds-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -123,7 +123,7 @@ test.describe("Visual Regression", () => {
     await page.goto("/chart-only.html");
     await page.waitForFunction(() => {
       const chart = document.querySelector("tja-chart");
-      return chart && chart.shadowRoot && chart.shadowRoot.querySelector("canvas");
+      return chart?.shadowRoot?.querySelector("canvas");
     });
 
     await page.evaluate(() => {
@@ -168,7 +168,7 @@ test.describe("Visual Regression", () => {
     await page.goto("/chart-only.html");
     await page.waitForFunction(() => {
       const chart = document.querySelector("tja-chart");
-      return chart && chart.shadowRoot && chart.shadowRoot.querySelector("canvas");
+      return chart?.shadowRoot?.querySelector("canvas");
     });
 
     await page.evaluate(() => {
@@ -213,7 +213,7 @@ test.describe("Visual Regression", () => {
     await page.goto("/chart-only.html");
     await page.waitForFunction(() => {
       const chart = document.querySelector("tja-chart");
-      return chart && chart.shadowRoot && chart.shadowRoot.querySelector("canvas");
+      return chart?.shadowRoot?.querySelector("canvas");
     });
 
     await page.evaluate(() => {
@@ -258,7 +258,7 @@ test.describe("Visual Regression", () => {
     await page.goto("/chart-only.html");
     await page.waitForFunction(() => {
       const chart = document.querySelector("tja-chart");
-      return chart && chart.shadowRoot && chart.shadowRoot.querySelector("canvas");
+      return chart?.shadowRoot?.querySelector("canvas");
     });
 
     await page.evaluate(() => {
@@ -442,7 +442,7 @@ LEVEL:10
     const optionsBody = page.locator("#options-body");
     if ((await optionsBody.count()) > 0) {
       const classes = await optionsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#options-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -451,7 +451,7 @@ LEVEL:10
     const dsBody = page.locator("#ds-body");
     if ((await dsBody.count()) > 0) {
       const classes = await dsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#ds-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -529,7 +529,7 @@ LEVEL:10
     const optionsBody = page.locator("#options-body");
     if ((await optionsBody.count()) > 0) {
       const classes = await optionsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#options-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -538,7 +538,7 @@ LEVEL:10
     const dsBody = page.locator("#ds-body");
     if ((await dsBody.count()) > 0) {
       const classes = await dsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#ds-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -595,7 +595,7 @@ test.describe("UI Logic", () => {
     const optionsBody = page.locator("#options-body");
     if ((await optionsBody.count()) > 0) {
       const classes = await optionsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#options-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -604,7 +604,7 @@ test.describe("UI Logic", () => {
     const dsBody = page.locator("#ds-body");
     if ((await dsBody.count()) > 0) {
       const classes = await dsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#ds-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -645,7 +645,7 @@ test.describe("UI Logic", () => {
     const optionsBody = page.locator("#options-body");
     if ((await optionsBody.count()) > 0) {
       const classes = await optionsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#options-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -654,7 +654,7 @@ test.describe("UI Logic", () => {
     const dsBody = page.locator("#ds-body");
     if ((await dsBody.count()) > 0) {
       const classes = await dsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#ds-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -686,7 +686,7 @@ test.describe("UI Logic", () => {
     const dsBodyReloaded = page.locator("#ds-body");
     if ((await dsBodyReloaded.count()) > 0) {
       const classes = await dsBodyReloaded.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#ds-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -735,7 +735,7 @@ test.describe("Loop Controls Interaction", () => {
     const optionsBody = page.locator("#options-body");
     if ((await optionsBody.count()) > 0) {
       const classes = await optionsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#options-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -744,7 +744,7 @@ test.describe("Loop Controls Interaction", () => {
     const dsBody = page.locator("#ds-body");
     if ((await dsBody.count()) > 0) {
       const classes = await dsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#ds-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -805,7 +805,7 @@ test.describe("Zoom Controls", () => {
     const optionsBody = page.locator("#options-body");
     if ((await optionsBody.count()) > 0) {
       const classes = await optionsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#options-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -814,7 +814,7 @@ test.describe("Zoom Controls", () => {
     const dsBody = page.locator("#ds-body");
     if ((await dsBody.count()) > 0) {
       const classes = await dsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#ds-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -854,7 +854,7 @@ test.describe("Selection Interaction", () => {
     const optionsBody = page.locator("#options-body");
     if ((await optionsBody.count()) > 0) {
       const classes = await optionsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#options-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -863,7 +863,7 @@ test.describe("Selection Interaction", () => {
     const dsBody = page.locator("#ds-body");
     if ((await dsBody.count()) > 0) {
       const classes = await dsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#ds-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -926,7 +926,7 @@ test.describe("Selection Interaction", () => {
     const optionsBody = page.locator("#options-body");
     if ((await optionsBody.count()) > 0) {
       const classes = await optionsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#options-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -935,7 +935,7 @@ test.describe("Selection Interaction", () => {
     const dsBody = page.locator("#ds-body");
     if ((await dsBody.count()) > 0) {
       const classes = await dsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#ds-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -992,7 +992,7 @@ test.describe("Selection Interaction", () => {
     const optionsBody = page.locator("#options-body");
     if ((await optionsBody.count()) > 0) {
       const classes = await optionsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#options-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -1001,7 +1001,7 @@ test.describe("Selection Interaction", () => {
     const dsBody = page.locator("#ds-body");
     if ((await dsBody.count()) > 0) {
       const classes = await dsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#ds-collapse-btn");
         await page.waitForTimeout(500);
       }

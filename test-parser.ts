@@ -11,7 +11,7 @@ try {
     throw new Error("Parsed 0 difficulties. Something is wrong.");
   }
 
-  const chart = charts["edit"];
+  const chart = charts.edit;
   if (!chart || !chart.bars) {
     throw new Error("'edit' difficulty not found in parsed charts.");
   }
@@ -98,7 +98,7 @@ LEVEL:8
 #END
 `;
   const gogoCharts = parseTJA(gogoTJA);
-  const gogoChart = gogoCharts["oni"];
+  const gogoChart = gogoCharts.oni;
 
   if (!gogoChart) throw new Error("Gogo Test Chart not parsed");
 
@@ -147,7 +147,7 @@ LEVEL:9
 #END
 `;
   const branchCharts = parseTJA(branchingTJA);
-  const branchChart = branchCharts["edit"];
+  const branchChart = branchCharts.edit;
 
   if (!branchChart) throw new Error("Branch Test Chart not parsed");
   if (!branchChart.branches) throw new Error("Branch Test Chart should have branches");
@@ -210,7 +210,7 @@ LEVEL:9
 #END
 `;
   const seqCharts = parseTJA(seqBranchTJA);
-  const seqChart = seqCharts["oni"];
+  const seqChart = seqCharts.oni;
 
   if (!seqChart || !seqChart.branches || !seqChart.branches.normal)
     throw new Error("Sequential Branch Chart not parsed correctly");

@@ -4,6 +4,7 @@ import {
   createLayout,
   getNoteAt,
   getNotePosition,
+  type HitInfo,
   PALETTE,
   type RenderTexts,
   renderChart,
@@ -16,7 +17,7 @@ import type { ParsedChart } from "./tja-parser.js";
 export interface ChartClickEventDetail {
   x: number;
   y: number;
-  hit: any; // HitInfo
+  hit: HitInfo | null;
   originalEvent: MouseEvent;
 }
 
@@ -73,9 +74,9 @@ export class TJAChart extends HTMLElement {
     this.messageContainer.classList.add("hidden");
 
     this.canvas = document.createElement("canvas");
-    this.shadowRoot!.appendChild(style);
-    this.shadowRoot!.appendChild(this.messageContainer);
-    this.shadowRoot!.appendChild(this.canvas);
+    this.shadowRoot?.appendChild(style);
+    this.shadowRoot?.appendChild(this.messageContainer);
+    this.shadowRoot?.appendChild(this.canvas);
 
     this.resizeObserver = new ResizeObserver(() => {
       this._pendingFullRender = true;
@@ -99,8 +100,11 @@ export class TJAChart extends HTMLElement {
 
   private upgradeProperty(prop: string) {
     if (Object.hasOwn(this, prop)) {
+      // biome-ignore lint/suspicious/noExplicitAny: Required for Web Component property upgrade pattern
       const value = (this as any)[prop];
+      // biome-ignore lint/suspicious/noExplicitAny: Required for Web Component property upgrade pattern
       delete (this as any)[prop];
+      // biome-ignore lint/suspicious/noExplicitAny: Required for Web Component property upgrade pattern
       (this as any)[prop] = value;
     }
   }
@@ -221,7 +225,7 @@ export class TJAChart extends HTMLElement {
       this.canvas.width = width;
       this.canvas.height = 0;
       this.canvas.style.height = "0px";
-      this.canvas.style.width = width + "px";
+      this.canvas.style.width = `${width}px`;
       ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       return;
     }

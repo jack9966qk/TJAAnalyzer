@@ -201,8 +201,8 @@ function filterEseResults(query: string) {
         const q = query.toLowerCase();
         return (
           node.path.toLowerCase().includes(q) ||
-          (node.title && node.title.toLowerCase().includes(q)) ||
-          (node.titleJp && node.titleJp.toLowerCase().includes(q))
+          node.title?.toLowerCase().includes(q) ||
+          node.titleJp?.toLowerCase().includes(q)
         );
       })
     : eseTree;
@@ -232,7 +232,9 @@ function filterEseResults(query: string) {
       try {
         updateStatus("status.loadingChart");
         // Highlight selection
-        document.querySelectorAll(".ese-result-item").forEach((el) => el.classList.remove("selected"));
+        document.querySelectorAll(".ese-result-item").forEach((el) => {
+          el.classList.remove("selected");
+        });
         div.classList.add("selected");
 
         const content = await eseClient.getFileContent(node.path);
@@ -560,7 +562,7 @@ function updateBranchSelectorState(resetBranch: boolean = false) {
 
 function updateCollapseLoopState() {
   if (!collapseLoopCheckbox) return;
-  const hasLoop = currentChart && currentChart.loop;
+  const hasLoop = currentChart?.loop;
   const optionSection = collapseLoopCheckbox.closest(".option-section") as HTMLElement;
   if (hasLoop) {
     collapseLoopCheckbox.disabled = false;
@@ -724,9 +726,13 @@ function init(): void {
     }
   }
 
-  judgementStyleRadios.forEach((r) => r.addEventListener("change", updateDisplayState));
+  judgementStyleRadios.forEach((r) => {
+    r.addEventListener("change", updateDisplayState);
+  });
 
-  judgementColoringRadios.forEach((r) => r.addEventListener("change", updateDisplayState));
+  judgementColoringRadios.forEach((r) => {
+    r.addEventListener("change", updateDisplayState);
+  });
 
   // Setup Data Source Tabs
 
@@ -769,7 +775,7 @@ function init(): void {
       const gapCount = gapCountInput ? parseInt(gapCountInput.value, 10) : 1;
 
       const chartNameInput = document.getElementById("export-chart-name") as HTMLInputElement;
-      const chartName = chartNameInput && chartNameInput.value ? chartNameInput.value : "Exported Selection";
+      const chartName = chartNameInput?.value ? chartNameInput.value : "Exported Selection";
 
       try {
         const tjaContent = generateTJAFromSelection(
@@ -898,7 +904,9 @@ function init(): void {
       if (eseShareBtn) eseShareBtn.disabled = true;
       if (eseResults) {
         // Clear highlights
-        document.querySelectorAll(".ese-result-item").forEach((el) => el.classList.remove("selected"));
+        document.querySelectorAll(".ese-result-item").forEach((el) => {
+          el.classList.remove("selected");
+        });
       }
       if (eseSearchInput) eseSearchInput.value = "";
 
@@ -1003,14 +1011,14 @@ function init(): void {
   // Loop Controls
 
   if (loopAutoCheckbox) {
-    loopAutoCheckbox.addEventListener("change", (e) => {
+    loopAutoCheckbox.addEventListener("change", (_e) => {
       if (loopAutoCheckbox.checked) {
         viewOptions.selectedLoopIteration = undefined;
       } else {
         const matches = loopCounter.innerText.match(/(\d+) \/ (\d+)/);
 
         if (matches) {
-          viewOptions.selectedLoopIteration = parseInt(matches[1]) - 1;
+          viewOptions.selectedLoopIteration = parseInt(matches[1], 10) - 1;
         } else {
           viewOptions.selectedLoopIteration = 0;
         }
@@ -1033,8 +1041,7 @@ function init(): void {
   if (loopNextBtn) {
     loopNextBtn.addEventListener("click", () => {
       if (
-        currentChart &&
-        currentChart.loop &&
+        currentChart?.loop &&
         viewOptions.selectedLoopIteration !== undefined &&
         viewOptions.selectedLoopIteration < currentChart.loop.iterations - 1
       ) {
@@ -1148,7 +1155,7 @@ function init(): void {
         return res.json();
       })
       .then((data) => {
-        if (data && data.version) {
+        if (data?.version) {
           appVersionEl.innerText = `v${data.version}`;
         }
       })
@@ -1290,7 +1297,7 @@ function init(): void {
         updateParsedCharts(summary.tjaContent);
 
         const diff = summary.difficulty.toLowerCase();
-        if (parsedTJACharts && parsedTJACharts[diff]) {
+        if (parsedTJACharts?.[diff]) {
           difficultySelector.value = diff;
           currentChart = parsedTJACharts[diff];
         }

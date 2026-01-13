@@ -12,7 +12,7 @@ export async function shareFile(
   dialogTitle: string,
 ): Promise<void> {
   // 1. Prepare Blob
-  const blob = new Blob([content as any], { type: mimeType });
+  const blob = new Blob([content], { type: mimeType });
 
   // 2. Web Share API
   // Note: 'files' support in navigator.share is limited.
@@ -28,9 +28,9 @@ export async function shareFile(
         return;
       }
     }
-  } catch (e: any) {
+  } catch (e) {
     // AbortError means user cancelled the share sheet, which is fine.
-    if (e.name === "AbortError") {
+    if (e instanceof Error && e.name === "AbortError") {
       return;
     }
     console.warn("Web Share API failed, falling back:", e);
@@ -38,7 +38,7 @@ export async function shareFile(
 
   // 3. Neutralino (Desktop App)
   const N = (window as any).Neutralino;
-  if (N && N.os && N.os.showSaveDialog) {
+  if (N?.os?.showSaveDialog) {
     try {
       const extension = fileName.includes(".") ? fileName.split(".").pop() : undefined;
       const entry = await N.os.showSaveDialog(dialogTitle, {

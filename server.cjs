@@ -1,9 +1,9 @@
-const http = require("http");
-const fs = require("fs");
-const path = require("path");
+const http = require("node:http");
+const fs = require("node:fs");
+const path = require("node:path");
 
 const server = http.createServer((req, res) => {
-  let filePath = "." + req.url;
+  let filePath = `.${req.url}`;
   if (filePath === "./") filePath = "./www/index.html";
 
   const extname = path.extname(filePath);
@@ -25,7 +25,7 @@ const server = http.createServer((req, res) => {
 
   fs.readFile(filePath, (error, content) => {
     if (error) {
-      if (error.code == "ENOENT") {
+      if (error.code === "ENOENT") {
         res.writeHead(404);
         res.end("404");
       } else {

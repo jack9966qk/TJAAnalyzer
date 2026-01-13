@@ -98,7 +98,9 @@ test.describe("Layout Tests", () => {
     // Spacer appended now will be last.
 
     // Let's scroll to bottom
-    await controls.evaluate((el) => (el.scrollTop = el.scrollHeight));
+    await controls.evaluate((el) => {
+      el.scrollTop = el.scrollHeight;
+    });
 
     // Spacer should be visible at bottom
     // Footer should be above spacer?
@@ -112,7 +114,7 @@ test.describe("Layout Tests", () => {
       if (!spacer) return false;
       const rect = spacer.getBoundingClientRect();
       const containerRect = container?.getBoundingClientRect();
-      return rect.bottom > containerRect!.top; // Visible in some way
+      return rect.bottom > containerRect?.top; // Visible in some way
     });
     // Just checking standard visibility
     await expect(page.locator("text=Spacer")).toBeVisible();

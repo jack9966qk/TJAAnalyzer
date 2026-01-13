@@ -89,7 +89,7 @@
 }
 
 [hidden] {
-  display: none !important;
+  display: none;
 }
 
 body {
@@ -802,11 +802,11 @@ body.horizontal-layout #layout-toggle-btn {
 
 /* Collapsed State for Horizontal Layout */
 body.horizontal-layout.controls-collapsed #controls-container {
-  width: 0 !important;
+  width: 0;
   border-right: none;
 }
 
 body.horizontal-layout.controls-collapsed #layout-toggle-btn {
-  left: 0 !important;
+  left: 0;
   border-left: 1px solid var(--border-color);
 }

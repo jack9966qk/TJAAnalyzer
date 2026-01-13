@@ -23,7 +23,7 @@ test.describe("ESE List Behavior", () => {
     const dsBody = page.locator("#ds-body");
     if ((await dsBody.count()) > 0) {
       const classes = await dsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#ds-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -75,7 +75,7 @@ test.describe("ESE List Behavior", () => {
     const dsBody = page.locator("#ds-body");
     if ((await dsBody.count()) > 0) {
       const classes = await dsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#ds-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -117,7 +117,7 @@ test.describe("ESE List Behavior", () => {
     const dsBody = page.locator("#ds-body");
     if ((await dsBody.count()) > 0) {
       const classes = await dsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#ds-collapse-btn");
         await page.waitForTimeout(500);
       }

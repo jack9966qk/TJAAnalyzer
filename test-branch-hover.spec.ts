@@ -8,7 +8,7 @@ test.describe("Branch Hover Interaction", () => {
     const optionsBody = page.locator("#options-body");
     if ((await optionsBody.count()) > 0) {
       const classes = await optionsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#options-collapse-btn");
         await page.waitForTimeout(500);
       }
@@ -17,7 +17,7 @@ test.describe("Branch Hover Interaction", () => {
     const dsBody = page.locator("#ds-body");
     if ((await dsBody.count()) > 0) {
       const classes = await dsBody.getAttribute("class");
-      if (classes && classes.includes("collapsed")) {
+      if (classes?.includes("collapsed")) {
         await page.click("#ds-collapse-btn");
         await page.waitForTimeout(500);
       }

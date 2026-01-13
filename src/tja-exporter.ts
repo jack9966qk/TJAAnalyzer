@@ -136,14 +136,14 @@ export function generateTJAFromSelection(
     `WAVE:placeholder.mp3`,
     `OFFSET:0`,
     `COURSE:${courseName.charAt(0).toUpperCase() + courseName.slice(1)}`,
-    `LEVEL:${chart.headers["LEVEL"] || "10"}`,
+    `LEVEL:${chart.headers.LEVEL || "10"}`,
   ];
 
   if (exportedBalloons.length > 0) {
     headers.push(`BALLOON:${exportedBalloons.join(",")}`);
   }
 
-  let tjaContent = headers.join("\n") + "\n\n#START\n";
+  let tjaContent = `${headers.join("\n")}\n\n#START\n`;
 
   // 4. Generate Content
 
@@ -196,7 +196,7 @@ export function generateTJAFromSelection(
     for (let i = 0; i < bar.length; i++) {
       if (commandsAt[i]) {
         if (barString.length > 0 && !barString.endsWith("\n")) barString += "\n";
-        barString += commandsAt[i].join("\n") + "\n";
+        barString += `${commandsAt[i].join("\n")}\n`;
       }
 
       const char = bar[i];
@@ -207,10 +207,10 @@ export function generateTJAFromSelection(
     // Trailing commands
     if (commandsAt[bar.length]) {
       if (barString.length > 0 && !barString.endsWith("\n")) barString += "\n";
-      barString += commandsAt[bar.length].join("\n") + "\n";
+      barString += `${commandsAt[bar.length].join("\n")}\n`;
     }
 
-    selectionBlock += barString + ",\n";
+    selectionBlock += `${barString},\n`;
   }
 
   // Now assemble the loops
@@ -222,7 +222,7 @@ export function generateTJAFromSelection(
     tjaContent += `#SCROLL ${formatVal(startContext.scroll)}\n`;
 
     // Gap Gogo State
-    tjaContent += (shouldGapBeGogo ? "#GOGOSTART" : "#GOGOEND") + "\n";
+    tjaContent += `${shouldGapBeGogo ? "#GOGOSTART" : "#GOGOEND"}\n`;
 
     for (let g = 0; g < gapCount; g++) {
       tjaContent += `0,\n`;
@@ -231,7 +231,7 @@ export function generateTJAFromSelection(
     // Selection Start Correction
     // We need to restore the state expected by the start of the selection block (startContext.gogoTime)
     if (startContext.gogoTime !== shouldGapBeGogo) {
-      tjaContent += (startContext.gogoTime ? "#GOGOSTART" : "#GOGOEND") + "\n";
+      tjaContent += `${startContext.gogoTime ? "#GOGOSTART" : "#GOGOEND"}\n`;
     }
 
     // Selection
@@ -245,7 +245,7 @@ export function generateTJAFromSelection(
   tjaContent += `#SCROLL ${formatVal(endContext.scroll)}\n`;
 
   // We treat End Padding as a Gap too
-  tjaContent += (shouldGapBeGogo ? "#GOGOSTART" : "#GOGOEND") + "\n";
+  tjaContent += `${shouldGapBeGogo ? "#GOGOSTART" : "#GOGOEND"}\n`;
 
   for (let g = 0; g < 3; g++) {
     tjaContent += `0,\n`;

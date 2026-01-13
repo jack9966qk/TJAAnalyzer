@@ -25,8 +25,6 @@ export class JudgementClient {
   private onMessageCallback: EventCallback | null = null;
   private onStatusChangeCallback: ((status: string) => void) | null = null;
 
-  constructor() {}
-
   connect(host: string, port: number) {
     this.disconnect();
 
@@ -63,7 +61,7 @@ export class JudgementClient {
         }
       };
 
-      this.eventSource.onerror = (e) => {
+      this.eventSource.onerror = (_e) => {
         // EventSource doesn't give detailed error info
         console.error("EventSource error.");
         if (this.eventSource?.readyState === EventSource.CLOSED) {

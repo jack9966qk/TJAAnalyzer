@@ -81,8 +81,8 @@ export class NoteStatsDisplay extends HTMLElement {
     this.container = document.createElement("div");
     this.container.id = "container";
 
-    this.shadowRoot!.appendChild(style);
-    this.shadowRoot!.appendChild(this.container);
+    this.shadowRoot?.appendChild(style);
+    this.shadowRoot?.appendChild(this.container);
   }
 
   connectedCallback() {
@@ -220,7 +220,7 @@ export class NoteStatsDisplay extends HTMLElement {
 
     // Resolve target chart based on branch
     let targetChart = chart;
-    if (hit && hit.branch && chart && chart.branches) {
+    if (hit?.branch && chart && chart.branches) {
       if (hit.branch === "normal") targetChart = chart.branches.normal || chart;
       else if (hit.branch === "expert") targetChart = chart.branches.expert || chart;
       else if (hit.branch === "master") targetChart = chart.branches.master || chart;

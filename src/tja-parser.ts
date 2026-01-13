@@ -149,20 +149,20 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
       const headers = { ...globalHeader, ...courseHeaders[courseName] };
 
       // Metadata Extraction
-      const title = headers["TITLEJA"] || headers["TITLE"] || "";
-      const subtitle = headers["SUBTITLEJA"] || headers["SUBTITLE"] || "";
-      const bpm = parseFloat(headers["BPM"]) || 120;
-      const level = parseInt(headers["LEVEL"]) || 0;
-      const course = headers["COURSE"] || courseName;
+      const title = headers.TITLEJA || headers.TITLE || "";
+      const subtitle = headers.SUBTITLEJA || headers.SUBTITLE || "";
+      const bpm = parseFloat(headers.BPM) || 120;
+      const level = parseInt(headers.LEVEL, 10) || 0;
+      const course = headers.COURSE || courseName;
 
       // Parse BALLOON counts
       let balloonCounts: number[] = [];
-      const balloonStr = headers["BALLOON"];
+      const balloonStr = headers.BALLOON;
       if (balloonStr) {
         balloonCounts = balloonStr
           .split(/[,]+/)
-          .map((s) => parseInt(s.trim()))
-          .filter((n) => !isNaN(n));
+          .map((s) => parseInt(s.trim(), 10))
+          .filter((n) => !Number.isNaN(n));
       }
 
       // Buffers for parsing
@@ -201,7 +201,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
               const parts = line.split(/[:\s]+/);
               if (parts.length >= 2) {
                 const val = parseFloat(parts[1]);
-                if (!isNaN(val)) {
+                if (!Number.isNaN(val)) {
                   state.bpm = val;
                   state.currentBarBpmChanges.push({ index: state.currentBarBuffer.length, bpm: val });
                 }
@@ -209,7 +209,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
             } else if (upperLine.startsWith("#BPM:")) {
               // Handle incorrect usage
               const val = parseFloat(line.substring(5));
-              if (!isNaN(val)) {
+              if (!Number.isNaN(val)) {
                 state.bpm = val;
                 state.currentBarBpmChanges.push({ index: state.currentBarBuffer.length, bpm: val });
               }
@@ -217,7 +217,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
               const parts = line.split(/[:\s]+/);
               if (parts.length >= 2) {
                 const val = parseFloat(parts[1]);
-                if (!isNaN(val)) {
+                if (!Number.isNaN(val)) {
                   state.scroll = val;
                   state.currentBarScrollChanges.push({ index: state.currentBarBuffer.length, scroll: val });
                 }
@@ -229,7 +229,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                 if (fraction.length === 2) {
                   const num = parseFloat(fraction[0]);
                   const den = parseFloat(fraction[1]);
-                  if (!isNaN(num) && !isNaN(den) && den !== 0) {
+                  if (!Number.isNaN(num) && !Number.isNaN(den) && den !== 0) {
                     state.measureRatio = num / den;
                   }
                 }

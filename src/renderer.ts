@@ -87,10 +87,26 @@ export interface BarLayout {
   height: number;
 }
 
+export interface RenderConstants {
+  BAR_HEIGHT: number;
+  ROW_SPACING: number;
+  NOTE_RADIUS_SMALL: number;
+  NOTE_RADIUS_BIG: number;
+  LW_BAR: number;
+  LW_CENTER: number;
+  LW_NOTE_OUTER: number;
+  LW_NOTE_INNER: number;
+  LW_UNDERLINE_BORDER: number;
+  BAR_NUMBER_FONT_SIZE: number;
+  STATUS_FONT_SIZE: number;
+  BAR_NUMBER_OFFSET_Y: number;
+  HEADER_HEIGHT: number;
+}
+
 export interface ChartLayout {
   virtualBars: RenderBarInfo[];
   layouts: BarLayout[];
-  constants: any;
+  constants: RenderConstants;
   totalHeight: number;
   globalBarStartIndices: number[];
   balloonIndices: Map<string, number>;
@@ -198,7 +214,7 @@ export function calculateInferredHands(
         inferred.set(noteId, currentInferred);
 
         // Determine source of truth for next note
-        if (annotations && annotations[noteId]) {
+        if (annotations?.[noteId]) {
           lastHand = annotations[noteId];
         } else {
           lastHand = currentInferred;
@@ -351,7 +367,7 @@ function calculateLayout(
   logicalCanvasWidth: number,
   options: ViewOptions,
   offsetY: number = PADDING,
-): { layouts: BarLayout[]; constants: any; totalHeight: number; baseBarWidth: number } {
+): { layouts: BarLayout[]; constants: RenderConstants; totalHeight: number; baseBarWidth: number } {
   // 1. Determine Base Dimensions
   // The full canvas width (minus padding) represents 'beatsPerLine' beats.
   const availableWidth = logicalCanvasWidth - PADDING * 2;
@@ -550,7 +566,7 @@ export function getNoteAt(
         const currentParams = targetChart.barParams[info.originalIndex];
 
         let effectiveBpm = currentParams ? currentParams.bpm : 120;
-        if (currentParams && currentParams.bpmChanges) {
+        if (currentParams?.bpmChanges) {
           for (const change of currentParams.bpmChanges) {
             if (i >= change.index) {
               effectiveBpm = change.bpm;
@@ -559,7 +575,7 @@ export function getNoteAt(
         }
 
         let effectiveScroll = currentParams ? currentParams.scroll : 1.0;
-        if (currentParams && currentParams.scrollChanges) {
+        if (currentParams?.scrollChanges) {
           for (const change of currentParams.scrollChanges) {
             if (i >= change.index) {
               effectiveScroll = change.scroll;
@@ -630,7 +646,9 @@ export function getNotePosition(
 
 export function getGradientColor(delta: number): string {
   const clamped = Math.max(-100, Math.min(100, delta));
-  let r, g, b;
+  let r = 0;
+  let g = 0;
+  let b = 0;
 
   if (clamped < 0) {
     // -100 (#B0CC35: 176, 204, 53) -> 0 (White: 255, 255, 255)
@@ -742,8 +760,8 @@ export function renderLayout(
   const canvas = ctx.canvas;
   canvas.width = logicalCanvasWidth * effectiveDpr;
   canvas.height = finalCanvasHeight;
-  canvas.style.width = logicalCanvasWidth + "px";
-  canvas.style.height = finalStyleHeight + "px";
+  canvas.style.width = `${logicalCanvasWidth}px`;
+  canvas.style.height = `${finalStyleHeight}px`;
 
   ctx.resetTransform();
   ctx.scale(effectiveDpr, effectiveDpr);
@@ -977,7 +995,7 @@ function drawBarBackgroundWrapper(
   index: number,
   chart: ParsedChart,
   options: ViewOptions,
-  constants: any,
+  constants: RenderConstants,
   virtualBars: RenderBarInfo[],
   layouts: BarLayout[],
   texts: RenderTexts,
@@ -1201,16 +1219,16 @@ function drawAllBranchesNotes(
   chart: ParsedChart,
   virtualBars: RenderBarInfo[],
   layouts: BarLayout[],
-  constants: any,
+  constants: RenderConstants,
   options: ViewOptions,
-  judgements: string[],
-  judgementDeltas: (number | undefined)[],
+  _judgements: string[],
+  _judgementDeltas: (number | undefined)[],
   texts: RenderTexts,
-  balloonIndices: Map<string, number>,
+  _balloonIndices: Map<string, number>,
   BASE_LANE_HEIGHT: number,
 ) {
   if (!chart.branches) return;
-  const branches = [
+  const branches: { type: "normal" | "expert" | "master"; data: ParsedChart; yOffset: number }[] = [
     { type: "normal", data: chart.branches.normal || chart, yOffset: 0 },
     { type: "expert", data: chart.branches.expert || chart, yOffset: BASE_LANE_HEIGHT },
     { type: "master", data: chart.branches.master || chart, yOffset: BASE_LANE_HEIGHT * 2 },
@@ -1353,8 +1371,8 @@ export function renderChart(
     canvas.width = logicalCanvasWidth * effectiveDpr;
     canvas.height = finalCanvasHeight;
 
-    canvas.style.width = logicalCanvasWidth + "px";
-    canvas.style.height = finalStyleHeight + "px";
+    canvas.style.width = `${logicalCanvasWidth}px`;
+    canvas.style.height = `${finalStyleHeight}px`;
 
     ctx.scale(effectiveDpr, effectiveDpr);
 
@@ -1689,7 +1707,7 @@ export function renderChart(
           b.data.bars,
           undefined,
           undefined,
-          b.type as any,
+          b.type,
         );
       }
     });
@@ -1795,7 +1813,7 @@ function drawChartHeader(
   const courseKey = course.toLowerCase();
   let courseName = course.charAt(0).toUpperCase() + course.slice(1);
 
-  if (texts.course && texts.course[courseKey]) {
+  if (texts.course?.[courseKey]) {
     courseName = texts.course[courseKey];
   }
 
@@ -2171,7 +2189,7 @@ function drawDrumrollSegment(
   borderOuterW: number,
   borderInnerW: number,
   viewMode: "original" | "judgements" | "judgements-underline" | "judgements-text",
-  type: string,
+  _type: string,
 ): void {
   let fillColor = PALETTE.notes.drumroll;
   let innerBorderColor = PALETTE.notes.border.white;
