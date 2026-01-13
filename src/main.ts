@@ -247,7 +247,7 @@ function filterEseResults(query: string) {
         resetExampleButton();
       } catch (e) {
         console.error(e);
-        const errMsg = (e as any).message || String(e);
+        const errMsg = e instanceof Error ? e.message : String(e);
         alert(`Failed to load chart: ${errMsg}`);
         updateStatus("status.eseError", { error: errMsg });
       }
@@ -312,7 +312,7 @@ function switchDataSourceMode(mode: string) {
           }
         })
         .catch((e) => {
-          const errMsg = (e as any).message || String(e);
+          const errMsg = e instanceof Error ? e.message : String(e);
           updateStatus("status.eseError", { error: errMsg });
           if (eseResults)
             eseResults.innerHTML = `<div style="padding:10px; color:red">Error loading tree: ${errMsg}</div>`;
@@ -382,7 +382,7 @@ async function loadEseFromUrl(path: string, diff: string) {
     resetExampleButton();
   } catch (e) {
     console.error("Error in loadEseFromUrl", e);
-    const errMsg = (e as any).message || String(e);
+    const errMsg = e instanceof Error ? e.message : String(e);
     alert(`Failed to load chart from URL: ${errMsg}`);
     updateStatus("status.eseError", { error: errMsg });
   }
@@ -944,7 +944,7 @@ function init(): void {
           resetExampleButton();
         } catch (e) {
           console.error("Error parsing TJA file:", e);
-          const msg = i18n.t("status.parseError", { error: (e as any).message || String(e) });
+          const msg = i18n.t("status.parseError", { error: e instanceof Error ? e.message : String(e) });
           alert(msg);
           if (statusDisplay) statusDisplay.innerText = msg;
         }
@@ -1111,6 +1111,7 @@ function init(): void {
 
           changelogList.innerHTML = "";
           if (Array.isArray(data) && data.length > 0) {
+            // biome-ignore lint/suspicious/noExplicitAny: Changelog data is untyped
             data.forEach((item: any) => {
               const div = document.createElement("div");
               div.className = "changelog-item";
@@ -1619,20 +1620,21 @@ window.addEventListener("resize", () => {
 });
 
 // Expose for testing
-(window as any).setJudgements = (newJudgements: string[], newDeltas?: (number | undefined)[]) => {
+window.setJudgements = (newJudgements: string[], newDeltas?: (number | undefined)[]) => {
   judgements = newJudgements;
   judgementDeltas = newDeltas || [];
   refreshChart();
   updateStatsComponent(null);
 };
 
-(window as any).loadTJAContent = (content: string) => {
+window.loadTJAContent = (content: string) => {
   loadedTJAContent = content;
   updateParsedCharts(content);
   updateStatus("status.fileLoaded");
 };
 
-(window as any).setViewOptions = (opts: any) => {
+// biome-ignore lint/suspicious/noExplicitAny: Test helper
+window.setViewOptions = (opts: any) => {
   viewOptions = { ...viewOptions, ...opts };
   refreshChart();
 };

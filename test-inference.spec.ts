@@ -20,8 +20,8 @@ LEVEL:10
 #END`;
 
     await page.evaluate((tjaContent) => {
-      (window as any).loadChart(tjaContent, "oni");
-      (window as any).setOptions({
+      window.loadChart(tjaContent, "oni");
+      window.setOptions({
         viewMode: "original",
         coloringMode: "categorical",
         visibility: { perfect: true, good: true, poor: true },
@@ -49,6 +49,7 @@ LEVEL:10
     await expect(chartElement).toBeVisible();
 
     const dimensions = await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element shadow root
       const chart = document.getElementById("chart-component") as any;
       const canvas = chart.shadowRoot.querySelector("canvas");
       if (!canvas) throw new Error("Canvas not found");
@@ -83,6 +84,7 @@ LEVEL:10
     await expect(chartElement).toBeVisible();
 
     const dimensions = await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element shadow root
       const chart = document.getElementById("chart-component") as any;
       const canvas = chart.shadowRoot.querySelector("canvas");
       if (!canvas) throw new Error("Canvas not found");

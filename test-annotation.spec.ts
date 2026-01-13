@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
 
 test.describe("Annotation Interaction (Chart Only)", () => {
   test.beforeEach(async ({ page }) => {
@@ -21,8 +21,8 @@ LEVEL:10
 #START
 1000100010001000,
 #END`;
-      (window as any).loadChart(tja, "oni");
-      (window as any).setOptions({
+      window.loadChart(tja, "oni");
+      window.setOptions({
         viewMode: "original",
         coloringMode: "categorical",
         visibility: { perfect: true, good: true, poor: true },
@@ -45,6 +45,7 @@ LEVEL:10
     // But getNoteCoordinates is available on the element.
 
     const notePos = await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element method
       const chart = document.getElementById("chart-component") as any;
       return chart.getNoteCoordinates(0, 0); // Bar 0, Note 0
     });
@@ -65,10 +66,10 @@ LEVEL:10
   });
 
   // Helper for Rule Tests
-  async function testAutoAnnotateRule(page: any, tjaContent: string, snapshotName: string) {
+  async function testAutoAnnotateRule(page: Page, tjaContent: string, snapshotName: string) {
     await page.evaluate((tja: string) => {
-      (window as any).loadChart(tja, "oni");
-      (window as any).setOptions({
+      window.loadChart(tja, "oni");
+      window.setOptions({
         viewMode: "original",
         coloringMode: "categorical",
         visibility: { perfect: true, good: true, poor: true },
@@ -79,7 +80,7 @@ LEVEL:10
         isAnnotationMode: true,
         showAllBranches: false,
       });
-      (window as any).autoAnnotate();
+      window.autoAnnotate();
     }, tjaContent);
 
     const canvas = page.locator("#chart-component");
@@ -201,8 +202,8 @@ LEVEL:10
 #START
 1000100010001000,
 #END`;
-      (window as any).loadChart(tja, "oni");
-      (window as any).testOptions = {
+      window.loadChart(tja, "oni");
+      window.testOptions = {
         viewMode: "original",
         coloringMode: "categorical",
         visibility: { perfect: true, good: true, poor: true },
@@ -213,7 +214,7 @@ LEVEL:10
         isAnnotationMode: true, // Initially true
         showAllBranches: false,
       };
-      (window as any).setOptions((window as any).testOptions);
+      window.setOptions(window.testOptions);
     });
 
     const canvas = page.locator("#chart-component");
@@ -221,8 +222,8 @@ LEVEL:10
     await expect(canvas).toHaveScreenshot("annotation-visible-when-active.png");
 
     await page.evaluate(() => {
-      (window as any).testOptions.isAnnotationMode = false;
-      (window as any).setOptions((window as any).testOptions);
+      window.testOptions.isAnnotationMode = false;
+      window.setOptions(window.testOptions);
     });
 
     // Should NOT show 'L'

@@ -64,6 +64,7 @@ LEVEL:10
     // Normal is top, Expert middle, Master bottom.
 
     const coords = await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
       const PADDING = 20;
       const logicalWidth = chart.clientWidth || 800;
@@ -161,6 +162,7 @@ LEVEL:8
 
     // Get coordinates of the first note (Bar 0, Note 0) - Unbranched
     const p0 = await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
       return chart.getNoteCoordinates(0, 0);
     });
@@ -172,6 +174,7 @@ LEVEL:8
 
     // Check if hoveredNote is set correctly in viewOptions
     const hoveredNote = await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
       return chart.viewOptions.hoveredNote;
     });

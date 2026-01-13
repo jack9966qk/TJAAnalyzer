@@ -33,7 +33,7 @@ test.describe("Note Stats Component", () => {
         bars: [["1", "0", "0", "0"]],
       };
 
-      (window as any).setStats(hit, chart, viewOptions);
+      window.setStats(hit, chart, viewOptions);
     });
 
     const stats = page.locator("note-stats");
@@ -65,7 +65,7 @@ test.describe("Note Stats Component", () => {
       const judgements = ["Perfect"];
       const deltas = [10];
 
-      (window as any).setStats(hit, chart, viewOptions, judgements, deltas);
+      window.setStats(hit, chart, viewOptions, judgements, deltas);
     });
 
     const stats = page.locator("note-stats");
@@ -91,7 +91,7 @@ test.describe("Note Stats Component", () => {
         beatsPerLine: 16,
       };
       const chart = { bars: [["1"]] };
-      (window as any).setStats(hit, chart, viewOptions);
+      window.setStats(hit, chart, viewOptions);
     });
 
     const stats = page.locator("note-stats");

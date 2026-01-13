@@ -1300,6 +1300,7 @@ function drawAllBranchesNotes(
         b.data.bars,
         undefined,
         undefined,
+        // biome-ignore lint/suspicious/noExplicitAny: Branch type mismatch
         b.type as any,
       );
     }
@@ -2032,6 +2033,7 @@ function drawLongNotes(
   ctx: CanvasRenderingContext2D,
   virtualBars: RenderBarInfo[],
   layouts: BarLayout[],
+  // biome-ignore lint/suspicious/noExplicitAny: RenderConstants type complexity
   constants: any,
   viewMode: "original" | "judgements" | "judgements-underline" | "judgements-text",
   balloonCounts: number[],

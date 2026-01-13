@@ -17,6 +17,7 @@ test.describe("Judgement View Edge Cases", () => {
 
     // 1. Set View Mode to Judgements Underline
     await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const tjaChart = document.getElementById("chart-component") as any;
       tjaChart.viewOptions = {
         ...tjaChart.viewOptions,
@@ -33,7 +34,7 @@ test.describe("Judgement View Edge Cases", () => {
 
     await page.evaluate(
       ({ judgements, deltas }) => {
-        (window as any).setJudgements(judgements, deltas);
+        window.setJudgements(judgements, deltas);
       },
       { judgements, deltas },
     );

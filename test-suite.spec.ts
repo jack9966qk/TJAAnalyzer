@@ -28,7 +28,7 @@ test.describe("Visual Regression", () => {
     });
 
     await page.evaluate(() => {
-      (window as any).setOptions({
+      window.setOptions({
         viewMode: "original",
         coloringMode: "categorical",
         visibility: { perfect: true, good: true, poor: true },
@@ -127,7 +127,7 @@ test.describe("Visual Regression", () => {
     });
 
     await page.evaluate(() => {
-      (window as any).setOptions({
+      window.setOptions({
         viewMode: "judgements",
         coloringMode: "categorical",
         visibility: { perfect: true, good: true, poor: true },
@@ -156,7 +156,7 @@ test.describe("Visual Regression", () => {
           judgements.push("Poor");
         }
       }
-      (window as any).setJudgements(judgements, []);
+      window.setJudgements(judgements, []);
     });
 
     const canvas = page.locator("#chart-component");
@@ -172,7 +172,7 @@ test.describe("Visual Regression", () => {
     });
 
     await page.evaluate(() => {
-      (window as any).setOptions({
+      window.setOptions({
         viewMode: "judgements-underline",
         coloringMode: "categorical",
         visibility: { perfect: true, good: true, poor: true },
@@ -201,7 +201,7 @@ test.describe("Visual Regression", () => {
           judgements.push("Poor");
         }
       }
-      (window as any).setJudgements(judgements, []);
+      window.setJudgements(judgements, []);
     });
 
     const canvas = page.locator("#chart-component");
@@ -217,7 +217,7 @@ test.describe("Visual Regression", () => {
     });
 
     await page.evaluate(() => {
-      (window as any).setOptions({
+      window.setOptions({
         viewMode: "judgements-text",
         coloringMode: "categorical",
         visibility: { perfect: true, good: true, poor: true },
@@ -246,7 +246,7 @@ test.describe("Visual Regression", () => {
           judgements.push("Poor");
         }
       }
-      (window as any).setJudgements(judgements, []);
+      window.setJudgements(judgements, []);
     });
 
     const canvas = page.locator("#chart-component");
@@ -262,7 +262,7 @@ test.describe("Visual Regression", () => {
     });
 
     await page.evaluate(() => {
-      (window as any).setOptions({
+      window.setOptions({
         viewMode: "judgements",
         coloringMode: "gradient",
         visibility: { perfect: true, good: true, poor: true },
@@ -303,7 +303,7 @@ test.describe("Visual Regression", () => {
         deltas.push(d);
       }
 
-      (window as any).setJudgements(judgements, deltas);
+      window.setJudgements(judgements, deltas);
     });
 
     const canvas = page.locator("#chart-component");
@@ -360,8 +360,8 @@ SCOREDIFF:
 #END`;
 
     await page.evaluate((tja) => {
-      (window as any).loadChart(tja, "oni");
-      (window as any).setOptions({
+      window.loadChart(tja, "oni");
+      window.setOptions({
         viewMode: "original",
         coloringMode: "categorical",
         visibility: { perfect: true, good: true, poor: true },
@@ -398,7 +398,7 @@ BALLOON:5,10
 #END`;
 
     await page.evaluate((tja) => {
-      (window as any).loadChart(tja, "oni");
+      window.loadChart(tja, "oni");
     }, tjaContent);
 
     const canvas = page.locator("#chart-component");
@@ -428,7 +428,7 @@ LEVEL:10
 #END`;
 
     await page.evaluate((tja) => {
-      (window as any).loadChart(tja, "oni");
+      window.loadChart(tja, "oni");
     }, tjaContent);
 
     const canvas = page.locator("#chart-component");
@@ -560,7 +560,9 @@ LEVEL:10
       return new Promise<number>((resolve) => {
         const originalCreateElement = document.createElement;
 
+        // biome-ignore lint/suspicious/noExplicitAny: Mocking DOM API
         document.createElement = (tagName: string, options?: any) => {
+          // biome-ignore lint/suspicious/noExplicitAny: Mocking DOM API
           const el = originalCreateElement.call(document, tagName, options) as any;
           if (tagName.toLowerCase() === "a") {
             el.click = () => {
@@ -954,6 +956,7 @@ test.describe("Selection Interaction", () => {
 
     // 1. Click Start Note (Bar 0, Note 0)
     const p0 = await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
       return chart.getNoteCoordinates(0, 0);
     });
@@ -967,6 +970,7 @@ test.describe("Selection Interaction", () => {
 
     // 2. Click End Note (Bar 1, Note 0)
     const p1 = await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
       return chart.getNoteCoordinates(1, 0);
     });
@@ -976,6 +980,7 @@ test.describe("Selection Interaction", () => {
 
     // 3. Click Third Note (Bar 2, Note 0 - Balloon) (Restart Selection)
     const p2 = await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
       return chart.getNoteCoordinates(2, 0);
     });
@@ -1018,6 +1023,7 @@ test.describe("Selection Interaction", () => {
 
     // 1. Hover over a note
     const p0 = await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
       return chart.getNoteCoordinates(0, 0);
     });
@@ -1026,6 +1032,7 @@ test.describe("Selection Interaction", () => {
 
     // Verify viewOptions.hoveredNote is set
     const hoveredNote = await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
       return chart.viewOptions.hoveredNote;
     });
@@ -1036,6 +1043,7 @@ test.describe("Selection Interaction", () => {
 
     // Verify hoveredNote is cleared
     const hoveredNoteHidden = await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
       return chart.viewOptions.hoveredNote;
     });
@@ -1046,6 +1054,7 @@ test.describe("Selection Interaction", () => {
     await canvas.hover({ position: p0, force: true }); // Move back
 
     const hoveredNoteStillNull = await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
       return chart.viewOptions.hoveredNote;
     });

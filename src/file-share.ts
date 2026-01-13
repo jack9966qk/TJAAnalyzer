@@ -37,7 +37,7 @@ export async function shareFile(
   }
 
   // 3. Neutralino (Desktop App)
-  const N = (window as any).Neutralino;
+  const N = window.Neutralino;
   if (N?.os?.showSaveDialog) {
     try {
       const extension = fileName.includes(".") ? fileName.split(".").pop() : undefined;
