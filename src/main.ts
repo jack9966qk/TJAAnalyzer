@@ -1138,7 +1138,7 @@ function init(): void {
       noteStatsDisplay.style.display = "none";
     }
   }
-  
+
   initEventListeners();
 
   initJudgementClient();
