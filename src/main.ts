@@ -396,7 +396,7 @@ function readFileAsText(file: File): Promise<string> {
   });
 }
 
-function init(): void {
+function initLayout() {
   // Layout Init
   if (layoutToggleBtn) {
     layoutToggleBtn.addEventListener("click", () => handleLayoutToggle(() => refreshChart()));
@@ -408,17 +408,9 @@ function init(): void {
 
   // Initial call
   updateLayout();
+}
 
-  // Default stats to off in vertical layout
-  if (!document.body.classList.contains("horizontal-layout")) {
-    if (showStatsCheckbox) {
-      showStatsCheckbox.checked = false;
-    }
-    if (noteStatsDisplay) {
-      noteStatsDisplay.style.display = "none";
-    }
-  }
-
+function initEventListeners() {
   if (!tjaChart) {
     console.error("tja-chart element not found.");
     return;
@@ -984,6 +976,27 @@ function init(): void {
     });
   }
 
+  // ESE Share Button
+  if (eseShareBtn) {
+    eseShareBtn.addEventListener("click", async () => {
+      if (!appState.currentEsePath) return;
+
+      const url = new URL(window.location.href);
+      url.searchParams.set("ese", appState.currentEsePath);
+      url.searchParams.set("diff", difficultySelector.value);
+
+      try {
+        await navigator.clipboard.writeText(url.toString());
+        alert("Link copied to clipboard!");
+      } catch (e) {
+        console.error("Failed to copy link:", e);
+        alert("Failed to copy link.");
+      }
+    });
+  }
+}
+
+function initJudgementClient() {
   // Judgement Client Callbacks
 
   appState.judgementClient.onMessage(async (event: ServerEvent) => {
@@ -1090,26 +1103,9 @@ function init(): void {
     }
     updateDisplayState();
   });
+}
 
-  // ESE Share Button
-  if (eseShareBtn) {
-    eseShareBtn.addEventListener("click", async () => {
-      if (!appState.currentEsePath) return;
-
-      const url = new URL(window.location.href);
-      url.searchParams.set("ese", appState.currentEsePath);
-      url.searchParams.set("diff", difficultySelector.value);
-
-      try {
-        await navigator.clipboard.writeText(url.toString());
-        alert("Link copied to clipboard!");
-      } catch (e) {
-        console.error("Failed to copy link:", e);
-        alert("Failed to copy link.");
-      }
-    });
-  }
-
+function initLoad() {
   // Initial Load
   updateStatus("status.ready");
   updateUIText(); // Initialize text
@@ -1128,6 +1124,26 @@ function init(): void {
   }
 
   initializePanelVisibility();
+}
+
+function init(): void {
+  initLayout();
+
+  // Default stats to off in vertical layout
+  if (!document.body.classList.contains("horizontal-layout")) {
+    if (showStatsCheckbox) {
+      showStatsCheckbox.checked = false;
+    }
+    if (noteStatsDisplay) {
+      noteStatsDisplay.style.display = "none";
+    }
+  }
+  
+  initEventListeners();
+
+  initJudgementClient();
+
+  initLoad();
 }
 
 function initializePanelVisibility() {
