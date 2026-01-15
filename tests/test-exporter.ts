@@ -1,6 +1,6 @@
-import type { ViewOptions } from "./src/core/renderer.js";
-import { generateTJAFromSelection } from "./src/core/tja-exporter.js";
-import { parseTJA } from "./src/core/tja-parser.js";
+import type { ViewOptions } from "../src/core/renderer.js";
+import { generateTJAFromSelection } from "../src/core/tja-exporter.js";
+import { parseTJA } from "../src/core/tja-parser.js";
 
 function runTest(name: string, fn: () => void) {
   try {

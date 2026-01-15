@@ -5,7 +5,7 @@
   "scripts": {
     "fetch-ese": "node fetch-ese-assets.js",
     "build": "tsc && node prepare-dist.js",
-    "test": "npm run build && node --loader ts-node/esm test-parser.ts && node --loader ts-node/esm test-exporter.ts && playwright test",
+    "test": "npm run build && node --loader ts-node/esm tests/test-parser.ts && node --loader ts-node/esm tests/test-exporter.ts && playwright test",
     "start": "npm run build && http-server app_package -c-1",
     "build:exe": "npm run build && neu build",
     "start:exe": "npm run build && neu run",

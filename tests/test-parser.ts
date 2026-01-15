@@ -1,5 +1,5 @@
-import { exampleTJA } from "./src/core/example-data.js";
-import { parseTJA } from "./src/core/tja-parser.js";
+import { exampleTJA } from "../src/core/example-data.js";
+import { parseTJA } from "../src/core/tja-parser.js";
 
 try {
   console.log("Testing TJA Parser...");
