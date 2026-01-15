@@ -1,4 +1,4 @@
-import { generateAutoAnnotations } from "./auto-annotation.js";
+import { generateAutoAnnotations } from "../core/auto-annotation.js";
 import {
   type ChartLayout,
   createLayout,
@@ -11,8 +11,8 @@ import {
   renderIncremental,
   renderLayout,
   type ViewOptions,
-} from "./renderer.js";
-import type { ParsedChart } from "./tja-parser.js";
+} from "../core/renderer.js";
+import type { ParsedChart } from "../core/tja-parser.js";
 
 export interface ChartClickEventDetail {
   x: number;

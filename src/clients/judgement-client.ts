@@ -1,4 +1,4 @@
-import { exampleTJA } from "./example-data.js";
+import { exampleTJA } from "../core/example-data.js";
 
 export interface JudgementEvent {
   type: "judgement";

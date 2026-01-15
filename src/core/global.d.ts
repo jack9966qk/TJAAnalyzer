@@ -1,4 +1,4 @@
-import type { ViewOptions } from "./renderer";
+import type { ViewOptions } from "./renderer.ts";
 
 declare global {
   interface Window {

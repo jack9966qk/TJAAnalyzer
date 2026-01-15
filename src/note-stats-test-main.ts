@@ -1,6 +1,6 @@
-import { NoteStatsDisplay } from "./note-stats.js";
-import type { HitInfo, ViewOptions } from "./renderer.js";
-import type { ParsedChart } from "./tja-parser.js";
+import { NoteStatsDisplay } from "./components/note-stats.js";
+import type { HitInfo, ViewOptions } from "./core/renderer.js";
+import type { ParsedChart } from "./core/tja-parser.js";
 
 // Ensure NoteStatsDisplay is registered
 console.log("NoteStatsDisplay module loaded", NoteStatsDisplay);
