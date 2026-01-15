@@ -576,8 +576,8 @@ LEVEL:10
           return el;
         };
 
-        const btn = document.getElementById("export-image-btn");
-        if (btn) btn.click();
+        const btn = document.querySelector("#export-image-btn button");
+        if (btn) (btn as HTMLElement).click();
         else resolve(-1);
       });
     });

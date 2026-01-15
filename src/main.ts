@@ -1,5 +1,6 @@
 import type { ServerEvent } from "./clients/judgement-client.js";
 import { NoteStatsDisplay } from "./components/note-stats.js";
+import "./components/save-image-button.js";
 import { TJAChart } from "./components/tja-chart.js";
 import {
   clearJudgements,
@@ -508,38 +509,6 @@ function initEventListeners() {
       }
     });
   }
-
-  const exportImageBtns = document.querySelectorAll(".export-image-trigger");
-  exportImageBtns.forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      if (!appState.currentChart) return;
-
-      try {
-        // Determine annotation mode state for rendering
-        // We should respect the current state
-        const activeTab = document.querySelector("#chart-options-panel .panel-tab.active");
-        const mode = activeTab ? activeTab.getAttribute("data-do-tab") : "view";
-        const optionsForExport = { ...appState.viewOptions, isAnnotationMode: mode === "annotation" };
-
-        const dataURL = tjaChart.exportImage(optionsForExport);
-
-        // Convert DataURL to Uint8Array
-        const base64Data = dataURL.split(",")[1];
-        const binaryString = window.atob(base64Data);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-
-        await shareFile("chart.png", bytes, "image/png", "Save Chart Image");
-        updateStatus("status.exportImageSuccess");
-      } catch (e) {
-        console.error("Export image failed:", e);
-        updateStatus("status.exportImageFailed");
-      }
-    });
-  });
 
   if (clearAnnotationsBtn) {
     clearAnnotationsBtn.addEventListener("click", () => {
