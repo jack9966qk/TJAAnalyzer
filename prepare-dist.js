@@ -2,7 +2,7 @@ import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 
-const destDir = "app_package";
+const destDir = "dist";
 
 // Clean destination
 if (fs.existsSync(destDir)) {
@@ -41,15 +41,15 @@ fs.writeFileSync(path.join(destDir, ".nojekyll"), "");
 
 // Files/Dirs to copy
 const files = [
-  { src: "www/index.html", dest: "index.html" },
-  { src: "www/chart-only.html", dest: "chart-only.html" },
-  { src: "www/note-stats-test.html", dest: "note-stats-test.html" },
-  { src: "www/style.css", dest: "style.css" },
-  { src: "www/icon_simple.png", dest: "icon_simple.png" },
-  { src: "www/ese", dest: "ese" },
-  { src: "www/ese_index.json", dest: "ese_index.json" },
-  { src: "www/CNAME", dest: "CNAME" },
-  { src: "js_out/src", dest: "scripts" },
+  { src: "public/index.html", dest: "index.html" },
+  { src: "public/chart-only.html", dest: "chart-only.html" },
+  { src: "public/note-stats-test.html", dest: "note-stats-test.html" },
+  { src: "public/style.css", dest: "style.css" },
+  { src: "public/icon_simple.png", dest: "icon_simple.png" },
+  { src: "public/ese", dest: "ese" },
+  { src: "public/ese_index.json", dest: "ese_index.json" },
+  { src: "public/CNAME", dest: "CNAME" },
+  { src: "ts_output/src", dest: "scripts" },
   { src: "icon.png", dest: "icon.png" },
 ];
 

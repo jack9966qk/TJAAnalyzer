@@ -74,3 +74,12 @@ To fetch the latest charts from the ESE database:
 ```bash
 npm run fetch-ese
 ```
+
+## Project Structure
+
+- `src/`: TypeScript source code for the application logic.
+- `public/`: Static assets (such as HTML and chart database) served directly.
+- `tests/`: Playwright and unit test suites.
+- `dist/`: Build output for the web application (generated).
+- `release/`: Build output for standalone executables (generated).
+- `ts_output/`: Intermediate compiled JavaScript files (generated).

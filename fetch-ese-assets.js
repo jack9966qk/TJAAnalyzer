@@ -7,8 +7,8 @@ const __dirname = path.dirname(__filename);
 
 const API_BASE = "https://ese.tjadataba.se/api/v1";
 const RAW_BASE = "https://ese.tjadataba.se/ESE/ESE/raw/branch/master";
-const TARGET_DIR = path.join(__dirname, "www", "ese");
-const INDEX_FILE = path.join(__dirname, "www", "ese_index.json");
+const TARGET_DIR = path.join(__dirname, "public", "ese");
+const INDEX_FILE = path.join(__dirname, "public", "ese_index.json");
 
 // Ensure target directory exists
 if (!fs.existsSync(TARGET_DIR)) {
