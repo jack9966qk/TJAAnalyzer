@@ -10,7 +10,7 @@ interface EseCallbacks {
 
 export function filterEseResults(query: string, callbacks: EseCallbacks) {
   const { eseTree, eseClient } = appState;
-  
+
   if (!eseTree || !eseResults) return;
   const results = query
     ? eseTree.filter((node) => {

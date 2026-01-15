@@ -1,65 +1,83 @@
-import { EseClient, type GitNode } from "./clients/ese-client.js";
-import { exampleTJA } from "./core/example-data.js";
-import { shareFile } from "./utils/file-share.js";
-import { i18n } from "./utils/i18n.js";
-import { JudgementClient, type ServerEvent } from "./clients/judgement-client.js";
+import type { ServerEvent } from "./clients/judgement-client.js";
 import { NoteStatsDisplay } from "./components/note-stats.js";
-import type { HitInfo, RenderTexts, ViewOptions } from "./core/renderer.js";
 import { TJAChart } from "./components/tja-chart.js";
-import { generateTJAFromSelection } from "./core/tja-exporter.js";
-import { type ParsedChart, parseTJA } from "./core/tja-parser.js";
-import { tjaChart, statusDisplay, noteStatsDisplay, languageSelector, judgementWarning, judgementControls, judgementSubcontrols, judgementStyleRadios, judgementColoringRadios, showPerfectCheckbox, showGoodCheckbox, showPoorCheckbox, difficultySelectorContainer, difficultySelector, branchSelectorContainer, branchSelector, collapseLoopCheckbox, optionsCollapseBtn, optionsBody, showStatsCheckbox, loopControls, loopAutoCheckbox, loopPrevBtn, loopNextBtn, loopCounter, zoomOutBtn, zoomInBtn, zoomResetBtn, appFooter, changelogBtn, changelogModal, changelogList, controlsContainer, chartContainer, layoutToggleBtn, doTabs, doPanes, clearSelectionBtn, exportSelectionBtn, exportChartNameInput, clearAnnotationsBtn, autoAnnotateBtn, chartModeStatus, dsTabs, dsPanes, dsCollapseBtn, dsBody, loadExampleBtn, tjaFilePicker, hostInput, portInput, connectBtn, testStreamBtn, eseSearchInput, eseResults, eseShareBtn } from "./view/ui-elements.js";
-import { appState } from "./state/app-state.js";
 import {
   clearJudgements,
   refreshChart,
   updateBranchSelectorState,
   updateCollapseLoopState,
-  updateLoopControls,
   updateParsedCharts,
   updateSelectionUI,
   updateStatsComponent,
 } from "./controllers/chart-controller.js";
 import { filterEseResults } from "./controllers/ese-controller.js";
 import { handleLayoutToggle, updateLayout } from "./controllers/layout-controller.js";
-
-
+import { exampleTJA } from "./core/example-data.js";
+import type { HitInfo } from "./core/renderer.js";
+import { generateTJAFromSelection } from "./core/tja-exporter.js";
+import { appState } from "./state/app-state.js";
+import { shareFile } from "./utils/file-share.js";
+import { i18n } from "./utils/i18n.js";
+import {
+  autoAnnotateBtn,
+  branchSelector,
+  changelogBtn,
+  changelogList,
+  changelogModal,
+  chartModeStatus,
+  clearAnnotationsBtn,
+  clearSelectionBtn,
+  collapseLoopCheckbox,
+  connectBtn,
+  difficultySelector,
+  difficultySelectorContainer,
+  doPanes,
+  doTabs,
+  dsBody,
+  dsCollapseBtn,
+  dsPanes,
+  dsTabs,
+  eseResults,
+  eseSearchInput,
+  eseShareBtn,
+  exportChartNameInput,
+  exportSelectionBtn,
+  hostInput,
+  judgementColoringRadios,
+  judgementControls,
+  judgementStyleRadios,
+  judgementSubcontrols,
+  judgementWarning,
+  languageSelector,
+  layoutToggleBtn,
+  loadExampleBtn,
+  loopAutoCheckbox,
+  loopCounter,
+  loopNextBtn,
+  loopPrevBtn,
+  noteStatsDisplay,
+  optionsBody,
+  optionsCollapseBtn,
+  portInput,
+  showGoodCheckbox,
+  showPerfectCheckbox,
+  showPoorCheckbox,
+  showStatsCheckbox,
+  statusDisplay,
+  testStreamBtn,
+  tjaChart,
+  tjaFilePicker,
+  zoomInBtn,
+  zoomOutBtn,
+  zoomResetBtn,
+} from "./view/ui-elements.js";
 
 // Ensure TJAChart is imported for side-effects (custom element registration)
 console.log("TJAChart module loaded", TJAChart);
 // Ensure NoteStatsDisplay is imported for side-effects
 console.log("NoteStatsDisplay module loaded", NoteStatsDisplay);
 
-
-
-
-// Application State
-
-// ESE Client
-
-// Judgement State
- // Store deltas
-
-// UI Elements
-
-
-
-
-
-
-
-// Footer & Changelog
 const changelogCloseBtn = changelogModal ? (changelogModal.querySelector(".close-btn") as HTMLElement) : null;
-
-
-
-// Display Options Tabs
-
-
-// Data Source UI
-
-
-
 
 function updateStatus(key: string, params?: Record<string, string | number>) {
   appState.currentStatusKey = key;
@@ -77,7 +95,6 @@ function resetExampleButton() {
     loadExampleBtn.classList.remove("disabled");
   }
 }
-
 
 function updateModeStatus(mode: string) {
   if (chartModeStatus) {
@@ -108,9 +125,6 @@ function switchDisplayOptionTab(mode: string) {
   updateModeStatus(mode);
   updateDisplayState();
 }
-
-
-
 
 function switchDataSourceMode(mode: string) {
   appState.activeDataSourceMode = mode;
@@ -239,8 +253,6 @@ async function loadEseFromUrl(path: string, diff: string) {
   }
 }
 
-// ... rest of the file ...
-
 function updateUIText() {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
@@ -363,9 +375,6 @@ function updateDisplayState() {
   refreshChart();
 }
 
-
-
-
 function updateZoomDisplay() {
   if (zoomResetBtn) {
     const percent = Math.round((16 / appState.viewOptions.beatsPerLine) * 100);
@@ -386,8 +395,6 @@ function readFileAsText(file: File): Promise<string> {
     }
   });
 }
-
-
 
 function init(): void {
   // Layout Init
@@ -416,8 +423,6 @@ function init(): void {
     console.error("tja-chart element not found.");
     return;
   }
-
-  // Initial State
 
   // Ensure subcontrols are disabled initially
   if (judgementSubcontrols) {
@@ -717,29 +722,24 @@ function init(): void {
   if (collapseLoopCheckbox) {
     collapseLoopCheckbox.addEventListener("change", (event) => {
       appState.viewOptions.collapsedLoop = (event.target as HTMLInputElement).checked;
-
       refreshChart();
-
       updateStatsComponent(null);
     });
   }
 
   // Loop Controls
-
   if (loopAutoCheckbox) {
     loopAutoCheckbox.addEventListener("change", (_e) => {
       if (loopAutoCheckbox.checked) {
         appState.viewOptions.selectedLoopIteration = undefined;
       } else {
         const matches = loopCounter.innerText.match(/(\d+) \/ (\d+)/);
-
         if (matches) {
           appState.viewOptions.selectedLoopIteration = parseInt(matches[1], 10) - 1;
         } else {
           appState.viewOptions.selectedLoopIteration = 0;
         }
       }
-
       refreshChart();
     });
   }
@@ -748,7 +748,6 @@ function init(): void {
     loopPrevBtn.addEventListener("click", () => {
       if (appState.viewOptions.selectedLoopIteration !== undefined && appState.viewOptions.selectedLoopIteration > 0) {
         appState.viewOptions.selectedLoopIteration--;
-
         refreshChart();
       }
     });
@@ -1158,9 +1157,6 @@ function initializePanelVisibility() {
     if (optionsCollapseBtn) optionsCollapseBtn.innerText = i18n.t("ui.expand");
   }
 }
-
-
-
 
 // Handle resizing
 let resizeTimeout: number | undefined;

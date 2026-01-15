@@ -1,6 +1,6 @@
 import { EseClient, type GitNode } from "../clients/ese-client.js";
-import { exampleTJA } from "../core/example-data.js";
 import { JudgementClient } from "../clients/judgement-client.js";
+import { exampleTJA } from "../core/example-data.js";
 import type { HitInfo, ViewOptions } from "../core/renderer.js";
 import type { ParsedChart } from "../core/tja-parser.js";
 

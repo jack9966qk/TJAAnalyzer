@@ -1,13 +1,5 @@
-import { EseClient, type GitNode } from "../clients/ese-client.js";
-import { exampleTJA } from "../core/example-data.js";
-import { shareFile } from "../utils/file-share.js";
-import { i18n } from "../utils/i18n.js";
-import { JudgementClient, type ServerEvent } from "../clients/judgement-client.js";
-import { NoteStatsDisplay } from "../components/note-stats.js";
-import type { HitInfo, RenderTexts, ViewOptions } from "../core/renderer.js";
-import { TJAChart } from "../components/tja-chart.js";
-import { generateTJAFromSelection } from "../core/tja-exporter.js";
-import { type ParsedChart, parseTJA } from "../core/tja-parser.js";
+import type { NoteStatsDisplay } from "../components/note-stats.js";
+import type { TJAChart } from "../components/tja-chart.js";
 
 export const tjaChart = document.getElementById("chart-component") as TJAChart;
 export const statusDisplay = document.getElementById("status-display") as HTMLElement;

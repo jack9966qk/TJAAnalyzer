@@ -1,6 +1,6 @@
-import { i18n } from "../utils/i18n.js";
 import { getGradientColor, type HitInfo, PALETTE, type ViewOptions } from "../core/renderer.js";
 import type { ParsedChart } from "../core/tja-parser.js";
+import { i18n } from "../utils/i18n.js";
 
 export class NoteStatsDisplay extends HTMLElement {
   private _hit: HitInfo | null = null;

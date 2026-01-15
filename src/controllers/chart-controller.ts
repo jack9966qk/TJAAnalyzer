@@ -1,54 +1,23 @@
-import { EseClient, type GitNode } from "../clients/ese-client.js";
-import { exampleTJA } from "../core/example-data.js";
-import { shareFile } from "../utils/file-share.js";
-import { i18n } from "../utils/i18n.js";
-import { JudgementClient, type ServerEvent } from "../clients/judgement-client.js";
-import { NoteStatsDisplay } from "../components/note-stats.js";
-import type { HitInfo, RenderTexts, ViewOptions } from "../core/renderer.js";
-import { TJAChart } from "../components/tja-chart.js";
-import { generateTJAFromSelection } from "../core/tja-exporter.js";
-import { type ParsedChart, parseTJA } from "../core/tja-parser.js";
-import { tjaChart, statusDisplay, noteStatsDisplay, languageSelector, judgementWarning, judgementControls, judgementSubcontrols, judgementStyleRadios, judgementColoringRadios, showPerfectCheckbox, showGoodCheckbox, showPoorCheckbox, difficultySelectorContainer, difficultySelector, branchSelectorContainer, branchSelector, collapseLoopCheckbox, optionsCollapseBtn, optionsBody, showStatsCheckbox, loopControls, loopAutoCheckbox, loopPrevBtn, loopNextBtn, loopCounter, zoomOutBtn, zoomInBtn, zoomResetBtn, appFooter, changelogBtn, changelogModal, changelogList, controlsContainer, chartContainer, layoutToggleBtn, doTabs, doPanes, clearSelectionBtn, exportSelectionBtn, exportChartNameInput, clearAnnotationsBtn, autoAnnotateBtn, chartModeStatus, dsTabs, dsPanes, dsCollapseBtn, dsBody, loadExampleBtn, tjaFilePicker, hostInput, portInput, connectBtn, testStreamBtn, eseSearchInput, eseResults, eseShareBtn } from "../view/ui-elements.js";
+import type { HitInfo, RenderTexts } from "../core/renderer.js";
+import { parseTJA } from "../core/tja-parser.js";
 import { appState } from "../state/app-state.js";
-import { filterEseResults } from "./ese-controller.js";
-import { handleLayoutToggle, updateLayout } from "./layout-controller.js";
-
-
-
-// Ensure TJAChart is imported for side-effects (custom element registration)
-// Ensure NoteStatsDisplay is imported for side-effects
-
-
-
-
-// Application State
-
-// ESE Client
-
-// Judgement State
- // Store deltas
-
-// UI Elements
-
-
-
-
-
-
-
-// Footer & Changelog
-
-
-
-// Display Options Tabs
-
-
-// Data Source UI
-
-
-
-
-
+import { i18n } from "../utils/i18n.js";
+import {
+  branchSelector,
+  branchSelectorContainer,
+  clearSelectionBtn,
+  collapseLoopCheckbox,
+  difficultySelector,
+  difficultySelectorContainer,
+  exportSelectionBtn,
+  loopAutoCheckbox,
+  loopControls,
+  loopCounter,
+  loopNextBtn,
+  loopPrevBtn,
+  noteStatsDisplay,
+  tjaChart,
+} from "../view/ui-elements.js";
 
 export function updateStatsComponent(hit: HitInfo | null) {
   if (noteStatsDisplay) {
@@ -60,8 +29,6 @@ export function updateStatsComponent(hit: HitInfo | null) {
   }
 }
 
-
-
 export function updateSelectionUI() {
   if (clearSelectionBtn) {
     clearSelectionBtn.disabled = !appState.viewOptions.selection;
@@ -70,15 +37,6 @@ export function updateSelectionUI() {
     exportSelectionBtn.disabled = !appState.viewOptions.selection;
   }
 }
-
-
-
-
-
-
-// ... rest of the file ...
-
-
 
 export function clearJudgements() {
   appState.judgements = [];
@@ -156,13 +114,7 @@ export function updateCollapseLoopState() {
   // If we changed 'collapsedLoop' state here, we might need to ensure refresh happens.
 }
 
-
 // Helper to read file as text (compatibility wrapper)
-
-
-
-
-
 export function updateParsedCharts(content: string) {
   appState.parsedTJACharts = parseTJA(content);
 
@@ -330,11 +282,3 @@ export function refreshChart() {
     updateLoopControls();
   }
 }
-
-// Handle resizing
-
-// Expose for testing
-
-
-// biome-ignore lint/suspicious/noExplicitAny: Test helper
-

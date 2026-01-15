@@ -1,6 +1,6 @@
+import { TJAChart } from "./components/tja-chart.js";
 import { exampleTJA } from "./core/example-data.js";
 import type { ViewOptions } from "./core/renderer.js";
-import { TJAChart } from "./components/tja-chart.js";
 import { parseTJA } from "./core/tja-parser.js";
 
 // Ensure side-effects
@@ -29,11 +29,11 @@ window.loadChart = (tjaContent: string, difficulty: string = "oni") => {
 
 window.setOptions = (options: Partial<ViewOptions>) => {
   if (tjaChart.viewOptions) {
-      tjaChart.viewOptions = { ...tjaChart.viewOptions, ...options } as ViewOptions;
+    tjaChart.viewOptions = { ...tjaChart.viewOptions, ...options } as ViewOptions;
   } else {
-      // Assuming options is full if viewOptions is not set, or we need default.
-      // But we set default below.
-      tjaChart.viewOptions = options as ViewOptions;
+    // Assuming options is full if viewOptions is not set, or we need default.
+    // But we set default below.
+    tjaChart.viewOptions = options as ViewOptions;
   }
 };
 
@@ -57,9 +57,6 @@ window.setJudgements = (judgements: string[], deltas: (number | undefined)[]) =>
   tjaChart.judgements = judgements;
   tjaChart.judgementDeltas = deltas || [];
 };
-
-// Initial Setup
-// Ensure tja-chart is defined (imported above)
 
 // Default Options
 tjaChart.viewOptions = {
