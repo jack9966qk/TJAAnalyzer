@@ -22,6 +22,18 @@ test.describe("Branch Hover Interaction", () => {
         await page.waitForTimeout(500);
       }
     }
+
+    // Ensure Note Stats are visible
+    // Wait for view-options to be upgraded and render
+    await page.waitForSelector("view-options #show-stats-checkbox", { state: "attached" });
+
+    await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Test script
+      const vo = document.querySelector("view-options") as any;
+      if (vo && typeof vo.setShowStats === "function") {
+        vo.setShowStats(true);
+      }
+    });
   });
 
   test("Hovering on different branches displays correct stats", async ({ page }) => {
@@ -102,17 +114,18 @@ LEVEL:10
     });
 
     const stats = page.locator("note-stats");
+    const internalCanvas = canvas.locator("canvas");
 
     // 1. Hover Normal (Should be '1' -> don)
-    await canvas.hover({ position: { x: coords.x, y: coords.normalY }, force: true });
+    await internalCanvas.hover({ position: { x: coords.x, y: coords.normalY }, force: true });
     await expect(stats.locator(".stat-value", { hasText: /don/i })).toBeVisible();
 
     // 2. Hover Expert (Should be '2' -> ka)
-    await canvas.hover({ position: { x: coords.x, y: coords.expertY }, force: true });
+    await internalCanvas.hover({ position: { x: coords.x, y: coords.expertY }, force: true });
     await expect(stats.locator(".stat-value", { hasText: /ka/i })).toBeVisible();
 
     // 3. Hover Master (Should be '3' -> DON)
-    await canvas.hover({ position: { x: coords.x, y: coords.masterY }, force: true });
+    await internalCanvas.hover({ position: { x: coords.x, y: coords.masterY }, force: true });
     await expect(stats.locator(".stat-value", { hasText: /DON/i })).toBeVisible(); // Case sensitive regex?
     // Note: 'DON' text might match 'don' if insensitive.
     // Let's check text content strictly or use getNoteName mapping which returns 'DON' for '3'.
@@ -167,7 +180,7 @@ LEVEL:8
     expect(p0).not.toBeNull();
 
     // Hover
-    await canvas.hover({ position: p0, force: true });
+    await canvas.locator("canvas").hover({ position: p0, force: true });
     await page.waitForTimeout(200);
 
     // Check if hoveredNote is set correctly in viewOptions

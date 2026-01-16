@@ -138,6 +138,7 @@ test.describe("Layout Tests", () => {
 
     // Verify stats checkbox is unchecked
     const statsCheckbox = page.locator("#show-stats-checkbox");
+    await statsCheckbox.waitFor({ state: "attached" });
     await expect(statsCheckbox).not.toBeChecked();
 
     // Verify note stats display is hidden

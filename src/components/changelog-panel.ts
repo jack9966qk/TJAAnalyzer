@@ -1,5 +1,3 @@
-import { i18n } from "../utils/i18n.js";
-
 export class ChangelogPanel extends HTMLElement {
   private btn: HTMLButtonElement;
   private modal: HTMLDivElement;
@@ -10,8 +8,8 @@ export class ChangelogPanel extends HTMLElement {
   constructor() {
     super();
     // We use Light DOM to inherit global styles (modal, buttons, etc.)
-    // this.attachShadow({ mode: 'open' }); 
-    
+    // this.attachShadow({ mode: 'open' });
+
     this.innerHTML = `
       <button id="changelog-btn" class="text-btn">Changelog</button>
       <div id="changelog-modal" class="modal">
@@ -63,7 +61,7 @@ export class ChangelogPanel extends HTMLElement {
   private openModal() {
     this.modal.style.display = "block";
     window.addEventListener("click", this.handleWindowClick);
-    
+
     if (!this.hasLoaded) {
       this.loadChangelog();
     }

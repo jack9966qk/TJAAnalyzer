@@ -5,13 +5,37 @@ import { noteStatsDisplay } from "../view/ui-elements.js";
 import "./save-image-button.js";
 
 export class ViewOptions extends HTMLElement {
-  private zoomOutBtn: HTMLButtonElement;
-  private zoomResetBtn: HTMLButtonElement;
-  private zoomInBtn: HTMLButtonElement;
-  private showStatsCheckbox: HTMLInputElement;
+  private zoomOutBtn!: HTMLButtonElement;
+  private zoomResetBtn!: HTMLButtonElement;
+  private zoomInBtn!: HTMLButtonElement;
+  private showStatsCheckbox!: HTMLInputElement;
+  private isRendered = false;
 
-  constructor() {
-    super();
+  get statsVisible(): boolean {
+    return this.showStatsCheckbox ? this.showStatsCheckbox.checked : false;
+  }
+
+  setShowStats(visible: boolean) {
+    if (this.showStatsCheckbox) {
+      this.showStatsCheckbox.checked = visible;
+      this.handleStatsChange();
+    }
+  }
+
+  connectedCallback() {
+    if (!this.isRendered) {
+      this.render();
+      this.isRendered = true;
+    }
+
+    this.updateZoomDisplay();
+    this.updateTexts();
+
+    // Listen for language changes
+    i18n.onLanguageChange(() => this.updateTexts());
+  }
+
+  private render() {
     this.style.display = "flex";
     this.style.gap = "20px";
     this.style.alignItems = "flex-start";
@@ -50,26 +74,8 @@ export class ViewOptions extends HTMLElement {
     this.zoomResetBtn = this.querySelector("#zoom-reset-btn") as HTMLButtonElement;
     this.zoomInBtn = this.querySelector("#zoom-in-btn") as HTMLButtonElement;
     this.showStatsCheckbox = this.querySelector("#show-stats-checkbox") as HTMLInputElement;
-  }
 
-  get statsVisible(): boolean {
-    return this.showStatsCheckbox ? this.showStatsCheckbox.checked : false;
-  }
-
-  setShowStats(visible: boolean) {
-    if (this.showStatsCheckbox) {
-      this.showStatsCheckbox.checked = visible;
-      this.handleStatsChange();
-    }
-  }
-
-  connectedCallback() {
     this.setupEventListeners();
-    this.updateZoomDisplay();
-    this.updateTexts();
-
-    // Listen for language changes
-    i18n.onLanguageChange(() => this.updateTexts());
   }
 
   initializeFromLayout() {
@@ -78,10 +84,10 @@ export class ViewOptions extends HTMLElement {
       this.showStatsCheckbox.checked = false;
       this.handleStatsChange();
     } else {
-        // Ensure UI matches state if re-connected (e.g. if kept in DOM or re-appended)
-        if (noteStatsDisplay) {
-            this.showStatsCheckbox.checked = noteStatsDisplay.style.display !== "none";
-        }
+      // Ensure UI matches state if re-connected (e.g. if kept in DOM or re-appended)
+      if (noteStatsDisplay) {
+        this.showStatsCheckbox.checked = noteStatsDisplay.style.display !== "none";
+      }
     }
   }
 
@@ -139,25 +145,25 @@ export class ViewOptions extends HTMLElement {
       const key = el.getAttribute("data-i18n");
       if (key) {
         if (el.tagName === "INPUT" && (el as HTMLInputElement).placeholder) {
-             // Handle placeholder if needed
+          // Handle placeholder if needed
         } else if (el.tagName === "SAVE-IMAGE-BUTTON") {
-             // Handled by component itself
+          // Handled by component itself
         } else {
-             // Avoid overwriting children if it's a wrapper, but here structure is simple
-             // Specifically for the label span
-             if (el.tagName === "SPAN") {
-                 el.textContent = i18n.t(key);
-             } else if (el.tagName === "DIV" && el.classList.contains("sub-label")) {
-                  // Actually the label is a span in my HTML above
-             }
+          // Avoid overwriting children if it's a wrapper, but here structure is simple
+          // Specifically for the label span
+          if (el.tagName === "SPAN") {
+            el.textContent = i18n.t(key);
+          } else if (el.tagName === "DIV" && el.classList.contains("sub-label")) {
+            // Actually the label is a span in my HTML above
+          }
         }
       }
     });
-    
+
     // Explicitly handle zoom label
     const zoomLabel = this.querySelector('[data-i18n="ui.zoom"]');
     if (zoomLabel) zoomLabel.textContent = i18n.t("ui.zoom");
-    
+
     // Explicitly handle stats label
     const statsLabel = this.querySelector('[data-i18n="ui.showStats"]');
     if (statsLabel) statsLabel.textContent = i18n.t("ui.showStats");

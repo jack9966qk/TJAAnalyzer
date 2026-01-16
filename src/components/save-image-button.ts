@@ -32,9 +32,9 @@ export class SaveImageButton extends HTMLElement {
         this.removeAttribute("data-i18n");
       }
     } else {
-        // If no attribute, default to ui.exportImage
-        this.button.setAttribute("data-i18n", "ui.exportImage");
-        this.button.textContent = i18n.t("ui.exportImage");
+      // If no attribute, default to ui.exportImage
+      this.button.setAttribute("data-i18n", "ui.exportImage");
+      this.button.textContent = i18n.t("ui.exportImage");
     }
 
     this.appendChild(this.button);

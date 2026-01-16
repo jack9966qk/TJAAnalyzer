@@ -6,15 +6,9 @@ import {
   branchSelector,
   branchSelectorContainer,
   clearSelectionBtn,
-  collapseLoopCheckbox,
   difficultySelector,
   difficultySelectorContainer,
   exportSelectionBtn,
-  loopAutoCheckbox,
-  loopControls,
-  loopCounter,
-  loopNextBtn,
-  loopPrevBtn,
   noteStatsDisplay,
   tjaChart,
 } from "../view/ui-elements.js";
@@ -88,30 +82,23 @@ export function updateBranchSelectorState(resetBranch: boolean = false) {
 }
 
 export function updateCollapseLoopState() {
-  if (!collapseLoopCheckbox) return;
+  // biome-ignore lint/suspicious/noExplicitAny: Circular dependency
+  const judgementOptions = document.querySelector("judgement-options") as any;
+  if (!judgementOptions || typeof judgementOptions.setLoopCollapseState !== "function") return;
+
   const hasLoop = appState.currentChart?.loop;
-  const optionSection = collapseLoopCheckbox.closest(".option-section") as HTMLElement;
+
   if (hasLoop) {
-    collapseLoopCheckbox.disabled = false;
-    if (collapseLoopCheckbox.parentElement) {
-      collapseLoopCheckbox.parentElement.classList.remove("disabled-text");
-    }
-    if (optionSection) {
-      optionSection.style.display = "";
-    }
+    // Enabled, and check if it was previously checked?
+    // The component manages 'checked' state internally or via appState?
+    // appState.viewOptions.collapsedLoop stores the state.
+    // We should probably just enable it. The checkbox state should reflect appState.
+    judgementOptions.setLoopCollapseState(true, appState.viewOptions.collapsedLoop);
   } else {
-    collapseLoopCheckbox.disabled = true;
-    collapseLoopCheckbox.checked = false;
+    // Disabled and unchecked
     appState.viewOptions.collapsedLoop = false;
-    if (collapseLoopCheckbox.parentElement) {
-      collapseLoopCheckbox.parentElement.classList.add("disabled-text");
-    }
-    if (optionSection) {
-      optionSection.style.display = "none";
-    }
+    judgementOptions.setLoopCollapseState(false, false);
   }
-  // Note: refreshChart() is usually called after this or before this in the flow.
-  // If we changed 'collapsedLoop' state here, we might need to ensure refresh happens.
 }
 
 // Helper to read file as text (compatibility wrapper)
@@ -164,56 +151,15 @@ export function updateParsedCharts(content: string) {
 }
 
 export function updateLoopControls() {
-  if (!loopControls || !appState.currentChart) return;
-
-  // Use .style.display for loop controls as they are dynamic and shouldn't take space if irrelevant
-  if (appState.viewOptions.collapsedLoop && appState.currentChart.loop) {
-    loopControls.style.display = "flex"; // Changed to flex to match CSS
-
-    const loop = appState.currentChart.loop;
-    let displayedIter = 0;
-
-    if (appState.viewOptions.selectedLoopIteration === undefined) {
-      loopAutoCheckbox.checked = true;
-      loopPrevBtn.disabled = true;
-      loopNextBtn.disabled = true;
-
-      if (
-        (appState.viewOptions.viewMode === "judgements" ||
-          appState.viewOptions.viewMode === "judgements-underline" ||
-          appState.viewOptions.viewMode === "judgements-text") &&
-        appState.judgements.length > 0
-      ) {
-        let notesPerLoop = 0;
-        let preLoopNotes = 0;
-        for (let i = 0; i < loop.startBarIndex; i++) {
-          const bar = appState.currentChart.bars[i];
-          if (bar) for (const c of bar) if (["1", "2", "3", "4"].includes(c)) preLoopNotes++;
-        }
-        for (let k = 0; k < loop.period; k++) {
-          const bar = appState.currentChart.bars[loop.startBarIndex + k];
-          if (bar) for (const c of bar) if (["1", "2", "3", "4"].includes(c)) notesPerLoop++;
-        }
-
-        const lastJudgedIndex = appState.judgements.length - 1;
-        if (lastJudgedIndex >= preLoopNotes && notesPerLoop > 0) {
-          const relativeIndex = lastJudgedIndex - preLoopNotes;
-          displayedIter = Math.floor(relativeIndex / notesPerLoop);
-        }
-      }
-    } else {
-      loopAutoCheckbox.checked = false;
-      displayedIter = appState.viewOptions.selectedLoopIteration;
-      loopPrevBtn.disabled = displayedIter <= 0;
-      loopNextBtn.disabled = displayedIter >= loop.iterations - 1;
+  // biome-ignore lint/suspicious/noExplicitAny: Circular dependency
+  const judgementOptions = document.querySelector("judgement-options") as any;
+  if (judgementOptions) {
+    if (typeof judgementOptions.updateLoopControlVisibility === "function") {
+      judgementOptions.updateLoopControlVisibility();
     }
-
-    if (displayedIter < 0) displayedIter = 0;
-    if (displayedIter >= loop.iterations) displayedIter = loop.iterations - 1;
-
-    loopCounter.innerText = `${displayedIter + 1} / ${loop.iterations}`;
-  } else {
-    loopControls.style.display = "none";
+    if (typeof judgementOptions.updateLoopCounter === "function") {
+      judgementOptions.updateLoopCounter();
+    }
   }
 }
 

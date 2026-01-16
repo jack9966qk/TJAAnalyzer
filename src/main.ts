@@ -1,8 +1,11 @@
 import type { ServerEvent } from "./clients/judgement-client.js";
 import { NoteStatsDisplay } from "./components/note-stats.js";
 import "./components/save-image-button.js";
-import "./components/view-options.js";
+import type { JudgementOptions } from "./components/judgement-options.js";
+import "./components/judgement-options.js"; // Ensure side-effect
 import { TJAChart } from "./components/tja-chart.js";
+import type { ViewOptions } from "./components/view-options.js";
+import "./components/view-options.js"; // Ensure side-effect
 import "./components/changelog-panel.js";
 import {
   clearJudgements,
@@ -27,7 +30,6 @@ import {
   chartModeStatus,
   clearAnnotationsBtn,
   clearSelectionBtn,
-  collapseLoopCheckbox,
   connectBtn,
   difficultySelector,
   difficultySelectorContainer,
@@ -43,25 +45,12 @@ import {
   exportChartNameInput,
   exportSelectionBtn,
   hostInput,
-  judgementColoringRadios,
-  judgementControls,
-  judgementStyleRadios,
-  judgementSubcontrols,
-  judgementWarning,
   languageSelector,
   layoutToggleBtn,
   loadExampleBtn,
-  loopAutoCheckbox,
-  loopCounter,
-  loopNextBtn,
-  loopPrevBtn,
-  noteStatsDisplay,
   optionsBody,
   optionsCollapseBtn,
   portInput,
-  showGoodCheckbox,
-  showPerfectCheckbox,
-  showPoorCheckbox,
   statusDisplay,
   testStreamBtn,
   tjaChart,
@@ -322,49 +311,24 @@ function updateUIText() {
 function updateDisplayState() {
   const activeTab = document.querySelector("#chart-options-panel .panel-tab.active");
   const mode = activeTab ? activeTab.getAttribute("data-do-tab") : "view";
-  const isStreamActive = appState.isStreamConnected || appState.isSimulating;
+  const _isStreamActive = appState.isStreamConnected || appState.isSimulating;
 
   if (mode === "judgements") {
-    // Determine sub-mode from radios
-    const style = document.querySelector('input[name="judgementStyle"]:checked') as HTMLInputElement;
-    if (style && style.value === "underline") {
-      appState.viewOptions.viewMode = "judgements-underline";
-    } else if (style && style.value === "text") {
-      appState.viewOptions.viewMode = "judgements-text";
-    } else {
-      appState.viewOptions.viewMode = "judgements";
-    }
+    // Determine sub-mode from radios - now handled by component logic or we read from state
+    // Actually the component updates the state. Here we just ensure consistency or handle visibility.
 
-    // Handle Warning/Controls visibility
-    if (judgementWarning) judgementWarning.style.display = isStreamActive ? "none" : "block";
-    if (judgementControls) {
-      judgementControls.style.display = "flex";
-      if (isStreamActive) {
-        judgementControls.classList.remove("disabled");
-        judgementControls.style.opacity = "1";
-        judgementControls.style.pointerEvents = "auto";
-      } else {
-        judgementControls.classList.add("disabled");
-        judgementControls.style.opacity = "0.5";
-        judgementControls.style.pointerEvents = "none";
-      }
+    // We need to refresh the component status
+    const judgementOptions = document.querySelector("judgement-options") as JudgementOptions;
+    if (judgementOptions && typeof judgementOptions.refreshStatus === "function") {
+      judgementOptions.refreshStatus();
     }
   } else {
     appState.viewOptions.viewMode = "original";
   }
 
-  // Determine Coloring Mode
-  const coloring = document.querySelector('input[name="judgementColoring"]:checked') as HTMLInputElement;
-  appState.viewOptions.coloringMode = coloring && coloring.value === "gradient" ? "gradient" : "categorical";
+  // Determine Coloring Mode - Handled by component
 
-  // Determine Judgement Visibility
-  if (showPerfectCheckbox && showGoodCheckbox && showPoorCheckbox) {
-    appState.viewOptions.visibility = {
-      perfect: showPerfectCheckbox.checked,
-      good: showGoodCheckbox.checked,
-      poor: showPoorCheckbox.checked,
-    };
-  }
+  // Determine Judgement Visibility - Handled by component
 
   refreshChart();
 }
@@ -395,9 +359,9 @@ function initLayout() {
 
   // Initial call
   updateLayout();
-  
+
   // Initialize ViewOptions state based on layout
-  const viewOptions = document.querySelector("view-options") as any;
+  const viewOptions = document.querySelector("view-options") as ViewOptions;
   if (viewOptions && typeof viewOptions.initializeFromLayout === "function") {
     viewOptions.initializeFromLayout();
   }
@@ -409,36 +373,9 @@ function initEventListeners() {
     return;
   }
 
-  // Ensure subcontrols are disabled initially
-  if (judgementSubcontrols) {
-    // judgementSubcontrols.classList.add('disabled'); // Class no longer used for disabled state, controlled by display
-  }
+  // Listeners for new checkboxes - Moved to judgement-options.ts
 
-  // Listeners for new checkboxes
-  if (showPerfectCheckbox) showPerfectCheckbox.addEventListener("change", updateDisplayState);
-  if (showGoodCheckbox) showGoodCheckbox.addEventListener("change", updateDisplayState);
-  if (showPoorCheckbox) showPoorCheckbox.addEventListener("change", updateDisplayState);
-
-  // Initial Loop State
-  if (collapseLoopCheckbox) {
-    collapseLoopCheckbox.disabled = true;
-    if (collapseLoopCheckbox.parentElement) {
-      collapseLoopCheckbox.parentElement.classList.add("disabled-text");
-    }
-
-    const optionSection = collapseLoopCheckbox.closest(".option-section") as HTMLElement;
-    if (optionSection) {
-      optionSection.style.display = "none";
-    }
-  }
-
-  judgementStyleRadios.forEach((r) => {
-    r.addEventListener("change", updateDisplayState);
-  });
-
-  judgementColoringRadios.forEach((r) => {
-    r.addEventListener("change", updateDisplayState);
-  });
+  // judgementStyleRadios & judgementColoringRadios - Moved to judgement-options.ts
 
   // Setup Data Source Tabs
 
@@ -659,58 +596,7 @@ function initEventListeners() {
     });
   }
 
-  if (collapseLoopCheckbox) {
-    collapseLoopCheckbox.addEventListener("change", (event) => {
-      appState.viewOptions.collapsedLoop = (event.target as HTMLInputElement).checked;
-      refreshChart();
-      updateStatsComponent(null);
-    });
-  }
-
-  // Loop Controls
-  if (loopAutoCheckbox) {
-    loopAutoCheckbox.addEventListener("change", (_e) => {
-      if (loopAutoCheckbox.checked) {
-        appState.viewOptions.selectedLoopIteration = undefined;
-      } else {
-        const matches = loopCounter.innerText.match(/(\d+) \/ (\d+)/);
-        if (matches) {
-          appState.viewOptions.selectedLoopIteration = parseInt(matches[1], 10) - 1;
-        } else {
-          appState.viewOptions.selectedLoopIteration = 0;
-        }
-      }
-      refreshChart();
-    });
-  }
-
-  if (loopPrevBtn) {
-    loopPrevBtn.addEventListener("click", () => {
-      if (appState.viewOptions.selectedLoopIteration !== undefined && appState.viewOptions.selectedLoopIteration > 0) {
-        appState.viewOptions.selectedLoopIteration--;
-        refreshChart();
-      }
-    });
-  }
-
-  if (loopNextBtn) {
-    loopNextBtn.addEventListener("click", () => {
-      if (
-        appState.currentChart?.loop &&
-        appState.viewOptions.selectedLoopIteration !== undefined &&
-        appState.viewOptions.selectedLoopIteration < appState.currentChart.loop.iterations - 1
-      ) {
-        appState.viewOptions.selectedLoopIteration++;
-
-        refreshChart();
-      }
-    });
-  }
-
-  // Zoom Controls
-  // Moved to view-options.ts
-
-  // Language Selector
+  // Setup Collapse Button
   if (languageSelector) {
     languageSelector.value = i18n.language;
     languageSelector.addEventListener("change", () => {
@@ -758,7 +644,7 @@ function initEventListeners() {
     updateStatsComponent(statsHit);
 
     // Update Hover Style
-    const viewOptionsEl = document.querySelector("view-options") as any;
+    const viewOptionsEl = document.querySelector("view-options") as ViewOptions;
     const isStatsVisible = viewOptionsEl?.statsVisible ?? false;
     const newHoveredNote =
       isStatsVisible && hit

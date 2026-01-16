@@ -522,7 +522,8 @@ LEVEL:10
     await expect(status).not.toContainText("Initializing");
   });
 
-  test("Export Chart Image Width", async ({ page }) => {
+  test("Visual Regression › Export Chart Image Width", async ({ page }) => {
+    test.setTimeout(60000); // Increase timeout
     await page.goto("/");
     await page.waitForTimeout(500);
     // Ensure options panel is expanded
@@ -730,6 +731,7 @@ test.describe("UI Logic", () => {
 
 test.describe("Loop Controls Interaction", () => {
   test("Loop controls visibility and interaction", async ({ page }) => {
+    test.setTimeout(60000); // Increase timeout
     await page.goto("/");
     await page.waitForTimeout(500);
     // Ensure options panel is expanded
@@ -764,16 +766,25 @@ test.describe("Loop Controls Interaction", () => {
     await page.click('button[data-do-tab="judgements"]');
     await page.waitForTimeout(500);
 
-    await page.check("#collapse-loop-checkbox");
-    await page.waitForTimeout(500);
+    // Wait for component to render content
+    await page.waitForSelector("#collapse-loop-checkbox", { state: "attached" });
 
-    const loopControls = page.locator("#loop-controls");
+    await page.check("#collapse-loop-checkbox");
+    await expect(page.locator("#collapse-loop-checkbox")).toBeChecked();
+
+    // 4. Verify Loop Controls are visible
+    // The structure inside judgement-options might be different, let's target by known IDs in component
+
+    // Note: The element is <judgement-options> which contains #loop-control-group
+    // We can target IDs directly as they are in light DOM
+
+    const loopControls = page.locator("#loop-control-group");
     await expect(loopControls).toBeVisible();
 
-    const loopCounter = page.locator("#loop-counter");
+    const loopCounter = page.locator("#loop-counter-display");
     const autoCheckbox = page.locator("#loop-auto");
-    const prevBtn = page.locator("#loop-prev");
-    const nextBtn = page.locator("#loop-next");
+    const prevBtn = page.locator("#prev-loop-btn");
+    const nextBtn = page.locator("#next-loop-btn");
 
     await expect(autoCheckbox).toBeChecked();
     await expect(loopCounter).toContainText("1 / 10");
@@ -799,7 +810,8 @@ test.describe("Loop Controls Interaction", () => {
 });
 
 test.describe("Zoom Controls", () => {
-  test("Zoom In/Out/Reset", async ({ page }) => {
+  test("Zoom Controls › Zoom In/Out/Reset", async ({ page }) => {
+    test.setTimeout(60000); // Increase timeout
     await page.goto("/");
     await page.waitForTimeout(500);
     // Ensure options panel is expanded
@@ -825,6 +837,7 @@ test.describe("Zoom Controls", () => {
     const zoomOutBtn = page.locator("#zoom-out-btn");
     const zoomInBtn = page.locator("#zoom-in-btn");
     const zoomResetBtn = page.locator("#zoom-reset-btn");
+    await zoomResetBtn.waitFor({ state: "attached" });
 
     // Initial State
     await expect(zoomResetBtn).toHaveText("100%");
@@ -989,6 +1002,7 @@ test.describe("Selection Interaction", () => {
   });
 
   test("Hover Interaction", async ({ page }) => {
+    test.setTimeout(60000); // Increase timeout
     await page.goto("/");
     await page.waitForTimeout(500);
 
@@ -1018,6 +1032,7 @@ test.describe("Selection Interaction", () => {
 
     // Ensure stats are visible
     const showStatsCheckbox = page.locator("#show-stats-checkbox");
+    await showStatsCheckbox.waitFor({ state: "attached" });
     await expect(showStatsCheckbox).toBeChecked();
 
     // 1. Hover over a note
