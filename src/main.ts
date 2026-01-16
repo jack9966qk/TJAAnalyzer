@@ -3,6 +3,7 @@ import { NoteStatsDisplay } from "./components/note-stats.js";
 import "./components/save-image-button.js";
 import "./components/view-options.js";
 import { TJAChart } from "./components/tja-chart.js";
+import "./components/changelog-panel.js";
 import {
   clearJudgements,
   refreshChart,
@@ -23,9 +24,6 @@ import { i18n } from "./utils/i18n.js";
 import {
   autoAnnotateBtn,
   branchSelector,
-  changelogBtn,
-  changelogList,
-  changelogModal,
   chartModeStatus,
   clearAnnotationsBtn,
   clearSelectionBtn,
@@ -74,8 +72,6 @@ import {
 console.log("TJAChart module loaded", TJAChart);
 // Ensure NoteStatsDisplay is imported for side-effects
 console.log("NoteStatsDisplay module loaded", NoteStatsDisplay);
-
-const changelogCloseBtn = changelogModal ? (changelogModal.querySelector(".close-btn") as HTMLElement) : null;
 
 function updateStatus(key: string, params?: Record<string, string | number>) {
   appState.currentStatusKey = key;
@@ -725,56 +721,6 @@ function initEventListeners() {
   i18n.onLanguageChange(() => {
     updateUIText();
   });
-
-  // Changelog Logic
-  if (changelogBtn && changelogModal && changelogList) {
-    changelogBtn.addEventListener("click", async () => {
-      changelogModal.style.display = "block";
-
-      if (changelogList.children.length === 0) {
-        changelogList.innerHTML = '<div style="padding:10px; color:#666;">Loading...</div>';
-        try {
-          const res = await fetch("changelog.json");
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const data = await res.json();
-
-          changelogList.innerHTML = "";
-          if (Array.isArray(data) && data.length > 0) {
-            // biome-ignore lint/suspicious/noExplicitAny: Changelog data is untyped
-            data.forEach((item: any) => {
-              const div = document.createElement("div");
-              div.className = "changelog-item";
-              div.innerHTML = `
-                                <div class="changelog-header">
-                                    <span>${item.date}</span>
-                                    <span style="font-family:monospace;">${item.hash}</span>
-                                </div>
-                                <div class="changelog-msg">${item.message}</div>
-                            `;
-              changelogList.appendChild(div);
-            });
-          } else {
-            changelogList.innerHTML = '<div style="padding:10px;">No changelog available.</div>';
-          }
-        } catch (e) {
-          console.error("Failed to load changelog:", e);
-          changelogList.innerHTML = '<div style="padding:10px; color:red;">Failed to load changelog.</div>';
-        }
-      }
-    });
-
-    if (changelogCloseBtn) {
-      changelogCloseBtn.addEventListener("click", () => {
-        changelogModal.style.display = "none";
-      });
-    }
-
-    window.addEventListener("click", (event) => {
-      if (event.target === changelogModal) {
-        changelogModal.style.display = "none";
-      }
-    });
-  }
 
   // Load Version
   const appVersionEl = document.getElementById("app-version");
