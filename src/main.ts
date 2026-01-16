@@ -4,6 +4,7 @@ import "./components/save-image-button.js";
 import type { JudgementOptions } from "./components/judgement-options.js";
 import "./components/judgement-options.js"; // Ensure side-effect
 import "./components/select-options.js"; // Ensure side-effect
+import "./components/annotate-options.js"; // Ensure side-effect
 import { TJAChart } from "./components/tja-chart.js";
 import type { ViewOptions } from "./components/view-options.js";
 import "./components/view-options.js"; // Ensure side-effect
@@ -24,10 +25,8 @@ import type { HitInfo } from "./core/renderer.js";
 import { appState } from "./state/app-state.js";
 import { i18n } from "./utils/i18n.js";
 import {
-  autoAnnotateBtn,
   branchSelector,
   chartModeStatus,
-  clearAnnotationsBtn,
   connectBtn,
   difficultySelector,
   difficultySelectorContainer,
@@ -386,19 +385,6 @@ function initEventListeners() {
       if (mode) switchDisplayOptionTab(mode);
     });
   });
-
-  if (clearAnnotationsBtn) {
-    clearAnnotationsBtn.addEventListener("click", () => {
-      appState.annotations = {};
-      refreshChart();
-    });
-  }
-
-  if (autoAnnotateBtn) {
-    autoAnnotateBtn.addEventListener("click", () => {
-      tjaChart.autoAnnotate();
-    });
-  }
 
   // Setup Collapse Button
 
