@@ -1,6 +1,7 @@
 import type { ServerEvent } from "./clients/judgement-client.js";
 import { NoteStatsDisplay } from "./components/note-stats.js";
 import "./components/save-image-button.js";
+import "./components/view-options.js";
 import { TJAChart } from "./components/tja-chart.js";
 import {
   clearJudgements,
@@ -63,14 +64,10 @@ import {
   showGoodCheckbox,
   showPerfectCheckbox,
   showPoorCheckbox,
-  showStatsCheckbox,
   statusDisplay,
   testStreamBtn,
   tjaChart,
   tjaFilePicker,
-  zoomInBtn,
-  zoomOutBtn,
-  zoomResetBtn,
 } from "./view/ui-elements.js";
 
 // Ensure TJAChart is imported for side-effects (custom element registration)
@@ -376,13 +373,6 @@ function updateDisplayState() {
   refreshChart();
 }
 
-function updateZoomDisplay() {
-  if (zoomResetBtn) {
-    const percent = Math.round((16 / appState.viewOptions.beatsPerLine) * 100);
-    zoomResetBtn.innerText = `${percent}%`;
-  }
-}
-
 // Helper to read file as text (compatibility wrapper)
 function readFileAsText(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -409,6 +399,12 @@ function initLayout() {
 
   // Initial call
   updateLayout();
+  
+  // Initialize ViewOptions state based on layout
+  const viewOptions = document.querySelector("view-options") as any;
+  if (viewOptions && typeof viewOptions.initializeFromLayout === "function") {
+    viewOptions.initializeFromLayout();
+  }
 }
 
 function initEventListeners() {
@@ -555,20 +551,7 @@ function initEventListeners() {
   }
 
   // Setup Stats Toggle
-
-  if (showStatsCheckbox && noteStatsDisplay) {
-    showStatsCheckbox.addEventListener("change", () => {
-      noteStatsDisplay.style.display = showStatsCheckbox.checked ? "" : "none";
-
-      // Clear hover effect if hidden
-      if (!showStatsCheckbox.checked) {
-        if (appState.viewOptions.hoveredNote) {
-          appState.viewOptions.hoveredNote = null;
-          refreshChart();
-        }
-      }
-    });
-  }
+  // Moved to view-options.ts
 
   // Setup Load Example Button
 
@@ -729,37 +712,7 @@ function initEventListeners() {
   }
 
   // Zoom Controls
-  if (zoomOutBtn) {
-    zoomOutBtn.addEventListener("click", () => {
-      // Increase beats per line (Zoom Out)
-      if (appState.viewOptions.beatsPerLine < 32) {
-        appState.viewOptions.beatsPerLine += 2;
-        updateZoomDisplay();
-        refreshChart();
-      }
-    });
-  }
-
-  if (zoomInBtn) {
-    zoomInBtn.addEventListener("click", () => {
-      // Decrease beats per line (Zoom In)
-      if (appState.viewOptions.beatsPerLine > 4) {
-        appState.viewOptions.beatsPerLine -= 2;
-        updateZoomDisplay();
-        refreshChart();
-      }
-    });
-  }
-
-  if (zoomResetBtn) {
-    zoomResetBtn.addEventListener("click", () => {
-      if (appState.viewOptions.beatsPerLine !== 16) {
-        appState.viewOptions.beatsPerLine = 16;
-        updateZoomDisplay();
-        refreshChart();
-      }
-    });
-  }
+  // Moved to view-options.ts
 
   // Language Selector
   if (languageSelector) {
@@ -859,7 +812,8 @@ function initEventListeners() {
     updateStatsComponent(statsHit);
 
     // Update Hover Style
-    const isStatsVisible = showStatsCheckbox ? showStatsCheckbox.checked : false;
+    const viewOptionsEl = document.querySelector("view-options") as any;
+    const isStatsVisible = viewOptionsEl?.statsVisible ?? false;
     const newHoveredNote =
       isStatsVisible && hit
         ? { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex, branch: hit.branch }
@@ -1097,16 +1051,6 @@ function initLoad() {
 
 function init(): void {
   initLayout();
-
-  // Default stats to off in vertical layout
-  if (!document.body.classList.contains("horizontal-layout")) {
-    if (showStatsCheckbox) {
-      showStatsCheckbox.checked = false;
-    }
-    if (noteStatsDisplay) {
-      noteStatsDisplay.style.display = "none";
-    }
-  }
 
   initEventListeners();
 

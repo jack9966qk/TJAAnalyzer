@@ -119,33 +119,8 @@
                         
                         <div class="panel-content">
                             <!-- View Options Pane -->
-                            <div id="do-tab-view" class="panel-pane" style="display:flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
-
-                                <!-- Zoom Section -->
-                                <div class="option-section">
-                                    <div class="section-main">
-                                        <span class="sub-label" style="min-width: auto; margin-right: 10px;" data-i18n="ui.zoom">Zoom:</span>
-                                        <div class="zoom-controls" style="display: flex; align-items: center; gap: 5px;">
-                                            <button id="zoom-out-btn" class="tiny-btn">-</button>
-                                            <button id="zoom-reset-btn" class="tiny-btn" style="font-family: 'Consolas', monospace; min-width: 50px;">100%</button>
-                                            <button id="zoom-in-btn" class="tiny-btn">+</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Stats Section -->
-                                <div class="option-section border-left">
-                                    <div class="section-main">
-                                        <label><input type="checkbox" id="show-stats-checkbox" checked> <span data-i18n="ui.showStats">Show Note Stats</span></label>
-                                    </div>
-                                </div>
-
-                                <!-- Export Image Section -->
-                                <div class="option-section border-left">
-                                    <div class="section-main">
-                                        <save-image-button id="export-image-btn" data-i18n="ui.exportImage">Save Image</save-image-button>
-                                    </div>
-                                </div>
+                            <div id="do-tab-view" class="panel-pane" style="display:flex;">
+                                <view-options></view-options>
                             </div>
 
                             <!-- Judgements Pane -->
