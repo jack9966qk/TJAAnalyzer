@@ -1,13 +1,12 @@
-import { exampleTJA } from "./example-data.js";
-import { TJAChart } from "./tja-chart.js";
-import { parseTJA } from "./tja-parser.js";
+import { TJAChart } from "./components/tja-chart.js";
+import { exampleTJA } from "./core/example-data.js";
+import { parseTJA } from "./core/tja-parser.js";
 // Ensure side-effects
 console.log("TJAChart module loaded", TJAChart);
 console.log("Chart Only Main Loaded");
 const tjaChart = document.getElementById("chart-component");
-const w = window;
 // Expose API for Playwright
-w.loadChart = (tjaContent, difficulty = "oni") => {
+window.loadChart = (tjaContent, difficulty = "oni") => {
     try {
         const parsed = parseTJA(tjaContent);
         const chart = parsed[difficulty] || Object.values(parsed)[0];
@@ -23,8 +22,15 @@ w.loadChart = (tjaContent, difficulty = "oni") => {
         console.error("Failed to parse TJA", e);
     }
 };
-w.setOptions = (options) => {
-    tjaChart.viewOptions = options;
+window.setOptions = (options) => {
+    if (tjaChart.viewOptions) {
+        tjaChart.viewOptions = { ...tjaChart.viewOptions, ...options };
+    }
+    else {
+        // Assuming options is full if viewOptions is not set, or we need default.
+        // But we set default below.
+        tjaChart.viewOptions = options;
+    }
 };
 // Listen for annotation changes from the component
 tjaChart.addEventListener("annotations-change", (e) => {
@@ -37,15 +43,13 @@ tjaChart.addEventListener("annotations-change", (e) => {
         };
     }
 });
-w.autoAnnotate = () => {
+window.autoAnnotate = () => {
     tjaChart.autoAnnotate();
 };
-w.setJudgements = (judgements, deltas) => {
+window.setJudgements = (judgements, deltas) => {
     tjaChart.judgements = judgements;
     tjaChart.judgementDeltas = deltas || [];
 };
-// Initial Setup
-// Ensure tja-chart is defined (imported above)
 // Default Options
 tjaChart.viewOptions = {
     viewMode: "original",
@@ -62,7 +66,7 @@ tjaChart.viewOptions = {
 // Load Example by Default
 try {
     console.log("Loading example chart...");
-    w.loadChart(exampleTJA, "oni");
+    window.loadChart(exampleTJA, "oni");
     console.log("Example chart loaded.");
 }
 catch (e) {

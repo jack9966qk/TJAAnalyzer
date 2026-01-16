@@ -1,4 +1,4 @@
-import { exampleTJA } from "./example-data.js";
+import { exampleTJA } from "../core/example-data.js";
 export class JudgementClient {
     eventSource = null;
     simulateInterval = null;

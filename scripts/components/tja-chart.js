@@ -1,5 +1,5 @@
-import { generateAutoAnnotations } from "./auto-annotation.js";
-import { createLayout, getNoteAt, getNotePosition, PALETTE, renderChart, renderIncremental, renderLayout, } from "./renderer.js";
+import { generateAutoAnnotations } from "../core/auto-annotation.js";
+import { createLayout, getNoteAt, getNotePosition, PALETTE, renderChart, renderIncremental, renderLayout, } from "../core/renderer.js";
 export class TJAChart extends HTMLElement {
     canvas;
     messageContainer;

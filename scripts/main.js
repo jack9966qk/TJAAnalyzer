@@ -1,112 +1,25 @@
-import { EseClient } from "./ese-client.js";
-import { exampleTJA } from "./example-data.js";
-import { shareFile } from "./file-share.js";
-import { i18n } from "./i18n.js";
-import { JudgementClient } from "./judgement-client.js";
-import { NoteStatsDisplay } from "./note-stats.js";
-import { TJAChart } from "./tja-chart.js";
-import { generateTJAFromSelection } from "./tja-exporter.js";
-import { parseTJA } from "./tja-parser.js";
+import { NoteStatsDisplay } from "./components/note-stats.js";
+import "./components/save-image-button.js";
+import "./components/judgement-options.js"; // Ensure side-effect
+import "./components/select-options.js"; // Ensure side-effect
+import "./components/annotate-options.js"; // Ensure side-effect
+import { TJAChart } from "./components/tja-chart.js";
+import "./components/view-options.js"; // Ensure side-effect
+import "./components/changelog-panel.js";
+import { clearJudgements, refreshChart, updateBranchSelectorState, updateCollapseLoopState, updateParsedCharts, updateSelectionUI, updateStatsComponent, } from "./controllers/chart-controller.js";
+import { filterEseResults } from "./controllers/ese-controller.js";
+import { handleLayoutToggle, updateLayout } from "./controllers/layout-controller.js";
+import { exampleTJA } from "./core/example-data.js";
+import { appState } from "./state/app-state.js";
+import { i18n } from "./utils/i18n.js";
+import { branchSelector, chartModeStatus, connectBtn, difficultySelector, difficultySelectorContainer, doPanes, doTabs, dsBody, dsCollapseBtn, dsPanes, dsTabs, eseResults, eseSearchInput, eseShareBtn, hostInput, languageSelector, layoutToggleBtn, loadExampleBtn, optionsBody, optionsCollapseBtn, portInput, statusDisplay, testStreamBtn, tjaChart, tjaFilePicker, } from "./view/ui-elements.js";
 // Ensure TJAChart is imported for side-effects (custom element registration)
 console.log("TJAChart module loaded", TJAChart);
 // Ensure NoteStatsDisplay is imported for side-effects
 console.log("NoteStatsDisplay module loaded", NoteStatsDisplay);
-const tjaChart = document.getElementById("chart-component");
-let parsedTJACharts = null;
-let currentChart = null;
-let viewOptions = {
-    viewMode: "original",
-    coloringMode: "categorical",
-    visibility: { perfect: true, good: true, poor: true },
-    collapsedLoop: false,
-    selectedLoopIteration: undefined,
-    beatsPerLine: 16,
-    selection: null,
-    annotations: {},
-};
-let loadedTJAContent = exampleTJA;
-// Application State
-let activeDataSourceMode = "list";
-let isSimulating = false;
-let isStreamConnected = false;
-let hasReceivedGameStart = false;
-let selectedNoteHitInfo = null;
-let annotations = {};
-// ESE Client
-const eseClient = new EseClient();
-let eseTree = null;
-// Judgement State
-const judgementClient = new JudgementClient();
-let judgements = [];
-let judgementDeltas = []; // Store deltas
-// UI Elements
-const statusDisplay = document.getElementById("status-display");
-const noteStatsDisplay = document.getElementById("note-stats-display");
-const languageSelector = document.getElementById("language-selector");
-const judgementWarning = document.getElementById("judgement-warning");
-const judgementControls = document.getElementById("judgement-controls");
-const judgementSubcontrols = document.getElementById("judgement-subcontrols");
-const judgementStyleRadios = document.querySelectorAll('input[name="judgementStyle"]');
-const judgementColoringRadios = document.querySelectorAll('input[name="judgementColoring"]');
-const showPerfectCheckbox = document.getElementById("show-perfect-checkbox");
-const showGoodCheckbox = document.getElementById("show-good-checkbox");
-const showPoorCheckbox = document.getElementById("show-poor-checkbox");
-const difficultySelectorContainer = document.getElementById("difficulty-selector-container");
-const difficultySelector = document.getElementById("difficulty-selector");
-const branchSelectorContainer = document.getElementById("branch-selector-container");
-const branchSelector = document.getElementById("branch-selector");
-const collapseLoopCheckbox = document.getElementById("collapse-loop-checkbox");
-const optionsCollapseBtn = document.getElementById("options-collapse-btn");
-const optionsBody = document.getElementById("options-body");
-const showStatsCheckbox = document.getElementById("show-stats-checkbox");
-const loopControls = document.getElementById("loop-controls");
-const loopAutoCheckbox = document.getElementById("loop-auto");
-const loopPrevBtn = document.getElementById("loop-prev");
-const loopNextBtn = document.getElementById("loop-next");
-const loopCounter = document.getElementById("loop-counter");
-const zoomOutBtn = document.getElementById("zoom-out-btn");
-const zoomInBtn = document.getElementById("zoom-in-btn");
-const zoomResetBtn = document.getElementById("zoom-reset-btn");
-// Footer & Changelog
-const appFooter = document.querySelector(".app-footer");
-const changelogBtn = document.getElementById("changelog-btn");
-const changelogModal = document.getElementById("changelog-modal");
-const changelogCloseBtn = changelogModal ? changelogModal.querySelector(".close-btn") : null;
-const changelogList = document.getElementById("changelog-list");
-// Layout Elements
-const controlsContainer = document.getElementById("controls-container");
-const chartContainer = document.getElementById("chart-container");
-const layoutToggleBtn = document.getElementById("layout-toggle-btn");
-const CONTROLS_WIDTH = 390; // Estimated width for 3 stats columns + padding
-// Display Options Tabs
-const doTabs = document.querySelectorAll("#chart-options-panel .panel-tab");
-const doPanes = document.querySelectorAll("#chart-options-panel .panel-pane");
-const clearSelectionBtn = document.getElementById("clear-selection-btn");
-const exportSelectionBtn = document.getElementById("export-selection-btn");
-const exportChartNameInput = document.getElementById("export-chart-name");
-const clearAnnotationsBtn = document.getElementById("clear-annotations-btn");
-const autoAnnotateBtn = document.getElementById("auto-annotate-btn");
-const chartModeStatus = document.getElementById("chart-mode-status");
-// Data Source UI
-const dsTabs = document.querySelectorAll("#data-source-panel .panel-tab");
-const dsPanes = document.querySelectorAll("#data-source-panel .panel-pane");
-const dsCollapseBtn = document.getElementById("ds-collapse-btn");
-const dsBody = document.getElementById("ds-body");
-const loadExampleBtn = document.getElementById("load-example-btn");
-const tjaFilePicker = document.getElementById("tja-file-picker");
-const hostInput = document.getElementById("host-input");
-const portInput = document.getElementById("port-input");
-const connectBtn = document.getElementById("connect-btn");
-const testStreamBtn = document.getElementById("test-stream-btn");
-const eseSearchInput = document.getElementById("ese-search-input");
-const eseResults = document.getElementById("ese-results");
-const eseShareBtn = document.getElementById("ese-share-btn");
-let currentEsePath = null;
-let currentStatusKey = "status.initializing";
-let currentStatusParams;
 function updateStatus(key, params) {
-    currentStatusKey = key;
-    currentStatusParams = params;
+    appState.currentStatusKey = key;
+    appState.currentStatusParams = params;
     if (statusDisplay) {
         statusDisplay.innerText = i18n.t(key, params);
     }
@@ -117,15 +30,6 @@ function resetExampleButton() {
         loadExampleBtn.setAttribute("data-i18n", "ui.example.load");
         loadExampleBtn.innerText = i18n.t("ui.example.load");
         loadExampleBtn.classList.remove("disabled");
-    }
-}
-function updateStatsComponent(hit) {
-    if (noteStatsDisplay) {
-        noteStatsDisplay.chart = currentChart;
-        noteStatsDisplay.viewOptions = viewOptions;
-        noteStatsDisplay.judgements = judgements;
-        noteStatsDisplay.judgementDeltas = judgementDeltas;
-        noteStatsDisplay.hit = hit;
     }
 }
 function updateModeStatus(mode) {
@@ -163,76 +67,8 @@ function switchDisplayOptionTab(mode) {
     updateModeStatus(mode);
     updateDisplayState();
 }
-function updateSelectionUI() {
-    if (clearSelectionBtn) {
-        clearSelectionBtn.disabled = !viewOptions.selection;
-    }
-    if (exportSelectionBtn) {
-        exportSelectionBtn.disabled = !viewOptions.selection;
-    }
-}
-function filterEseResults(query) {
-    if (!eseTree || !eseResults)
-        return;
-    const results = query
-        ? eseTree.filter((node) => {
-            const q = query.toLowerCase();
-            return (node.path.toLowerCase().includes(q) ||
-                node.title?.toLowerCase().includes(q) ||
-                node.titleJp?.toLowerCase().includes(q));
-        })
-        : eseTree;
-    if (results.length === 0) {
-        eseResults.innerHTML = `<div class="ese-result-placeholder">${i18n.t("ui.ese.noResults")}</div>`;
-        return;
-    }
-    // Limit results for performance
-    const displayResults = results.slice(0, 100);
-    eseResults.innerHTML = "";
-    displayResults.forEach((node) => {
-        const div = document.createElement("div");
-        div.className = "ese-result-item";
-        // Simple highlighting or just text
-        div.innerText = node.path;
-        // Highlight if matches current path
-        if (currentEsePath && node.path === currentEsePath) {
-            div.classList.add("selected");
-        }
-        div.addEventListener("click", async () => {
-            try {
-                updateStatus("status.loadingChart");
-                // Highlight selection
-                document.querySelectorAll(".ese-result-item").forEach((el) => {
-                    el.classList.remove("selected");
-                });
-                div.classList.add("selected");
-                const content = await eseClient.getFileContent(node.path);
-                loadedTJAContent = content;
-                currentEsePath = node.path; // Update current ESE path
-                if (eseShareBtn)
-                    eseShareBtn.disabled = false;
-                updateParsedCharts(content);
-                updateStatus("status.chartLoaded");
-                resetExampleButton();
-            }
-            catch (e) {
-                console.error(e);
-                const errMsg = e instanceof Error ? e.message : String(e);
-                alert(`Failed to load chart: ${errMsg}`);
-                updateStatus("status.eseError", { error: errMsg });
-            }
-        });
-        eseResults.appendChild(div);
-    });
-    if (results.length > 100) {
-        const truncationMsg = document.createElement("div");
-        truncationMsg.className = "ese-result-placeholder";
-        truncationMsg.innerText = i18n.t("ui.ese.truncated");
-        eseResults.appendChild(truncationMsg);
-    }
-}
 function switchDataSourceMode(mode) {
-    activeDataSourceMode = mode;
+    appState.activeDataSourceMode = mode;
     console.log(`Switching data source mode to: ${mode}`);
     // Update Tabs
     dsTabs.forEach((t) => {
@@ -253,23 +89,23 @@ function switchDataSourceMode(mode) {
     // Logic: Disconnect if moving away from stream and currently connected
     if (mode !== "stream") {
         // Check if connected
-        if (connectBtn && (connectBtn.innerText === "Disconnect" || isSimulating)) {
-            judgementClient.disconnect();
+        if (connectBtn && (connectBtn.innerText === "Disconnect" || appState.isSimulating)) {
+            appState.judgementClient.disconnect();
         }
     }
     // List (Example + ESE) Logic
     if (mode === "list") {
-        if (!eseTree) {
+        if (!appState.eseTree) {
             updateStatus("status.loadingEse");
             // Show loading indicator in results
             if (eseResults)
                 eseResults.innerHTML = '<div style="padding:10px;">Loading song list...</div>';
-            eseClient
+            appState.eseClient
                 .getTjaFiles()
                 .then((tree) => {
-                eseTree = tree;
+                appState.eseTree = tree;
                 updateStatus("status.eseReady");
-                filterEseResults("");
+                filterEseResults("", { updateStatus, updateParsedCharts, resetExampleButton });
                 // Check pending load from URL
                 if (pendingEseLoad) {
                     loadEseFromUrl(pendingEseLoad.path, pendingEseLoad.diff);
@@ -291,7 +127,7 @@ function switchDataSourceMode(mode) {
     }
     // Disable share button if not in List mode or no chart loaded (ESE specific)
     if (eseShareBtn) {
-        if (mode === "list" && currentEsePath) {
+        if (mode === "list" && appState.currentEsePath) {
             eseShareBtn.disabled = false;
         }
         else {
@@ -306,7 +142,7 @@ function switchDataSourceMode(mode) {
         }
         else {
             // Show only if charts are parsed
-            const visible = !!parsedTJACharts;
+            const visible = !!appState.parsedTJACharts;
             difficultySelectorContainer.hidden = !visible;
             difficultySelectorContainer.style.display = visible ? "flex" : "none";
         }
@@ -320,22 +156,22 @@ let pendingEseLoad = null;
 async function loadEseFromUrl(path, diff) {
     try {
         updateStatus("status.loadingChart");
-        const content = await eseClient.getFileContent(path);
-        loadedTJAContent = content;
-        currentEsePath = path;
+        const content = await appState.eseClient.getFileContent(path);
+        appState.loadedTJAContent = content;
+        appState.currentEsePath = path;
         if (eseShareBtn)
             eseShareBtn.disabled = false;
         // Update Search UI
         if (eseSearchInput)
             eseSearchInput.value = path;
-        filterEseResults(path);
+        filterEseResults(path, { updateStatus, updateParsedCharts, resetExampleButton });
         updateParsedCharts(content);
-        if (parsedTJACharts) {
+        if (appState.parsedTJACharts) {
             // Fallback if requested diff not found
-            const targetDiff = parsedTJACharts[diff] ? diff : Object.keys(parsedTJACharts)[0];
-            if (parsedTJACharts[targetDiff]) {
+            const targetDiff = appState.parsedTJACharts[diff] ? diff : Object.keys(appState.parsedTJACharts)[0];
+            if (appState.parsedTJACharts[targetDiff]) {
                 difficultySelector.value = targetDiff;
-                currentChart = parsedTJACharts[targetDiff];
+                appState.currentChart = appState.parsedTJACharts[targetDiff];
                 refreshChart();
                 updateCollapseLoopState();
             }
@@ -350,7 +186,6 @@ async function loadEseFromUrl(path, diff) {
         updateStatus("status.eseError", { error: errMsg });
     }
 }
-// ... rest of the file ...
 function updateUIText() {
     document.querySelectorAll("[data-i18n]").forEach((el) => {
         const key = el.getAttribute("data-i18n");
@@ -376,11 +211,8 @@ function updateUIText() {
     if (eseSearchInput) {
         eseSearchInput.placeholder = i18n.t("ui.ese.searchPlaceholder");
     }
-    if (exportChartNameInput) {
-        exportChartNameInput.placeholder = i18n.t("ui.export.chartName");
-    }
     // Dynamic Elements
-    updateStatus(currentStatusKey, currentStatusParams);
+    updateStatus(appState.currentStatusKey, appState.currentStatusParams);
     // Update difficulty selector options
     if (difficultySelector) {
         for (let i = 0; i < difficultySelector.options.length; i++) {
@@ -411,138 +243,29 @@ function updateUIText() {
     // We can't easily re-render hover stats without a mouse event, but selected note stats persist.
     // If nothing selected, stats box is usually empty or showing last hover?
     // Actually renderStats is called on mousemove.
-    if (selectedNoteHitInfo) {
-        updateStatsComponent(selectedNoteHitInfo);
+    if (appState.selectedNoteHitInfo) {
+        updateStatsComponent(appState.selectedNoteHitInfo);
     }
 }
 function updateDisplayState() {
     const activeTab = document.querySelector("#chart-options-panel .panel-tab.active");
     const mode = activeTab ? activeTab.getAttribute("data-do-tab") : "view";
-    const isStreamActive = isStreamConnected || isSimulating;
+    const _isStreamActive = appState.isStreamConnected || appState.isSimulating;
     if (mode === "judgements") {
-        // Determine sub-mode from radios
-        const style = document.querySelector('input[name="judgementStyle"]:checked');
-        if (style && style.value === "underline") {
-            viewOptions.viewMode = "judgements-underline";
-        }
-        else if (style && style.value === "text") {
-            viewOptions.viewMode = "judgements-text";
-        }
-        else {
-            viewOptions.viewMode = "judgements";
-        }
-        // Handle Warning/Controls visibility
-        if (judgementWarning)
-            judgementWarning.style.display = isStreamActive ? "none" : "block";
-        if (judgementControls) {
-            judgementControls.style.display = "flex";
-            if (isStreamActive) {
-                judgementControls.classList.remove("disabled");
-                judgementControls.style.opacity = "1";
-                judgementControls.style.pointerEvents = "auto";
-            }
-            else {
-                judgementControls.classList.add("disabled");
-                judgementControls.style.opacity = "0.5";
-                judgementControls.style.pointerEvents = "none";
-            }
+        // Determine sub-mode from radios - now handled by component logic or we read from state
+        // Actually the component updates the state. Here we just ensure consistency or handle visibility.
+        // We need to refresh the component status
+        const judgementOptions = document.querySelector("judgement-options");
+        if (judgementOptions && typeof judgementOptions.refreshStatus === "function") {
+            judgementOptions.refreshStatus();
         }
     }
     else {
-        viewOptions.viewMode = "original";
+        appState.viewOptions.viewMode = "original";
     }
-    // Determine Coloring Mode
-    const coloring = document.querySelector('input[name="judgementColoring"]:checked');
-    viewOptions.coloringMode = coloring && coloring.value === "gradient" ? "gradient" : "categorical";
-    // Determine Judgement Visibility
-    if (showPerfectCheckbox && showGoodCheckbox && showPoorCheckbox) {
-        viewOptions.visibility = {
-            perfect: showPerfectCheckbox.checked,
-            good: showGoodCheckbox.checked,
-            poor: showPoorCheckbox.checked,
-        };
-    }
+    // Determine Coloring Mode - Handled by component
+    // Determine Judgement Visibility - Handled by component
     refreshChart();
-}
-function clearJudgements() {
-    judgements = [];
-    judgementDeltas = [];
-    updateStatsComponent(selectedNoteHitInfo);
-}
-function updateBranchSelectorState(resetBranch = false) {
-    clearJudgements();
-    if (!parsedTJACharts)
-        return;
-    const selectedDiff = difficultySelector.value;
-    const rootChart = parsedTJACharts[selectedDiff];
-    if (!rootChart)
-        return;
-    if (rootChart.branches) {
-        branchSelectorContainer.hidden = false;
-        branchSelectorContainer.style.display = "flex";
-        if (resetBranch) {
-            branchSelector.value = "all";
-        }
-        const branchType = branchSelector.value;
-        if (branchType === "all") {
-            viewOptions.showAllBranches = true;
-            currentChart = rootChart;
-        }
-        else {
-            viewOptions.showAllBranches = false;
-            // Note: rootChart.branches.normal is the rootChart itself usually
-            const target = rootChart.branches[branchType];
-            if (target) {
-                currentChart = target;
-            }
-            else {
-                // Fallback
-                currentChart = rootChart;
-            }
-        }
-    }
-    else {
-        branchSelectorContainer.hidden = true;
-        branchSelectorContainer.style.display = "none";
-        viewOptions.showAllBranches = false;
-        currentChart = rootChart;
-    }
-    updateCollapseLoopState();
-    refreshChart();
-}
-function updateCollapseLoopState() {
-    if (!collapseLoopCheckbox)
-        return;
-    const hasLoop = currentChart?.loop;
-    const optionSection = collapseLoopCheckbox.closest(".option-section");
-    if (hasLoop) {
-        collapseLoopCheckbox.disabled = false;
-        if (collapseLoopCheckbox.parentElement) {
-            collapseLoopCheckbox.parentElement.classList.remove("disabled-text");
-        }
-        if (optionSection) {
-            optionSection.style.display = "";
-        }
-    }
-    else {
-        collapseLoopCheckbox.disabled = true;
-        collapseLoopCheckbox.checked = false;
-        viewOptions.collapsedLoop = false;
-        if (collapseLoopCheckbox.parentElement) {
-            collapseLoopCheckbox.parentElement.classList.add("disabled-text");
-        }
-        if (optionSection) {
-            optionSection.style.display = "none";
-        }
-    }
-    // Note: refreshChart() is usually called after this or before this in the flow.
-    // If we changed 'collapsedLoop' state here, we might need to ensure refresh happens.
-}
-function updateZoomDisplay() {
-    if (zoomResetBtn) {
-        const percent = Math.round((16 / viewOptions.beatsPerLine) * 100);
-        zoomResetBtn.innerText = `${percent}%`;
-    }
 }
 // Helper to read file as text (compatibility wrapper)
 function readFileAsText(file) {
@@ -558,69 +281,10 @@ function readFileAsText(file) {
         }
     });
 }
-function updateLayout() {
-    if (!controlsContainer || !layoutToggleBtn)
-        return;
-    const windowWidth = window.innerWidth;
-    // If controls width is less than 40% of window width, use horizontal layout
-    const shouldUseHorizontal = CONTROLS_WIDTH < windowWidth * 0.4;
-    if (shouldUseHorizontal) {
-        document.body.classList.add("horizontal-layout");
-        // Move footer to controls container
-        if (appFooter && appFooter.parentElement !== controlsContainer) {
-            controlsContainer.appendChild(appFooter);
-        }
-        // Update state based on collapse status
-        if (!document.body.classList.contains("controls-collapsed")) {
-            controlsContainer.style.width = `${CONTROLS_WIDTH}px`;
-            layoutToggleBtn.style.left = `${CONTROLS_WIDTH}px`;
-            layoutToggleBtn.innerHTML = '<span class="icon">&lt;</span>';
-            layoutToggleBtn.title = i18n.t("ui.collapse");
-        }
-        else {
-            controlsContainer.style.width = "0px";
-            layoutToggleBtn.style.left = "0px";
-            layoutToggleBtn.innerHTML = '<span class="icon">&gt;</span>';
-            layoutToggleBtn.title = i18n.t("ui.expand");
-        }
-    }
-    else {
-        document.body.classList.remove("horizontal-layout");
-        // Move footer back to chart container
-        if (appFooter && appFooter.parentElement !== chartContainer) {
-            chartContainer.appendChild(appFooter);
-        }
-        // Reset styles for vertical layout
-        controlsContainer.style.width = "";
-        layoutToggleBtn.style.left = "";
-    }
-}
-function handleLayoutToggle() {
-    if (!controlsContainer || !layoutToggleBtn)
-        return;
-    document.body.classList.toggle("controls-collapsed");
-    const isCollapsed = document.body.classList.contains("controls-collapsed");
-    if (isCollapsed) {
-        controlsContainer.style.width = "0px";
-        layoutToggleBtn.style.left = "0px";
-        layoutToggleBtn.innerHTML = '<span class="icon">&gt;</span>';
-        layoutToggleBtn.title = i18n.t("ui.expand");
-    }
-    else {
-        controlsContainer.style.width = `${CONTROLS_WIDTH}px`;
-        layoutToggleBtn.style.left = `${CONTROLS_WIDTH}px`;
-        layoutToggleBtn.innerHTML = '<span class="icon">&lt;</span>';
-        layoutToggleBtn.title = i18n.t("ui.collapse");
-    }
-    // Refresh chart after transition to ensure correct width
-    setTimeout(() => {
-        refreshChart();
-    }, 350);
-}
-function init() {
+function initLayout() {
     // Layout Init
     if (layoutToggleBtn) {
-        layoutToggleBtn.addEventListener("click", handleLayoutToggle);
+        layoutToggleBtn.addEventListener("click", () => handleLayoutToggle(() => refreshChart()));
     }
     window.addEventListener("resize", () => {
         updateLayout();
@@ -628,48 +292,19 @@ function init() {
     });
     // Initial call
     updateLayout();
-    // Default stats to off in vertical layout
-    if (!document.body.classList.contains("horizontal-layout")) {
-        if (showStatsCheckbox) {
-            showStatsCheckbox.checked = false;
-        }
-        if (noteStatsDisplay) {
-            noteStatsDisplay.style.display = "none";
-        }
+    // Initialize ViewOptions state based on layout
+    const viewOptions = document.querySelector("view-options");
+    if (viewOptions && typeof viewOptions.initializeFromLayout === "function") {
+        viewOptions.initializeFromLayout();
     }
+}
+function initEventListeners() {
     if (!tjaChart) {
         console.error("tja-chart element not found.");
         return;
     }
-    // Initial State
-    // Ensure subcontrols are disabled initially
-    if (judgementSubcontrols) {
-        // judgementSubcontrols.classList.add('disabled'); // Class no longer used for disabled state, controlled by display
-    }
-    // Listeners for new checkboxes
-    if (showPerfectCheckbox)
-        showPerfectCheckbox.addEventListener("change", updateDisplayState);
-    if (showGoodCheckbox)
-        showGoodCheckbox.addEventListener("change", updateDisplayState);
-    if (showPoorCheckbox)
-        showPoorCheckbox.addEventListener("change", updateDisplayState);
-    // Initial Loop State
-    if (collapseLoopCheckbox) {
-        collapseLoopCheckbox.disabled = true;
-        if (collapseLoopCheckbox.parentElement) {
-            collapseLoopCheckbox.parentElement.classList.add("disabled-text");
-        }
-        const optionSection = collapseLoopCheckbox.closest(".option-section");
-        if (optionSection) {
-            optionSection.style.display = "none";
-        }
-    }
-    judgementStyleRadios.forEach((r) => {
-        r.addEventListener("change", updateDisplayState);
-    });
-    judgementColoringRadios.forEach((r) => {
-        r.addEventListener("change", updateDisplayState);
-    });
+    // Listeners for new checkboxes - Moved to judgement-options.ts
+    // judgementStyleRadios & judgementColoringRadios - Moved to judgement-options.ts
     // Setup Data Source Tabs
     dsTabs.forEach((tab) => {
         tab.addEventListener("click", () => {
@@ -686,77 +321,6 @@ function init() {
                 switchDisplayOptionTab(mode);
         });
     });
-    if (clearSelectionBtn) {
-        clearSelectionBtn.addEventListener("click", () => {
-            viewOptions.selection = null;
-            selectedNoteHitInfo = null;
-            refreshChart();
-            updateSelectionUI();
-        });
-    }
-    if (exportSelectionBtn) {
-        exportSelectionBtn.addEventListener("click", async () => {
-            if (!currentChart || !viewOptions.selection) {
-                // Should not be clickable if disabled, but just in case
-                return;
-            }
-            const loopCountInput = document.getElementById("export-loop-count");
-            const loopCount = loopCountInput ? parseInt(loopCountInput.value, 10) : 10;
-            const gapCountInput = document.getElementById("export-gap-count");
-            const gapCount = gapCountInput ? parseInt(gapCountInput.value, 10) : 1;
-            const chartNameInput = document.getElementById("export-chart-name");
-            const chartName = chartNameInput?.value ? chartNameInput.value : "Exported Selection";
-            try {
-                const tjaContent = generateTJAFromSelection(currentChart, viewOptions.selection, difficultySelector.value, loopCount, chartName, gapCount);
-                await shareFile(`${chartName}.tja`, tjaContent, "text/plain", "Export TJA");
-                updateStatus("status.exportSuccess");
-            }
-            catch (e) {
-                console.error("Export failed:", e);
-                updateStatus("status.exportFailed");
-            }
-        });
-    }
-    const exportImageBtns = document.querySelectorAll(".export-image-trigger");
-    exportImageBtns.forEach((btn) => {
-        btn.addEventListener("click", async () => {
-            if (!currentChart)
-                return;
-            try {
-                // Determine annotation mode state for rendering
-                // We should respect the current state
-                const activeTab = document.querySelector("#chart-options-panel .panel-tab.active");
-                const mode = activeTab ? activeTab.getAttribute("data-do-tab") : "view";
-                const optionsForExport = { ...viewOptions, isAnnotationMode: mode === "annotation" };
-                const dataURL = tjaChart.exportImage(optionsForExport);
-                // Convert DataURL to Uint8Array
-                const base64Data = dataURL.split(",")[1];
-                const binaryString = window.atob(base64Data);
-                const len = binaryString.length;
-                const bytes = new Uint8Array(len);
-                for (let i = 0; i < len; i++) {
-                    bytes[i] = binaryString.charCodeAt(i);
-                }
-                await shareFile("chart.png", bytes, "image/png", "Save Chart Image");
-                updateStatus("status.exportImageSuccess");
-            }
-            catch (e) {
-                console.error("Export image failed:", e);
-                updateStatus("status.exportImageFailed");
-            }
-        });
-    });
-    if (clearAnnotationsBtn) {
-        clearAnnotationsBtn.addEventListener("click", () => {
-            annotations = {};
-            refreshChart();
-        });
-    }
-    if (autoAnnotateBtn) {
-        autoAnnotateBtn.addEventListener("click", () => {
-            tjaChart.autoAnnotate();
-        });
-    }
     // Setup Collapse Button
     if (dsCollapseBtn && dsBody) {
         dsCollapseBtn.addEventListener("click", () => {
@@ -784,28 +348,17 @@ function init() {
         });
     }
     // Setup Stats Toggle
-    if (showStatsCheckbox && noteStatsDisplay) {
-        showStatsCheckbox.addEventListener("change", () => {
-            noteStatsDisplay.style.display = showStatsCheckbox.checked ? "" : "none";
-            // Clear hover effect if hidden
-            if (!showStatsCheckbox.checked) {
-                if (viewOptions.hoveredNote) {
-                    viewOptions.hoveredNote = null;
-                    refreshChart();
-                }
-            }
-        });
-    }
+    // Moved to view-options.ts
     // Setup Load Example Button
     if (loadExampleBtn) {
         loadExampleBtn.addEventListener("click", () => {
-            loadedTJAContent = exampleTJA;
+            appState.loadedTJAContent = exampleTJA;
             // Disable button
             loadExampleBtn.disabled = true;
             loadExampleBtn.setAttribute("data-i18n", "ui.example.loaded");
             loadExampleBtn.innerText = i18n.t("ui.example.loaded");
             // Clear ESE state
-            currentEsePath = null;
+            appState.currentEsePath = null;
             if (eseShareBtn)
                 eseShareBtn.disabled = true;
             if (eseResults) {
@@ -817,7 +370,7 @@ function init() {
             if (eseSearchInput)
                 eseSearchInput.value = "";
             try {
-                updateParsedCharts(loadedTJAContent);
+                updateParsedCharts(appState.loadedTJAContent);
                 updateStatus("status.exampleLoaded");
             }
             catch (e) {
@@ -838,7 +391,7 @@ function init() {
                 const file = files[0];
                 try {
                     const content = await readFileAsText(file);
-                    loadedTJAContent = content;
+                    appState.loadedTJAContent = content;
                     updateParsedCharts(content);
                     updateStatus("status.fileLoaded");
                     resetExampleButton();
@@ -857,20 +410,20 @@ function init() {
     if (eseSearchInput) {
         eseSearchInput.addEventListener("input", () => {
             const query = eseSearchInput.value.toLowerCase();
-            filterEseResults(query);
+            filterEseResults(query, { updateStatus, updateParsedCharts, resetExampleButton });
         });
     }
     // Setup Stream Controls
     if (connectBtn && hostInput && portInput) {
         connectBtn.addEventListener("click", () => {
-            if (isStreamConnected) {
-                judgementClient.disconnect();
+            if (appState.isStreamConnected) {
+                appState.judgementClient.disconnect();
             }
             else {
                 const host = hostInput.value;
                 const port = parseInt(portInput.value, 10);
                 if (host && port) {
-                    judgementClient.connect(host, port);
+                    appState.judgementClient.connect(host, port);
                 }
                 else {
                     alert("Please enter valid Host and Port.");
@@ -880,97 +433,24 @@ function init() {
     }
     if (testStreamBtn) {
         testStreamBtn.addEventListener("click", () => {
-            if (isSimulating) {
-                judgementClient.disconnect();
-                isSimulating = false;
+            if (appState.isSimulating) {
+                appState.judgementClient.disconnect();
+                appState.isSimulating = false;
                 testStreamBtn.setAttribute("data-i18n", "ui.test.start");
                 testStreamBtn.innerText = i18n.t("ui.test.start");
             }
             else {
-                isSimulating = true;
+                appState.isSimulating = true;
                 clearJudgements();
                 updateDisplayState();
                 testStreamBtn.setAttribute("data-i18n", "ui.test.stop");
                 testStreamBtn.innerText = i18n.t("ui.test.stop");
                 // Use currently loaded content and selected difficulty
-                judgementClient.startSimulation(loadedTJAContent, difficultySelector.value);
+                appState.judgementClient.startSimulation(appState.loadedTJAContent, difficultySelector.value);
             }
         });
     }
-    if (collapseLoopCheckbox) {
-        collapseLoopCheckbox.addEventListener("change", (event) => {
-            viewOptions.collapsedLoop = event.target.checked;
-            refreshChart();
-            updateStatsComponent(null);
-        });
-    }
-    // Loop Controls
-    if (loopAutoCheckbox) {
-        loopAutoCheckbox.addEventListener("change", (_e) => {
-            if (loopAutoCheckbox.checked) {
-                viewOptions.selectedLoopIteration = undefined;
-            }
-            else {
-                const matches = loopCounter.innerText.match(/(\d+) \/ (\d+)/);
-                if (matches) {
-                    viewOptions.selectedLoopIteration = parseInt(matches[1], 10) - 1;
-                }
-                else {
-                    viewOptions.selectedLoopIteration = 0;
-                }
-            }
-            refreshChart();
-        });
-    }
-    if (loopPrevBtn) {
-        loopPrevBtn.addEventListener("click", () => {
-            if (viewOptions.selectedLoopIteration !== undefined && viewOptions.selectedLoopIteration > 0) {
-                viewOptions.selectedLoopIteration--;
-                refreshChart();
-            }
-        });
-    }
-    if (loopNextBtn) {
-        loopNextBtn.addEventListener("click", () => {
-            if (currentChart?.loop &&
-                viewOptions.selectedLoopIteration !== undefined &&
-                viewOptions.selectedLoopIteration < currentChart.loop.iterations - 1) {
-                viewOptions.selectedLoopIteration++;
-                refreshChart();
-            }
-        });
-    }
-    // Zoom Controls
-    if (zoomOutBtn) {
-        zoomOutBtn.addEventListener("click", () => {
-            // Increase beats per line (Zoom Out)
-            if (viewOptions.beatsPerLine < 32) {
-                viewOptions.beatsPerLine += 2;
-                updateZoomDisplay();
-                refreshChart();
-            }
-        });
-    }
-    if (zoomInBtn) {
-        zoomInBtn.addEventListener("click", () => {
-            // Decrease beats per line (Zoom In)
-            if (viewOptions.beatsPerLine > 4) {
-                viewOptions.beatsPerLine -= 2;
-                updateZoomDisplay();
-                refreshChart();
-            }
-        });
-    }
-    if (zoomResetBtn) {
-        zoomResetBtn.addEventListener("click", () => {
-            if (viewOptions.beatsPerLine !== 16) {
-                viewOptions.beatsPerLine = 16;
-                updateZoomDisplay();
-                refreshChart();
-            }
-        });
-    }
-    // Language Selector
+    // Setup Collapse Button
     if (languageSelector) {
         languageSelector.value = i18n.language;
         languageSelector.addEventListener("change", () => {
@@ -980,54 +460,6 @@ function init() {
     i18n.onLanguageChange(() => {
         updateUIText();
     });
-    // Changelog Logic
-    if (changelogBtn && changelogModal && changelogList) {
-        changelogBtn.addEventListener("click", async () => {
-            changelogModal.style.display = "block";
-            if (changelogList.children.length === 0) {
-                changelogList.innerHTML = '<div style="padding:10px; color:#666;">Loading...</div>';
-                try {
-                    const res = await fetch("changelog.json");
-                    if (!res.ok)
-                        throw new Error(`HTTP ${res.status}`);
-                    const data = await res.json();
-                    changelogList.innerHTML = "";
-                    if (Array.isArray(data) && data.length > 0) {
-                        // biome-ignore lint/suspicious/noExplicitAny: Changelog data is untyped
-                        data.forEach((item) => {
-                            const div = document.createElement("div");
-                            div.className = "changelog-item";
-                            div.innerHTML = `
-                                <div class="changelog-header">
-                                    <span>${item.date}</span>
-                                    <span style="font-family:monospace;">${item.hash}</span>
-                                </div>
-                                <div class="changelog-msg">${item.message}</div>
-                            `;
-                            changelogList.appendChild(div);
-                        });
-                    }
-                    else {
-                        changelogList.innerHTML = '<div style="padding:10px;">No changelog available.</div>';
-                    }
-                }
-                catch (e) {
-                    console.error("Failed to load changelog:", e);
-                    changelogList.innerHTML = '<div style="padding:10px; color:red;">Failed to load changelog.</div>';
-                }
-            }
-        });
-        if (changelogCloseBtn) {
-            changelogCloseBtn.addEventListener("click", () => {
-                changelogModal.style.display = "none";
-            });
-        }
-        window.addEventListener("click", (event) => {
-            if (event.target === changelogModal) {
-                changelogModal.style.display = "none";
-            }
-        });
-    }
     // Load Version
     const appVersionEl = document.getElementById("app-version");
     if (appVersionEl) {
@@ -1050,21 +482,22 @@ function init() {
     // Listen to custom events
     tjaChart.addEventListener("annotations-change", (e) => {
         const newAnnotations = e.detail;
-        annotations = newAnnotations;
+        appState.annotations = newAnnotations;
         refreshChart();
     });
     tjaChart.addEventListener("chart-hover", (e) => {
         const detail = e.detail;
         const hit = detail.hit;
         // Render stats
-        const statsHit = selectedNoteHitInfo || hit;
+        const statsHit = appState.selectedNoteHitInfo || hit;
         updateStatsComponent(statsHit);
         // Update Hover Style
-        const isStatsVisible = showStatsCheckbox ? showStatsCheckbox.checked : false;
+        const viewOptionsEl = document.querySelector("view-options");
+        const isStatsVisible = viewOptionsEl?.statsVisible ?? false;
         const newHoveredNote = isStatsVisible && hit
             ? { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex, branch: hit.branch }
             : null;
-        const currentHovered = viewOptions.hoveredNote;
+        const currentHovered = appState.viewOptions.hoveredNote;
         let changed = false;
         if (!currentHovered && !newHoveredNote) {
             changed = false;
@@ -1079,18 +512,18 @@ function init() {
                     currentHovered.branch !== newHoveredNote.branch;
         }
         if (changed) {
-            viewOptions.hoveredNote = newHoveredNote;
+            appState.viewOptions.hoveredNote = newHoveredNote;
             refreshChart();
         }
     });
     tjaChart.addEventListener("chart-click", (e) => {
         const detail = e.detail;
         const hit = detail.hit;
-        if (!currentChart)
+        if (!appState.currentChart)
             return;
         const activeTab = document.querySelector("#chart-options-panel .panel-tab.active");
         const mode = activeTab ? activeTab.getAttribute("data-do-tab") : "view";
-        if (viewOptions.showAllBranches && (mode === "annotation" || mode === "selection"))
+        if (appState.viewOptions.showAllBranches && (mode === "annotation" || mode === "selection"))
             return;
         // Annotation logic moved to component (annotations-change event)
         if (mode === "annotation")
@@ -1099,39 +532,39 @@ function init() {
             return;
         // Selection Logic (same as before)
         if (hit) {
-            if (!viewOptions.selection) {
-                viewOptions.selection = {
+            if (!appState.viewOptions.selection) {
+                appState.viewOptions.selection = {
                     start: { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex },
                     end: null,
                 };
-                selectedNoteHitInfo = hit;
+                appState.selectedNoteHitInfo = hit;
             }
-            else if (viewOptions.selection.start && !viewOptions.selection.end) {
-                if (viewOptions.selection.start.originalBarIndex === hit.originalBarIndex &&
-                    viewOptions.selection.start.charIndex === hit.charIndex) {
-                    viewOptions.selection = null;
-                    selectedNoteHitInfo = null;
+            else if (appState.viewOptions.selection.start && !appState.viewOptions.selection.end) {
+                if (appState.viewOptions.selection.start.originalBarIndex === hit.originalBarIndex &&
+                    appState.viewOptions.selection.start.charIndex === hit.charIndex) {
+                    appState.viewOptions.selection = null;
+                    appState.selectedNoteHitInfo = null;
                 }
                 else {
-                    viewOptions.selection.end = { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex };
-                    selectedNoteHitInfo = hit;
+                    appState.viewOptions.selection.end = { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex };
+                    appState.selectedNoteHitInfo = hit;
                 }
             }
             else {
-                viewOptions.selection = {
+                appState.viewOptions.selection = {
                     start: { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex },
                     end: null,
                 };
-                selectedNoteHitInfo = hit;
+                appState.selectedNoteHitInfo = hit;
             }
         }
         else {
-            viewOptions.selection = null;
-            selectedNoteHitInfo = null;
+            appState.viewOptions.selection = null;
+            appState.selectedNoteHitInfo = null;
         }
         refreshChart();
         updateSelectionUI();
-        updateStatsComponent(selectedNoteHitInfo);
+        updateStatsComponent(appState.selectedNoteHitInfo);
     });
     difficultySelector.addEventListener("change", () => {
         updateBranchSelectorState(true);
@@ -1141,106 +574,13 @@ function init() {
             updateBranchSelectorState(false);
         });
     }
-    // Judgement Client Callbacks
-    judgementClient.onMessage(async (event) => {
-        if (event.type === "gameplay_start") {
-            console.log("Gameplay Start Event Received");
-            judgements = [];
-            judgementDeltas = [];
-            currentChart = null;
-            hasReceivedGameStart = true;
-            // Clear selection
-            viewOptions.selection = null;
-            selectedNoteHitInfo = null;
-            updateSelectionUI();
-            updateStatus("status.receiving");
-            if (event.tjaSummaries && event.tjaSummaries.length > 0) {
-                // Sort by player to ensure we get Player 1
-                const sortedSummaries = [...event.tjaSummaries].sort((a, b) => a.player - b.player);
-                const summary = sortedSummaries[0];
-                updateParsedCharts(summary.tjaContent);
-                const diff = summary.difficulty.toLowerCase();
-                if (parsedTJACharts?.[diff]) {
-                    difficultySelector.value = diff;
-                    currentChart = parsedTJACharts[diff];
-                }
-            }
-            updateCollapseLoopState();
-            refreshChart();
-            resetExampleButton();
-        }
-        else if (event.type === "judgement") {
-            judgements.push(event.judgement);
-            judgementDeltas.push(event.msDelta);
-            refreshChart();
-        }
-    });
-    judgementClient.onStatusChange((status) => {
-        if (connectBtn) {
-            if (status === "Connected") {
-                isStreamConnected = true;
-                connectBtn.innerText = i18n.t("ui.stream.disconnect");
-            }
-            else {
-                // Only set to connect if disconnected or connecting...
-                if (status !== "Connecting...") {
-                    connectBtn.innerText = i18n.t("ui.stream.connect");
-                }
-            }
-        }
-        if (status === "Connected") {
-            isStreamConnected = true;
-            // Reset for new connection session
-            hasReceivedGameStart = false;
-            if (isSimulating) {
-                updateStatus("status.simConnected");
-            }
-            else {
-                updateStatus("status.connected");
-                if (testStreamBtn)
-                    testStreamBtn.disabled = true;
-            }
-            // Clear chart to force waiting screen
-            if (!isSimulating) {
-                // Simulation sends start event immediately usually, but good to be safe
-                currentChart = null;
-                refreshChart();
-            }
-        }
-        else if (status === "Connecting...") {
-            updateStatus("status.connecting");
-            hasReceivedGameStart = false;
-            if (testStreamBtn)
-                testStreamBtn.disabled = true;
-            if (connectBtn)
-                connectBtn.disabled = true;
-        }
-        else {
-            // Disconnected
-            isStreamConnected = false;
-            hasReceivedGameStart = false;
-            // Re-enable controls if we were in test mode
-            if (testStreamBtn) {
-                testStreamBtn.disabled = false;
-                if (isSimulating) {
-                    testStreamBtn.setAttribute("data-i18n", "ui.test.start");
-                    testStreamBtn.innerText = i18n.t("ui.test.start");
-                }
-            }
-            if (connectBtn)
-                connectBtn.disabled = false;
-            updateStatus(isSimulating ? "status.simStopped" : "status.disconnected");
-            isSimulating = false;
-        }
-        updateDisplayState();
-    });
     // ESE Share Button
     if (eseShareBtn) {
         eseShareBtn.addEventListener("click", async () => {
-            if (!currentEsePath)
+            if (!appState.currentEsePath)
                 return;
             const url = new URL(window.location.href);
-            url.searchParams.set("ese", currentEsePath);
+            url.searchParams.set("ese", appState.currentEsePath);
             url.searchParams.set("diff", difficultySelector.value);
             try {
                 await navigator.clipboard.writeText(url.toString());
@@ -1252,6 +592,103 @@ function init() {
             }
         });
     }
+}
+function initJudgementClient() {
+    // Judgement Client Callbacks
+    appState.judgementClient.onMessage(async (event) => {
+        if (event.type === "gameplay_start") {
+            console.log("Gameplay Start Event Received");
+            appState.judgements = [];
+            appState.judgementDeltas = [];
+            appState.currentChart = null;
+            appState.hasReceivedGameStart = true;
+            // Clear selection
+            appState.viewOptions.selection = null;
+            appState.selectedNoteHitInfo = null;
+            updateSelectionUI();
+            updateStatus("status.receiving");
+            if (event.tjaSummaries && event.tjaSummaries.length > 0) {
+                // Sort by player to ensure we get Player 1
+                const sortedSummaries = [...event.tjaSummaries].sort((a, b) => a.player - b.player);
+                const summary = sortedSummaries[0];
+                updateParsedCharts(summary.tjaContent);
+                const diff = summary.difficulty.toLowerCase();
+                if (appState.parsedTJACharts?.[diff]) {
+                    difficultySelector.value = diff;
+                    appState.currentChart = appState.parsedTJACharts[diff];
+                }
+            }
+            updateCollapseLoopState();
+            refreshChart();
+            resetExampleButton();
+        }
+        else if (event.type === "judgement") {
+            appState.judgements.push(event.judgement);
+            appState.judgementDeltas.push(event.msDelta);
+            refreshChart();
+        }
+    });
+    appState.judgementClient.onStatusChange((status) => {
+        if (connectBtn) {
+            if (status === "Connected") {
+                appState.isStreamConnected = true;
+                connectBtn.innerText = i18n.t("ui.stream.disconnect");
+            }
+            else {
+                // Only set to connect if disconnected or connecting...
+                if (status !== "Connecting...") {
+                    connectBtn.innerText = i18n.t("ui.stream.connect");
+                }
+            }
+        }
+        if (status === "Connected") {
+            appState.isStreamConnected = true;
+            // Reset for new connection session
+            appState.hasReceivedGameStart = false;
+            if (appState.isSimulating) {
+                updateStatus("status.simConnected");
+            }
+            else {
+                updateStatus("status.connected");
+                if (testStreamBtn)
+                    testStreamBtn.disabled = true;
+            }
+            // Clear chart to force waiting screen
+            if (!appState.isSimulating) {
+                // Simulation sends start event immediately usually, but good to be safe
+                appState.currentChart = null;
+                refreshChart();
+            }
+        }
+        else if (status === "Connecting...") {
+            updateStatus("status.connecting");
+            appState.hasReceivedGameStart = false;
+            if (testStreamBtn)
+                testStreamBtn.disabled = true;
+            if (connectBtn)
+                connectBtn.disabled = true;
+        }
+        else {
+            // Disconnected
+            appState.isStreamConnected = false;
+            appState.hasReceivedGameStart = false;
+            // Re-enable controls if we were in test mode
+            if (testStreamBtn) {
+                testStreamBtn.disabled = false;
+                if (appState.isSimulating) {
+                    testStreamBtn.setAttribute("data-i18n", "ui.test.start");
+                    testStreamBtn.innerText = i18n.t("ui.test.start");
+                }
+            }
+            if (connectBtn)
+                connectBtn.disabled = false;
+            updateStatus(appState.isSimulating ? "status.simStopped" : "status.disconnected");
+            appState.isSimulating = false;
+        }
+        updateDisplayState();
+    });
+}
+function initLoad() {
     // Initial Load
     updateStatus("status.ready");
     updateUIText(); // Initialize text
@@ -1269,6 +706,12 @@ function init() {
             loadExampleBtn.click();
     }
     initializePanelVisibility();
+}
+function init() {
+    initLayout();
+    initEventListeners();
+    initJudgementClient();
+    initLoad();
 }
 function initializePanelVisibility() {
     if (!dsBody || !optionsBody)
@@ -1299,157 +742,6 @@ function initializePanelVisibility() {
             optionsCollapseBtn.innerText = i18n.t("ui.expand");
     }
 }
-function updateParsedCharts(content) {
-    parsedTJACharts = parseTJA(content);
-    // Clear selection
-    viewOptions.selection = null;
-    selectedNoteHitInfo = null;
-    updateSelectionUI();
-    // Clear Annotations
-    annotations = {};
-    difficultySelector.innerHTML = "";
-    const difficulties = Object.keys(parsedTJACharts);
-    if (difficulties.length === 0) {
-        difficultySelectorContainer.hidden = true;
-        difficultySelectorContainer.style.display = "none";
-        throw new Error(i18n.t("status.noCourses"));
-    }
-    difficulties.forEach((diff) => {
-        const option = document.createElement("option");
-        option.value = diff;
-        const key = `ui.difficulty.${diff.toLowerCase()}`;
-        const translated = i18n.t(key);
-        option.innerText = translated !== key ? translated : diff.charAt(0).toUpperCase() + diff.slice(1);
-        difficultySelector.appendChild(option);
-    });
-    let defaultDifficulty = "edit";
-    if (!parsedTJACharts[defaultDifficulty])
-        defaultDifficulty = "oni";
-    if (!parsedTJACharts[defaultDifficulty])
-        defaultDifficulty = difficulties[0];
-    difficultySelector.value = defaultDifficulty;
-    updateBranchSelectorState(true);
-    if (activeDataSourceMode === "stream") {
-        difficultySelectorContainer.hidden = true;
-        difficultySelectorContainer.style.display = "none";
-    }
-    else {
-        difficultySelectorContainer.hidden = false;
-        difficultySelectorContainer.style.display = "flex";
-    }
-    updateStatsComponent(null);
-}
-function updateLoopControls() {
-    if (!loopControls || !currentChart)
-        return;
-    // Use .style.display for loop controls as they are dynamic and shouldn't take space if irrelevant
-    if (viewOptions.collapsedLoop && currentChart.loop) {
-        loopControls.style.display = "flex"; // Changed to flex to match CSS
-        const loop = currentChart.loop;
-        let displayedIter = 0;
-        if (viewOptions.selectedLoopIteration === undefined) {
-            loopAutoCheckbox.checked = true;
-            loopPrevBtn.disabled = true;
-            loopNextBtn.disabled = true;
-            if ((viewOptions.viewMode === "judgements" ||
-                viewOptions.viewMode === "judgements-underline" ||
-                viewOptions.viewMode === "judgements-text") &&
-                judgements.length > 0) {
-                let notesPerLoop = 0;
-                let preLoopNotes = 0;
-                for (let i = 0; i < loop.startBarIndex; i++) {
-                    const bar = currentChart.bars[i];
-                    if (bar)
-                        for (const c of bar)
-                            if (["1", "2", "3", "4"].includes(c))
-                                preLoopNotes++;
-                }
-                for (let k = 0; k < loop.period; k++) {
-                    const bar = currentChart.bars[loop.startBarIndex + k];
-                    if (bar)
-                        for (const c of bar)
-                            if (["1", "2", "3", "4"].includes(c))
-                                notesPerLoop++;
-                }
-                const lastJudgedIndex = judgements.length - 1;
-                if (lastJudgedIndex >= preLoopNotes && notesPerLoop > 0) {
-                    const relativeIndex = lastJudgedIndex - preLoopNotes;
-                    displayedIter = Math.floor(relativeIndex / notesPerLoop);
-                }
-            }
-        }
-        else {
-            loopAutoCheckbox.checked = false;
-            displayedIter = viewOptions.selectedLoopIteration;
-            loopPrevBtn.disabled = displayedIter <= 0;
-            loopNextBtn.disabled = displayedIter >= loop.iterations - 1;
-        }
-        if (displayedIter < 0)
-            displayedIter = 0;
-        if (displayedIter >= loop.iterations)
-            displayedIter = loop.iterations - 1;
-        loopCounter.innerText = `${displayedIter + 1} / ${loop.iterations}`;
-    }
-    else {
-        loopControls.style.display = "none";
-    }
-}
-function refreshChart() {
-    if (!tjaChart)
-        return;
-    // 1. Check for Stream Waiting State
-    if ((isStreamConnected || isSimulating) && !hasReceivedGameStart) {
-        tjaChart.showMessage(i18n.t("ui.stream.waitingStart"), "info");
-        updateLoopControls();
-        return;
-    }
-    if (currentChart) {
-        // Determine mode for checks
-        const activeTab = document.querySelector("#chart-options-panel .panel-tab.active");
-        const mode = activeTab ? activeTab.getAttribute("data-do-tab") : "view";
-        // 1. Check for All Branches + Selection/Annotation Mode
-        if (viewOptions.showAllBranches && (mode === "selection" || mode === "annotation")) {
-            tjaChart.showMessage(i18n.t("ui.error.branchAllMode"), "warning");
-            updateLoopControls();
-            return;
-        }
-        // 2. Check for Branching + Judgement Mode
-        const isJudgementMode = viewOptions.viewMode.startsWith("judgements");
-        // Check if branching UI is active/visible as a proxy for "chart has branching"
-        const branchSelectorVisible = branchSelectorContainer && !branchSelectorContainer.hidden;
-        if (isJudgementMode && branchSelectorVisible) {
-            tjaChart.showMessage(i18n.t("ui.judgement.branchingNotSupported"), "warning");
-            updateLoopControls();
-            return;
-        }
-        tjaChart.clearMessage();
-        const texts = {
-            loopPattern: i18n.t("renderer.loop"),
-            judgement: {
-                perfect: i18n.t("renderer.judge.perfect"),
-                good: i18n.t("renderer.judge.good"),
-                poor: i18n.t("renderer.judge.poor"),
-            },
-            course: {
-                easy: i18n.t("ui.difficulty.easy"),
-                normal: i18n.t("ui.difficulty.normal"),
-                hard: i18n.t("ui.difficulty.hard"),
-                oni: i18n.t("ui.difficulty.oni"),
-                edit: i18n.t("ui.difficulty.edit"),
-                ura: i18n.t("ui.difficulty.edit"),
-            },
-        };
-        // Update viewOptions annotations
-        viewOptions.annotations = annotations;
-        viewOptions.isAnnotationMode = mode === "annotation";
-        tjaChart.chart = currentChart;
-        tjaChart.viewOptions = viewOptions;
-        tjaChart.judgements = judgements;
-        tjaChart.judgementDeltas = judgementDeltas;
-        tjaChart.texts = texts;
-        updateLoopControls();
-    }
-}
 // Handle resizing
 let resizeTimeout;
 window.addEventListener("resize", () => {
@@ -1462,19 +754,19 @@ window.addEventListener("resize", () => {
 });
 // Expose for testing
 window.setJudgements = (newJudgements, newDeltas) => {
-    judgements = newJudgements;
-    judgementDeltas = newDeltas || [];
+    appState.judgements = newJudgements;
+    appState.judgementDeltas = newDeltas || [];
     refreshChart();
     updateStatsComponent(null);
 };
 window.loadTJAContent = (content) => {
-    loadedTJAContent = content;
+    appState.loadedTJAContent = content;
     updateParsedCharts(content);
     updateStatus("status.fileLoaded");
 };
 // biome-ignore lint/suspicious/noExplicitAny: Test helper
 window.setViewOptions = (opts) => {
-    viewOptions = { ...viewOptions, ...opts };
+    appState.viewOptions = { ...appState.viewOptions, ...opts };
     refreshChart();
 };
 init();

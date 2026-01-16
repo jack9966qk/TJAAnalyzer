@@ -1,5 +1,5 @@
-import { i18n } from "./i18n.js";
-import { getGradientColor, PALETTE } from "./renderer.js";
+import { getGradientColor, PALETTE } from "../core/renderer.js";
+import { i18n } from "../utils/i18n.js";
 export class NoteStatsDisplay extends HTMLElement {
     _hit = null;
     _chart = null;

@@ -1,5 +1,95 @@
 [
   {
+    "hash": "0632c1d",
+    "message": "Update version to 0.6.9.",
+    "date": "2026-01-17"
+  },
+  {
+    "hash": "f404f15",
+    "message": "Add \"neu update\" to Neutralino build scripts.",
+    "date": "2026-01-17"
+  },
+  {
+    "hash": "266bdcd",
+    "message": "Refactor annotate tab content as a web component.",
+    "date": "2026-01-17"
+  },
+  {
+    "hash": "3844281",
+    "message": "Refactor select tab content as a web component.",
+    "date": "2026-01-17"
+  },
+  {
+    "hash": "61b38b7",
+    "message": "Opt into Biome HTML formatting.",
+    "date": "2026-01-17"
+  },
+  {
+    "hash": "292ba9b",
+    "message": "Refactor Judgements tab to Web Component.",
+    "date": "2026-01-17"
+  },
+  {
+    "hash": "e51d9b1",
+    "message": "Refactor the changelog button and panel as a web component.",
+    "date": "2026-01-16"
+  },
+  {
+    "hash": "ee33261",
+    "message": "Refactor 'view' tab options into a Web Component.",
+    "date": "2026-01-16"
+  },
+  {
+    "hash": "bad458b",
+    "message": "Refactor 'Save Image' button into a Web Component.",
+    "date": "2026-01-16"
+  },
+  {
+    "hash": "a9c467c",
+    "message": "Minor formatting fix.",
+    "date": "2026-01-15"
+  },
+  {
+    "hash": "cda4a96",
+    "message": "Separate some functions from the init function under main.ts.",
+    "date": "2026-01-15"
+  },
+  {
+    "hash": "d498fb4",
+    "message": "Rearramge top level directories and add descriptions to README.",
+    "date": "2026-01-15"
+  },
+  {
+    "hash": "0578989",
+    "message": "Move tests to tests directory.",
+    "date": "2026-01-15"
+  },
+  {
+    "hash": "01e66d2",
+    "message": "Update version to 0.6.8.",
+    "date": "2026-01-15"
+  },
+  {
+    "hash": "6204ceb",
+    "message": "Apply formatting and clean up.",
+    "date": "2026-01-15"
+  },
+  {
+    "hash": "b0a2cfe",
+    "message": "Move logic from main to separate components by pruning unused symbols from main and its copies.",
+    "date": "2026-01-15"
+  },
+  {
+    "hash": "ba7e11a",
+    "message": "Create copies of main.ts to preserve git history for refactoring.",
+    "date": "2026-01-15"
+  },
+  {
+    "hash": "750d12d",
+    "message": "Fix snapshot from version update.",
+    "date": "2026-01-14"
+  },
+  {
     "hash": "cdf347e",
     "message": "Update version to 0.6.7.",
     "date": "2026-01-14"
@@ -408,95 +498,5 @@
     "hash": "d7a6b07",
     "message": "Add description and improve clarity of remote/test stream panels.",
     "date": "2025-12-22"
-  },
-  {
-    "hash": "f16fadb",
-    "message": "Minor Gogo time bar color adjustment.",
-    "date": "2025-12-22"
-  },
-  {
-    "hash": "14ba6bd",
-    "message": "Move built JS to scripts/ dir to avoid gitignore issues on deployment.",
-    "date": "2025-12-22"
-  },
-  {
-    "hash": "1ba8a7a",
-    "message": "Fix GitHub Pages deployment by adding .nojekyll to app_package.",
-    "date": "2025-12-22"
-  },
-  {
-    "hash": "9b89166",
-    "message": "Update Github page domain name.",
-    "date": "2025-12-22"
-  },
-  {
-    "hash": "19bcb86",
-    "message": "Include CNAME in build artifacts for GitHub Pages.",
-    "date": "2025-12-22"
-  },
-  {
-    "hash": "ca70c39",
-    "message": "Add npm command ro deploy to Github Pages.",
-    "date": "2025-12-22"
-  },
-  {
-    "hash": "bd25ed6",
-    "message": "Create LICENSE",
-    "date": "2025-12-21"
-  },
-  {
-    "hash": "a02f524",
-    "message": "Fix chart resizing to fit viewport width and avoid frequent rerendering.",
-    "date": "2025-12-21"
-  },
-  {
-    "hash": "a8a9c06",
-    "message": "On page load, expand controls only if there is plenty of vertical space.",
-    "date": "2025-12-21"
-  },
-  {
-    "hash": "c8ad000",
-    "message": "Refine chart controls UI layout.",
-    "date": "2025-12-21"
-  },
-  {
-    "hash": "47d3a0a",
-    "message": "For the hosted version, add functionality to create and open links to specific ESE items.",
-    "date": "2025-12-21"
-  },
-  {
-    "hash": "d77955b",
-    "message": "Add rendering for BPM and HS changes.",
-    "date": "2025-12-21"
-  },
-  {
-    "hash": "3a072db",
-    "message": "Add Gogo Time rendering.",
-    "date": "2025-12-21"
-  },
-  {
-    "hash": "71dfe0f",
-    "message": "Update version to 0.3.1.",
-    "date": "2025-12-20"
-  },
-  {
-    "hash": "31360d3",
-    "message": "Add footer and changelog.",
-    "date": "2025-12-20"
-  },
-  {
-    "hash": "ddbc8f9",
-    "message": "ESE search results includes title matches.",
-    "date": "2025-12-20"
-  },
-  {
-    "hash": "cd13dc8",
-    "message": "Update README.",
-    "date": "2025-12-20"
-  },
-  {
-    "hash": "e47eedc",
-    "message": "Slight adjustment of ballon number positioning.",
-    "date": "2025-12-20"
   }
 ]

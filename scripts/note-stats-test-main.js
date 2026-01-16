@@ -1,4 +1,4 @@
-import { NoteStatsDisplay } from "./note-stats.js";
+import { NoteStatsDisplay } from "./components/note-stats.js";
 // Ensure NoteStatsDisplay is registered
 console.log("NoteStatsDisplay module loaded", NoteStatsDisplay);
 const noteStats = document.getElementById("note-stats");
