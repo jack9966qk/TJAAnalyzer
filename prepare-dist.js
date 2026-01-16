@@ -51,6 +51,7 @@ const files = [
   { src: "public/CNAME", dest: "CNAME" },
   { src: "ts_output/src", dest: "scripts" },
   { src: "src/components/judgement-options.html", dest: "scripts/components/judgement-options.html" },
+  { src: "src/components/select-options.html", dest: "scripts/components/select-options.html" },
   { src: "icon.png", dest: "icon.png" },
 ];
 

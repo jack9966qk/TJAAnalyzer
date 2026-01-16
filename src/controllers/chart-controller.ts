@@ -1,3 +1,4 @@
+import type { SelectOptions } from "../components/select-options.js";
 import type { HitInfo, RenderTexts } from "../core/renderer.js";
 import { parseTJA } from "../core/tja-parser.js";
 import { appState } from "../state/app-state.js";
@@ -5,10 +6,8 @@ import { i18n } from "../utils/i18n.js";
 import {
   branchSelector,
   branchSelectorContainer,
-  clearSelectionBtn,
   difficultySelector,
   difficultySelectorContainer,
-  exportSelectionBtn,
   noteStatsDisplay,
   tjaChart,
 } from "../view/ui-elements.js";
@@ -24,11 +23,10 @@ export function updateStatsComponent(hit: HitInfo | null) {
 }
 
 export function updateSelectionUI() {
-  if (clearSelectionBtn) {
-    clearSelectionBtn.disabled = !appState.viewOptions.selection;
-  }
-  if (exportSelectionBtn) {
-    exportSelectionBtn.disabled = !appState.viewOptions.selection;
+  // Notify component
+  const selectOptions = document.querySelector("select-options") as SelectOptions;
+  if (selectOptions && typeof selectOptions.refreshStatus === "function") {
+    selectOptions.refreshStatus();
   }
 }
 

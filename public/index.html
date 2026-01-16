@@ -163,45 +163,7 @@
 
                 <!-- Note Selection Pane -->
                 <div id="do-tab-selection" class="panel-pane" style="display:none;">
-                  <div
-                    class="control-group"
-                    style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;"
-                  >
-                    <div style="display: flex; width: 100%;">
-                      <button id="clear-selection-btn" class="control-btn" data-i18n="ui.clearSelection">
-                        Clear Selection
-                      </button>
-                    </div>
-
-                    <input
-                      type="text"
-                      id="export-chart-name"
-                      value="Exported Selection"
-                      placeholder="Chart Name"
-                      data-i18n-placeholder="ui.export.chartName"
-                      style="width: 100%; padding: 4px; box-sizing: border-box;"
-                    >
-
-                    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
-                      <span style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
-                        <label for="export-loop-count" style="font-size: 0.9em;" data-i18n="ui.export.loops">
-                          Loops:
-                        </label>
-                        <input
-                          type="number"
-                          id="export-loop-count"
-                          value="10"
-                          min="1"
-                          style="width: 50px; padding: 4px;"
-                        >
-                      </span>
-                      <span style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
-                        <label for="export-gap-count" style="font-size: 0.9em;" data-i18n="ui.export.gap">Gap:</label>
-                        <input type="number" id="export-gap-count" value="1" min="0" style="width: 50px; padding: 4px;">
-                      </span>
-                      <button id="export-selection-btn" class="control-btn" data-i18n="ui.export">Export TJA</button>
-                    </div>
-                  </div>
+                  <select-options></select-options>
                 </div>
 
                 <!-- Annotation Pane -->

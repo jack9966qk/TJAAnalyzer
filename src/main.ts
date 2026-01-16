@@ -3,6 +3,7 @@ import { NoteStatsDisplay } from "./components/note-stats.js";
 import "./components/save-image-button.js";
 import type { JudgementOptions } from "./components/judgement-options.js";
 import "./components/judgement-options.js"; // Ensure side-effect
+import "./components/select-options.js"; // Ensure side-effect
 import { TJAChart } from "./components/tja-chart.js";
 import type { ViewOptions } from "./components/view-options.js";
 import "./components/view-options.js"; // Ensure side-effect
@@ -20,16 +21,13 @@ import { filterEseResults } from "./controllers/ese-controller.js";
 import { handleLayoutToggle, updateLayout } from "./controllers/layout-controller.js";
 import { exampleTJA } from "./core/example-data.js";
 import type { HitInfo } from "./core/renderer.js";
-import { generateTJAFromSelection } from "./core/tja-exporter.js";
 import { appState } from "./state/app-state.js";
-import { shareFile } from "./utils/file-share.js";
 import { i18n } from "./utils/i18n.js";
 import {
   autoAnnotateBtn,
   branchSelector,
   chartModeStatus,
   clearAnnotationsBtn,
-  clearSelectionBtn,
   connectBtn,
   difficultySelector,
   difficultySelectorContainer,
@@ -42,8 +40,6 @@ import {
   eseResults,
   eseSearchInput,
   eseShareBtn,
-  exportChartNameInput,
-  exportSelectionBtn,
   hostInput,
   languageSelector,
   layoutToggleBtn,
@@ -263,10 +259,6 @@ function updateUIText() {
     eseSearchInput.placeholder = i18n.t("ui.ese.searchPlaceholder");
   }
 
-  if (exportChartNameInput) {
-    exportChartNameInput.placeholder = i18n.t("ui.export.chartName");
-  }
-
   // Dynamic Elements
   updateStatus(appState.currentStatusKey, appState.currentStatusParams);
 
@@ -394,50 +386,6 @@ function initEventListeners() {
       if (mode) switchDisplayOptionTab(mode);
     });
   });
-
-  if (clearSelectionBtn) {
-    clearSelectionBtn.addEventListener("click", () => {
-      appState.viewOptions.selection = null;
-      appState.selectedNoteHitInfo = null;
-      refreshChart();
-      updateSelectionUI();
-    });
-  }
-
-  if (exportSelectionBtn) {
-    exportSelectionBtn.addEventListener("click", async () => {
-      if (!appState.currentChart || !appState.viewOptions.selection) {
-        // Should not be clickable if disabled, but just in case
-        return;
-      }
-
-      const loopCountInput = document.getElementById("export-loop-count") as HTMLInputElement;
-      const loopCount = loopCountInput ? parseInt(loopCountInput.value, 10) : 10;
-
-      const gapCountInput = document.getElementById("export-gap-count") as HTMLInputElement;
-      const gapCount = gapCountInput ? parseInt(gapCountInput.value, 10) : 1;
-
-      const chartNameInput = document.getElementById("export-chart-name") as HTMLInputElement;
-      const chartName = chartNameInput?.value ? chartNameInput.value : "Exported Selection";
-
-      try {
-        const tjaContent = generateTJAFromSelection(
-          appState.currentChart,
-          appState.viewOptions.selection,
-          difficultySelector.value,
-          loopCount,
-          chartName,
-          gapCount,
-        );
-
-        await shareFile(`${chartName}.tja`, tjaContent, "text/plain", "Export TJA");
-        updateStatus("status.exportSuccess");
-      } catch (e) {
-        console.error("Export failed:", e);
-        updateStatus("status.exportFailed");
-      }
-    });
-  }
 
   if (clearAnnotationsBtn) {
     clearAnnotationsBtn.addEventListener("click", () => {
