@@ -1,191 +1,248 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TJA Analyzer</title>
     <link rel="icon" type="image/png" href="icon_simple.png">
     <link rel="stylesheet" href="style.css">
-</head>
-<body>
+  </head>
+  <body>
     <div id="app">
-        <div id="controls-container">
-            <div class="app-header">
-                <h1>TJA Analyzer</h1>
-                <select id="language-selector">
-                    <option value="en">English</option>
-                    <option value="zh">中文</option>
-                    <option value="ja">日本語</option>
-                </select>
-            </div>
-            
-            <div id="data-source-panel">
-                <div class="panel-header">
-                    <div class="panel-header-left">
-                        <h2 data-i18n="ui.dataSource">Data Source</h2>
-                        <span id="status-display" data-i18n="status.initializing">Initializing...</span>
-                    </div>
-                    <button id="ds-collapse-btn" data-i18n="ui.expand">Expand</button>
-                </div>
-                
-                <div id="ds-body" class="panel-body collapsed">
-                    <div class="panel-tabs">
-                        <button class="panel-tab" data-mode="list" data-i18n="ui.tab.list">Chart List</button>
-                        <button class="panel-tab" data-mode="file" data-i18n="ui.tab.file">Local File</button>
-                        <button class="panel-tab" data-mode="stream" data-i18n="ui.tab.stream">Stream Input</button>
-                    </div>
-
-                    <div class="panel-content">
-                        <!-- Chart List Mode (Merged Example + ESE) -->
-                        <div id="tab-list" class="panel-pane">
-                            <div class="control-group" style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
-                                <button id="load-example-btn" data-i18n="ui.example.load" style="width: 100%;">Load Example Chart</button>
-                            </div>
-                            <div class="control-group">
-                                <input type="text" id="ese-search-input" placeholder="Search TJA files..." style="width: 100%; box-sizing: border-box; padding: 5px;">
-                            </div>
-                            <div class="control-group" style="margin-top: 5px;">
-                                 <button id="ese-share-btn" disabled style="width: 100%;" data-i18n="ui.ese.share">Share Current Song</button>
-                            </div>
-                            <div id="ese-results">
-                                <div class="ese-result-placeholder" data-i18n="ui.ese.placeholder">Search for songs...</div>
-                            </div>
-                        </div>
-
-                        <!-- File Mode -->
-                        <div id="tab-file" class="panel-pane" style="display:none;">
-                            <div class="control-group">
-                                <label for="tja-file-picker" data-i18n="ui.file.label">Select TJA File:</label>
-                                <input type="file" id="tja-file-picker" accept=".tja">
-                            </div>
-                        </div>
-
-                        <!-- Stream Mode (Merged) -->
-                        <div id="tab-stream" class="panel-pane" style="display:none;">
-                            <div class="option-section">
-                                <h4 data-i18n="ui.stream.remote" style="margin: 0 0 10px 0; font-size: 1em;">Remote Connection</h4>
-                                <p data-i18n="ui.stream.desc" style="margin-bottom: 10px;">Connect to an external program that broadcasts currently played chart and judgement events. For example, <a href="https://github.com/jack9966qk/TJAAnalyzer/releases/tag/OpenTaikoPatched" target="_blank">this patched version</a> of OpenTaiko listens to connections at port 2354 (need to run as admin).</p>
-                                <div class="control-group">
-                                    <label><span data-i18n="ui.stream.host">Host:</span> <input type="text" id="host-input" value="127.0.0.1"></label>
-                                    <label><span data-i18n="ui.stream.port">Port:</span> <input type="number" id="port-input" value="2354"></label>
-                                    <button id="connect-btn" data-i18n="ui.stream.connect">Connect</button>
-                                </div>
-                            </div>
-                            
-                            <div class="option-section" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-                                <h4 data-i18n="ui.stream.test" style="margin: 0 0 10px 0; font-size: 1em;">Test Simulation</h4>
-                                <p data-i18n="ui.test.desc">Simulate incoming judgement events on the currently loaded chart.</p>
-                                <button id="test-stream-btn" data-i18n="ui.test.start">Start Test Stream</button>
-                            </div>
-                        </div>
-
-                        <!-- Shared Difficulty Selector -->
-                        <div id="difficulty-selector-container" class="control-group" hidden style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; gap: 10px 30px;">
-                            <span style="display: flex; align-items: center; gap: 10px;">
-                                <label for="difficulty-selector" data-i18n="ui.difficulty">Difficulty:</label>
-                                <select id="difficulty-selector"></select>
-                            </span>
-                            <!-- Branch Selector -->
-                            <span id="branch-selector-container" hidden style="display: flex; align-items: center; gap: 10px;">
-                                <label for="branch-selector" data-i18n="ui.branch">Branch:</label>
-                                <select id="branch-selector">
-                                    <option value="all" data-i18n="branch.all" selected>All</option>
-                                    <option value="normal" data-i18n="branch.normal">Normal</option>
-                                    <option value="expert" data-i18n="branch.expert">Expert</option>
-                                    <option value="master" data-i18n="branch.master">Master</option>
-                                </select>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="sticky-header">
-                <div id="chart-options-panel" class="options-panel">
-                    <div class="panel-header">
-                        <div class="panel-header-left">
-                             <h3 data-i18n="ui.chartOptions">Chart Options</h3>
-                             <span id="chart-mode-status" style="margin-left: 15px; font-weight: normal; color: #666; font-size: 0.9em;"></span>
-                        </div>
-                        <button id="options-collapse-btn" data-i18n="ui.expand">Expand</button>
-                    </div>
-                    <div id="options-body" class="panel-body collapsed">
-                        <div class="panel-tabs">
-                            <button class="panel-tab active" data-do-tab="view" data-i18n="ui.tab.view">View</button>
-                            <button class="panel-tab" data-do-tab="judgements" data-i18n="ui.tab.judgements">Judgements</button>
-                            <button class="panel-tab" data-do-tab="selection" data-i18n="ui.tab.select">Select</button>
-                            <button class="panel-tab" data-do-tab="annotation" data-i18n="ui.tab.annotate">Annotate</button>
-                        </div>
-                        
-                        <div class="panel-content">
-                            <!-- View Options Pane -->
-                            <div id="do-tab-view" class="panel-pane" style="display:flex;">
-                                <view-options></view-options>
-                            </div>
-
-                            <!-- Judgements Pane -->
-                            <div id="do-tab-judgements" class="panel-pane" style="display:none;">
-                                 <judgement-options></judgement-options>
-                            </div>
-
-                            <!-- Note Selection Pane -->
-                            <div id="do-tab-selection" class="panel-pane" style="display:none;">
-                                <div class="control-group" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
-                                    <div style="display: flex; width: 100%;">
-                                        <button id="clear-selection-btn" class="control-btn" data-i18n="ui.clearSelection">Clear Selection</button>
-                                    </div>
-                                    
-                                    <input type="text" id="export-chart-name" value="Exported Selection" placeholder="Chart Name" data-i18n-placeholder="ui.export.chartName" style="width: 100%; padding: 4px; box-sizing: border-box;">
-
-                                    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
-                                        <span style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
-                                            <label for="export-loop-count" style="font-size: 0.9em;" data-i18n="ui.export.loops">Loops:</label>
-                                            <input type="number" id="export-loop-count" value="10" min="1" style="width: 50px; padding: 4px;">
-                                        </span>
-                                        <span style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
-                                            <label for="export-gap-count" style="font-size: 0.9em;" data-i18n="ui.export.gap">Gap:</label>
-                                            <input type="number" id="export-gap-count" value="1" min="0" style="width: 50px; padding: 4px;">
-                                        </span>
-                                        <button id="export-selection-btn" class="control-btn" data-i18n="ui.export">Export TJA</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Annotation Pane -->
-                            <div id="do-tab-annotation" class="panel-pane" style="display:none;">
-                                <div class="control-group" style="display: flex; align-items: center; gap: 10px;">
-                                    <button id="auto-annotate-btn" class="control-btn" data-i18n="ui.autoAnnotate">Auto Annotate</button>
-                                    <button id="clear-annotations-btn" class="control-btn" data-i18n="ui.clearAnnotations">Clear Annotations</button>
-                                    <save-image-button data-i18n="ui.exportImage">Save Image</save-image-button>
-                                </div>
-                                <p style="font-size: 0.9em; color: #666; margin-top: 5px;" data-i18n="ui.annotation.desc">Click on Don/Ka notes to toggle L/R annotation.</p>
-                            </div>
-                        </div> <!-- End panel-content -->
-                    </div> <!-- End options-body -->
-                </div> <!-- End chart-options-panel -->
-                
-                <note-stats id="note-stats-display"></note-stats>
-            </div> <!-- End sticky-header -->
-        </div> <!-- End controls-container -->
-
-        <button id="layout-toggle-btn">&lt;</button>
-
-        <div id="chart-container">
-            <div class="canvas-container">
-                <tja-chart id="chart-component"></tja-chart>
-            </div>
-            
-            <div class="app-footer">
-                <div class="footer-left">
-                    <span id="app-version">v0.0.0</span>
-                    <span class="separator">|</span>
-                    <span>Made by Jack</span>
-                </div>
-                <changelog-panel></changelog-panel>
-            </div>
+      <div id="controls-container">
+        <div class="app-header">
+          <h1>TJA Analyzer</h1>
+          <select id="language-selector">
+            <option value="en">English</option>
+            <option value="zh">中文</option>
+            <option value="ja">日本語</option>
+          </select>
         </div>
+
+        <div id="data-source-panel">
+          <div class="panel-header">
+            <div class="panel-header-left">
+              <h2 data-i18n="ui.dataSource">Data Source</h2>
+              <span id="status-display" data-i18n="status.initializing">Initializing...</span>
+            </div>
+            <button id="ds-collapse-btn" data-i18n="ui.expand">Expand</button>
+          </div>
+
+          <div id="ds-body" class="panel-body collapsed">
+            <div class="panel-tabs">
+              <button class="panel-tab" data-mode="list" data-i18n="ui.tab.list">Chart List</button>
+              <button class="panel-tab" data-mode="file" data-i18n="ui.tab.file">Local File</button>
+              <button class="panel-tab" data-mode="stream" data-i18n="ui.tab.stream">Stream Input</button>
+            </div>
+
+            <div class="panel-content">
+              <!-- Chart List Mode (Merged Example + ESE) -->
+              <div id="tab-list" class="panel-pane">
+                <div
+                  class="control-group"
+                  style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px;"
+                >
+                  <button id="load-example-btn" data-i18n="ui.example.load" style="width: 100%;">
+                    Load Example Chart
+                  </button>
+                </div>
+                <div class="control-group">
+                  <input
+                    type="text"
+                    id="ese-search-input"
+                    placeholder="Search TJA files..."
+                    style="width: 100%; box-sizing: border-box; padding: 5px;"
+                  >
+                </div>
+                <div class="control-group" style="margin-top: 5px;">
+                  <button id="ese-share-btn" disabled style="width: 100%;" data-i18n="ui.ese.share">
+                    Share Current Song
+                  </button>
+                </div>
+                <div id="ese-results">
+                  <div class="ese-result-placeholder" data-i18n="ui.ese.placeholder">Search for songs...</div>
+                </div>
+              </div>
+
+              <!-- File Mode -->
+              <div id="tab-file" class="panel-pane" style="display:none;">
+                <div class="control-group">
+                  <label for="tja-file-picker" data-i18n="ui.file.label">Select TJA File:</label>
+                  <input type="file" id="tja-file-picker" accept=".tja">
+                </div>
+              </div>
+
+              <!-- Stream Mode (Merged) -->
+              <div id="tab-stream" class="panel-pane" style="display:none;">
+                <div class="option-section">
+                  <h4 data-i18n="ui.stream.remote" style="margin: 0 0 10px 0; font-size: 1em;">Remote Connection</h4>
+                  <p data-i18n="ui.stream.desc" style="margin-bottom: 10px;">
+                    Connect to an external program that broadcasts currently played chart and judgement events. For
+                    example,
+                    <a href="https://github.com/jack9966qk/TJAAnalyzer/releases/tag/OpenTaikoPatched" target="_blank"
+                      >this patched version</a
+                    >
+                    of OpenTaiko listens to connections at port 2354 (need to run as admin).
+                  </p>
+                  <div class="control-group">
+                    <label>
+                      <span data-i18n="ui.stream.host">Host:</span>
+                      <input type="text" id="host-input" value="127.0.0.1">
+                    </label>
+                    <label>
+                      <span data-i18n="ui.stream.port">Port:</span>
+                      <input type="number" id="port-input" value="2354">
+                    </label>
+                    <button id="connect-btn" data-i18n="ui.stream.connect">Connect</button>
+                  </div>
+                </div>
+
+                <div class="option-section" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                  <h4 data-i18n="ui.stream.test" style="margin: 0 0 10px 0; font-size: 1em;">Test Simulation</h4>
+                  <p data-i18n="ui.test.desc">Simulate incoming judgement events on the currently loaded chart.</p>
+                  <button id="test-stream-btn" data-i18n="ui.test.start">Start Test Stream</button>
+                </div>
+              </div>
+
+              <!-- Shared Difficulty Selector -->
+              <div
+                id="difficulty-selector-container"
+                class="control-group"
+                hidden
+                style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; gap: 10px 30px;"
+              >
+                <span style="display: flex; align-items: center; gap: 10px;">
+                  <label for="difficulty-selector" data-i18n="ui.difficulty">Difficulty:</label>
+                  <select id="difficulty-selector"></select>
+                </span>
+                <!-- Branch Selector -->
+                <span id="branch-selector-container" hidden style="display: flex; align-items: center; gap: 10px;">
+                  <label for="branch-selector" data-i18n="ui.branch">Branch:</label>
+                  <select id="branch-selector">
+                    <option value="all" data-i18n="branch.all" selected>All</option>
+                    <option value="normal" data-i18n="branch.normal">Normal</option>
+                    <option value="expert" data-i18n="branch.expert">Expert</option>
+                    <option value="master" data-i18n="branch.master">Master</option>
+                  </select>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="sticky-header">
+          <div id="chart-options-panel" class="options-panel">
+            <div class="panel-header">
+              <div class="panel-header-left">
+                <h3 data-i18n="ui.chartOptions">Chart Options</h3>
+                <span
+                  id="chart-mode-status"
+                  style="margin-left: 15px; font-weight: normal; color: #666; font-size: 0.9em;"
+                ></span>
+              </div>
+              <button id="options-collapse-btn" data-i18n="ui.expand">Expand</button>
+            </div>
+            <div id="options-body" class="panel-body collapsed">
+              <div class="panel-tabs">
+                <button class="panel-tab active" data-do-tab="view" data-i18n="ui.tab.view">View</button>
+                <button class="panel-tab" data-do-tab="judgements" data-i18n="ui.tab.judgements">Judgements</button>
+                <button class="panel-tab" data-do-tab="selection" data-i18n="ui.tab.select">Select</button>
+                <button class="panel-tab" data-do-tab="annotation" data-i18n="ui.tab.annotate">Annotate</button>
+              </div>
+
+              <div class="panel-content">
+                <!-- View Options Pane -->
+                <div id="do-tab-view" class="panel-pane" style="display:flex;">
+                  <view-options></view-options>
+                </div>
+
+                <!-- Judgements Pane -->
+                <div id="do-tab-judgements" class="panel-pane" style="display:none;">
+                  <judgement-options></judgement-options>
+                </div>
+
+                <!-- Note Selection Pane -->
+                <div id="do-tab-selection" class="panel-pane" style="display:none;">
+                  <div
+                    class="control-group"
+                    style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;"
+                  >
+                    <div style="display: flex; width: 100%;">
+                      <button id="clear-selection-btn" class="control-btn" data-i18n="ui.clearSelection">
+                        Clear Selection
+                      </button>
+                    </div>
+
+                    <input
+                      type="text"
+                      id="export-chart-name"
+                      value="Exported Selection"
+                      placeholder="Chart Name"
+                      data-i18n-placeholder="ui.export.chartName"
+                      style="width: 100%; padding: 4px; box-sizing: border-box;"
+                    >
+
+                    <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px;">
+                      <span style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                        <label for="export-loop-count" style="font-size: 0.9em;" data-i18n="ui.export.loops">
+                          Loops:
+                        </label>
+                        <input
+                          type="number"
+                          id="export-loop-count"
+                          value="10"
+                          min="1"
+                          style="width: 50px; padding: 4px;"
+                        >
+                      </span>
+                      <span style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                        <label for="export-gap-count" style="font-size: 0.9em;" data-i18n="ui.export.gap">Gap:</label>
+                        <input type="number" id="export-gap-count" value="1" min="0" style="width: 50px; padding: 4px;">
+                      </span>
+                      <button id="export-selection-btn" class="control-btn" data-i18n="ui.export">Export TJA</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Annotation Pane -->
+                <div id="do-tab-annotation" class="panel-pane" style="display:none;">
+                  <div class="control-group" style="display: flex; align-items: center; gap: 10px;">
+                    <button id="auto-annotate-btn" class="control-btn" data-i18n="ui.autoAnnotate">
+                      Auto Annotate
+                    </button>
+                    <button id="clear-annotations-btn" class="control-btn" data-i18n="ui.clearAnnotations">
+                      Clear Annotations
+                    </button>
+                    <save-image-button data-i18n="ui.exportImage">Save Image</save-image-button>
+                  </div>
+                  <p style="font-size: 0.9em; color: #666; margin-top: 5px;" data-i18n="ui.annotation.desc">
+                    Click on Don/Ka notes to toggle L/R annotation.
+                  </p>
+                </div>
+              </div><!-- End panel-content -->
+            </div><!-- End options-body -->
+          </div><!-- End chart-options-panel -->
+          <note-stats id="note-stats-display"></note-stats>
+        </div><!-- End sticky-header -->
+      </div><!-- End controls-container -->
+      <button id="layout-toggle-btn">&lt;</button>
+
+      <div id="chart-container">
+        <div class="canvas-container">
+          <tja-chart id="chart-component"></tja-chart>
+        </div>
+
+        <div class="app-footer">
+          <div class="footer-left">
+            <span id="app-version">v0.0.0</span>
+            <span class="separator">|</span>
+            <span>Made by Jack</span>
+          </div>
+          <changelog-panel></changelog-panel>
+        </div>
+      </div>
     </div>
 
     <script type="module" src="scripts/main.js"></script>
-</body>
+  </body>
 </html>
