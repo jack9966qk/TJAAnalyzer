@@ -26,10 +26,10 @@ test.describe("Judgement View Edge Cases", () => {
       };
     });
 
-    // 2. Set Judgements (Perfect, Miss, Good)
-    // 'Miss' represents any judgement string that is not Perfect/Good/Poor.
+    // 2. Set Judgements (perfect, miss, good)
+    // 'miss' represents any judgement string that is not perfect/good/poor.
     // It should result in a grey underline.
-    const judgements: string[] = ["Perfect", "Miss", "Good"];
+    const judgements: string[] = ["perfect", "miss", "good"];
     const deltas: number[] = [0, 0, 0];
 
     await page.evaluate(

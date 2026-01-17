@@ -149,11 +149,11 @@ test.describe("Visual Regression", () => {
       for (let i = 0; i < 300; i++) {
         const rand = nextRandom();
         if (rand < 0.9) {
-          judgements.push("Perfect");
+          judgements.push("perfect");
         } else if (rand < 0.99) {
-          judgements.push("Good");
+          judgements.push("good");
         } else {
-          judgements.push("Poor");
+          judgements.push("poor");
         }
       }
       window.setJudgements(judgements, []);
@@ -194,11 +194,11 @@ test.describe("Visual Regression", () => {
       for (let i = 0; i < 300; i++) {
         const rand = nextRandom();
         if (rand < 0.9) {
-          judgements.push("Perfect");
+          judgements.push("perfect");
         } else if (rand < 0.99) {
-          judgements.push("Good");
+          judgements.push("good");
         } else {
-          judgements.push("Poor");
+          judgements.push("poor");
         }
       }
       window.setJudgements(judgements, []);
@@ -239,11 +239,11 @@ test.describe("Visual Regression", () => {
       for (let i = 0; i < 300; i++) {
         const rand = nextRandom();
         if (rand < 0.9) {
-          judgements.push("Perfect");
+          judgements.push("perfect");
         } else if (rand < 0.99) {
-          judgements.push("Good");
+          judgements.push("good");
         } else {
-          judgements.push("Poor");
+          judgements.push("poor");
         }
       }
       window.setJudgements(judgements, []);
@@ -285,17 +285,17 @@ test.describe("Visual Regression", () => {
 
       for (let i = 0; i < 300; i++) {
         const rand = nextRandom();
-        let j = "Perfect";
+        let j = "perfect";
         let d = 0;
 
         if (rand < 0.33) {
-          j = "Perfect";
+          j = "perfect";
           d = 10;
         } else if (rand < 0.66) {
-          j = "Good";
+          j = "good";
           d = 80;
         } else {
-          j = "Poor";
+          j = "poor";
           d = -80;
         }
 

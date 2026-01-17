@@ -55,7 +55,7 @@ test.describe("Note Stats Component", () => {
       const chart = {
         bars: [["1", "2", "0", "0"]],
       };
-      const judgements = ["Perfect"];
+      const judgements = ["perfect"];
       const deltas = [10];
 
       window.setStats(hit, chart, viewOptions, judgements, deltas);

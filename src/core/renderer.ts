@@ -1,5 +1,17 @@
 import type { BarParams, GogoChange, LoopInfo, ParsedChart } from "./tja-parser.js";
 
+export enum JudgementType {
+  Perfect = "perfect",
+  Great = "great",
+  Good = "good",
+  Poor = "poor",
+  Miss = "miss",
+  Bad = "bad",
+  Auto = "auto",
+  Adlib = "adlib",
+  Mine = "mine",
+}
+
 export const PALETTE = {
   background: "#d4d4d4ff",
   text: {
@@ -2479,12 +2491,12 @@ function drawBarNotes(
                 const j = judgements[gIdx];
 
                 // Check visibility
-                if (j === "Perfect" && !judgementVisibility.perfect) continue;
-                if (j === "Good" && !judgementVisibility.good) continue;
-                if (j === "Poor" && !judgementVisibility.poor) continue;
+                if (j === JudgementType.Perfect && !judgementVisibility.perfect) continue;
+                if (j === JudgementType.Good && !judgementVisibility.good) continue;
+                if (j === JudgementType.Poor && !judgementVisibility.poor) continue;
 
                 judgedCount++;
-                if (j === "Perfect" || j === "Good" || j === "Poor") {
+                if (j === JudgementType.Perfect || j === JudgementType.Good || j === JudgementType.Poor) {
                   const d = judgementDeltas[gIdx];
                   if (d !== undefined) {
                     sum += d;
@@ -2510,12 +2522,12 @@ function drawBarNotes(
 
             // Check visibility
             let isVisible = true;
-            if (j === "Perfect" && !judgementVisibility.perfect) isVisible = false;
-            else if (j === "Good" && !judgementVisibility.good) isVisible = false;
-            else if (j === "Poor" && !judgementVisibility.poor) isVisible = false;
+            if (j === JudgementType.Perfect && !judgementVisibility.perfect) isVisible = false;
+            else if (j === JudgementType.Good && !judgementVisibility.good) isVisible = false;
+            else if (j === JudgementType.Poor && !judgementVisibility.poor) isVisible = false;
 
             if (isVisible) {
-              if (j === "Perfect" || j === "Good" || j === "Poor") {
+              if (j === JudgementType.Perfect || j === JudgementType.Good || j === JudgementType.Poor) {
                 effectiveDelta = judgementDeltas[globalIndex];
                 if (effectiveDelta !== undefined) isValidJudge = true;
               } else {
@@ -2535,10 +2547,15 @@ function drawBarNotes(
         // Categorical Logic
         if (globalIndex < judgements.length) {
           const judge = judgements[globalIndex];
-          if (judge === "Perfect" && judgementVisibility.perfect) noteColors[i] = PALETTE.judgements.perfect;
-          else if (judge === "Good" && judgementVisibility.good) noteColors[i] = PALETTE.judgements.good;
-          else if (judge === "Poor" && judgementVisibility.poor) noteColors[i] = PALETTE.judgements.poor;
-          else if (judge && !["Perfect", "Good", "Poor"].includes(judge)) noteColors[i] = PALETTE.judgements.miss;
+          if (judge === JudgementType.Perfect && judgementVisibility.perfect)
+            noteColors[i] = PALETTE.judgements.perfect;
+          else if (judge === JudgementType.Good && judgementVisibility.good) noteColors[i] = PALETTE.judgements.good;
+          else if (judge === JudgementType.Poor && judgementVisibility.poor) noteColors[i] = PALETTE.judgements.poor;
+          else if (
+            judge &&
+            ![JudgementType.Perfect, JudgementType.Good, JudgementType.Poor].includes(judge as JudgementType)
+          )
+            noteColors[i] = PALETTE.judgements.miss;
         }
       }
     }
@@ -2620,9 +2637,9 @@ function drawBarNotes(
       if (color && globalIndex !== null && globalIndex < judgements.length) {
         const judge = judgements[globalIndex];
         let text = "";
-        if (judge === "Perfect") text = texts.judgement.perfect;
-        else if (judge === "Good") text = texts.judgement.good;
-        else if (judge === "Poor") text = texts.judgement.poor;
+        if (judge === JudgementType.Perfect) text = texts.judgement.perfect;
+        else if (judge === JudgementType.Good) text = texts.judgement.good;
+        else if (judge === JudgementType.Poor) text = texts.judgement.poor;
 
         if (text) {
           const noteX: number = x + i * noteStep;

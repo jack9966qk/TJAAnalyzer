@@ -1,5 +1,5 @@
 import * as webjsx from "webjsx";
-import { getGradientColor, type HitInfo, PALETTE, type ViewOptions } from "../core/renderer.js";
+import { getGradientColor, type HitInfo, JudgementType, PALETTE, type ViewOptions } from "../core/renderer.js";
 import type { ParsedChart } from "../core/tja-parser.js";
 import { i18n } from "../utils/i18n.js";
 
@@ -221,9 +221,9 @@ export class NoteStatsDisplay extends HTMLElement {
 
               // Check visibility
               let isVisible = true;
-              if (judge === "Perfect" && !judgementVisibility.perfect) isVisible = false;
-              else if (judge === "Good" && !judgementVisibility.good) isVisible = false;
-              else if (judge === "Poor" && !judgementVisibility.poor) isVisible = false;
+              if (judge === JudgementType.Perfect && !judgementVisibility.perfect) isVisible = false;
+              else if (judge === JudgementType.Good && !judgementVisibility.good) isVisible = false;
+              else if (judge === JudgementType.Poor && !judgementVisibility.poor) isVisible = false;
 
               if (!isVisible) continue;
 
@@ -233,15 +233,18 @@ export class NoteStatsDisplay extends HTMLElement {
               let color = "";
 
               if (coloringMode === "gradient") {
-                if ((judge === "Perfect" || judge === "Good" || judge === "Poor") && delta !== undefined) {
+                if (
+                  (judge === JudgementType.Perfect || judge === JudgementType.Good || judge === JudgementType.Poor) &&
+                  delta !== undefined
+                ) {
                   color = getGradientColor(delta);
                 } else {
                   color = PALETTE.judgements.miss; // Dark Grey for non-standard
                 }
               } else {
-                if (judge === "Perfect") color = PALETTE.judgements.perfect;
-                else if (judge === "Good") color = PALETTE.judgements.good;
-                else if (judge === "Poor") color = PALETTE.judgements.poor;
+                if (judge === JudgementType.Perfect) color = PALETTE.judgements.perfect;
+                else if (judge === JudgementType.Good) color = PALETTE.judgements.good;
+                else if (judge === JudgementType.Poor) color = PALETTE.judgements.poor;
               }
 
               let el = <span style={color ? `color: ${color}` : ""}>{text}</span>;
@@ -285,24 +288,24 @@ export class NoteStatsDisplay extends HTMLElement {
 
             // Check visibility
             let isVisible = true;
-            if (judge === "Perfect" && !judgementVisibility.perfect) isVisible = false;
-            else if (judge === "Good" && !judgementVisibility.good) isVisible = false;
-            else if (judge === "Poor" && !judgementVisibility.poor) isVisible = false;
+            if (judge === JudgementType.Perfect && !judgementVisibility.perfect) isVisible = false;
+            else if (judge === JudgementType.Good && !judgementVisibility.good) isVisible = false;
+            else if (judge === JudgementType.Poor && !judgementVisibility.poor) isVisible = false;
 
             if (isVisible && delta !== undefined) {
               avgDeltaVal = `${delta}ms`;
               let color = "";
 
               if (coloringMode === "gradient") {
-                if (judge === "Perfect" || judge === "Good" || judge === "Poor") {
+                if (judge === JudgementType.Perfect || judge === JudgementType.Good || judge === JudgementType.Poor) {
                   color = getGradientColor(delta);
                 } else {
                   color = PALETTE.judgements.miss;
                 }
               } else {
-                if (judge === "Perfect") color = PALETTE.judgements.perfect;
-                else if (judge === "Good") color = PALETTE.judgements.good;
-                else if (judge === "Poor") color = PALETTE.judgements.poor;
+                if (judge === JudgementType.Perfect) color = PALETTE.judgements.perfect;
+                else if (judge === JudgementType.Good) color = PALETTE.judgements.good;
+                else if (judge === JudgementType.Poor) color = PALETTE.judgements.poor;
               }
 
               let el = <span>{delta}</span>;
@@ -322,23 +325,23 @@ export class NoteStatsDisplay extends HTMLElement {
           const judge = judgements[hit.judgeableNoteIndex];
 
           let isVisible = true;
-          if (judge === "Perfect" && !judgementVisibility.perfect) isVisible = false;
-          else if (judge === "Good" && !judgementVisibility.good) isVisible = false;
-          else if (judge === "Poor" && !judgementVisibility.poor) isVisible = false;
+          if (judge === JudgementType.Perfect && !judgementVisibility.perfect) isVisible = false;
+          else if (judge === JudgementType.Good && !judgementVisibility.good) isVisible = false;
+          else if (judge === JudgementType.Poor && !judgementVisibility.poor) isVisible = false;
 
           if (isVisible && delta !== undefined) {
             deltaVal = `${delta}ms`;
             let color = "";
             if (coloringMode === "gradient") {
-              if (judge === "Perfect" || judge === "Good" || judge === "Poor") {
+              if (judge === JudgementType.Perfect || judge === JudgementType.Good || judge === JudgementType.Poor) {
                 color = getGradientColor(delta);
               } else {
                 color = PALETTE.judgements.miss;
               }
             } else {
-              if (judge === "Perfect") color = PALETTE.judgements.perfect;
-              else if (judge === "Good") color = PALETTE.judgements.good;
-              else if (judge === "Poor") color = PALETTE.judgements.poor;
+              if (judge === JudgementType.Perfect) color = PALETTE.judgements.perfect;
+              else if (judge === JudgementType.Good) color = PALETTE.judgements.good;
+              else if (judge === JudgementType.Poor) color = PALETTE.judgements.poor;
             }
 
             if (color) deltaVal = <span style={`color: ${color}`}>{deltaVal}</span>;
