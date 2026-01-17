@@ -9,81 +9,10 @@ export class NoteStatsDisplay extends HTMLElement {
   private _viewOptions: ViewOptions | null = null;
   private _judgements: string[] = [];
   private _judgementDeltas: (number | undefined)[] = [];
-  private container: HTMLDivElement;
 
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
-
-    const style = document.createElement("style");
-    style.textContent = `
-            :host {
-                display: block;
-            }
-            #container {
-                min-height: 80px;
-                display: flex;
-                flex-wrap: wrap;
-                gap: 10px;
-                padding: 10px;
-                background-color: var(--bg-panel-header, #f5f5f5);
-                align-items: center;
-                justify-content: center;
-                border: 1px solid var(--border-lighter, #e0e0e0);
-                margin-top: 10px;
-                border-radius: 6px;
-                box-sizing: border-box;
-            }
-            .stat-box {
-                background-color: var(--stat-box-bg, #37474f);
-                color: var(--stat-box-text, #eceff1);
-                padding: 6px 12px;
-                border-radius: 6px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                min-width: 90px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            }
-            .stat-label {
-                font-size: 0.7em;
-                color: var(--stat-label, #b0bec5);
-                text-transform: uppercase;
-                letter-spacing: 1px;
-                margin-bottom: 4px;
-            }
-            .stat-value {
-                font-size: 1.2em;
-                font-weight: bold;
-                font-family: 'Consolas', monospace;
-            }
-            .stat-value-highlight {
-                color: #ffeb3b;
-            }
-            .stat-full-line {
-                flex-basis: 100%;
-                background-color: var(--stat-box-bg, #37474f);
-                color: var(--stat-box-text, #eceff1);
-                padding: 10px 15px;
-                border-radius: 6px;
-                margin-top: 5px;
-                font-family: 'Consolas', monospace;
-                font-size: 0.9em;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                word-wrap: break-word;
-                height: 4.5em;
-                overflow-y: auto;
-            }
-            .hidden {
-                display: none !important;
-            }
-        `;
-
-    this.container = document.createElement("div");
-    this.container.id = "container";
-
-    this.shadowRoot?.appendChild(style);
-    this.shadowRoot?.appendChild(this.container);
   }
 
   connectedCallback() {
@@ -198,8 +127,6 @@ export class NoteStatsDisplay extends HTMLElement {
   }
 
   render() {
-    if (!this._viewOptions) return;
-
     const def = "-";
     const hit = this._hit;
     const chart = this._chart;
@@ -207,7 +134,9 @@ export class NoteStatsDisplay extends HTMLElement {
     const judgements = this._judgements;
     const judgementDeltas = this._judgementDeltas;
 
-    const { collapsedLoop: collapsed, viewMode, coloringMode, visibility: judgementVisibility } = options;
+    const { collapsedLoop: collapsed, viewMode, coloringMode, visibility: judgementVisibility } = options || {
+        collapsedLoop: false, viewMode: 'original', coloringMode: 'categorical', visibility: {perfect:true, good:true, poor:true}
+    };
 
     // Resolve target chart based on branch
     let targetChart = chart;
@@ -224,6 +153,7 @@ export class NoteStatsDisplay extends HTMLElement {
 
     if (
       hit &&
+      options &&
       (viewMode === "judgements" || viewMode === "judgements-underline" || viewMode === "judgements-text") &&
       hit.judgeableNoteIndex !== null &&
       targetChart
@@ -429,48 +359,90 @@ export class NoteStatsDisplay extends HTMLElement {
 
     const vdom = (
         <div style="display: contents;">
-            {StatBox(i18n.t("stats.type"), hit ? this.getNoteName(hit.type) : def)}
-            {StatBox(i18n.t("stats.gap"), gap)}
-            {StatBox(i18n.t("stats.bpm"), hit ? this.formatBPM(hit.bpm) : def)}
-            {StatBox(i18n.t("stats.hs"), hit ? this.formatHS(hit.scroll) : def)}
-            {StatBox(i18n.t("stats.seenBpm"), hit ? this.formatBPM(hit.bpm * hit.scroll) : def)}
-            
-            {collapsed ? (
-                <div style="display: contents;">
-                     {StatBox(i18n.t("stats.avgDelta"), avgDeltaVal)}
-                     <div className="stat-full-line">
-                        Deltas: {allDeltasElements}
-                     </div>
-                </div>
-            ) : (
-                StatBox(i18n.t("stats.delta"), deltaVal)
-            )}
+            <style>{`
+            :host {
+                display: block;
+            }
+            #container {
+                min-height: 80px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+                padding: 10px;
+                background-color: var(--bg-panel-header, #f5f5f5);
+                align-items: center;
+                justify-content: center;
+                border: 1px solid var(--border-lighter, #e0e0e0);
+                margin-top: 10px;
+                border-radius: 6px;
+                box-sizing: border-box;
+            }
+            .stat-box {
+                background-color: var(--stat-box-bg, #37474f);
+                color: var(--stat-box-text, #eceff1);
+                padding: 6px 12px;
+                border-radius: 6px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                min-width: 90px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+            .stat-label {
+                font-size: 0.7em;
+                color: var(--stat-label, #b0bec5);
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 4px;
+            }
+            .stat-value {
+                font-size: 1.2em;
+                font-weight: bold;
+                font-family: 'Consolas', monospace;
+            }
+            .stat-value-highlight {
+                color: #ffeb3b;
+            }
+            .stat-full-line {
+                flex-basis: 100%;
+                background-color: var(--stat-box-bg, #37474f);
+                color: var(--stat-box-text, #eceff1);
+                padding: 10px 15px;
+                border-radius: 6px;
+                margin-top: 5px;
+                font-family: 'Consolas', monospace;
+                font-size: 0.9em;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                word-wrap: break-word;
+                height: 4.5em;
+                overflow-y: auto;
+            }
+            .hidden {
+                display: none !important;
+            }
+            `}</style>
+            <div id="container">
+                {StatBox(i18n.t("stats.type"), hit ? this.getNoteName(hit.type) : def)}
+                {StatBox(i18n.t("stats.gap"), gap)}
+                {StatBox(i18n.t("stats.bpm"), hit ? this.formatBPM(hit.bpm) : def)}
+                {StatBox(i18n.t("stats.hs"), hit ? this.formatHS(hit.scroll) : def)}
+                {StatBox(i18n.t("stats.seenBpm"), hit ? this.formatBPM(hit.bpm * hit.scroll) : def)}
+                
+                {collapsed ? (
+                    <div style="display: contents;">
+                        {StatBox(i18n.t("stats.avgDelta"), avgDeltaVal)}
+                        <div className="stat-full-line">
+                            Deltas: {allDeltasElements}
+                        </div>
+                    </div>
+                ) : (
+                    StatBox(i18n.t("stats.delta"), deltaVal)
+                )}
+            </div>
         </div>
     );
-
-    // Apply to container
-    // We cannot use <div style="display: contents"> as root because we are diffing against this.container which is a div.
-    // So we can just put the children directly if webjsx supports arrays, or wrap in div.
-    // NoteStatsDisplay uses Flex layout on #container.
-    // The vdom above wraps in a div with display contents, so children will be flex items.
     
-    // Wait, applyDiff(this.container, vdom). this.container is a div with ID container.
-    // If vdom is a div, it will replace the content of this.container with that div?
-    // webjsx.applyDiff(parent, vdom) -> appends/updates children of parent to match vdom.
-    // So if vdom is <div>...</div>, then this.container will have <div>...</div> inside it.
-    // But #container styles apply to itself.
-    
-    // So I should pass the children directly or use fragment?
-    // webjsx doesn't export Fragment?
-    // I can pass an array of elements if applyDiff supports it?
-    // Or I can just make vdom match the structure I want inside #container.
-    // The previous innerHTML was `createStatBox(...) + ...`.
-    // So I want `StatBox` elements to be direct children of `#container`.
-    
-    // If I wrap them in a `div`, that `div` becomes the flex item unless I use `display: contents`.
-    // The vdom above uses `display: contents`. This should work.
-    
-    webjsx.applyDiff(this.container, vdom);
+    webjsx.applyDiff(this.shadowRoot!, vdom);
   }
 }
 

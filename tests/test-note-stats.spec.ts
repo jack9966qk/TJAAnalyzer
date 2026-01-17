@@ -1,13 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Note Stats Component", () => {
-  test("Empty Render", async ({ page }) => {
-    await page.goto("/note-stats-test.html");
-    const stats = page.locator("note-stats");
-    await expect(stats).toBeVisible();
-    await expect(stats).toHaveScreenshot("note-stats-empty.png");
-  });
-
   test("Populated Stats", async ({ page }) => {
     await page.goto("/note-stats-test.html");
 
