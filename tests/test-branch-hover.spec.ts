@@ -67,7 +67,7 @@ LEVEL:10
     await page.waitForTimeout(1000);
 
     // Select "Show all branches"
-    await page.selectOption("#branch-selector", "all");
+    await page.selectOption("#branch-selector-internal", "all");
     await page.waitForTimeout(1000);
 
     // Calculate coordinates for notes in different branches
@@ -167,7 +167,7 @@ LEVEL:8
     await page.waitForTimeout(1000);
 
     // Ensure we are in "All Branches" mode (default for branched chart)
-    const branchSelector = page.locator("#branch-selector");
+    const branchSelector = page.locator("#branch-selector-internal");
     await expect(branchSelector).toBeVisible();
     await expect(branchSelector).toHaveValue("all");
 

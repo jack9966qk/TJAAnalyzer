@@ -885,7 +885,7 @@ test.describe("Selection Interaction", () => {
     const canvas = page.locator("#chart-component");
     await expect(canvas).toBeVisible();
     await page.waitForTimeout(2000);
-    await page.selectOption("#difficulty-selector", "oni");
+    await page.selectOption("#difficulty-selector-internal", "oni");
     await page.waitForTimeout(500);
 
     // Switch to Selection Tab
@@ -959,7 +959,7 @@ test.describe("Selection Interaction", () => {
     const canvas = page.locator("#chart-component");
     await expect(canvas).toBeVisible();
     await page.waitForTimeout(2000);
-    await page.selectOption("#difficulty-selector", "oni");
+    await page.selectOption("#difficulty-selector-internal", "oni");
     await page.waitForTimeout(500);
 
     // Switch to Selection Tab
@@ -1028,7 +1028,7 @@ test.describe("Selection Interaction", () => {
     const canvas = page.locator("#chart-component");
     await expect(canvas).toBeVisible();
     await page.waitForTimeout(2000);
-    await page.selectOption("#difficulty-selector", "oni");
+    await page.selectOption("#difficulty-selector-internal", "oni");
 
     // Ensure stats are visible
     const showStatsCheckbox = page.locator("#show-stats-checkbox");

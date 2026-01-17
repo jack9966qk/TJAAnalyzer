@@ -53,6 +53,7 @@ const files = [
   { src: "src/components/judgement-options.html", dest: "scripts/components/judgement-options.html" },
   { src: "src/components/select-options.html", dest: "scripts/components/select-options.html" },
   { src: "src/components/annotate-options.html", dest: "scripts/components/annotate-options.html" },
+  { src: "src/components/course-branch-select.html", dest: "scripts/components/course-branch-select.html" },
   { src: "icon.png", dest: "icon.png" },
 ];
 

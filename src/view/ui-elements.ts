@@ -1,3 +1,5 @@
+import "../components/course-branch-select.js"; // Ensure custom element is defined
+import type { CourseBranchSelect } from "../components/course-branch-select.js";
 import type { NoteStatsDisplay } from "../components/note-stats.js";
 import type { TJAChart } from "../components/tja-chart.js";
 
@@ -5,10 +7,7 @@ export const tjaChart = document.getElementById("chart-component") as TJAChart;
 export const statusDisplay = document.getElementById("status-display") as HTMLElement;
 export const noteStatsDisplay = document.getElementById("note-stats-display") as NoteStatsDisplay;
 export const languageSelector = document.getElementById("language-selector") as HTMLSelectElement;
-export const difficultySelectorContainer = document.getElementById("difficulty-selector-container") as HTMLDivElement;
-export const difficultySelector = document.getElementById("difficulty-selector") as HTMLSelectElement;
-export const branchSelectorContainer = document.getElementById("branch-selector-container") as HTMLSpanElement;
-export const branchSelector = document.getElementById("branch-selector") as HTMLSelectElement;
+export const courseBranchSelect = document.getElementById("course-branch-select") as CourseBranchSelect;
 export const optionsCollapseBtn = document.getElementById("options-collapse-btn") as HTMLButtonElement;
 export const optionsBody = document.getElementById("options-body") as HTMLDivElement;
 export const appFooter = document.querySelector(".app-footer") as HTMLDivElement;

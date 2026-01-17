@@ -5,6 +5,7 @@ import type { JudgementOptions } from "./components/judgement-options.js";
 import "./components/judgement-options.js"; // Ensure side-effect
 import "./components/select-options.js"; // Ensure side-effect
 import "./components/annotate-options.js"; // Ensure side-effect
+import "./components/course-branch-select.js"; // Ensure side-effect
 import { TJAChart } from "./components/tja-chart.js";
 import type { ViewOptions } from "./components/view-options.js";
 import "./components/view-options.js"; // Ensure side-effect
@@ -25,11 +26,9 @@ import type { HitInfo } from "./core/renderer.js";
 import { appState } from "./state/app-state.js";
 import { i18n } from "./utils/i18n.js";
 import {
-  branchSelector,
   chartModeStatus,
   connectBtn,
-  difficultySelector,
-  difficultySelectorContainer,
+  courseBranchSelect,
   doPanes,
   doTabs,
   dsBody,
@@ -174,15 +173,14 @@ function switchDataSourceMode(mode: string) {
   }
 
   // Difficulty Selector Visibility
-  if (difficultySelectorContainer) {
+  if (courseBranchSelect) {
     if (mode === "stream") {
-      difficultySelectorContainer.hidden = true;
-      difficultySelectorContainer.style.display = "none";
+      courseBranchSelect.hide();
     } else {
       // Show only if charts are parsed
       const visible = !!appState.parsedTJACharts;
-      difficultySelectorContainer.hidden = !visible;
-      difficultySelectorContainer.style.display = visible ? "flex" : "none";
+      if (visible) courseBranchSelect.show();
+      else courseBranchSelect.hide();
     }
   }
 
@@ -214,7 +212,7 @@ async function loadEseFromUrl(path: string, diff: string) {
       const targetDiff = appState.parsedTJACharts[diff] ? diff : Object.keys(appState.parsedTJACharts)[0];
 
       if (appState.parsedTJACharts[targetDiff]) {
-        difficultySelector.value = targetDiff;
+        courseBranchSelect.difficulty = targetDiff;
         appState.currentChart = appState.parsedTJACharts[targetDiff];
         refreshChart();
         updateCollapseLoopState();
@@ -261,16 +259,7 @@ function updateUIText() {
   // Dynamic Elements
   updateStatus(appState.currentStatusKey, appState.currentStatusParams);
 
-  // Update difficulty selector options
-  if (difficultySelector) {
-    for (let i = 0; i < difficultySelector.options.length; i++) {
-      const opt = difficultySelector.options[i];
-      const diff = opt.value;
-      const key = `ui.difficulty.${diff.toLowerCase()}`;
-      const translated = i18n.t(key);
-      opt.innerText = translated !== key ? translated : diff.charAt(0).toUpperCase() + diff.slice(1);
-    }
-  }
+  // Difficulty selector updates itself
 
   // Update Mode Status
   const activeTab = document.querySelector("#chart-options-panel .panel-tab.active");
@@ -525,7 +514,7 @@ function initEventListeners() {
         testStreamBtn.innerText = i18n.t("ui.test.stop");
 
         // Use currently loaded content and selected difficulty
-        appState.judgementClient.startSimulation(appState.loadedTJAContent, difficultySelector.value);
+        appState.judgementClient.startSimulation(appState.loadedTJAContent, courseBranchSelect.difficulty);
       }
     });
   }
@@ -655,15 +644,13 @@ function initEventListeners() {
     updateStatsComponent(appState.selectedNoteHitInfo);
   });
 
-  difficultySelector.addEventListener("change", () => {
+  courseBranchSelect.addEventListener("difficulty-change", () => {
     updateBranchSelectorState(true);
   });
 
-  if (branchSelector) {
-    branchSelector.addEventListener("change", () => {
-      updateBranchSelectorState(false);
-    });
-  }
+  courseBranchSelect.addEventListener("branch-change", () => {
+    updateBranchSelectorState(false);
+  });
 
   // ESE Share Button
   if (eseShareBtn) {
@@ -672,7 +659,7 @@ function initEventListeners() {
 
       const url = new URL(window.location.href);
       url.searchParams.set("ese", appState.currentEsePath);
-      url.searchParams.set("diff", difficultySelector.value);
+      url.searchParams.set("diff", courseBranchSelect.difficulty);
 
       try {
         await navigator.clipboard.writeText(url.toString());
@@ -716,7 +703,7 @@ function initJudgementClient() {
 
         const diff = summary.difficulty.toLowerCase();
         if (appState.parsedTJACharts?.[diff]) {
-          difficultySelector.value = diff;
+          courseBranchSelect.difficulty = diff;
           appState.currentChart = appState.parsedTJACharts[diff];
         }
       }

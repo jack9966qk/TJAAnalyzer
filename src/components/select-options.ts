@@ -3,7 +3,7 @@ import { generateTJAFromSelection } from "../core/tja-exporter.js";
 import { appState } from "../state/app-state.js";
 import { shareFile } from "../utils/file-share.js";
 import { i18n } from "../utils/i18n.js";
-import { difficultySelector } from "../view/ui-elements.js";
+import { courseBranchSelect } from "../view/ui-elements.js";
 
 export class SelectOptions extends HTMLElement {
   private clearSelectionBtn!: HTMLButtonElement;
@@ -73,7 +73,7 @@ export class SelectOptions extends HTMLElement {
         const tjaContent = generateTJAFromSelection(
           appState.currentChart,
           appState.viewOptions.selection,
-          difficultySelector.value,
+          courseBranchSelect.difficulty,
           loopCount,
           chartName,
           gapCount,

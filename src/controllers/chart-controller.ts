@@ -3,14 +3,7 @@ import type { HitInfo, RenderTexts } from "../core/renderer.js";
 import { parseTJA } from "../core/tja-parser.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
-import {
-  branchSelector,
-  branchSelectorContainer,
-  difficultySelector,
-  difficultySelectorContainer,
-  noteStatsDisplay,
-  tjaChart,
-} from "../view/ui-elements.js";
+import { courseBranchSelect, noteStatsDisplay, tjaChart } from "../view/ui-elements.js";
 
 export function updateStatsComponent(hit: HitInfo | null) {
   if (noteStatsDisplay) {
@@ -40,19 +33,18 @@ export function updateBranchSelectorState(resetBranch: boolean = false) {
   clearJudgements();
   if (!appState.parsedTJACharts) return;
 
-  const selectedDiff = difficultySelector.value;
+  const selectedDiff = courseBranchSelect.difficulty;
   const rootChart = appState.parsedTJACharts[selectedDiff];
 
   if (!rootChart) return;
 
   if (rootChart.branches) {
-    branchSelectorContainer.hidden = false;
-    branchSelectorContainer.style.display = "flex";
+    courseBranchSelect.setBranchVisibility(true);
     if (resetBranch) {
-      branchSelector.value = "all";
+      courseBranchSelect.branch = "all";
     }
 
-    const branchType = branchSelector.value;
+    const branchType = courseBranchSelect.branch;
 
     if (branchType === "all") {
       appState.viewOptions.showAllBranches = true;
@@ -69,8 +61,7 @@ export function updateBranchSelectorState(resetBranch: boolean = false) {
       }
     }
   } else {
-    branchSelectorContainer.hidden = true;
-    branchSelectorContainer.style.display = "none";
+    courseBranchSelect.setBranchVisibility(false);
     appState.viewOptions.showAllBranches = false;
     appState.currentChart = rootChart;
   }
@@ -111,38 +102,28 @@ export function updateParsedCharts(content: string) {
   // Clear Annotations
   appState.annotations = {};
 
-  difficultySelector.innerHTML = "";
+  courseBranchSelect.clearDifficultyOptions();
 
   const difficulties = Object.keys(appState.parsedTJACharts);
 
   if (difficulties.length === 0) {
-    difficultySelectorContainer.hidden = true;
-    difficultySelectorContainer.style.display = "none";
+    courseBranchSelect.hide();
     throw new Error(i18n.t("status.noCourses"));
   }
 
-  difficulties.forEach((diff) => {
-    const option = document.createElement("option");
-    option.value = diff;
-    const key = `ui.difficulty.${diff.toLowerCase()}`;
-    const translated = i18n.t(key);
-    option.innerText = translated !== key ? translated : diff.charAt(0).toUpperCase() + diff.slice(1);
-    difficultySelector.appendChild(option);
-  });
+  courseBranchSelect.setDifficultyOptions(difficulties);
 
   let defaultDifficulty = "edit";
   if (!appState.parsedTJACharts[defaultDifficulty]) defaultDifficulty = "oni";
   if (!appState.parsedTJACharts[defaultDifficulty]) defaultDifficulty = difficulties[0];
 
-  difficultySelector.value = defaultDifficulty;
+  courseBranchSelect.difficulty = defaultDifficulty;
   updateBranchSelectorState(true);
 
   if (appState.activeDataSourceMode === "stream") {
-    difficultySelectorContainer.hidden = true;
-    difficultySelectorContainer.style.display = "none";
+    courseBranchSelect.hide();
   } else {
-    difficultySelectorContainer.hidden = false;
-    difficultySelectorContainer.style.display = "flex";
+    courseBranchSelect.show();
   }
 
   updateStatsComponent(null);
@@ -186,9 +167,15 @@ export function refreshChart() {
     // 2. Check for Branching + Judgement Mode
     const isJudgementMode = appState.viewOptions.viewMode.startsWith("judgements");
     // Check if branching UI is active/visible as a proxy for "chart has branching"
-    const branchSelectorVisible = branchSelectorContainer && !branchSelectorContainer.hidden;
+    // Since courseBranchSelect encapsulates this, we need to check if branches are present.
+    // Or check if showAllBranches is true or branches property exists.
+    // Better: check if currentChart has branches? No, currentChart is a specific branch target unless showAllBranches.
+    // We can rely on appState.viewOptions.showAllBranches or check if root chart has branches.
+    const selectedDiff = courseBranchSelect.difficulty;
+    const rootChart = appState.parsedTJACharts?.[selectedDiff];
+    const hasBranching = rootChart?.branches;
 
-    if (isJudgementMode && branchSelectorVisible) {
+    if (isJudgementMode && hasBranching) {
       tjaChart.showMessage(i18n.t("ui.judgement.branchingNotSupported"), "warning");
       updateLoopControls();
       return;
