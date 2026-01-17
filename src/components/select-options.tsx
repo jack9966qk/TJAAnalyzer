@@ -1,3 +1,4 @@
+import * as webjsx from "webjsx";
 import { refreshChart } from "../controllers/chart-controller.js";
 import { generateTJAFromSelection } from "../core/tja-exporter.js";
 import { appState } from "../state/app-state.js";
@@ -6,117 +7,129 @@ import { i18n } from "../utils/i18n.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
 
 export class SelectOptions extends HTMLElement {
-  private clearSelectionBtn!: HTMLButtonElement;
-  private exportSelectionBtn!: HTMLButtonElement;
-  private exportChartNameInput!: HTMLInputElement;
-  private exportLoopCountInput!: HTMLInputElement;
-  private exportGapCountInput!: HTMLInputElement;
+  private exportChartName = "Exported Selection";
+  private exportLoopCount = 10;
+  private exportGapCount = 1;
 
   connectedCallback() {
-    this.loadTemplate().then(() => {
-      this.setupEventListeners();
-      this.updateTexts();
-      this.refreshStatus();
-
-      // Listen for language changes
-      i18n.onLanguageChange(() => this.updateTexts());
-    });
-  }
-
-  private async loadTemplate() {
-    if (this.innerHTML.trim()) return;
-
-    // We can embed the HTML or fetch it. Given I created the file, let's fetch it or embed it if the file system allows.
-    // JudgementOptions fetches it.
-    const path = "scripts/components/select-options.html";
-
-    try {
-      const response = await fetch(path);
-      if (response.ok) {
-        this.innerHTML = await response.text();
-      } else {
-        console.error(`Error loading template from ${path}: ${response.status} ${response.statusText}`);
-        this.innerText = "Error loading template.";
-        return;
-      }
-    } catch (e) {
-      console.error(`Error fetching ${path}:`, e);
-      this.innerText = "Error loading template.";
-      return;
-    }
-
-    this.clearSelectionBtn = this.querySelector("#clear-selection-btn") as HTMLButtonElement;
-    this.exportSelectionBtn = this.querySelector("#export-selection-btn") as HTMLButtonElement;
-    this.exportChartNameInput = this.querySelector("#export-chart-name") as HTMLInputElement;
-    this.exportLoopCountInput = this.querySelector("#export-loop-count") as HTMLInputElement;
-    this.exportGapCountInput = this.querySelector("#export-gap-count") as HTMLInputElement;
-  }
-
-  private setupEventListeners() {
-    this.clearSelectionBtn.addEventListener("click", () => {
-      appState.viewOptions.selection = null;
-      appState.selectedNoteHitInfo = null;
-      refreshChart();
-      this.refreshStatus();
-    });
-
-    this.exportSelectionBtn.addEventListener("click", async () => {
-      if (!appState.currentChart || !appState.viewOptions.selection) {
-        return;
-      }
-
-      const loopCount = this.exportLoopCountInput ? parseInt(this.exportLoopCountInput.value, 10) : 10;
-      const gapCount = this.exportGapCountInput ? parseInt(this.exportGapCountInput.value, 10) : 1;
-      const chartName = this.exportChartNameInput?.value ? this.exportChartNameInput.value : "Exported Selection";
-
-      try {
-        const tjaContent = generateTJAFromSelection(
-          appState.currentChart,
-          appState.viewOptions.selection,
-          courseBranchSelect.difficulty,
-          loopCount,
-          chartName,
-          gapCount,
-        );
-
-        await shareFile(`${chartName}.tja`, tjaContent, "text/plain", "Export TJA");
-        // We need to update status, but statusDisplay is in ui-elements and main controller.
-        // We can dispatch an event or use a global status function if available.
-        // appState doesn't have status function.
-        // For now, let's dispatch a custom event that main.ts can listen to, or just alert?
-        // main.ts has updateStatus.
-        // I will dispatch an event 'status-update'
-        this.dispatchEvent(
-          new CustomEvent("status-update", { detail: { key: "status.exportSuccess" }, bubbles: true }),
-        );
-      } catch (e) {
-        console.error("Export failed:", e);
-        this.dispatchEvent(new CustomEvent("status-update", { detail: { key: "status.exportFailed" }, bubbles: true }));
-      }
-    });
+    this.style.display = "block";
+    this.style.width = "100%";
+    this.style.boxSizing = "border-box";
+    this.render();
+    // Listen for language changes
+    i18n.onLanguageChange(() => this.render());
   }
 
   public refreshStatus() {
-    const hasSelection = !!appState.viewOptions.selection;
-    if (this.clearSelectionBtn) this.clearSelectionBtn.disabled = !hasSelection;
-    if (this.exportSelectionBtn) this.exportSelectionBtn.disabled = !hasSelection;
+    this.render();
   }
 
-  private updateTexts() {
-    this.querySelectorAll("[data-i18n]").forEach((el) => {
-      const key = el.getAttribute("data-i18n");
-      if (key) {
-        if (el.tagName === "INPUT") return;
-        el.textContent = i18n.t(key);
-      }
-    });
+  private handleClearSelection() {
+    appState.viewOptions.selection = null;
+    appState.selectedNoteHitInfo = null;
+    refreshChart();
+    this.render();
+  }
 
-    this.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
-      const key = el.getAttribute("data-i18n-placeholder");
-      if (key) {
-        (el as HTMLInputElement).placeholder = i18n.t(key);
-      }
-    });
+  private async handleExportSelection() {
+    if (!appState.currentChart || !appState.viewOptions.selection) {
+      return;
+    }
+
+    try {
+      const tjaContent = generateTJAFromSelection(
+        appState.currentChart,
+        appState.viewOptions.selection,
+        courseBranchSelect.difficulty,
+        this.exportLoopCount,
+        this.exportChartName,
+        this.exportGapCount,
+      );
+
+      await shareFile(`${this.exportChartName}.tja`, tjaContent, "text/plain", "Export TJA");
+      
+      this.dispatchEvent(
+        new CustomEvent("status-update", { detail: { key: "status.exportSuccess" }, bubbles: true }),
+      );
+    } catch (e) {
+      console.error("Export failed:", e);
+      this.dispatchEvent(new CustomEvent("status-update", { detail: { key: "status.exportFailed" }, bubbles: true }));
+    }
+  }
+
+  private handleNameChange(e: Event) {
+    this.exportChartName = (e.target as HTMLInputElement).value;
+  }
+
+  private handleLoopChange(e: Event) {
+    this.exportLoopCount = parseInt((e.target as HTMLInputElement).value, 10);
+  }
+
+  private handleGapChange(e: Event) {
+    this.exportGapCount = parseInt((e.target as HTMLInputElement).value, 10);
+  }
+
+  render() {
+    const hasSelection = !!appState.viewOptions.selection;
+
+    const vdom = (
+      <div className="control-group" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
+        <div style="display: flex; width: 100%;">
+          <button
+            id="clear-selection-btn"
+            className="control-btn"
+            onclick={this.handleClearSelection.bind(this)}
+            disabled={!hasSelection}
+          >
+            {i18n.t("ui.clearSelection")}
+          </button>
+        </div>
+
+        <input
+          type="text"
+          id="export-chart-name"
+          value={this.exportChartName}
+          placeholder={i18n.t("ui.export.chartName")}
+          style="width: 100%; padding: 4px; box-sizing: border-box;"
+          oninput={this.handleNameChange.bind(this)}
+        />
+
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 15px;">
+          <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+            <span style="font-size: 0.9em;">{i18n.t("ui.export.loops")}:</span>
+            <input
+              type="number"
+              id="export-loop-count"
+              value={this.exportLoopCount.toString()}
+              min="1"
+              style="width: 50px; padding: 4px;"
+              oninput={this.handleLoopChange.bind(this)}
+            />
+          </label>
+          <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+            <span style="font-size: 0.9em;">{i18n.t("ui.export.gap")}:</span>
+            <input
+              type="number"
+              id="export-gap-count"
+              value={this.exportGapCount.toString()}
+              min="0"
+              style="width: 50px; padding: 4px;"
+              oninput={this.handleGapChange.bind(this)}
+            />
+          </label>
+          <button
+            id="export-selection-btn"
+            className="control-btn"
+            onclick={this.handleExportSelection.bind(this)}
+            disabled={!hasSelection}
+          >
+            {i18n.t("ui.export")}
+          </button>
+        </div>
+      </div>
+    );
+
+    webjsx.applyDiff(this, vdom);
   }
 }
 

@@ -1,3 +1,4 @@
+import type { JudgementOptions } from "../components/judgement-options.js";
 import type { SelectOptions } from "../components/select-options.js";
 import type { HitInfo, RenderTexts } from "../core/renderer.js";
 import { parseTJA } from "../core/tja-parser.js";
@@ -71,8 +72,7 @@ export function updateBranchSelectorState(resetBranch: boolean = false) {
 }
 
 export function updateCollapseLoopState() {
-  // biome-ignore lint/suspicious/noExplicitAny: Circular dependency
-  const judgementOptions = document.querySelector("judgement-options") as any;
+  const judgementOptions = document.querySelector("judgement-options") as JudgementOptions;
   if (!judgementOptions || typeof judgementOptions.setLoopCollapseState !== "function") return;
 
   const hasLoop = appState.currentChart?.loop;
@@ -130,15 +130,9 @@ export function updateParsedCharts(content: string) {
 }
 
 export function updateLoopControls() {
-  // biome-ignore lint/suspicious/noExplicitAny: Circular dependency
-  const judgementOptions = document.querySelector("judgement-options") as any;
-  if (judgementOptions) {
-    if (typeof judgementOptions.updateLoopControlVisibility === "function") {
-      judgementOptions.updateLoopControlVisibility();
-    }
-    if (typeof judgementOptions.updateLoopCounter === "function") {
-      judgementOptions.updateLoopCounter();
-    }
+  const judgementOptions = document.querySelector("judgement-options") as JudgementOptions;
+  if (judgementOptions && typeof judgementOptions.refreshStatus === "function") {
+    judgementOptions.refreshStatus(false);
   }
 }
 

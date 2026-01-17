@@ -50,11 +50,8 @@ const files = [
   { src: "public/ese_index.json", dest: "ese_index.json" },
   { src: "public/CNAME", dest: "CNAME" },
   { src: "ts_output/src", dest: "scripts" },
-  { src: "src/components/judgement-options.html", dest: "scripts/components/judgement-options.html" },
-  { src: "src/components/select-options.html", dest: "scripts/components/select-options.html" },
-  { src: "src/components/annotate-options.html", dest: "scripts/components/annotate-options.html" },
-  { src: "src/components/course-branch-select.html", dest: "scripts/components/course-branch-select.html" },
   { src: "icon.png", dest: "icon.png" },
+  { src: "node_modules/webjsx/dist", dest: "libs/webjsx" },
 ];
 
 files.forEach((file) => {

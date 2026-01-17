@@ -4,13 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Note Stats Test</title>
-    <!-- Basic styles for body -->
+    <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+      {
+        "imports": {
+          "webjsx": "./libs/webjsx/index.js",
+          "webjsx/jsx-runtime": "./libs/webjsx/jsx-runtime.js"
+        }
+      }
+    </script>
     <style>
-    body {
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      margin: 20px;
-      background: #e0e0e0;
-    }
+        body { padding: 20px; background-color: #333; color: white; }
+        .test-container { display: flex; gap: 20px; flex-wrap: wrap; }
     </style>
   </head>
   <body>

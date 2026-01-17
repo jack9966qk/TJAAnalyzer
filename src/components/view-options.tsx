@@ -1,3 +1,4 @@
+import * as webjsx from "webjsx";
 import { refreshChart } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
@@ -5,129 +6,74 @@ import { noteStatsDisplay } from "../view/ui-elements.js";
 import "./save-image-button.js";
 
 export class ViewOptions extends HTMLElement {
-  private zoomOutBtn!: HTMLButtonElement;
-  private zoomResetBtn!: HTMLButtonElement;
-  private zoomInBtn!: HTMLButtonElement;
-  private showStatsCheckbox!: HTMLInputElement;
-  private isRendered = false;
+  private _statsVisible = true;
 
   get statsVisible(): boolean {
-    return this.showStatsCheckbox ? this.showStatsCheckbox.checked : false;
+    return this._statsVisible;
   }
 
-  setShowStats(visible: boolean) {
-    if (this.showStatsCheckbox) {
-      this.showStatsCheckbox.checked = visible;
-      this.handleStatsChange();
-    }
+  set statsVisible(val: boolean) {
+    this._statsVisible = val;
+    this.render();
   }
 
   connectedCallback() {
-    if (!this.isRendered) {
-      this.render();
-      this.isRendered = true;
-    }
-
-    this.updateZoomDisplay();
-    this.updateTexts();
-
+    this.render();
     // Listen for language changes
-    i18n.onLanguageChange(() => this.updateTexts());
-  }
-
-  private render() {
-    this.style.display = "flex";
-    this.style.gap = "20px";
-    this.style.alignItems = "flex-start";
-    this.style.flexWrap = "wrap";
-    this.className = "panel-pane"; // Inherit panel-pane styles if any
-
-    this.innerHTML = `
-        <!-- Zoom Section -->
-        <div class="option-section">
-            <div class="section-main">
-                <span class="sub-label" style="min-width: auto; margin-right: 10px;" data-i18n="ui.zoom">Zoom:</span>
-                <div class="zoom-controls" style="display: flex; align-items: center; gap: 5px;">
-                    <button id="zoom-out-btn" class="tiny-btn">-</button>
-                    <button id="zoom-reset-btn" class="tiny-btn" style="font-family: 'Consolas', monospace; min-width: 50px;">100%</button>
-                    <button id="zoom-in-btn" class="tiny-btn">+</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Stats Section -->
-        <div class="option-section border-left">
-            <div class="section-main">
-                <label><input type="checkbox" id="show-stats-checkbox" checked> <span data-i18n="ui.showStats">Show Note Stats</span></label>
-            </div>
-        </div>
-
-        <!-- Export Image Section -->
-        <div class="option-section border-left">
-            <div class="section-main">
-                <save-image-button id="export-image-btn" data-i18n="ui.exportImage">Save Image</save-image-button>
-            </div>
-        </div>
-    `;
-
-    this.zoomOutBtn = this.querySelector("#zoom-out-btn") as HTMLButtonElement;
-    this.zoomResetBtn = this.querySelector("#zoom-reset-btn") as HTMLButtonElement;
-    this.zoomInBtn = this.querySelector("#zoom-in-btn") as HTMLButtonElement;
-    this.showStatsCheckbox = this.querySelector("#show-stats-checkbox") as HTMLInputElement;
-
-    this.setupEventListeners();
+    i18n.onLanguageChange(() => this.render());
   }
 
   initializeFromLayout() {
     // Default stats to off in vertical layout
     if (!document.body.classList.contains("horizontal-layout")) {
-      this.showStatsCheckbox.checked = false;
+      this.statsVisible = false;
       this.handleStatsChange();
     } else {
       // Ensure UI matches state if re-connected (e.g. if kept in DOM or re-appended)
       if (noteStatsDisplay) {
-        this.showStatsCheckbox.checked = noteStatsDisplay.style.display !== "none";
+        this.statsVisible = noteStatsDisplay.style.display !== "none";
+      } else {
+        this.render();
       }
     }
   }
 
-  private setupEventListeners() {
-    this.zoomOutBtn.addEventListener("click", () => {
-      // Increase beats per line (Zoom Out)
-      if (appState.viewOptions.beatsPerLine < 32) {
-        appState.viewOptions.beatsPerLine += 2;
-        this.updateZoomDisplay();
-        refreshChart();
-      }
-    });
+  private handleZoomOut() {
+    if (appState.viewOptions.beatsPerLine < 32) {
+      appState.viewOptions.beatsPerLine += 2;
+      refreshChart();
+      this.render();
+    }
+  }
 
-    this.zoomInBtn.addEventListener("click", () => {
-      // Decrease beats per line (Zoom In)
-      if (appState.viewOptions.beatsPerLine > 4) {
-        appState.viewOptions.beatsPerLine -= 2;
-        this.updateZoomDisplay();
-        refreshChart();
-      }
-    });
+  private handleZoomIn() {
+    if (appState.viewOptions.beatsPerLine > 4) {
+      appState.viewOptions.beatsPerLine -= 2;
+      refreshChart();
+      this.render();
+    }
+  }
 
-    this.zoomResetBtn.addEventListener("click", () => {
-      if (appState.viewOptions.beatsPerLine !== 16) {
-        appState.viewOptions.beatsPerLine = 16;
-        this.updateZoomDisplay();
-        refreshChart();
-      }
-    });
+  private handleZoomReset() {
+    if (appState.viewOptions.beatsPerLine !== 16) {
+      appState.viewOptions.beatsPerLine = 16;
+      refreshChart();
+      this.render();
+    }
+  }
 
-    this.showStatsCheckbox.addEventListener("change", () => this.handleStatsChange());
+  private handleStatsToggle(e: Event) {
+    this.statsVisible = (e.target as HTMLInputElement).checked;
+    this.handleStatsChange();
   }
 
   private handleStatsChange() {
     if (noteStatsDisplay) {
-      noteStatsDisplay.style.display = this.showStatsCheckbox.checked ? "" : "none";
+      noteStatsDisplay.style.display = this.statsVisible ? "" : "none";
     }
 
     // Clear hover effect if hidden
-    if (!this.showStatsCheckbox.checked) {
+    if (!this.statsVisible) {
       if (appState.viewOptions.hoveredNote) {
         appState.viewOptions.hoveredNote = null;
         refreshChart();
@@ -135,38 +81,69 @@ export class ViewOptions extends HTMLElement {
     }
   }
 
-  private updateZoomDisplay() {
+  render() {
     const percent = Math.round((16 / appState.viewOptions.beatsPerLine) * 100);
-    this.zoomResetBtn.innerText = `${percent}%`;
-  }
 
-  private updateTexts() {
-    this.querySelectorAll("[data-i18n]").forEach((el) => {
-      const key = el.getAttribute("data-i18n");
-      if (key) {
-        if (el.tagName === "INPUT" && (el as HTMLInputElement).placeholder) {
-          // Handle placeholder if needed
-        } else if (el.tagName === "SAVE-IMAGE-BUTTON") {
-          // Handled by component itself
-        } else {
-          // Avoid overwriting children if it's a wrapper, but here structure is simple
-          // Specifically for the label span
-          if (el.tagName === "SPAN") {
-            el.textContent = i18n.t(key);
-          } else if (el.tagName === "DIV" && el.classList.contains("sub-label")) {
-            // Actually the label is a span in my HTML above
-          }
-        }
-      }
-    });
+    // Apply styles to host
+    this.style.display = "flex";
+    this.style.gap = "20px";
+    this.style.alignItems = "flex-start";
+    this.style.flexWrap = "wrap";
+    this.style.width = "100%";
+    this.classList.add("panel-pane");
 
-    // Explicitly handle zoom label
-    const zoomLabel = this.querySelector('[data-i18n="ui.zoom"]');
-    if (zoomLabel) zoomLabel.textContent = i18n.t("ui.zoom");
+    const vdom = (
+      <div style="display: contents;">
+        {/* Zoom Section */}
+        <div className="option-section">
+          <div className="section-main">
+            <span className="sub-label" style="min-width: auto; margin-right: 10px;">
+              {i18n.t("ui.zoom")}:
+            </span>
+            <div className="zoom-controls" style="display: flex; align-items: center; gap: 5px;">
+              <button id="zoom-out-btn" className="tiny-btn" onclick={this.handleZoomOut.bind(this)}>
+                -
+              </button>
+              <button
+                id="zoom-reset-btn"
+                className="tiny-btn"
+                style="font-family: 'Consolas', monospace; min-width: 50px;"
+                onclick={this.handleZoomReset.bind(this)}
+              >
+                {percent}%
+              </button>
+              <button id="zoom-in-btn" className="tiny-btn" onclick={this.handleZoomIn.bind(this)}>
+                +
+              </button>
+            </div>
+          </div>
+        </div>
 
-    // Explicitly handle stats label
-    const statsLabel = this.querySelector('[data-i18n="ui.showStats"]');
-    if (statsLabel) statsLabel.textContent = i18n.t("ui.showStats");
+        {/* Stats Section */}
+        <div className="option-section border-left">
+          <div className="section-main">
+            <label>
+              <input
+                type="checkbox"
+                id="show-stats-checkbox"
+                checked={this.statsVisible}
+                onchange={this.handleStatsToggle.bind(this)}
+              />
+              <span>{i18n.t("ui.showStats")}</span>
+            </label>
+          </div>
+        </div>
+
+        {/* Export Image Section */}
+        <div className="option-section border-left">
+          <div className="section-main">
+            <save-image-button id="export-image-btn">{i18n.t("ui.exportImage")}</save-image-button>
+          </div>
+        </div>
+      </div>
+    );
+
+    webjsx.applyDiff(this, vdom);
   }
 }
 

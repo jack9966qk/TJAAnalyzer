@@ -16,4 +16,11 @@ declare global {
     // biome-ignore lint/suspicious/noExplicitAny: Test helper for note stats
     setStats: (hit: any, chart: any, viewOptions: any, judgements?: any[], judgementDeltas?: any[]) => void;
   }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      // biome-ignore lint/suspicious/noExplicitAny: Custom element
+      "save-image-button": any;
+    }
+  }
 }

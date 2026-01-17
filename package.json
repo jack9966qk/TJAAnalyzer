@@ -23,6 +23,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@neutralinojs/lib": "^6.4.0"
+    "@neutralinojs/lib": "^6.4.0",
+    "webjsx": "^0.0.73"
   }
 }

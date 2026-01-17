@@ -1,3 +1,4 @@
+import * as webjsx from "webjsx";
 import { getGradientColor, type HitInfo, PALETTE, type ViewOptions } from "../core/renderer.js";
 import type { ParsedChart } from "../core/tja-parser.js";
 import { i18n } from "../utils/i18n.js";
@@ -114,15 +115,6 @@ export class NoteStatsDisplay extends HTMLElement {
     this.render();
   }
 
-  private createStatBox(label: string, value: string, highlight: boolean = false): string {
-    return `
-            <div class="stat-box">
-                <div class="stat-label">${label}</div>
-                <div class="stat-value ${highlight ? "stat-value-highlight" : ""}">${value}</div>
-            </div>
-        `;
-  }
-
   private formatBPM(val: number): string {
     return val % 1 === 0 ? val.toFixed(0) : val.toFixed(2);
   }
@@ -205,10 +197,9 @@ export class NoteStatsDisplay extends HTMLElement {
     return null;
   }
 
-  private render() {
+  render() {
     if (!this._viewOptions) return;
 
-    let html = "";
     const def = "-";
     const hit = this._hit;
     const chart = this._chart;
@@ -226,30 +217,10 @@ export class NoteStatsDisplay extends HTMLElement {
       else if (hit.branch === "master") targetChart = chart.branches.master || chart;
     }
 
-    // 1. Type
-    html += this.createStatBox(i18n.t("stats.type"), hit ? this.getNoteName(hit.type) : def);
-
-    // 2. Gap
-    let gap = def;
-    if (hit && targetChart) {
-      const g = this.getGapInfo(targetChart, hit.originalBarIndex, hit.charIndex);
-      if (g) gap = g;
-    }
-    html += this.createStatBox(i18n.t("stats.gap"), gap);
-
-    // 3. BPM
-    html += this.createStatBox(i18n.t("stats.bpm"), hit ? this.formatBPM(hit.bpm) : def);
-
-    // 4. HS
-    html += this.createStatBox(i18n.t("stats.hs"), hit ? this.formatHS(hit.scroll) : def);
-
-    // 5. Perceived BPM
-    html += this.createStatBox(i18n.t("stats.seenBpm"), hit ? this.formatBPM(hit.bpm * hit.scroll) : def);
-
-    // 6. Judgements (Deltas)
-    let deltaVal = def;
-    let avgDeltaVal = def;
-    let allDeltasStr = "";
+    // Calculation Logic
+    let deltaVal: JSX.Element | string = def;
+    let avgDeltaVal: JSX.Element | string = def;
+    let allDeltasElements: JSX.Element[] = [];
 
     if (
       hit &&
@@ -304,7 +275,6 @@ export class NoteStatsDisplay extends HTMLElement {
           }
           if (currentIterationIdx < 0) currentIterationIdx = 0;
 
-          const deltasStrings: string[] = [];
           for (let iter = 0; iter < loop.iterations; iter++) {
             const globalIdx = noteIndexInFirstIter + iter * notesPerLoop;
             if (globalIdx < judgementDeltas.length) {
@@ -321,9 +291,9 @@ export class NoteStatsDisplay extends HTMLElement {
 
               if (delta !== undefined) deltas.push(delta);
 
-              let s = delta !== undefined ? delta.toString() : "?";
-
+              let text = delta !== undefined ? delta.toString() : "?";
               let color = "";
+
               if (coloringMode === "gradient") {
                 if ((judge === "Perfect" || judge === "Good" || judge === "Poor") && delta !== undefined) {
                   color = getGradientColor(delta);
@@ -336,64 +306,79 @@ export class NoteStatsDisplay extends HTMLElement {
                 else if (judge === "Poor") color = PALETTE.judgements.poor;
               }
 
-              if (color) {
-                s = `<span style="color: ${color}">${s}</span>`;
-              }
-
+              let el = <span style={color ? `color: ${color}` : ""}>{text}</span>;
               if (iter === currentIterationIdx) {
-                s = `<b>${s}</b>`;
+                el = <b>{el}</b>;
               }
-              deltasStrings.push(s);
+              
+              allDeltasElements.push(el);
+              if (iter < loop.iterations - 1) {
+                  // We can't know for sure if the next one is visible or not easily without peeking, 
+                  // but we want comma separation.
+                  // For now, let's just push a separator and handle cleanup or just push it.
+                  // Actually, better to push to a list and join later?
+                  // JSX arrays can handle elements.
+              }
             }
+          }
+          
+          // Add commas
+          if (allDeltasElements.length > 0) {
+              const joined: JSX.Element[] = [];
+              allDeltasElements.forEach((el, i) => {
+                  joined.push(el);
+                  if (i < allDeltasElements.length - 1) joined.push(<span>, </span>);
+              });
+              allDeltasElements = joined;
           }
 
           if (deltas.length > 0) {
             const avg = deltas.reduce((a, b) => a + b, 0) / deltas.length;
-            avgDeltaVal = `${avg.toFixed(1)}ms`;
+            const avgStr = `${avg.toFixed(1)}ms`;
 
             if (coloringMode === "gradient") {
               const avgColor = getGradientColor(avg);
-              avgDeltaVal = `<span style="color: ${avgColor}">${avgDeltaVal}</span>`;
+              avgDeltaVal = <span style={`color: ${avgColor}`}>{avgStr}</span>;
+            } else {
+                avgDeltaVal = avgStr;
             }
-
-            allDeltasStr = deltasStrings.join(", ");
           }
         } else {
+          // Non-loop part
           if (hit.judgeableNoteIndex < judgementDeltas.length) {
-            const delta = judgementDeltas[hit.judgeableNoteIndex];
-            const judge = judgements[hit.judgeableNoteIndex];
+             const delta = judgementDeltas[hit.judgeableNoteIndex];
+             const judge = judgements[hit.judgeableNoteIndex];
 
-            // Check visibility
-            let isVisible = true;
-            if (judge === "Perfect" && !judgementVisibility.perfect) isVisible = false;
-            else if (judge === "Good" && !judgementVisibility.good) isVisible = false;
-            else if (judge === "Poor" && !judgementVisibility.poor) isVisible = false;
-
-            if (isVisible && delta !== undefined) {
-              avgDeltaVal = `${delta}ms`;
-
-              let s = delta.toString();
-              let color = "";
-
-              if (coloringMode === "gradient") {
-                if (judge === "Perfect" || judge === "Good" || judge === "Poor") {
-                  color = getGradientColor(delta);
+             // Check visibility
+             let isVisible = true;
+             if (judge === "Perfect" && !judgementVisibility.perfect) isVisible = false;
+             else if (judge === "Good" && !judgementVisibility.good) isVisible = false;
+             else if (judge === "Poor" && !judgementVisibility.poor) isVisible = false;
+             
+             if (isVisible && delta !== undefined) {
+                avgDeltaVal = `${delta}ms`;
+                let color = "";
+                
+                if (coloringMode === "gradient") {
+                    if (judge === "Perfect" || judge === "Good" || judge === "Poor") {
+                        color = getGradientColor(delta);
+                    } else {
+                        color = PALETTE.judgements.miss;
+                    }
                 } else {
-                  color = PALETTE.judgements.miss;
+                    if (judge === "Perfect") color = PALETTE.judgements.perfect;
+                    else if (judge === "Good") color = PALETTE.judgements.good;
+                    else if (judge === "Poor") color = PALETTE.judgements.poor;
                 }
-              } else {
-                if (judge === "Perfect") color = PALETTE.judgements.perfect;
-                else if (judge === "Good") color = PALETTE.judgements.good;
-                else if (judge === "Poor") color = PALETTE.judgements.poor;
-              }
-
-              if (color) s = `<span style="color: ${color}">${s}</span>`;
-              if (coloringMode === "gradient" && color) {
-                avgDeltaVal = `<span style="color: ${color}">${avgDeltaVal}</span>`;
-              }
-
-              allDeltasStr = s;
-            }
+                
+                let el = <span>{delta}</span>;
+                if (color) el = <span style={`color: ${color}`}>{delta}</span>;
+                allDeltasElements = [el];
+                
+                if (coloringMode === "gradient" && color) {
+                   avgDeltaVal = <span style={`color: ${color}`}>{avgDeltaVal}</span>;
+                }
+             }
           }
         }
       } else {
@@ -402,7 +387,6 @@ export class NoteStatsDisplay extends HTMLElement {
           const delta = judgementDeltas[hit.judgeableNoteIndex];
           const judge = judgements[hit.judgeableNoteIndex];
 
-          // Check visibility
           let isVisible = true;
           if (judge === "Perfect" && !judgementVisibility.perfect) isVisible = false;
           else if (judge === "Good" && !judgementVisibility.good) isVisible = false;
@@ -410,7 +394,6 @@ export class NoteStatsDisplay extends HTMLElement {
 
           if (isVisible && delta !== undefined) {
             deltaVal = `${delta}ms`;
-
             let color = "";
             if (coloringMode === "gradient") {
               if (judge === "Perfect" || judge === "Good" || judge === "Poor") {
@@ -424,20 +407,70 @@ export class NoteStatsDisplay extends HTMLElement {
               else if (judge === "Poor") color = PALETTE.judgements.poor;
             }
 
-            if (color) deltaVal = `<span style="color: ${color}">${deltaVal}</span>`;
+            if (color) deltaVal = <span style={`color: ${color}`}>{deltaVal}</span>;
           }
         }
       }
     }
 
-    if (collapsed) {
-      html += this.createStatBox(i18n.t("stats.avgDelta"), avgDeltaVal);
-      html += `<div class="stat-full-line">Deltas: ${allDeltasStr}</div>`;
-    } else {
-      html += this.createStatBox(i18n.t("stats.delta"), deltaVal);
+    // JSX Building
+    const StatBox = (label: string, value: string | JSX.Element) => (
+        <div className="stat-box">
+            <div className="stat-label">{label}</div>
+            <div className="stat-value">{value}</div>
+        </div>
+    );
+
+    let gap = def;
+    if (hit && targetChart) {
+      const g = this.getGapInfo(targetChart, hit.originalBarIndex, hit.charIndex);
+      if (g) gap = g;
     }
 
-    this.container.innerHTML = html;
+    const vdom = (
+        <div style="display: contents;">
+            {StatBox(i18n.t("stats.type"), hit ? this.getNoteName(hit.type) : def)}
+            {StatBox(i18n.t("stats.gap"), gap)}
+            {StatBox(i18n.t("stats.bpm"), hit ? this.formatBPM(hit.bpm) : def)}
+            {StatBox(i18n.t("stats.hs"), hit ? this.formatHS(hit.scroll) : def)}
+            {StatBox(i18n.t("stats.seenBpm"), hit ? this.formatBPM(hit.bpm * hit.scroll) : def)}
+            
+            {collapsed ? (
+                <div style="display: contents;">
+                     {StatBox(i18n.t("stats.avgDelta"), avgDeltaVal)}
+                     <div className="stat-full-line">
+                        Deltas: {allDeltasElements}
+                     </div>
+                </div>
+            ) : (
+                StatBox(i18n.t("stats.delta"), deltaVal)
+            )}
+        </div>
+    );
+
+    // Apply to container
+    // We cannot use <div style="display: contents"> as root because we are diffing against this.container which is a div.
+    // So we can just put the children directly if webjsx supports arrays, or wrap in div.
+    // NoteStatsDisplay uses Flex layout on #container.
+    // The vdom above wraps in a div with display contents, so children will be flex items.
+    
+    // Wait, applyDiff(this.container, vdom). this.container is a div with ID container.
+    // If vdom is a div, it will replace the content of this.container with that div?
+    // webjsx.applyDiff(parent, vdom) -> appends/updates children of parent to match vdom.
+    // So if vdom is <div>...</div>, then this.container will have <div>...</div> inside it.
+    // But #container styles apply to itself.
+    
+    // So I should pass the children directly or use fragment?
+    // webjsx doesn't export Fragment?
+    // I can pass an array of elements if applyDiff supports it?
+    // Or I can just make vdom match the structure I want inside #container.
+    // The previous innerHTML was `createStatBox(...) + ...`.
+    // So I want `StatBox` elements to be direct children of `#container`.
+    
+    // If I wrap them in a `div`, that `div` becomes the flex item unless I use `display: contents`.
+    // The vdom above uses `display: contents`. This should work.
+    
+    webjsx.applyDiff(this.container, vdom);
   }
 }
 
