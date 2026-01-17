@@ -29,6 +29,7 @@ export class AnnotateOptions extends HTMLElement {
       <div style="display: contents;">
         <div className="control-group" style="display: flex; align-items: center; gap: 10px;">
           <button
+            type="button"
             id="auto-annotate-btn"
             className="control-btn"
             onclick={this.handleAutoAnnotate.bind(this)}
@@ -36,6 +37,7 @@ export class AnnotateOptions extends HTMLElement {
             {i18n.t("ui.autoAnnotate")}
           </button>
           <button
+            type="button"
             id="clear-annotations-btn"
             className="control-btn"
             onclick={this.handleClearAnnotations.bind(this)}
@@ -44,9 +46,7 @@ export class AnnotateOptions extends HTMLElement {
           </button>
           <save-image-button>{i18n.t("ui.exportImage")}</save-image-button>
         </div>
-        <p style="font-size: 0.9em; color: #666; margin-top: 5px;">
-          {i18n.t("ui.annotation.desc")}
-        </p>
+        <p style="font-size: 0.9em; color: #666; margin-top: 5px;">{i18n.t("ui.annotation.desc")}</p>
       </div>
     );
     webjsx.applyDiff(this, vdom);

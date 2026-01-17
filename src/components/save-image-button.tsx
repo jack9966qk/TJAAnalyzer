@@ -54,12 +54,12 @@ export class SaveImageButton extends HTMLElement {
     const vdom = (
       <div>
         <link rel="stylesheet" href="style.css" />
-        <button className="control-btn" onclick={this.handleClick.bind(this)}>
+        <button type="button" className="control-btn" onclick={this.handleClick.bind(this)}>
           <slot>{i18n.t("ui.exportImage")}</slot>
         </button>
       </div>
     );
-    
+
     // Set host display style
     this.style.display = "contents";
 

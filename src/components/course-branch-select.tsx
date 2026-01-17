@@ -7,10 +7,6 @@ export class CourseBranchSelect extends HTMLElement {
   private selectedBranch = "all";
   private branchVisible = false;
 
-  constructor() {
-    super();
-  }
-
   connectedCallback() {
     this.render();
     i18n.onLanguageChange(() => this.render());
@@ -75,9 +71,7 @@ export class CourseBranchSelect extends HTMLElement {
 
   render() {
     const vdom = (
-      <div
-        style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 15px; margin-bottom: -5px; width: 100%; border-top: 1px solid var(--border-lighter); padding-top: 10px;"
-      >
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 15px; margin-bottom: -5px; width: 100%; border-top: 1px solid var(--border-lighter); padding-top: 10px;">
         {/* Difficulty Selector */}
         <div className="control-group">
           <label htmlFor="difficulty-selector-internal">{i18n.t("ui.difficulty")}</label>

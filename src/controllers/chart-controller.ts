@@ -78,10 +78,7 @@ export function updateCollapseLoopState() {
   const hasLoop = appState.currentChart?.loop;
 
   if (hasLoop) {
-    // Enabled, and check if it was previously checked?
-    // The component manages 'checked' state internally or via appState?
-    // appState.viewOptions.collapsedLoop stores the state.
-    // We should probably just enable it. The checkbox state should reflect appState.
+    // Ensure checked state reflects appState
     judgementOptions.setLoopCollapseState(true, appState.viewOptions.collapsedLoop);
   } else {
     // Disabled and unchecked
@@ -161,10 +158,6 @@ export function refreshChart() {
     // 2. Check for Branching + Judgement Mode
     const isJudgementMode = appState.viewOptions.viewMode.startsWith("judgements");
     // Check if branching UI is active/visible as a proxy for "chart has branching"
-    // Since courseBranchSelect encapsulates this, we need to check if branches are present.
-    // Or check if showAllBranches is true or branches property exists.
-    // Better: check if currentChart has branches? No, currentChart is a specific branch target unless showAllBranches.
-    // We can rely on appState.viewOptions.showAllBranches or check if root chart has branches.
     const selectedDiff = courseBranchSelect.difficulty;
     const rootChart = appState.parsedTJACharts?.[selectedDiff];
     const hasBranching = rootChart?.branches;

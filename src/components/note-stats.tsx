@@ -134,8 +134,16 @@ export class NoteStatsDisplay extends HTMLElement {
     const judgements = this._judgements;
     const judgementDeltas = this._judgementDeltas;
 
-    const { collapsedLoop: collapsed, viewMode, coloringMode, visibility: judgementVisibility } = options || {
-        collapsedLoop: false, viewMode: 'original', coloringMode: 'categorical', visibility: {perfect:true, good:true, poor:true}
+    const {
+      collapsedLoop: collapsed,
+      viewMode,
+      coloringMode,
+      visibility: judgementVisibility,
+    } = options || {
+      collapsedLoop: false,
+      viewMode: "original",
+      coloringMode: "categorical",
+      visibility: { perfect: true, good: true, poor: true },
     };
 
     // Resolve target chart based on branch
@@ -221,7 +229,7 @@ export class NoteStatsDisplay extends HTMLElement {
 
               if (delta !== undefined) deltas.push(delta);
 
-              let text = delta !== undefined ? delta.toString() : "?";
+              const text = delta !== undefined ? delta.toString() : "?";
               let color = "";
 
               if (coloringMode === "gradient") {
@@ -240,26 +248,22 @@ export class NoteStatsDisplay extends HTMLElement {
               if (iter === currentIterationIdx) {
                 el = <b>{el}</b>;
               }
-              
-              allDeltasElements.push(el);
-              if (iter < loop.iterations - 1) {
-                  // We can't know for sure if the next one is visible or not easily without peeking, 
-                  // but we want comma separation.
-                  // For now, let's just push a separator and handle cleanup or just push it.
-                  // Actually, better to push to a list and join later?
-                  // JSX arrays can handle elements.
-              }
-            }
-          }
-          
+
+                            allDeltasElements.push(el);
+                            if (iter < loop.iterations - 1) {
+                                // We can't know for sure if the next one is visible or not easily without peeking, 
+                                // but we want comma separation.
+                            }
+                          }
+                        }
           // Add commas
           if (allDeltasElements.length > 0) {
-              const joined: JSX.Element[] = [];
-              allDeltasElements.forEach((el, i) => {
-                  joined.push(el);
-                  if (i < allDeltasElements.length - 1) joined.push(<span>, </span>);
-              });
-              allDeltasElements = joined;
+            const joined: JSX.Element[] = [];
+            allDeltasElements.forEach((el, i) => {
+              joined.push(el);
+              if (i < allDeltasElements.length - 1) joined.push(<span>, </span>);
+            });
+            allDeltasElements = joined;
           }
 
           if (deltas.length > 0) {
@@ -270,45 +274,45 @@ export class NoteStatsDisplay extends HTMLElement {
               const avgColor = getGradientColor(avg);
               avgDeltaVal = <span style={`color: ${avgColor}`}>{avgStr}</span>;
             } else {
-                avgDeltaVal = avgStr;
+              avgDeltaVal = avgStr;
             }
           }
         } else {
           // Non-loop part
           if (hit.judgeableNoteIndex < judgementDeltas.length) {
-             const delta = judgementDeltas[hit.judgeableNoteIndex];
-             const judge = judgements[hit.judgeableNoteIndex];
+            const delta = judgementDeltas[hit.judgeableNoteIndex];
+            const judge = judgements[hit.judgeableNoteIndex];
 
-             // Check visibility
-             let isVisible = true;
-             if (judge === "Perfect" && !judgementVisibility.perfect) isVisible = false;
-             else if (judge === "Good" && !judgementVisibility.good) isVisible = false;
-             else if (judge === "Poor" && !judgementVisibility.poor) isVisible = false;
-             
-             if (isVisible && delta !== undefined) {
-                avgDeltaVal = `${delta}ms`;
-                let color = "";
-                
-                if (coloringMode === "gradient") {
-                    if (judge === "Perfect" || judge === "Good" || judge === "Poor") {
-                        color = getGradientColor(delta);
-                    } else {
-                        color = PALETTE.judgements.miss;
-                    }
+            // Check visibility
+            let isVisible = true;
+            if (judge === "Perfect" && !judgementVisibility.perfect) isVisible = false;
+            else if (judge === "Good" && !judgementVisibility.good) isVisible = false;
+            else if (judge === "Poor" && !judgementVisibility.poor) isVisible = false;
+
+            if (isVisible && delta !== undefined) {
+              avgDeltaVal = `${delta}ms`;
+              let color = "";
+
+              if (coloringMode === "gradient") {
+                if (judge === "Perfect" || judge === "Good" || judge === "Poor") {
+                  color = getGradientColor(delta);
                 } else {
-                    if (judge === "Perfect") color = PALETTE.judgements.perfect;
-                    else if (judge === "Good") color = PALETTE.judgements.good;
-                    else if (judge === "Poor") color = PALETTE.judgements.poor;
+                  color = PALETTE.judgements.miss;
                 }
-                
-                let el = <span>{delta}</span>;
-                if (color) el = <span style={`color: ${color}`}>{delta}</span>;
-                allDeltasElements = [el];
-                
-                if (coloringMode === "gradient" && color) {
-                   avgDeltaVal = <span style={`color: ${color}`}>{avgDeltaVal}</span>;
-                }
-             }
+              } else {
+                if (judge === "Perfect") color = PALETTE.judgements.perfect;
+                else if (judge === "Good") color = PALETTE.judgements.good;
+                else if (judge === "Poor") color = PALETTE.judgements.poor;
+              }
+
+              let el = <span>{delta}</span>;
+              if (color) el = <span style={`color: ${color}`}>{delta}</span>;
+              allDeltasElements = [el];
+
+              if (coloringMode === "gradient" && color) {
+                avgDeltaVal = <span style={`color: ${color}`}>{avgDeltaVal}</span>;
+              }
+            }
           }
         }
       } else {
@@ -345,10 +349,10 @@ export class NoteStatsDisplay extends HTMLElement {
 
     // JSX Building
     const StatBox = (label: string, value: string | JSX.Element) => (
-        <div className="stat-box">
-            <div className="stat-label">{label}</div>
-            <div className="stat-value">{value}</div>
-        </div>
+      <div className="stat-box">
+        <div className="stat-label">{label}</div>
+        <div className="stat-value">{value}</div>
+      </div>
     );
 
     let gap = def;
@@ -358,8 +362,8 @@ export class NoteStatsDisplay extends HTMLElement {
     }
 
     const vdom = (
-        <div style="display: contents;">
-            <style>{`
+      <div style="display: contents;">
+        <style>{`
             :host {
                 display: block;
             }
@@ -421,27 +425,25 @@ export class NoteStatsDisplay extends HTMLElement {
                 display: none !important;
             }
             `}</style>
-            <div id="container">
-                {StatBox(i18n.t("stats.type"), hit ? this.getNoteName(hit.type) : def)}
-                {StatBox(i18n.t("stats.gap"), gap)}
-                {StatBox(i18n.t("stats.bpm"), hit ? this.formatBPM(hit.bpm) : def)}
-                {StatBox(i18n.t("stats.hs"), hit ? this.formatHS(hit.scroll) : def)}
-                {StatBox(i18n.t("stats.seenBpm"), hit ? this.formatBPM(hit.bpm * hit.scroll) : def)}
-                
-                {collapsed ? (
-                    <div style="display: contents;">
-                        {StatBox(i18n.t("stats.avgDelta"), avgDeltaVal)}
-                        <div className="stat-full-line">
-                            Deltas: {allDeltasElements}
-                        </div>
-                    </div>
-                ) : (
-                    StatBox(i18n.t("stats.delta"), deltaVal)
-                )}
+        <div id="container">
+          {StatBox(i18n.t("stats.type"), hit ? this.getNoteName(hit.type) : def)}
+          {StatBox(i18n.t("stats.gap"), gap)}
+          {StatBox(i18n.t("stats.bpm"), hit ? this.formatBPM(hit.bpm) : def)}
+          {StatBox(i18n.t("stats.hs"), hit ? this.formatHS(hit.scroll) : def)}
+          {StatBox(i18n.t("stats.seenBpm"), hit ? this.formatBPM(hit.bpm * hit.scroll) : def)}
+
+          {collapsed ? (
+            <div style="display: contents;">
+              {StatBox(i18n.t("stats.avgDelta"), avgDeltaVal)}
+              <div className="stat-full-line">Deltas: {allDeltasElements}</div>
             </div>
+          ) : (
+            StatBox(i18n.t("stats.delta"), deltaVal)
+          )}
         </div>
+      </div>
     );
-    
+
     webjsx.applyDiff(this.shadowRoot!, vdom);
   }
 }

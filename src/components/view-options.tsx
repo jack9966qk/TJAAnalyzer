@@ -101,10 +101,11 @@ export class ViewOptions extends HTMLElement {
               {i18n.t("ui.zoom")}:
             </span>
             <div className="zoom-controls" style="display: flex; align-items: center; gap: 5px;">
-              <button id="zoom-out-btn" className="tiny-btn" onclick={this.handleZoomOut.bind(this)}>
+              <button type="button" id="zoom-out-btn" className="tiny-btn" onclick={this.handleZoomOut.bind(this)}>
                 -
               </button>
               <button
+                type="button"
                 id="zoom-reset-btn"
                 className="tiny-btn"
                 style="font-family: 'Consolas', monospace; min-width: 50px;"
@@ -112,7 +113,7 @@ export class ViewOptions extends HTMLElement {
               >
                 {percent}%
               </button>
-              <button id="zoom-in-btn" className="tiny-btn" onclick={this.handleZoomIn.bind(this)}>
+              <button type="button" id="zoom-in-btn" className="tiny-btn" onclick={this.handleZoomIn.bind(this)}>
                 +
               </button>
             </div>

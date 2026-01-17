@@ -811,7 +811,7 @@ function init(): void {
   initJudgementClient();
 
   initLoad();
-  
+
   // Removing the setTimeout call here as it's now handled conditionally or by callbacks
 }
 

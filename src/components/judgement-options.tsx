@@ -8,7 +8,7 @@ export class JudgementOptions extends HTMLElement {
   // Local state for rendering
   private _loopCollapseEnabled = false;
   private _loopCollapseChecked = false;
-  
+
   constructor() {
     super();
     this.style.display = "flex";
@@ -25,8 +25,7 @@ export class JudgementOptions extends HTMLElement {
 
   // --- Public Methods (API) ---
 
-  public refreshStatus(updateMode = true) {
-    if (updateMode) this.syncViewModeFromState();
+  public refreshStatus(_updateMode = true) {
     this.render();
   }
 
@@ -111,22 +110,14 @@ export class JudgementOptions extends HTMLElement {
 
   // --- Helper Methods ---
 
-  private syncViewModeFromState() {
-    // This is kind of reverse: we want to ensure appState matches what we might have rendered or default?
-    // Actually, in the original code, this was called to ensure appState.viewOptions.viewMode
-    // matches the radio buttons. Here, we should probably do the opposite or just trust appState.
-    // The original `refreshStatus` had `if (updateMode) this.updateViewMode();` which read FROM DOM.
-    // Since we now render FROM state, we should probably just rely on appState being the source of truth.
-    // However, if we want to force a default or something, we can do it here.
-    // For now, we'll assume appState is correct.
-  }
+
 
   private getLoopStatus() {
     const hasLoop = !!appState.currentChart?.loop;
     let text = "1 / 1";
-    let isAuto = appState.viewOptions.selectedLoopIteration === undefined;
-    let current = appState.viewOptions.selectedLoopIteration || 0;
-    let total = appState.currentChart?.loop?.iterations || 1;
+    const isAuto = appState.viewOptions.selectedLoopIteration === undefined;
+    const current = appState.viewOptions.selectedLoopIteration || 0;
+    const total = appState.currentChart?.loop?.iterations || 1;
     let prevDisabled = true;
     let nextDisabled = true;
 
@@ -137,7 +128,7 @@ export class JudgementOptions extends HTMLElement {
       if (hasLoop) {
         let displayedIter = 0;
         // biome-ignore lint/style/noNonNullAssertion: Guaranteed by context
-        const loop = appState.currentChart!.loop!; 
+        const loop = appState.currentChart!.loop!;
 
         if (
           (appState.viewOptions.viewMode === "judgements" ||
@@ -147,7 +138,7 @@ export class JudgementOptions extends HTMLElement {
         ) {
           let notesPerLoop = 0;
           let preLoopNotes = 0;
-          
+
           for (let i = 0; i < loop.startBarIndex; i++) {
             const bar = appState.currentChart?.bars[i];
             if (bar) for (const c of bar) if (["1", "2", "3", "4"].includes(c)) preLoopNotes++;
@@ -181,10 +172,11 @@ export class JudgementOptions extends HTMLElement {
     const isStreamActive = appState.isStreamConnected || appState.isSimulating;
     const loopStatus = this.getLoopStatus();
     const isLoopCollapsed = appState.viewOptions.collapsedLoop;
-    
+
     // Determine selected style
     const viewMode = appState.viewOptions.viewMode;
-    const styleValue = viewMode === "judgements-text" ? "text" : (viewMode === "judgements-underline" ? "underline" : "color");
+    const styleValue =
+      viewMode === "judgements-text" ? "text" : viewMode === "judgements-underline" ? "underline" : "color";
 
     const vdom = (
       <div style="display: contents;">
@@ -198,9 +190,9 @@ export class JudgementOptions extends HTMLElement {
           </div>
 
           {/* Collapse Loops Checkbox */}
-          <div 
-             className={`section-main ${!this._loopCollapseEnabled ? "disabled-text" : ""}`} 
-             style={`margin-bottom: 10px; display: ${this._loopCollapseEnabled ? "block" : "none"}`}
+          <div
+            className={`section-main ${!this._loopCollapseEnabled ? "disabled-text" : ""}`}
+            style={`margin-bottom: 10px; display: ${this._loopCollapseEnabled ? "block" : "none"}`}
           >
             <label>
               <input
@@ -231,6 +223,7 @@ export class JudgementOptions extends HTMLElement {
             </label>
             <div className="loop-stepper" style="display: flex; align-items: center; gap: 5px;">
               <button
+                type="button"
                 id="prev-loop-btn"
                 className="tiny-btn"
                 disabled={loopStatus.prevDisabled}
@@ -245,6 +238,7 @@ export class JudgementOptions extends HTMLElement {
                 {loopStatus.text}
               </span>
               <button
+                type="button"
                 id="next-loop-btn"
                 className="tiny-btn"
                 disabled={loopStatus.nextDisabled}

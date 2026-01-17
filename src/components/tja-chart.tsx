@@ -51,7 +51,7 @@ export class TJAChart extends HTMLElement {
 
   connectedCallback() {
     this.renderDOM();
-    
+
     this.upgradeProperty("chart");
     this.upgradeProperty("viewOptions");
     this.upgradeProperty("judgements");
@@ -93,7 +93,9 @@ export class TJAChart extends HTMLElement {
         <div
           id="message-container"
           className="hidden"
-          ref={(el) => (this.messageContainer = el as HTMLDivElement)}
+          ref={(el) => {
+            this.messageContainer = el as HTMLDivElement;
+          }}
         ></div>
         <canvas
           ref={(el) => {

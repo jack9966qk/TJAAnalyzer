@@ -47,10 +47,8 @@ export class SelectOptions extends HTMLElement {
       );
 
       await shareFile(`${this.exportChartName}.tja`, tjaContent, "text/plain", "Export TJA");
-      
-      this.dispatchEvent(
-        new CustomEvent("status-update", { detail: { key: "status.exportSuccess" }, bubbles: true }),
-      );
+
+      this.dispatchEvent(new CustomEvent("status-update", { detail: { key: "status.exportSuccess" }, bubbles: true }));
     } catch (e) {
       console.error("Export failed:", e);
       this.dispatchEvent(new CustomEvent("status-update", { detail: { key: "status.exportFailed" }, bubbles: true }));
@@ -76,6 +74,7 @@ export class SelectOptions extends HTMLElement {
       <div className="control-group" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
         <div style="display: flex; width: 100%;">
           <button
+            type="button"
             id="clear-selection-btn"
             className="control-btn"
             onclick={this.handleClearSelection.bind(this)}
@@ -118,6 +117,7 @@ export class SelectOptions extends HTMLElement {
             />
           </label>
           <button
+            type="button"
             id="export-selection-btn"
             className="control-btn"
             onclick={this.handleExportSelection.bind(this)}
