@@ -1,3 +1,4 @@
+import * as webjsx from "webjsx";
 import { generateAutoAnnotations } from "../core/auto-annotation.js";
 import {
   type ChartLayout,
@@ -22,8 +23,8 @@ export interface ChartClickEventDetail {
 }
 
 export class TJAChart extends HTMLElement {
-  private canvas: HTMLCanvasElement;
-  private messageContainer: HTMLDivElement;
+  private canvas!: HTMLCanvasElement;
+  private messageContainer!: HTMLDivElement;
   private _chart: ParsedChart | null = null;
   private _viewOptions: ViewOptions | null = null;
   private _judgements: string[] = [];
@@ -42,8 +43,29 @@ export class TJAChart extends HTMLElement {
     super();
     this.attachShadow({ mode: "open" });
 
-    const style = document.createElement("style");
-    style.textContent = `
+    this.resizeObserver = new ResizeObserver(() => {
+      this._pendingFullRender = true;
+      this.scheduleRender();
+    });
+  }
+
+  connectedCallback() {
+    this.renderDOM();
+    
+    this.upgradeProperty("chart");
+    this.upgradeProperty("viewOptions");
+    this.upgradeProperty("judgements");
+    this.upgradeProperty("judgementDeltas");
+    this.upgradeProperty("texts");
+
+    this.resizeObserver.observe(this);
+    this.scheduleRender();
+  }
+
+  private renderDOM() {
+    const vdom = (
+      <>
+        <style>{`
             :host {
                 display: block;
                 width: 100%;
@@ -67,35 +89,26 @@ export class TJAChart extends HTMLElement {
             .hidden {
                 display: none !important;
             }
-        `;
+        `}</style>
+        <div
+          id="message-container"
+          className="hidden"
+          ref={(el) => (this.messageContainer = el as HTMLDivElement)}
+        ></div>
+        <canvas
+          ref={(el) => {
+            if (el) {
+              this.canvas = el as HTMLCanvasElement;
+              // Re-attach listeners if canvas changes (though diffing should prevent recreation)
+              this.canvas.onmousemove = this.handleMouseMove.bind(this);
+              this.canvas.onclick = this.handleClick.bind(this);
+            }
+          }}
+        ></canvas>
+      </>
+    );
 
-    this.messageContainer = document.createElement("div");
-    this.messageContainer.id = "message-container";
-    this.messageContainer.classList.add("hidden");
-
-    this.canvas = document.createElement("canvas");
-    this.shadowRoot?.appendChild(style);
-    this.shadowRoot?.appendChild(this.messageContainer);
-    this.shadowRoot?.appendChild(this.canvas);
-
-    this.resizeObserver = new ResizeObserver(() => {
-      this._pendingFullRender = true;
-      this.scheduleRender();
-    });
-  }
-
-  connectedCallback() {
-    this.upgradeProperty("chart");
-    this.upgradeProperty("viewOptions");
-    this.upgradeProperty("judgements");
-    this.upgradeProperty("judgementDeltas");
-    this.upgradeProperty("texts");
-
-    this.resizeObserver.observe(this);
-    this.scheduleRender();
-
-    this.canvas.addEventListener("mousemove", this.handleMouseMove.bind(this));
-    this.canvas.addEventListener("click", this.handleClick.bind(this));
+    webjsx.applyDiff(this.shadowRoot!, vdom);
   }
 
   private upgradeProperty(prop: string) {
@@ -115,8 +128,10 @@ export class TJAChart extends HTMLElement {
       cancelAnimationFrame(this._renderTask);
       this._renderTask = null;
     }
-    this.canvas.removeEventListener("mousemove", this.handleMouseMove.bind(this));
-    this.canvas.removeEventListener("click", this.handleClick.bind(this));
+    if (this.canvas) {
+      this.canvas.onmousemove = null;
+      this.canvas.onclick = null;
+    }
   }
 
   scheduleRender() {
@@ -192,7 +207,7 @@ export class TJAChart extends HTMLElement {
 
   render() {
     this._renderTask = null;
-    if (!this.isConnected) return;
+    if (!this.isConnected || !this.canvas) return;
 
     const width = this.clientWidth || 800;
 
