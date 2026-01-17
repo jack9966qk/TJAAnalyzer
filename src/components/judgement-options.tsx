@@ -110,8 +110,6 @@ export class JudgementOptions extends HTMLElement {
 
   // --- Helper Methods ---
 
-
-
   private getLoopStatus() {
     const hasLoop = !!appState.currentChart?.loop;
     let text = "1 / 1";

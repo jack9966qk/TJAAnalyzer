@@ -63,7 +63,9 @@ export class SaveImageButton extends HTMLElement {
     // Set host display style
     this.style.display = "contents";
 
-    webjsx.applyDiff(this.shadowRoot!, vdom);
+    if (this.shadowRoot) {
+      webjsx.applyDiff(this.shadowRoot, vdom);
+    }
   }
 }
 

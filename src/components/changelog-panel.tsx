@@ -1,9 +1,15 @@
 import * as webjsx from "webjsx";
 
+interface ChangelogItem {
+  date: string;
+  hash: string;
+  message: string;
+}
+
 export class ChangelogPanel extends HTMLElement {
   private hasLoaded = false;
   private isModalOpen = false;
-  private changelogData: any[] = [];
+  private changelogData: ChangelogItem[] = [];
   private modalContainer: HTMLDivElement;
 
   constructor() {
@@ -65,7 +71,7 @@ export class ChangelogPanel extends HTMLElement {
     ) : this.changelogData.length === 0 ? (
       <div style="padding:10px;">No changelog available (or failed to load).</div>
     ) : (
-      this.changelogData.map((item: any) => (
+      this.changelogData.map((item: ChangelogItem) => (
         <div className="changelog-item">
           <div className="changelog-header">
             <span>{item.date}</span>

@@ -249,13 +249,13 @@ export class NoteStatsDisplay extends HTMLElement {
                 el = <b>{el}</b>;
               }
 
-                            allDeltasElements.push(el);
-                            if (iter < loop.iterations - 1) {
-                                // We can't know for sure if the next one is visible or not easily without peeking, 
-                                // but we want comma separation.
-                            }
-                          }
-                        }
+              allDeltasElements.push(el);
+              if (iter < loop.iterations - 1) {
+                // We can't know for sure if the next one is visible or not easily without peeking,
+                // but we want comma separation.
+              }
+            }
+          }
           // Add commas
           if (allDeltasElements.length > 0) {
             const joined: JSX.Element[] = [];
@@ -444,7 +444,9 @@ export class NoteStatsDisplay extends HTMLElement {
       </div>
     );
 
-    webjsx.applyDiff(this.shadowRoot!, vdom);
+    if (this.shadowRoot) {
+      webjsx.applyDiff(this.shadowRoot, vdom);
+    }
   }
 }
 

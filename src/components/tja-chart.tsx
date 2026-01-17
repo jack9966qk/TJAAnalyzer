@@ -110,7 +110,9 @@ export class TJAChart extends HTMLElement {
       </>
     );
 
-    webjsx.applyDiff(this.shadowRoot!, vdom);
+    if (this.shadowRoot) {
+      webjsx.applyDiff(this.shadowRoot, vdom);
+    }
   }
 
   private upgradeProperty(prop: string) {
