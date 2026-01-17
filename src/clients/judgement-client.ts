@@ -76,7 +76,7 @@ export class JudgementClient {
     }
   }
 
-  disconnect() {
+  private cleanup() {
     let wasConnected = false;
     if (this.eventSource) {
       this.eventSource.close();
@@ -88,6 +88,11 @@ export class JudgementClient {
       this.simulateInterval = null;
       wasConnected = true;
     }
+    return wasConnected;
+  }
+
+  disconnect() {
+    const wasConnected = this.cleanup();
 
     if (wasConnected && this.onStatusChangeCallback) {
       this.onStatusChangeCallback("Disconnected");
@@ -95,7 +100,7 @@ export class JudgementClient {
   }
 
   startSimulation(tjaContent?: string, difficulty?: string) {
-    this.disconnect();
+    this.cleanup();
     console.log("Starting simulation...");
 
     if (this.onStatusChangeCallback) this.onStatusChangeCallback("Connected");

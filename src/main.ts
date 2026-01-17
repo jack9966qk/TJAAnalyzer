@@ -1,6 +1,7 @@
 import type { ServerEvent } from "./clients/judgement-client.js";
 import "./components/chart-list-panel.js"; // Ensure side-effect
 import "./components/local-file-panel.js"; // Ensure side-effect
+import "./components/stream-panel.js"; // Ensure side-effect
 import { NoteStatsDisplay } from "./components/note-stats.js";
 import "./components/save-image-button.js";
 import type { JudgementOptions } from "./components/judgement-options.js";
@@ -13,7 +14,6 @@ import type { ViewOptions } from "./components/view-options.js";
 import "./components/view-options.js"; // Ensure side-effect
 import "./components/changelog-panel.js";
 import {
-  clearJudgements,
   refreshChart,
   updateBranchSelectorState,
   updateCollapseLoopState,
@@ -28,7 +28,6 @@ import { i18n } from "./utils/i18n.js";
 import {
   chartListPanel,
   chartModeStatus,
-  connectBtn,
   courseBranchSelect,
   doPanes,
   doTabs,
@@ -36,14 +35,11 @@ import {
   dsCollapseBtn,
   dsPanes,
   dsTabs,
-  hostInput,
   languageSelector,
   layoutToggleBtn,
   optionsBody,
   optionsCollapseBtn,
-  portInput,
   statusDisplay,
-  testStreamBtn,
   tjaChart,
 } from "./view/ui-elements.js";
 
@@ -112,7 +108,7 @@ function switchDataSourceMode(mode: string) {
   // Logic: Disconnect if moving away from stream and currently connected
   if (mode !== "stream") {
     // Check if connected
-    if (connectBtn && (connectBtn.innerText === "Disconnect" || appState.isSimulating)) {
+    if (appState.isStreamConnected || appState.isSimulating) {
       appState.judgementClient.disconnect();
     }
   }
@@ -315,44 +311,6 @@ function initEventListeners() {
     });
   }
 
-  // Setup Stream Controls
-  if (connectBtn && hostInput && portInput) {
-    connectBtn.addEventListener("click", () => {
-      if (appState.isStreamConnected) {
-        appState.judgementClient.disconnect();
-      } else {
-        const host = hostInput.value;
-        const port = parseInt(portInput.value, 10);
-        if (host && port) {
-          appState.judgementClient.connect(host, port);
-        } else {
-          alert("Please enter valid Host and Port.");
-        }
-      }
-    });
-  }
-
-  if (testStreamBtn) {
-    testStreamBtn.addEventListener("click", () => {
-      if (appState.isSimulating) {
-        appState.judgementClient.disconnect();
-        appState.isSimulating = false;
-        testStreamBtn.setAttribute("data-i18n", "ui.test.start");
-        testStreamBtn.innerText = i18n.t("ui.test.start");
-      } else {
-        appState.isSimulating = true;
-        clearJudgements();
-        updateDisplayState();
-
-        testStreamBtn.setAttribute("data-i18n", "ui.test.stop");
-        testStreamBtn.innerText = i18n.t("ui.test.stop");
-
-        // Use currently loaded content and selected difficulty
-        appState.judgementClient.startSimulation(appState.loadedTJAContent, courseBranchSelect.difficulty);
-      }
-    });
-  }
-
   // Setup Collapse Button
   if (languageSelector) {
     languageSelector.value = i18n.language;
@@ -540,18 +498,6 @@ function initJudgementClient() {
   });
 
   appState.judgementClient.onStatusChange((status: string) => {
-    if (connectBtn) {
-      if (status === "Connected") {
-        appState.isStreamConnected = true;
-        connectBtn.innerText = i18n.t("ui.stream.disconnect");
-      } else {
-        // Only set to connect if disconnected or connecting...
-        if (status !== "Connecting...") {
-          connectBtn.innerText = i18n.t("ui.stream.connect");
-        }
-      }
-    }
-
     if (status === "Connected") {
       appState.isStreamConnected = true;
 
@@ -562,7 +508,6 @@ function initJudgementClient() {
         updateStatus("status.simConnected");
       } else {
         updateStatus("status.connected");
-        if (testStreamBtn) testStreamBtn.disabled = true;
       }
 
       // Clear chart to force waiting screen
@@ -574,26 +519,18 @@ function initJudgementClient() {
     } else if (status === "Connecting...") {
       updateStatus("status.connecting");
       appState.hasReceivedGameStart = false;
-      if (testStreamBtn) testStreamBtn.disabled = true;
-      if (connectBtn) connectBtn.disabled = true;
     } else {
       // Disconnected
       appState.isStreamConnected = false;
       appState.hasReceivedGameStart = false;
 
-      // Re-enable controls if we were in test mode
-      if (testStreamBtn) {
-        testStreamBtn.disabled = false;
-        if (appState.isSimulating) {
-          testStreamBtn.setAttribute("data-i18n", "ui.test.start");
-          testStreamBtn.innerText = i18n.t("ui.test.start");
-        }
-      }
-      if (connectBtn) connectBtn.disabled = false;
-
       updateStatus(appState.isSimulating ? "status.simStopped" : "status.disconnected");
       appState.isSimulating = false;
     }
+
+    // Notify components
+    window.dispatchEvent(new CustomEvent("stream-status-change", { detail: { status } }));
+
     updateDisplayState();
   });
 }
