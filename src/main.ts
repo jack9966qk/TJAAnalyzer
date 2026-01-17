@@ -294,8 +294,9 @@ function updateDisplayState() {
   const _isStreamActive = appState.isStreamConnected || appState.isSimulating;
 
   if (mode === "judgements") {
-    // Determine sub-mode from radios - now handled by component logic or we read from state
-    // Actually the component updates the state. Here we just ensure consistency or handle visibility.
+    if (appState.viewOptions.viewMode === "original") {
+      appState.viewOptions.viewMode = "judgements-underline";
+    }
 
     // We need to refresh the component status
     const judgementOptions = document.querySelector("judgement-options") as JudgementOptions;
@@ -810,6 +811,8 @@ function init(): void {
   initJudgementClient();
 
   initLoad();
+  
+  // Removing the setTimeout call here as it's now handled conditionally or by callbacks
 }
 
 function initializePanelVisibility() {
