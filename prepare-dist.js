@@ -43,6 +43,7 @@ fs.writeFileSync(path.join(destDir, ".nojekyll"), "");
 const files = [
   { src: "public/index.html", dest: "index.html" },
   { src: "public/chart-only.html", dest: "chart-only.html" },
+  { src: "public/component-test.html", dest: "component-test.html" },
   { src: "public/note-stats-test.html", dest: "note-stats-test.html" },
   { src: "public/style.css", dest: "style.css" },
   { src: "public/icon_simple.png", dest: "icon_simple.png" },

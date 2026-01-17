@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Component Test</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    #component-container {
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px; /* Default max width */
+    }
+    </style>
+    <script type="importmap">
+    {
+      "imports": {
+        "webjsx": "./libs/webjsx/index.js",
+        "webjsx/jsx-runtime": "./libs/webjsx/jsx-runtime.js"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <div id="component-container">
+      <!-- Component will be injected here -->
+    </div>
+
+    <script type="module" src="scripts/component-test-main.js"></script>
+  </body>
+</html>

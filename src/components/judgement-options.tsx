@@ -9,14 +9,6 @@ export class JudgementOptions extends HTMLElement {
   private _loopCollapseEnabled = false;
   private _loopCollapseChecked = false;
 
-  constructor() {
-    super();
-    this.style.display = "flex";
-    this.style.gap = "20px";
-    this.style.alignItems = "flex-start";
-    this.style.flexWrap = "wrap";
-  }
-
   connectedCallback() {
     this.render();
     // Listen for language changes
@@ -167,6 +159,11 @@ export class JudgementOptions extends HTMLElement {
   }
 
   render() {
+    this.style.display = "flex";
+    this.style.gap = "20px";
+    this.style.alignItems = "flex-start";
+    this.style.flexWrap = "wrap";
+
     const isStreamActive = appState.isStreamConnected || appState.isSimulating;
     const loopStatus = this.getLoopStatus();
     const isLoopCollapsed = appState.viewOptions.collapsedLoop;
