@@ -1,3 +1,4 @@
+import type { ChartListPanel } from "../components/chart-list-panel.js";
 import "../components/course-branch-select.js"; // Ensure custom element is defined
 import type { CourseBranchSelect } from "../components/course-branch-select.js";
 import type { NoteStatsDisplay } from "../components/note-stats.js";
@@ -25,12 +26,9 @@ export const dsTabs = document.querySelectorAll("#data-source-panel .panel-tab")
 export const dsPanes = document.querySelectorAll("#data-source-panel .panel-pane");
 export const dsCollapseBtn = document.getElementById("ds-collapse-btn") as HTMLButtonElement;
 export const dsBody = document.getElementById("ds-body") as HTMLDivElement;
-export const loadExampleBtn = document.getElementById("load-example-btn") as HTMLButtonElement;
 export const tjaFilePicker = document.getElementById("tja-file-picker") as HTMLInputElement;
 export const hostInput = document.getElementById("host-input") as HTMLInputElement;
 export const portInput = document.getElementById("port-input") as HTMLInputElement;
 export const connectBtn = document.getElementById("connect-btn") as HTMLButtonElement;
 export const testStreamBtn = document.getElementById("test-stream-btn") as HTMLButtonElement;
-export const eseSearchInput = document.getElementById("ese-search-input") as HTMLInputElement;
-export const eseResults = document.getElementById("ese-results") as HTMLDivElement;
-export const eseShareBtn = document.getElementById("ese-share-btn") as HTMLButtonElement;
+export const chartListPanel = document.getElementById("chart-list-panel") as ChartListPanel;

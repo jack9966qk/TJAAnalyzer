@@ -46,30 +46,7 @@
             <div class="panel-content">
               <!-- Chart List Mode (Merged Example + ESE) -->
               <div id="tab-list" class="panel-pane">
-                <div
-                  class="control-group"
-                  style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px;"
-                >
-                  <button id="load-example-btn" data-i18n="ui.example.load" style="width: 100%;">
-                    Load Example Chart
-                  </button>
-                </div>
-                <div class="control-group">
-                  <input
-                    type="text"
-                    id="ese-search-input"
-                    placeholder="Search TJA files..."
-                    style="width: 100%; box-sizing: border-box; padding: 5px;"
-                  >
-                </div>
-                <div class="control-group" style="margin-top: 5px;">
-                  <button id="ese-share-btn" disabled style="width: 100%;" data-i18n="ui.ese.share">
-                    Share Current Song
-                  </button>
-                </div>
-                <div id="ese-results">
-                  <div class="ese-result-placeholder" data-i18n="ui.ese.placeholder">Search for songs...</div>
-                </div>
+                <chart-list-panel id="chart-list-panel"></chart-list-panel>
               </div>
 
               <!-- File Mode -->

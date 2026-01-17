@@ -1,4 +1,5 @@
 import type { ServerEvent } from "./clients/judgement-client.js";
+import "./components/chart-list-panel.js"; // Ensure side-effect
 import { NoteStatsDisplay } from "./components/note-stats.js";
 import "./components/save-image-button.js";
 import type { JudgementOptions } from "./components/judgement-options.js";
@@ -19,13 +20,12 @@ import {
   updateSelectionUI,
   updateStatsComponent,
 } from "./controllers/chart-controller.js";
-import { filterEseResults } from "./controllers/ese-controller.js";
 import { handleLayoutToggle, updateLayout } from "./controllers/layout-controller.js";
-import { exampleTJA } from "./core/example-data.js";
 import type { HitInfo } from "./core/renderer.js";
 import { appState } from "./state/app-state.js";
 import { i18n } from "./utils/i18n.js";
 import {
+  chartListPanel,
   chartModeStatus,
   connectBtn,
   courseBranchSelect,
@@ -35,13 +35,9 @@ import {
   dsCollapseBtn,
   dsPanes,
   dsTabs,
-  eseResults,
-  eseSearchInput,
-  eseShareBtn,
   hostInput,
   languageSelector,
   layoutToggleBtn,
-  loadExampleBtn,
   optionsBody,
   optionsCollapseBtn,
   portInput,
@@ -61,15 +57,6 @@ function updateStatus(key: string, params?: Record<string, string | number>) {
   appState.currentStatusParams = params;
   if (statusDisplay) {
     statusDisplay.innerText = i18n.t(key, params);
-  }
-}
-
-function resetExampleButton() {
-  if (loadExampleBtn) {
-    loadExampleBtn.disabled = false;
-    loadExampleBtn.setAttribute("data-i18n", "ui.example.load");
-    loadExampleBtn.innerText = i18n.t("ui.example.load");
-    loadExampleBtn.classList.remove("disabled");
   }
 }
 
@@ -132,43 +119,8 @@ function switchDataSourceMode(mode: string) {
 
   // List (Example + ESE) Logic
   if (mode === "list") {
-    if (!appState.eseTree) {
-      updateStatus("status.loadingEse");
-      // Show loading indicator in results
-      if (eseResults) eseResults.innerHTML = '<div style="padding:10px;">Loading song list...</div>';
-
-      appState.eseClient
-        .getTjaFiles()
-        .then((tree) => {
-          appState.eseTree = tree;
-          updateStatus("status.eseReady");
-          filterEseResults("", { updateStatus, updateParsedCharts, resetExampleButton });
-
-          // Check pending load from URL
-          if (pendingEseLoad) {
-            loadEseFromUrl(pendingEseLoad.path, pendingEseLoad.diff);
-            pendingEseLoad = null;
-          }
-        })
-        .catch((e) => {
-          const errMsg = e instanceof Error ? e.message : String(e);
-          updateStatus("status.eseError", { error: errMsg });
-          if (eseResults)
-            eseResults.innerHTML = `<div style="padding:10px; color:red">Error loading tree: ${errMsg}</div>`;
-        });
-    } else if (pendingEseLoad) {
-      // Tree already loaded, just load the file
-      loadEseFromUrl(pendingEseLoad.path, pendingEseLoad.diff);
-      pendingEseLoad = null;
-    }
-  }
-
-  // Disable share button if not in List mode or no chart loaded (ESE specific)
-  if (eseShareBtn) {
-    if (mode === "list" && appState.currentEsePath) {
-      eseShareBtn.disabled = false;
-    } else {
-      eseShareBtn.disabled = true;
+    if (chartListPanel) {
+      chartListPanel.activate();
     }
   }
 
@@ -190,45 +142,6 @@ function switchDataSourceMode(mode: string) {
   }
 }
 
-let pendingEseLoad: { path: string; diff: string } | null = null;
-
-async function loadEseFromUrl(path: string, diff: string) {
-  try {
-    updateStatus("status.loadingChart");
-
-    const content = await appState.eseClient.getFileContent(path);
-    appState.loadedTJAContent = content;
-    appState.currentEsePath = path;
-    if (eseShareBtn) eseShareBtn.disabled = false;
-
-    // Update Search UI
-    if (eseSearchInput) eseSearchInput.value = path;
-    filterEseResults(path, { updateStatus, updateParsedCharts, resetExampleButton });
-
-    updateParsedCharts(content);
-
-    if (appState.parsedTJACharts) {
-      // Fallback if requested diff not found
-      const targetDiff = appState.parsedTJACharts[diff] ? diff : Object.keys(appState.parsedTJACharts)[0];
-
-      if (appState.parsedTJACharts[targetDiff]) {
-        courseBranchSelect.difficulty = targetDiff;
-        appState.currentChart = appState.parsedTJACharts[targetDiff];
-        refreshChart();
-        updateCollapseLoopState();
-      }
-    }
-
-    updateStatus("status.chartLoaded");
-    resetExampleButton();
-  } catch (e) {
-    console.error("Error in loadEseFromUrl", e);
-    const errMsg = e instanceof Error ? e.message : String(e);
-    alert(`Failed to load chart from URL: ${errMsg}`);
-    updateStatus("status.eseError", { error: errMsg });
-  }
-}
-
 function updateUIText() {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.getAttribute("data-i18n");
@@ -237,9 +150,6 @@ function updateUIText() {
         // Handle placeholder if needed, currently none
       } else {
         // For text nodes, we might have replaced content.
-        // If the element has children (e.g. checkbox label wrapping span), we should target the span.
-        // In index.html I put data-i18n on the specific text container elements (spans, h2, buttons).
-        // So innerText is safe.
         (el as HTMLElement).innerHTML = i18n.t(key);
       }
     }
@@ -251,10 +161,6 @@ function updateUIText() {
       (el as HTMLInputElement).placeholder = i18n.t(key);
     }
   });
-
-  if (eseSearchInput) {
-    eseSearchInput.placeholder = i18n.t("ui.ese.searchPlaceholder");
-  }
 
   // Dynamic Elements
   updateStatus(appState.currentStatusKey, appState.currentStatusParams);
@@ -354,6 +260,14 @@ function initEventListeners() {
     return;
   }
 
+  // Listen for status changes from ChartListPanel
+  if (chartListPanel) {
+    chartListPanel.addEventListener("status-change", (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      updateStatus(detail.key, detail.params);
+    });
+  }
+
   // Listeners for new checkboxes - Moved to judgement-options.ts
 
   // judgementStyleRadios & judgementColoringRadios - Moved to judgement-options.ts
@@ -407,44 +321,6 @@ function initEventListeners() {
     });
   }
 
-  // Setup Stats Toggle
-  // Moved to view-options.ts
-
-  // Setup Load Example Button
-
-  if (loadExampleBtn) {
-    loadExampleBtn.addEventListener("click", () => {
-      appState.loadedTJAContent = exampleTJA;
-
-      // Disable button
-      loadExampleBtn.disabled = true;
-      loadExampleBtn.setAttribute("data-i18n", "ui.example.loaded");
-      loadExampleBtn.innerText = i18n.t("ui.example.loaded");
-
-      // Clear ESE state
-      appState.currentEsePath = null;
-      if (eseShareBtn) eseShareBtn.disabled = true;
-      if (eseResults) {
-        // Clear highlights
-        document.querySelectorAll(".ese-result-item").forEach((el) => {
-          el.classList.remove("selected");
-        });
-      }
-      if (eseSearchInput) eseSearchInput.value = "";
-
-      try {
-        updateParsedCharts(appState.loadedTJAContent);
-        updateStatus("status.exampleLoaded");
-      } catch (e) {
-        console.error("Error loading example:", e);
-        const msg = i18n.t("status.parseError", { error: (e as Error).message });
-        alert(msg);
-        if (statusDisplay) statusDisplay.innerText = msg;
-        resetExampleButton(); // Reset on error
-      }
-    });
-  }
-
   // Setup File Picker
 
   if (tjaFilePicker) {
@@ -463,7 +339,7 @@ function initEventListeners() {
 
           updateStatus("status.fileLoaded");
 
-          resetExampleButton();
+          if (chartListPanel) chartListPanel.resetExampleButton();
         } catch (e) {
           console.error("Error parsing TJA file:", e);
           const msg = i18n.t("status.parseError", { error: e instanceof Error ? e.message : String(e) });
@@ -471,14 +347,6 @@ function initEventListeners() {
           if (statusDisplay) statusDisplay.innerText = msg;
         }
       }
-    });
-  }
-
-  // Setup ESE Search
-  if (eseSearchInput) {
-    eseSearchInput.addEventListener("input", () => {
-      const query = eseSearchInput.value.toLowerCase();
-      filterEseResults(query, { updateStatus, updateParsedCharts, resetExampleButton });
     });
   }
 
@@ -653,24 +521,7 @@ function initEventListeners() {
     updateBranchSelectorState(false);
   });
 
-  // ESE Share Button
-  if (eseShareBtn) {
-    eseShareBtn.addEventListener("click", async () => {
-      if (!appState.currentEsePath) return;
-
-      const url = new URL(window.location.href);
-      url.searchParams.set("ese", appState.currentEsePath);
-      url.searchParams.set("diff", courseBranchSelect.difficulty);
-
-      try {
-        await navigator.clipboard.writeText(url.toString());
-        alert("Link copied to clipboard!");
-      } catch (e) {
-        console.error("Failed to copy link:", e);
-        alert("Failed to copy link.");
-      }
-    });
-  }
+  // ESE Share Button handled by ChartListPanel
 }
 
 function initJudgementClient() {
@@ -713,7 +564,7 @@ function initJudgementClient() {
 
       refreshChart();
 
-      resetExampleButton();
+      if (chartListPanel) chartListPanel.resetExampleButton();
     } else if (event.type === "judgement") {
       appState.judgements.push(event.judgement);
 
@@ -793,11 +644,13 @@ function initLoad() {
   const diffParam = urlParams.get("diff");
 
   if (eseParam) {
-    pendingEseLoad = { path: eseParam, diff: diffParam || "oni" };
+    if (chartListPanel) {
+      chartListPanel.setPendingLoad(eseParam, diffParam || "oni");
+    }
     switchDataSourceMode("list");
   } else {
     switchDataSourceMode("list");
-    if (loadExampleBtn) loadExampleBtn.click();
+    if (chartListPanel) chartListPanel.loadExample();
   }
 
   initializePanelVisibility();
@@ -811,8 +664,6 @@ function init(): void {
   initJudgementClient();
 
   initLoad();
-
-  // Removing the setTimeout call here as it's now handled conditionally or by callbacks
 }
 
 function initializePanelVisibility() {
