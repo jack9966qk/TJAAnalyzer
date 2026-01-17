@@ -58,8 +58,6 @@ export class LocalFilePanel extends HTMLElement {
   }
 
   render() {
-    this.style.display = "block";
-
     const vdom = (
       <div className="control-group">
         <label htmlFor="tja-file-picker" data-i18n="ui.file.label">

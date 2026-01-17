@@ -59,8 +59,6 @@ export class StreamPanel extends HTMLElement {
   }
 
   render() {
-    this.style.display = "block";
-
     const isConnected = appState.isStreamConnected;
     const isSimulating = appState.isSimulating;
     const isConnectingState = appState.currentStatusKey === "status.connecting";
