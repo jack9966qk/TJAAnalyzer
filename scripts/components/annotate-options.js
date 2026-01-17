@@ -1,63 +1,29 @@
+import { jsx as _jsx, jsxs as _jsxs } from "webjsx/jsx-runtime";
+import * as webjsx from "webjsx";
 import { refreshChart } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { tjaChart } from "../view/ui-elements.js";
 import "./save-image-button.js";
 export class AnnotateOptions extends HTMLElement {
-    autoAnnotateBtn;
-    clearAnnotationsBtn;
     connectedCallback() {
-        this.loadTemplate().then(() => {
-            this.setupEventListeners();
-            this.updateTexts();
-            // Listen for language changes
-            i18n.onLanguageChange(() => this.updateTexts());
-        });
+        this.style.display = "block";
+        this.render();
+        // Listen for language changes
+        i18n.onLanguageChange(() => this.render());
     }
-    async loadTemplate() {
-        if (this.innerHTML.trim())
-            return;
-        const path = "scripts/components/annotate-options.html";
-        try {
-            const response = await fetch(path);
-            if (response.ok) {
-                this.innerHTML = await response.text();
-            }
-            else {
-                console.error(`Error loading template from ${path}: ${response.status} ${response.statusText}`);
-                this.innerText = "Error loading template.";
-                return;
-            }
+    handleAutoAnnotate() {
+        if (tjaChart) {
+            tjaChart.autoAnnotate();
         }
-        catch (e) {
-            console.error(`Error fetching ${path}:`, e);
-            this.innerText = "Error loading template.";
-            return;
-        }
-        this.autoAnnotateBtn = this.querySelector("#auto-annotate-btn");
-        this.clearAnnotationsBtn = this.querySelector("#clear-annotations-btn");
     }
-    setupEventListeners() {
-        this.autoAnnotateBtn.addEventListener("click", () => {
-            if (tjaChart) {
-                tjaChart.autoAnnotate();
-            }
-        });
-        this.clearAnnotationsBtn.addEventListener("click", () => {
-            appState.annotations = {};
-            refreshChart();
-        });
+    handleClearAnnotations() {
+        appState.annotations = {};
+        refreshChart();
     }
-    updateTexts() {
-        this.querySelectorAll("[data-i18n]").forEach((el) => {
-            const key = el.getAttribute("data-i18n");
-            if (key) {
-                // Skip save-image-button as it handles its own translation
-                if (el.tagName === "SAVE-IMAGE-BUTTON")
-                    return;
-                el.textContent = i18n.t(key);
-            }
-        });
+    render() {
+        const vdom = (_jsxs("div", { style: "display: contents;", children: [_jsxs("div", { className: "control-group", style: "display: flex; align-items: center; gap: 10px;", children: [_jsx("button", { type: "button", id: "auto-annotate-btn", className: "control-btn", onclick: this.handleAutoAnnotate.bind(this), children: i18n.t("ui.autoAnnotate") }), _jsx("button", { type: "button", id: "clear-annotations-btn", className: "control-btn", onclick: this.handleClearAnnotations.bind(this), children: i18n.t("ui.clearAnnotations") }), _jsx("save-image-button", { children: i18n.t("ui.exportImage") })] }), _jsx("p", { style: "font-size: 0.9em; color: #666; margin-top: 5px;", children: i18n.t("ui.annotation.desc") })] }));
+        webjsx.applyDiff(this, vdom);
     }
 }
 customElements.define("annotate-options", AnnotateOptions);

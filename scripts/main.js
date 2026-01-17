@@ -3,6 +3,7 @@ import "./components/save-image-button.js";
 import "./components/judgement-options.js"; // Ensure side-effect
 import "./components/select-options.js"; // Ensure side-effect
 import "./components/annotate-options.js"; // Ensure side-effect
+import "./components/course-branch-select.js"; // Ensure side-effect
 import { TJAChart } from "./components/tja-chart.js";
 import "./components/view-options.js"; // Ensure side-effect
 import "./components/changelog-panel.js";
@@ -12,7 +13,7 @@ import { handleLayoutToggle, updateLayout } from "./controllers/layout-controlle
 import { exampleTJA } from "./core/example-data.js";
 import { appState } from "./state/app-state.js";
 import { i18n } from "./utils/i18n.js";
-import { branchSelector, chartModeStatus, connectBtn, difficultySelector, difficultySelectorContainer, doPanes, doTabs, dsBody, dsCollapseBtn, dsPanes, dsTabs, eseResults, eseSearchInput, eseShareBtn, hostInput, languageSelector, layoutToggleBtn, loadExampleBtn, optionsBody, optionsCollapseBtn, portInput, statusDisplay, testStreamBtn, tjaChart, tjaFilePicker, } from "./view/ui-elements.js";
+import { chartModeStatus, connectBtn, courseBranchSelect, doPanes, doTabs, dsBody, dsCollapseBtn, dsPanes, dsTabs, eseResults, eseSearchInput, eseShareBtn, hostInput, languageSelector, layoutToggleBtn, loadExampleBtn, optionsBody, optionsCollapseBtn, portInput, statusDisplay, testStreamBtn, tjaChart, tjaFilePicker, } from "./view/ui-elements.js";
 // Ensure TJAChart is imported for side-effects (custom element registration)
 console.log("TJAChart module loaded", TJAChart);
 // Ensure NoteStatsDisplay is imported for side-effects
@@ -135,16 +136,17 @@ function switchDataSourceMode(mode) {
         }
     }
     // Difficulty Selector Visibility
-    if (difficultySelectorContainer) {
+    if (courseBranchSelect) {
         if (mode === "stream") {
-            difficultySelectorContainer.hidden = true;
-            difficultySelectorContainer.style.display = "none";
+            courseBranchSelect.hide();
         }
         else {
             // Show only if charts are parsed
             const visible = !!appState.parsedTJACharts;
-            difficultySelectorContainer.hidden = !visible;
-            difficultySelectorContainer.style.display = visible ? "flex" : "none";
+            if (visible)
+                courseBranchSelect.show();
+            else
+                courseBranchSelect.hide();
         }
     }
     // Clear picker if leaving file mode? Optional.
@@ -170,7 +172,7 @@ async function loadEseFromUrl(path, diff) {
             // Fallback if requested diff not found
             const targetDiff = appState.parsedTJACharts[diff] ? diff : Object.keys(appState.parsedTJACharts)[0];
             if (appState.parsedTJACharts[targetDiff]) {
-                difficultySelector.value = targetDiff;
+                courseBranchSelect.difficulty = targetDiff;
                 appState.currentChart = appState.parsedTJACharts[targetDiff];
                 refreshChart();
                 updateCollapseLoopState();
@@ -213,16 +215,7 @@ function updateUIText() {
     }
     // Dynamic Elements
     updateStatus(appState.currentStatusKey, appState.currentStatusParams);
-    // Update difficulty selector options
-    if (difficultySelector) {
-        for (let i = 0; i < difficultySelector.options.length; i++) {
-            const opt = difficultySelector.options[i];
-            const diff = opt.value;
-            const key = `ui.difficulty.${diff.toLowerCase()}`;
-            const translated = i18n.t(key);
-            opt.innerText = translated !== key ? translated : diff.charAt(0).toUpperCase() + diff.slice(1);
-        }
-    }
+    // Difficulty selector updates itself
     // Update Mode Status
     const activeTab = document.querySelector("#chart-options-panel .panel-tab.active");
     if (activeTab) {
@@ -252,8 +245,9 @@ function updateDisplayState() {
     const mode = activeTab ? activeTab.getAttribute("data-do-tab") : "view";
     const _isStreamActive = appState.isStreamConnected || appState.isSimulating;
     if (mode === "judgements") {
-        // Determine sub-mode from radios - now handled by component logic or we read from state
-        // Actually the component updates the state. Here we just ensure consistency or handle visibility.
+        if (appState.viewOptions.viewMode === "original") {
+            appState.viewOptions.viewMode = "judgements-underline";
+        }
         // We need to refresh the component status
         const judgementOptions = document.querySelector("judgement-options");
         if (judgementOptions && typeof judgementOptions.refreshStatus === "function") {
@@ -446,7 +440,7 @@ function initEventListeners() {
                 testStreamBtn.setAttribute("data-i18n", "ui.test.stop");
                 testStreamBtn.innerText = i18n.t("ui.test.stop");
                 // Use currently loaded content and selected difficulty
-                appState.judgementClient.startSimulation(appState.loadedTJAContent, difficultySelector.value);
+                appState.judgementClient.startSimulation(appState.loadedTJAContent, courseBranchSelect.difficulty);
             }
         });
     }
@@ -566,14 +560,12 @@ function initEventListeners() {
         updateSelectionUI();
         updateStatsComponent(appState.selectedNoteHitInfo);
     });
-    difficultySelector.addEventListener("change", () => {
+    courseBranchSelect.addEventListener("difficulty-change", () => {
         updateBranchSelectorState(true);
     });
-    if (branchSelector) {
-        branchSelector.addEventListener("change", () => {
-            updateBranchSelectorState(false);
-        });
-    }
+    courseBranchSelect.addEventListener("branch-change", () => {
+        updateBranchSelectorState(false);
+    });
     // ESE Share Button
     if (eseShareBtn) {
         eseShareBtn.addEventListener("click", async () => {
@@ -581,7 +573,7 @@ function initEventListeners() {
                 return;
             const url = new URL(window.location.href);
             url.searchParams.set("ese", appState.currentEsePath);
-            url.searchParams.set("diff", difficultySelector.value);
+            url.searchParams.set("diff", courseBranchSelect.difficulty);
             try {
                 await navigator.clipboard.writeText(url.toString());
                 alert("Link copied to clipboard!");
@@ -614,7 +606,7 @@ function initJudgementClient() {
                 updateParsedCharts(summary.tjaContent);
                 const diff = summary.difficulty.toLowerCase();
                 if (appState.parsedTJACharts?.[diff]) {
-                    difficultySelector.value = diff;
+                    courseBranchSelect.difficulty = diff;
                     appState.currentChart = appState.parsedTJACharts[diff];
                 }
             }
@@ -712,6 +704,7 @@ function init() {
     initEventListeners();
     initJudgementClient();
     initLoad();
+    // Removing the setTimeout call here as it's now handled conditionally or by callbacks
 }
 function initializePanelVisibility() {
     if (!dsBody || !optionsBody)

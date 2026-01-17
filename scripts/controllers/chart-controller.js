@@ -1,7 +1,7 @@
 import { parseTJA } from "../core/tja-parser.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
-import { branchSelector, branchSelectorContainer, difficultySelector, difficultySelectorContainer, noteStatsDisplay, tjaChart, } from "../view/ui-elements.js";
+import { courseBranchSelect, noteStatsDisplay, tjaChart } from "../view/ui-elements.js";
 export function updateStatsComponent(hit) {
     if (noteStatsDisplay) {
         noteStatsDisplay.chart = appState.currentChart;
@@ -27,17 +27,16 @@ export function updateBranchSelectorState(resetBranch = false) {
     clearJudgements();
     if (!appState.parsedTJACharts)
         return;
-    const selectedDiff = difficultySelector.value;
+    const selectedDiff = courseBranchSelect.difficulty;
     const rootChart = appState.parsedTJACharts[selectedDiff];
     if (!rootChart)
         return;
     if (rootChart.branches) {
-        branchSelectorContainer.hidden = false;
-        branchSelectorContainer.style.display = "flex";
+        courseBranchSelect.setBranchVisibility(true);
         if (resetBranch) {
-            branchSelector.value = "all";
+            courseBranchSelect.branch = "all";
         }
-        const branchType = branchSelector.value;
+        const branchType = courseBranchSelect.branch;
         if (branchType === "all") {
             appState.viewOptions.showAllBranches = true;
             appState.currentChart = rootChart;
@@ -56,8 +55,7 @@ export function updateBranchSelectorState(resetBranch = false) {
         }
     }
     else {
-        branchSelectorContainer.hidden = true;
-        branchSelectorContainer.style.display = "none";
+        courseBranchSelect.setBranchVisibility(false);
         appState.viewOptions.showAllBranches = false;
         appState.currentChart = rootChart;
     }
@@ -65,16 +63,12 @@ export function updateBranchSelectorState(resetBranch = false) {
     refreshChart();
 }
 export function updateCollapseLoopState() {
-    // biome-ignore lint/suspicious/noExplicitAny: Circular dependency
     const judgementOptions = document.querySelector("judgement-options");
     if (!judgementOptions || typeof judgementOptions.setLoopCollapseState !== "function")
         return;
     const hasLoop = appState.currentChart?.loop;
     if (hasLoop) {
-        // Enabled, and check if it was previously checked?
-        // The component manages 'checked' state internally or via appState?
-        // appState.viewOptions.collapsedLoop stores the state.
-        // We should probably just enable it. The checkbox state should reflect appState.
+        // Ensure checked state reflects appState
         judgementOptions.setLoopCollapseState(true, appState.viewOptions.collapsedLoop);
     }
     else {
@@ -92,48 +86,32 @@ export function updateParsedCharts(content) {
     updateSelectionUI();
     // Clear Annotations
     appState.annotations = {};
-    difficultySelector.innerHTML = "";
+    courseBranchSelect.clearDifficultyOptions();
     const difficulties = Object.keys(appState.parsedTJACharts);
     if (difficulties.length === 0) {
-        difficultySelectorContainer.hidden = true;
-        difficultySelectorContainer.style.display = "none";
+        courseBranchSelect.hide();
         throw new Error(i18n.t("status.noCourses"));
     }
-    difficulties.forEach((diff) => {
-        const option = document.createElement("option");
-        option.value = diff;
-        const key = `ui.difficulty.${diff.toLowerCase()}`;
-        const translated = i18n.t(key);
-        option.innerText = translated !== key ? translated : diff.charAt(0).toUpperCase() + diff.slice(1);
-        difficultySelector.appendChild(option);
-    });
+    courseBranchSelect.setDifficultyOptions(difficulties);
     let defaultDifficulty = "edit";
     if (!appState.parsedTJACharts[defaultDifficulty])
         defaultDifficulty = "oni";
     if (!appState.parsedTJACharts[defaultDifficulty])
         defaultDifficulty = difficulties[0];
-    difficultySelector.value = defaultDifficulty;
+    courseBranchSelect.difficulty = defaultDifficulty;
     updateBranchSelectorState(true);
     if (appState.activeDataSourceMode === "stream") {
-        difficultySelectorContainer.hidden = true;
-        difficultySelectorContainer.style.display = "none";
+        courseBranchSelect.hide();
     }
     else {
-        difficultySelectorContainer.hidden = false;
-        difficultySelectorContainer.style.display = "flex";
+        courseBranchSelect.show();
     }
     updateStatsComponent(null);
 }
 export function updateLoopControls() {
-    // biome-ignore lint/suspicious/noExplicitAny: Circular dependency
     const judgementOptions = document.querySelector("judgement-options");
-    if (judgementOptions) {
-        if (typeof judgementOptions.updateLoopControlVisibility === "function") {
-            judgementOptions.updateLoopControlVisibility();
-        }
-        if (typeof judgementOptions.updateLoopCounter === "function") {
-            judgementOptions.updateLoopCounter();
-        }
+    if (judgementOptions && typeof judgementOptions.refreshStatus === "function") {
+        judgementOptions.refreshStatus(false);
     }
 }
 export function refreshChart() {
@@ -158,8 +136,10 @@ export function refreshChart() {
         // 2. Check for Branching + Judgement Mode
         const isJudgementMode = appState.viewOptions.viewMode.startsWith("judgements");
         // Check if branching UI is active/visible as a proxy for "chart has branching"
-        const branchSelectorVisible = branchSelectorContainer && !branchSelectorContainer.hidden;
-        if (isJudgementMode && branchSelectorVisible) {
+        const selectedDiff = courseBranchSelect.difficulty;
+        const rootChart = appState.parsedTJACharts?.[selectedDiff];
+        const hasBranching = rootChart?.branches;
+        if (isJudgementMode && hasBranching) {
             tjaChart.showMessage(i18n.t("ui.judgement.branchingNotSupported"), "warning");
             updateLoopControls();
             return;

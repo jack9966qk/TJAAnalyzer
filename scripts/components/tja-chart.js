@@ -1,3 +1,5 @@
+import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "webjsx/jsx-runtime";
+import * as webjsx from "webjsx";
 import { generateAutoAnnotations } from "../core/auto-annotation.js";
 import { createLayout, getNoteAt, getNotePosition, PALETTE, renderChart, renderIncremental, renderLayout, } from "../core/renderer.js";
 export class TJAChart extends HTMLElement {
@@ -18,8 +20,23 @@ export class TJAChart extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: "open" });
-        const style = document.createElement("style");
-        style.textContent = `
+        this.resizeObserver = new ResizeObserver(() => {
+            this._pendingFullRender = true;
+            this.scheduleRender();
+        });
+    }
+    connectedCallback() {
+        this.renderDOM();
+        this.upgradeProperty("chart");
+        this.upgradeProperty("viewOptions");
+        this.upgradeProperty("judgements");
+        this.upgradeProperty("judgementDeltas");
+        this.upgradeProperty("texts");
+        this.resizeObserver.observe(this);
+        this.scheduleRender();
+    }
+    renderDOM() {
+        const vdom = (_jsxs(_Fragment, { children: [_jsx("style", { children: `
             :host {
                 display: block;
                 width: 100%;
@@ -43,29 +60,17 @@ export class TJAChart extends HTMLElement {
             .hidden {
                 display: none !important;
             }
-        `;
-        this.messageContainer = document.createElement("div");
-        this.messageContainer.id = "message-container";
-        this.messageContainer.classList.add("hidden");
-        this.canvas = document.createElement("canvas");
-        this.shadowRoot?.appendChild(style);
-        this.shadowRoot?.appendChild(this.messageContainer);
-        this.shadowRoot?.appendChild(this.canvas);
-        this.resizeObserver = new ResizeObserver(() => {
-            this._pendingFullRender = true;
-            this.scheduleRender();
-        });
-    }
-    connectedCallback() {
-        this.upgradeProperty("chart");
-        this.upgradeProperty("viewOptions");
-        this.upgradeProperty("judgements");
-        this.upgradeProperty("judgementDeltas");
-        this.upgradeProperty("texts");
-        this.resizeObserver.observe(this);
-        this.scheduleRender();
-        this.canvas.addEventListener("mousemove", this.handleMouseMove.bind(this));
-        this.canvas.addEventListener("click", this.handleClick.bind(this));
+        ` }), _jsx("div", { id: "message-container", className: "hidden", ref: (el) => {
+                        this.messageContainer = el;
+                    } }), _jsx("canvas", { ref: (el) => {
+                        if (el) {
+                            this.canvas = el;
+                            // Re-attach listeners if canvas changes (though diffing should prevent recreation)
+                            this.canvas.onmousemove = this.handleMouseMove.bind(this);
+                            this.canvas.onclick = this.handleClick.bind(this);
+                        }
+                    } })] }));
+        webjsx.applyDiff(this.shadowRoot, vdom);
     }
     upgradeProperty(prop) {
         if (Object.hasOwn(this, prop)) {
@@ -83,8 +88,10 @@ export class TJAChart extends HTMLElement {
             cancelAnimationFrame(this._renderTask);
             this._renderTask = null;
         }
-        this.canvas.removeEventListener("mousemove", this.handleMouseMove.bind(this));
-        this.canvas.removeEventListener("click", this.handleClick.bind(this));
+        if (this.canvas) {
+            this.canvas.onmousemove = null;
+            this.canvas.onclick = null;
+        }
     }
     scheduleRender() {
         if (this._renderTask === null) {
@@ -141,7 +148,7 @@ export class TJAChart extends HTMLElement {
     }
     render() {
         this._renderTask = null;
-        if (!this.isConnected)
+        if (!this.isConnected || !this.canvas)
             return;
         const width = this.clientWidth || 800;
         // Handle Message State

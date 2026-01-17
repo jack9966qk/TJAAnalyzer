@@ -6,6 +6,14 @@
     <title>TJA Analyzer</title>
     <link rel="icon" type="image/png" href="icon_simple.png">
     <link rel="stylesheet" href="style.css">
+    <script type="importmap">
+    {
+      "imports": {
+        "webjsx": "./libs/webjsx/index.js",
+        "webjsx/jsx-runtime": "./libs/webjsx/jsx-runtime.js"
+      }
+    }
+    </script>
   </head>
   <body>
     <div id="app">
@@ -104,28 +112,8 @@
                 </div>
               </div>
 
-              <!-- Shared Difficulty Selector -->
-              <div
-                id="difficulty-selector-container"
-                class="control-group"
-                hidden
-                style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; gap: 10px 30px;"
-              >
-                <span style="display: flex; align-items: center; gap: 10px;">
-                  <label for="difficulty-selector" data-i18n="ui.difficulty">Difficulty:</label>
-                  <select id="difficulty-selector"></select>
-                </span>
-                <!-- Branch Selector -->
-                <span id="branch-selector-container" hidden style="display: flex; align-items: center; gap: 10px;">
-                  <label for="branch-selector" data-i18n="ui.branch">Branch:</label>
-                  <select id="branch-selector">
-                    <option value="all" data-i18n="branch.all" selected>All</option>
-                    <option value="normal" data-i18n="branch.normal">Normal</option>
-                    <option value="expert" data-i18n="branch.expert">Expert</option>
-                    <option value="master" data-i18n="branch.master">Master</option>
-                  </select>
-                </span>
-              </div>
+              <!-- Shared Course & Branch Selector -->
+              <course-branch-select id="course-branch-select"></course-branch-select>
             </div>
           </div>
         </div>

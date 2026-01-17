@@ -1,5 +1,50 @@
 [
   {
+    "hash": "3e7fb84",
+    "message": "Update version to 0.6.10.",
+    "date": "2026-01-17"
+  },
+  {
+    "hash": "88e9b17",
+    "message": "Run formatter and clean up some comments.",
+    "date": "2026-01-17"
+  },
+  {
+    "hash": "519a969",
+    "message": "Migrate TJA chart component to use JSX.",
+    "date": "2026-01-17"
+  },
+  {
+    "hash": "7265250",
+    "message": "Migrate note stats component to use JSX.",
+    "date": "2026-01-17"
+  },
+  {
+    "hash": "f03269c",
+    "message": "Migrate web components to JSX (WebJSX) and fix panel expansion regression.",
+    "date": "2026-01-17"
+  },
+  {
+    "hash": "857eb7f",
+    "message": "Fix panel auto-expansion logic and add regression test.",
+    "date": "2026-01-17"
+  },
+  {
+    "hash": "b79adb6",
+    "message": "Refactor difficulty and branch selection UI as a web component.",
+    "date": "2026-01-17"
+  },
+  {
+    "hash": "81202b7",
+    "message": "Update snapshot due to version change.",
+    "date": "2026-01-17"
+  },
+  {
+    "hash": "c4160d6",
+    "message": "Update LICENSE",
+    "date": "2026-01-17"
+  },
+  {
     "hash": "0632c1d",
     "message": "Update version to 0.6.9.",
     "date": "2026-01-17"
@@ -453,50 +498,5 @@
     "hash": "eaa6616",
     "message": "Add placeholder text replacing rendered chart for chart branching and for the initial state after remote stream connection.",
     "date": "2025-12-24"
-  },
-  {
-    "hash": "a5f747b",
-    "message": "Fix remote stream connection.",
-    "date": "2025-12-24"
-  },
-  {
-    "hash": "c80cd16",
-    "message": "Update branch indicator as a small strip on top of the rendered bars.",
-    "date": "2025-12-24"
-  },
-  {
-    "hash": "dbfdcc7",
-    "message": "Basic branch parsing and rendering.",
-    "date": "2025-12-23"
-  },
-  {
-    "hash": "f599f65",
-    "message": "Update version as 0.3.2.",
-    "date": "2025-12-22"
-  },
-  {
-    "hash": "ce3b9a6",
-    "message": "Display version number at footer.",
-    "date": "2025-12-22"
-  },
-  {
-    "hash": "ce8f214",
-    "message": "Refine long notes rendering when it spans over an entire bar.",
-    "date": "2025-12-22"
-  },
-  {
-    "hash": "e37d782",
-    "message": "Refine difficulty display text and color.",
-    "date": "2025-12-22"
-  },
-  {
-    "hash": "8d5c3ae",
-    "message": "Minor refinements in zh-CN translation.",
-    "date": "2025-12-22"
-  },
-  {
-    "hash": "d7a6b07",
-    "message": "Add description and improve clarity of remote/test stream panels.",
-    "date": "2025-12-22"
   }
 ]

@@ -1,11 +1,9 @@
+import "../components/course-branch-select.js"; // Ensure custom element is defined
 export const tjaChart = document.getElementById("chart-component");
 export const statusDisplay = document.getElementById("status-display");
 export const noteStatsDisplay = document.getElementById("note-stats-display");
 export const languageSelector = document.getElementById("language-selector");
-export const difficultySelectorContainer = document.getElementById("difficulty-selector-container");
-export const difficultySelector = document.getElementById("difficulty-selector");
-export const branchSelectorContainer = document.getElementById("branch-selector-container");
-export const branchSelector = document.getElementById("branch-selector");
+export const courseBranchSelect = document.getElementById("course-branch-select");
 export const optionsCollapseBtn = document.getElementById("options-collapse-btn");
 export const optionsBody = document.getElementById("options-body");
 export const appFooter = document.querySelector(".app-footer");

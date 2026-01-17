@@ -1,24 +1,11 @@
+import { jsx as _jsx, jsxs as _jsxs } from "webjsx/jsx-runtime";
+import * as webjsx from "webjsx";
 import { refreshChart, updateStatsComponent } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import "./save-image-button.js";
 export class JudgementOptions extends HTMLElement {
-    judgementWarning;
-    judgementControls;
-    styleRadios;
-    showPerfectCheckbox;
-    showGoodCheckbox;
-    showPoorCheckbox;
-    coloringRadios;
-    // Loop Controls
-    loopControlGroup;
-    loopAutoCheckbox;
-    loopPrevBtn;
-    loopNextBtn;
-    loopCounter;
-    saveImageContainer;
-    collapseLoopCheckbox;
-    // State buffer
+    // Local state for rendering
     _loopCollapseEnabled = false;
     _loopCollapseChecked = false;
     constructor() {
@@ -29,190 +16,107 @@ export class JudgementOptions extends HTMLElement {
         this.style.flexWrap = "wrap";
     }
     connectedCallback() {
-        this.loadTemplate().then(() => {
-            this.setupEventListeners();
-            this.updateTexts();
-            // Apply buffered state
-            this.applyLoopCollapseState();
-            this.refreshStatus(false); // Initial status check
-            // Listen for language changes
-            i18n.onLanguageChange(() => this.updateTexts());
-        });
+        this.render();
+        // Listen for language changes
+        i18n.onLanguageChange(() => this.render());
     }
-    async loadTemplate() {
-        if (this.innerHTML.trim())
-            return;
-        const path = "scripts/components/judgement-options.html";
-        try {
-            const response = await fetch(path);
-            if (response.ok) {
-                this.innerHTML = await response.text();
+    // --- Public Methods (API) ---
+    refreshStatus(_updateMode = true) {
+        this.render();
+    }
+    setLoopCollapseState(enabled, checked) {
+        this._loopCollapseEnabled = enabled;
+        this._loopCollapseChecked = checked;
+        this.render();
+    }
+    // --- Event Handlers ---
+    handleStyleChange(e) {
+        const target = e.target;
+        if (target.checked) {
+            if (target.value === "underline") {
+                appState.viewOptions.viewMode = "judgements-underline";
+            }
+            else if (target.value === "text") {
+                appState.viewOptions.viewMode = "judgements-text";
             }
             else {
-                console.error(`Error loading template from ${path}: ${response.status} ${response.statusText}`);
-                this.innerText = "Error loading template.";
-                return;
+                appState.viewOptions.viewMode = "judgements";
             }
-        }
-        catch (e) {
-            console.error(`Error fetching ${path}:`, e);
-            this.innerText = "Error loading template.";
-            return;
-        }
-        // Initialize elements
-        this.judgementWarning = this.querySelector(".description-text");
-        this.judgementControls = this.querySelector("#judgement-subcontrols");
-        this.styleRadios = this.querySelectorAll('input[name="judgementStyle"]');
-        this.coloringRadios = this.querySelectorAll('input[name="judgementColoring"]');
-        this.showPerfectCheckbox = this.querySelector("#show-perfect");
-        this.showGoodCheckbox = this.querySelector("#show-good");
-        this.showPoorCheckbox = this.querySelector("#show-poor");
-        this.loopControlGroup = this.querySelector("#loop-control-group");
-        this.loopAutoCheckbox = this.querySelector("#loop-auto");
-        this.loopPrevBtn = this.querySelector("#prev-loop-btn");
-        this.loopNextBtn = this.querySelector("#next-loop-btn");
-        this.loopCounter = this.querySelector("#loop-counter-display");
-        this.saveImageContainer = this.querySelector("#save-image-container");
-        this.collapseLoopCheckbox = this.querySelector("#collapse-loop-checkbox");
-    }
-    setupEventListeners() {
-        // Style Radios
-        this.styleRadios.forEach((r) => {
-            r.addEventListener("change", () => {
-                this.updateViewMode();
-                refreshChart();
-            });
-        });
-        // Coloring Radios
-        this.coloringRadios.forEach((r) => {
-            r.addEventListener("change", () => {
-                const val = Array.from(this.coloringRadios).find((r) => r.checked)?.value;
-                appState.viewOptions.coloringMode = val === "gradient" ? "gradient" : "categorical";
-                refreshChart();
-            });
-        });
-        // Visibility Checkboxes
-        const updateVisibility = () => {
-            appState.viewOptions.visibility = {
-                perfect: this.showPerfectCheckbox.checked,
-                good: this.showGoodCheckbox.checked,
-                poor: this.showPoorCheckbox.checked,
-            };
             refreshChart();
+            this.render();
+        }
+    }
+    handleColoringChange(e) {
+        const target = e.target;
+        if (target.checked) {
+            appState.viewOptions.coloringMode = target.value === "gradient" ? "gradient" : "categorical";
+            refreshChart();
+            this.render();
+        }
+    }
+    handleVisibilityChange(type, e) {
+        const checked = e.target.checked;
+        appState.viewOptions.visibility = {
+            ...appState.viewOptions.visibility,
+            [type]: checked,
         };
-        this.showPerfectCheckbox.addEventListener("change", updateVisibility);
-        this.showGoodCheckbox.addEventListener("change", updateVisibility);
-        this.showPoorCheckbox.addEventListener("change", updateVisibility);
-        // Collapse Loop Checkbox
-        this.collapseLoopCheckbox.addEventListener("change", (event) => {
-            appState.viewOptions.collapsedLoop = event.target.checked;
-            this.updateLoopControlVisibility();
-            refreshChart();
-            updateStatsComponent(null);
-        });
-        // Loop Controls
-        this.loopAutoCheckbox.addEventListener("change", () => {
-            if (this.loopAutoCheckbox.checked) {
-                appState.viewOptions.selectedLoopIteration = undefined;
-            }
-            else {
-                // Default to 0 if we were auto
-                appState.viewOptions.selectedLoopIteration = 0;
-            }
-            refreshChart();
-            this.updateLoopCounter();
-        });
-        this.loopPrevBtn.addEventListener("click", () => {
-            if (appState.viewOptions.selectedLoopIteration !== undefined && appState.viewOptions.selectedLoopIteration > 0) {
-                appState.viewOptions.selectedLoopIteration--;
-                refreshChart();
-                this.updateLoopCounter();
-            }
-        });
-        this.loopNextBtn.addEventListener("click", () => {
-            if (appState.currentChart?.loop &&
-                appState.viewOptions.selectedLoopIteration !== undefined &&
-                appState.viewOptions.selectedLoopIteration < appState.currentChart.loop.iterations - 1) {
-                appState.viewOptions.selectedLoopIteration++;
-                refreshChart();
-                this.updateLoopCounter();
-            }
-        });
+        refreshChart();
     }
-    updateViewMode() {
-        const style = Array.from(this.styleRadios).find((r) => r.checked)?.value;
-        if (style === "underline") {
-            appState.viewOptions.viewMode = "judgements-underline";
-        }
-        else if (style === "text") {
-            appState.viewOptions.viewMode = "judgements-text";
+    handleCollapseLoopChange(e) {
+        appState.viewOptions.collapsedLoop = e.target.checked;
+        refreshChart();
+        updateStatsComponent(null);
+        this.render();
+    }
+    handleLoopAutoChange(e) {
+        const checked = e.target.checked;
+        if (checked) {
+            appState.viewOptions.selectedLoopIteration = undefined;
         }
         else {
-            appState.viewOptions.viewMode = "judgements";
+            appState.viewOptions.selectedLoopIteration = 0;
+        }
+        refreshChart();
+        this.render();
+    }
+    handlePrevLoop() {
+        if (appState.viewOptions.selectedLoopIteration !== undefined && appState.viewOptions.selectedLoopIteration > 0) {
+            appState.viewOptions.selectedLoopIteration--;
+            refreshChart();
+            this.render();
         }
     }
-    refreshStatus(updateMode = true) {
-        const isStreamActive = appState.isStreamConnected || appState.isSimulating;
-        // Ensure view mode is synced with current radio selection
-        if (updateMode)
-            this.updateViewMode();
-        // Warning / Controls State
-        if (this.judgementWarning)
-            this.judgementWarning.style.display = isStreamActive ? "none" : "block";
-        if (this.judgementControls) {
-            if (isStreamActive) {
-                this.judgementControls.classList.remove("disabled");
-                this.judgementControls.style.opacity = "1";
-                this.judgementControls.style.pointerEvents = "auto";
-            }
-            else {
-                this.judgementControls.classList.add("disabled");
-                this.judgementControls.style.opacity = "0.5";
-                this.judgementControls.style.pointerEvents = "none";
-            }
-        }
-        if (this.saveImageContainer) {
-            if (isStreamActive) {
-                this.saveImageContainer.style.opacity = "1";
-                this.saveImageContainer.style.pointerEvents = "auto";
-            }
-            else {
-                this.saveImageContainer.style.opacity = "0.5";
-                this.saveImageContainer.style.pointerEvents = "none";
-            }
-        }
-        this.updateLoopControlVisibility();
-        this.updateLoopCounter();
-    }
-    updateLoopControlVisibility() {
-        const isLoopCollapsed = appState.viewOptions.collapsedLoop;
-        if (this.loopControlGroup) {
-            this.loopControlGroup.style.display = isLoopCollapsed ? "flex" : "none";
+    handleNextLoop() {
+        if (appState.currentChart?.loop &&
+            appState.viewOptions.selectedLoopIteration !== undefined &&
+            appState.viewOptions.selectedLoopIteration < appState.currentChart.loop.iterations - 1) {
+            appState.viewOptions.selectedLoopIteration++;
+            refreshChart();
+            this.render();
         }
     }
-    updateLoopCounter() {
-        if (!this.loopCounter)
-            return;
+    // --- Helper Methods ---
+    getLoopStatus() {
         const hasLoop = !!appState.currentChart?.loop;
-        // Update UI state based on model
-        if (appState.viewOptions.selectedLoopIteration === undefined) {
-            this.loopAutoCheckbox.checked = true;
-            this.loopPrevBtn.disabled = true;
-            this.loopNextBtn.disabled = true;
-            if (!hasLoop) {
-                this.loopCounter.innerText = "1 / 1";
-            }
-            else {
+        let text = "1 / 1";
+        const isAuto = appState.viewOptions.selectedLoopIteration === undefined;
+        const current = appState.viewOptions.selectedLoopIteration || 0;
+        const total = appState.currentChart?.loop?.iterations || 1;
+        let prevDisabled = true;
+        let nextDisabled = true;
+        if (isAuto) {
+            prevDisabled = true;
+            nextDisabled = true;
+            if (hasLoop) {
                 let displayedIter = 0;
                 // biome-ignore lint/style/noNonNullAssertion: Guaranteed by context
-                const loop = appState.currentChart.loop; // We know hasLoop is true
+                const loop = appState.currentChart.loop;
                 if ((appState.viewOptions.viewMode === "judgements" ||
                     appState.viewOptions.viewMode === "judgements-underline" ||
                     appState.viewOptions.viewMode === "judgements-text") &&
                     appState.judgements.length > 0) {
                     let notesPerLoop = 0;
                     let preLoopNotes = 0;
-                    // Basic calculation matching chart-controller
                     for (let i = 0; i < loop.startBarIndex; i++) {
                         const bar = appState.currentChart?.bars[i];
                         if (bar)
@@ -237,54 +141,25 @@ export class JudgementOptions extends HTMLElement {
                     if (displayedIter >= loop.iterations)
                         displayedIter = loop.iterations - 1;
                 }
-                this.loopCounter.innerText = `${displayedIter + 1} / ${loop.iterations}`;
+                text = `${displayedIter + 1} / ${loop.iterations}`;
             }
         }
         else {
-            this.loopAutoCheckbox.checked = false;
-            const current = appState.viewOptions.selectedLoopIteration;
-            const total = appState.currentChart?.loop?.iterations || 1;
-            this.loopPrevBtn.disabled = current <= 0;
-            this.loopNextBtn.disabled = current >= total - 1;
-            this.loopCounter.innerText = `${current + 1} / ${total}`;
+            prevDisabled = current <= 0;
+            nextDisabled = current >= total - 1;
+            text = `${current + 1} / ${total}`;
         }
+        return { text, isAuto, prevDisabled, nextDisabled };
     }
-    setLoopCollapseState(enabled, checked) {
-        this._loopCollapseEnabled = enabled;
-        this._loopCollapseChecked = checked;
-        this.applyLoopCollapseState();
-    }
-    applyLoopCollapseState() {
-        if (!this.collapseLoopCheckbox)
-            return;
-        const enabled = this._loopCollapseEnabled;
-        const checked = this._loopCollapseChecked;
-        this.collapseLoopCheckbox.disabled = !enabled;
-        this.collapseLoopCheckbox.checked = checked;
-        const parent = this.collapseLoopCheckbox.parentElement;
-        const container = parent?.parentElement;
-        if (parent) {
-            if (!enabled)
-                parent.classList.add("disabled-text");
-            else
-                parent.classList.remove("disabled-text");
-        }
-        if (container) {
-            container.style.display = enabled ? "block" : "none";
-        }
-        this.updateLoopControlVisibility();
-    }
-    updateTexts() {
-        this.querySelectorAll("[data-i18n]").forEach((el) => {
-            const key = el.getAttribute("data-i18n");
-            if (key) {
-                if (el.tagName === "INPUT" || el.tagName === "TEXTAREA")
-                    return;
-                if (el.tagName === "SAVE-IMAGE-BUTTON")
-                    return;
-                el.innerHTML = i18n.t(key);
-            }
-        });
+    render() {
+        const isStreamActive = appState.isStreamConnected || appState.isSimulating;
+        const loopStatus = this.getLoopStatus();
+        const isLoopCollapsed = appState.viewOptions.collapsedLoop;
+        // Determine selected style
+        const viewMode = appState.viewOptions.viewMode;
+        const styleValue = viewMode === "judgements-text" ? "text" : viewMode === "judgements-underline" ? "underline" : "color";
+        const vdom = (_jsxs("div", { style: "display: contents;", children: [_jsxs("div", { className: "option-section", children: [_jsx("div", { className: "description-text", style: `color: #666; font-style: italic; margin-bottom: 10px; display: ${isStreamActive ? "none" : "block"};`, children: i18n.t("ui.judgement.notActive") }), _jsx("div", { className: `section-main ${!this._loopCollapseEnabled ? "disabled-text" : ""}`, style: `margin-bottom: 10px; display: ${this._loopCollapseEnabled ? "block" : "none"}`, children: _jsxs("label", { children: [_jsx("input", { type: "checkbox", id: "collapse-loop-checkbox", checked: this._loopCollapseChecked, disabled: !this._loopCollapseEnabled, onchange: this.handleCollapseLoopChange.bind(this) }), _jsx("span", { children: i18n.t("ui.collapseLoops") })] }) }), _jsxs("div", { className: "sub-group", id: "loop-control-group", style: `margin-bottom: 10px; display: ${isLoopCollapsed ? "flex" : "none"};`, children: [_jsxs("label", { className: "auto-check", style: "display: flex; align-items: center; gap: 5px; margin-right: 10px;", children: [_jsx("input", { type: "checkbox", id: "loop-auto", checked: loopStatus.isAuto, onchange: this.handleLoopAutoChange.bind(this) }), _jsx("span", { children: i18n.t("ui.auto") })] }), _jsxs("div", { className: "loop-stepper", style: "display: flex; align-items: center; gap: 5px;", children: [_jsx("button", { type: "button", id: "prev-loop-btn", className: "tiny-btn", disabled: loopStatus.prevDisabled, onclick: this.handlePrevLoop.bind(this), children: "<" }), _jsx("span", { id: "loop-counter-display", style: "font-family: 'Consolas', monospace; min-width: 50px; text-align: center;", children: loopStatus.text }), _jsx("button", { type: "button", id: "next-loop-btn", className: "tiny-btn", disabled: loopStatus.nextDisabled, onclick: this.handleNextLoop.bind(this), children: ">" })] })] }), _jsxs("div", { id: "judgement-subcontrols", className: `section-subs ${!isStreamActive ? "disabled" : ""}`, style: `margin-left: 0; opacity: ${isStreamActive ? "1" : "0.5"}; pointer-events: ${isStreamActive ? "auto" : "none"};`, children: [_jsxs("div", { className: "sub-group", children: [_jsxs("span", { className: "sub-label", children: [i18n.t("ui.style"), ":"] }), _jsxs("label", { children: [_jsx("input", { type: "radio", name: "judgementStyle", value: "color", checked: styleValue === "color", onchange: this.handleStyleChange.bind(this) }), _jsx("span", { children: i18n.t("ui.style.color") })] }), _jsxs("label", { children: [_jsx("input", { type: "radio", name: "judgementStyle", value: "underline", checked: styleValue === "underline", onchange: this.handleStyleChange.bind(this) }), _jsx("span", { children: i18n.t("ui.style.underline") })] }), _jsxs("label", { children: [_jsx("input", { type: "radio", name: "judgementStyle", value: "text", checked: styleValue === "text", onchange: this.handleStyleChange.bind(this) }), _jsx("span", { children: i18n.t("ui.style.text") })] })] }), _jsxs("div", { className: "sub-group", children: [_jsxs("span", { className: "sub-label", children: [i18n.t("ui.coloring"), ":"] }), _jsxs("label", { children: [_jsx("input", { type: "radio", name: "judgementColoring", value: "class", checked: appState.viewOptions.coloringMode === "categorical", onchange: this.handleColoringChange.bind(this) }), _jsx("span", { children: i18n.t("ui.coloring.class") })] }), _jsxs("label", { children: [_jsx("input", { type: "radio", name: "judgementColoring", value: "gradient", checked: appState.viewOptions.coloringMode === "gradient", onchange: this.handleColoringChange.bind(this) }), _jsx("span", { children: i18n.t("ui.coloring.gradient") })] })] }), _jsxs("div", { className: "sub-group", children: [_jsxs("span", { className: "sub-label", children: [i18n.t("ui.filter"), ":"] }), _jsxs("label", { children: [_jsx("input", { type: "checkbox", id: "show-perfect", checked: appState.viewOptions.visibility.perfect, onchange: (e) => this.handleVisibilityChange("perfect", e) }), _jsx("span", { children: i18n.t("judgement.perfect") })] }), _jsxs("label", { children: [_jsx("input", { type: "checkbox", id: "show-good", checked: appState.viewOptions.visibility.good, onchange: (e) => this.handleVisibilityChange("good", e) }), _jsx("span", { children: i18n.t("judgement.good") })] }), _jsxs("label", { children: [_jsx("input", { type: "checkbox", id: "show-poor", checked: appState.viewOptions.visibility.poor, onchange: (e) => this.handleVisibilityChange("poor", e) }), _jsx("span", { children: i18n.t("judgement.poor") })] })] })] })] }), _jsx("div", { className: "option-section border-left", id: "save-image-container", style: `opacity: ${isStreamActive ? "1" : "0.5"}; pointer-events: ${isStreamActive ? "auto" : "none"};`, children: _jsx("div", { className: "section-main", children: _jsx("save-image-button", { id: "save-image-judgements" }) }) })] }));
+        webjsx.applyDiff(this, vdom);
     }
 }
 customElements.define("judgement-options", JudgementOptions);
