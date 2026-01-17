@@ -98,7 +98,7 @@ export class ViewOptions extends HTMLElement {
         <div className="option-section">
           <div className="section-main">
             <span className="sub-label" style="min-width: auto; margin-right: 10px;">
-              {i18n.t("ui.zoom")}:
+              {i18n.t("ui.zoom")}
             </span>
             <div className="zoom-controls" style="display: flex; align-items: center; gap: 5px;">
               <button type="button" id="zoom-out-btn" className="tiny-btn" onclick={this.handleZoomOut.bind(this)}>

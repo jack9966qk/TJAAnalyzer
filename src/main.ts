@@ -1,5 +1,6 @@
 import type { ServerEvent } from "./clients/judgement-client.js";
 import "./components/chart-list-panel.js"; // Ensure side-effect
+import "./components/local-file-panel.js"; // Ensure side-effect
 import { NoteStatsDisplay } from "./components/note-stats.js";
 import "./components/save-image-button.js";
 import type { JudgementOptions } from "./components/judgement-options.js";
@@ -44,7 +45,6 @@ import {
   statusDisplay,
   testStreamBtn,
   tjaChart,
-  tjaFilePicker,
 } from "./view/ui-elements.js";
 
 // Ensure TJAChart is imported for side-effects (custom element registration)
@@ -135,11 +135,6 @@ function switchDataSourceMode(mode: string) {
       else courseBranchSelect.hide();
     }
   }
-
-  // Clear picker if leaving file mode? Optional.
-  if (mode !== "file" && tjaFilePicker) {
-    // tjaFilePicker.value = ''; // Maybe keep it for convenience
-  }
 }
 
 function updateUIText() {
@@ -218,20 +213,6 @@ function updateDisplayState() {
   // Determine Judgement Visibility - Handled by component
 
   refreshChart();
-}
-
-// Helper to read file as text (compatibility wrapper)
-function readFileAsText(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    if (typeof file.text === "function") {
-      file.text().then(resolve).catch(reject);
-    } else {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => reject(reader.error);
-      reader.readAsText(file);
-    }
-  });
 }
 
 function initLayout() {
@@ -321,32 +302,16 @@ function initEventListeners() {
     });
   }
 
-  // Setup File Picker
+  // Setup File Picker (Now handled by local-file-panel)
+  const localFilePanel = document.querySelector("local-file-panel");
+  if (localFilePanel) {
+    localFilePanel.addEventListener("status-change", (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      updateStatus(detail.key, detail.params);
+    });
 
-  if (tjaFilePicker) {
-    tjaFilePicker.addEventListener("change", async (event) => {
-      const files = (event.target as HTMLInputElement).files;
-
-      if (files && files.length > 0) {
-        const file = files[0];
-
-        try {
-          const content = await readFileAsText(file);
-
-          appState.loadedTJAContent = content;
-
-          updateParsedCharts(content);
-
-          updateStatus("status.fileLoaded");
-
-          if (chartListPanel) chartListPanel.resetExampleButton();
-        } catch (e) {
-          console.error("Error parsing TJA file:", e);
-          const msg = i18n.t("status.parseError", { error: e instanceof Error ? e.message : String(e) });
-          alert(msg);
-          if (statusDisplay) statusDisplay.innerText = msg;
-        }
-      }
+    localFilePanel.addEventListener("chart-loaded", () => {
+      if (chartListPanel) chartListPanel.resetExampleButton();
     });
   }
 

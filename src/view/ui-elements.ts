@@ -26,7 +26,6 @@ export const dsTabs = document.querySelectorAll("#data-source-panel .panel-tab")
 export const dsPanes = document.querySelectorAll("#data-source-panel .panel-pane");
 export const dsCollapseBtn = document.getElementById("ds-collapse-btn") as HTMLButtonElement;
 export const dsBody = document.getElementById("ds-body") as HTMLDivElement;
-export const tjaFilePicker = document.getElementById("tja-file-picker") as HTMLInputElement;
 export const hostInput = document.getElementById("host-input") as HTMLInputElement;
 export const portInput = document.getElementById("port-input") as HTMLInputElement;
 export const connectBtn = document.getElementById("connect-btn") as HTMLButtonElement;
