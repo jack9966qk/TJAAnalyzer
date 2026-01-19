@@ -124,4 +124,12 @@ test.describe("Web Components Visual Regression", () => {
     await expect(btn).toBeVisible();
     await expect(btn).toHaveScreenshot("save-image-button.png");
   });
+
+  test("Export Button", async ({ page }) => {
+    await page.goto("/component-test.html?component=export-button&width=200");
+    const component = page.locator("export-button");
+    const btn = component.locator("button");
+    await expect(btn).toBeVisible();
+    await expect(btn).toHaveScreenshot("export-button.png");
+  });
 });

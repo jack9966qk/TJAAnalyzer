@@ -21,6 +21,8 @@ declare global {
     interface IntrinsicElements {
       // biome-ignore lint/suspicious/noExplicitAny: Custom element
       "save-image-button": any;
+      // biome-ignore lint/suspicious/noExplicitAny: Custom element
+      "export-button": any;
     }
   }
 }
