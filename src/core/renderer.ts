@@ -861,143 +861,7 @@ export function renderLayout(
   }
 }
 
-export function renderIncremental(
-  ctx: CanvasRenderingContext2D,
-  layout: ChartLayout,
-  chart: ParsedChart,
-  judgements: string[],
-  judgementDeltas: (number | undefined)[],
-  options: ViewOptions,
-  texts: RenderTexts,
-  oldJudgementCount: number,
-): void {
-  const { virtualBars, layouts, constants, globalBarStartIndices, balloonIndices, inferredHands } = layout;
 
-  const isAllBranches = !!options.showAllBranches && !!chart.branches;
-  const BASE_LANE_HEIGHT = constants.BAR_HEIGHT;
-
-  // 1. Identify Dirty Bars
-  // We look for any bar that contains a note index between oldJudgementCount and current judgements.length
-  const affectedIndices = new Set<number>();
-
-  const newJudgementCount = judgements.length;
-
-  for (let i = 0; i < virtualBars.length; i++) {
-    const info = virtualBars[i];
-    const bar = info.bar;
-    if (!bar) continue;
-
-    const startIndex =
-      info.overrideStartIndex !== undefined ? info.overrideStartIndex : globalBarStartIndices[info.originalIndex];
-
-    // Count judgeable notes in this bar
-    let judgeableCount = 0;
-    for (const char of bar) {
-      if (["1", "2", "3", "4"].includes(char)) judgeableCount++;
-    }
-
-    const endIndex = startIndex + judgeableCount;
-
-    // Check intersection
-    // Range of bar: [startIndex, endIndex)
-    // Range of update: [oldJudgementCount, newJudgementCount)
-
-    if (startIndex < newJudgementCount && endIndex > oldJudgementCount) {
-      affectedIndices.add(i);
-    }
-  }
-
-  // 2. Redraw Affected Bars
-  affectedIndices.forEach((index) => {
-    const info = virtualBars[index];
-    const layout = layouts[index];
-
-    // Calculate Clip Rect
-    // Add padding for over-extended backgrounds and note radii
-    const pad = constants.NOTE_RADIUS_BIG * 2 + constants.LW_BAR * 2;
-    const clipX = layout.x - pad;
-    const clipY = layout.y - pad;
-    const clipW = layout.width + pad * 2;
-    const clipH = layout.height + pad * 2;
-
-    ctx.save();
-    ctx.beginPath();
-    ctx.rect(clipX, clipY, clipW, clipH);
-    ctx.clip();
-
-    // Clear Rect (to background color)
-    ctx.fillStyle = PALETTE.background;
-    ctx.fillRect(clipX, clipY, clipW, clipH);
-
-    // Draw Bar Background
-    drawBarBackgroundWrapper(
-      ctx,
-      layout,
-      info,
-      index,
-      chart,
-      options,
-      constants,
-      virtualBars,
-      layouts,
-      texts,
-      isAllBranches,
-      BASE_LANE_HEIGHT,
-    );
-
-    // Draw Notes
-    if (isAllBranches && chart.branches) {
-      // Re-calling drawAllBranchesNotes is simplest, relying on clip.
-      drawAllBranchesNotes(
-        ctx,
-        chart,
-        virtualBars,
-        layouts,
-        constants,
-        options,
-        judgements,
-        judgementDeltas,
-        texts,
-        balloonIndices,
-        BASE_LANE_HEIGHT,
-      );
-    } else {
-      // Standard
-      // 1. Long Notes (Clipped)
-      drawLongNotes(ctx, virtualBars, layouts, constants, options.viewMode, chart.balloonCounts, balloonIndices);
-
-      // 2. Notes (Single Bar)
-      const startIndex =
-        info.overrideStartIndex !== undefined ? info.overrideStartIndex : globalBarStartIndices[info.originalIndex];
-
-      drawBarNotes(
-        ctx,
-        info.bar,
-        layout.x,
-        layout.y,
-        layout.width,
-        layout.height,
-        constants.NOTE_RADIUS_SMALL,
-        constants.NOTE_RADIUS_BIG,
-        constants.LW_NOTE_OUTER,
-        constants.LW_NOTE_INNER,
-        constants.LW_UNDERLINE_BORDER,
-        options,
-        startIndex,
-        judgements,
-        judgementDeltas,
-        texts,
-        info.originalIndex,
-        chart.bars,
-        options.collapsedLoop ? chart.loop : undefined,
-        inferredHands,
-        chart.branchType,
-      );
-    }
-
-    ctx.restore();
-  });
-}
 
 function drawBarBackgroundWrapper(
   ctx: CanvasRenderingContext2D,
@@ -1326,7 +1190,6 @@ export function renderChart(
   options: ViewOptions,
   texts: RenderTexts = DEFAULT_TEXTS,
   customDpr?: number,
-  renderParams: { incrementalStart?: number } = {},
 ): void {
   const ctx = canvas.getContext("2d");
   if (!ctx) {
@@ -1354,47 +1217,43 @@ export function renderChart(
   } = layout;
 
   const { bars, loop } = chart;
-  const { incrementalStart = 0 } = renderParams;
-  const isIncremental = incrementalStart > 0;
 
-  if (!isIncremental) {
-    // Safety check for canvas limits
-    const MAX_CANVAS_DIMENSION = 32000;
+  // Safety check for canvas limits
+  const MAX_CANVAS_DIMENSION = 32000;
 
-    if (totalHeight * dpr > MAX_CANVAS_DIMENSION) {
-      console.warn(`Chart height (${totalHeight * dpr}px) exceeds canvas limit. Reducing DPR to 1.`);
-    }
-
-    let effectiveDpr = dpr;
-    if (totalHeight * effectiveDpr > MAX_CANVAS_DIMENSION) {
-      effectiveDpr = 1;
-    }
-
-    let finalCanvasHeight = totalHeight * effectiveDpr;
-    let finalStyleHeight = totalHeight;
-
-    if (finalCanvasHeight > MAX_CANVAS_DIMENSION) {
-      console.warn(`Chart height (${finalCanvasHeight}px) still exceeds canvas limit. Clamping height.`);
-      finalCanvasHeight = MAX_CANVAS_DIMENSION;
-      finalStyleHeight = MAX_CANVAS_DIMENSION / effectiveDpr;
-    }
-
-    canvas.width = logicalCanvasWidth * effectiveDpr;
-    canvas.height = finalCanvasHeight;
-
-    canvas.style.width = `${logicalCanvasWidth}px`;
-    canvas.style.height = `${finalStyleHeight}px`;
-
-    ctx.scale(effectiveDpr, effectiveDpr);
-
-    // Clear
-    ctx.fillStyle = PALETTE.background;
-    ctx.fillRect(0, 0, logicalCanvasWidth, totalHeight);
-
-    // Layer 0: Header
-    const availableWidth = logicalCanvasWidth - PADDING * 2;
-    drawChartHeader(ctx, chart, PADDING, PADDING, availableWidth, headerHeight, texts);
+  if (totalHeight * dpr > MAX_CANVAS_DIMENSION) {
+    console.warn(`Chart height (${totalHeight * dpr}px) exceeds canvas limit. Reducing DPR to 1.`);
   }
+
+  let effectiveDpr = dpr;
+  if (totalHeight * effectiveDpr > MAX_CANVAS_DIMENSION) {
+    effectiveDpr = 1;
+  }
+
+  let finalCanvasHeight = totalHeight * effectiveDpr;
+  let finalStyleHeight = totalHeight;
+
+  if (finalCanvasHeight > MAX_CANVAS_DIMENSION) {
+    console.warn(`Chart height (${finalCanvasHeight}px) still exceeds canvas limit. Clamping height.`);
+    finalCanvasHeight = MAX_CANVAS_DIMENSION;
+    finalStyleHeight = MAX_CANVAS_DIMENSION / effectiveDpr;
+  }
+
+  canvas.width = logicalCanvasWidth * effectiveDpr;
+  canvas.height = finalCanvasHeight;
+
+  canvas.style.width = `${logicalCanvasWidth}px`;
+  canvas.style.height = `${finalStyleHeight}px`;
+
+  ctx.scale(effectiveDpr, effectiveDpr);
+
+  // Clear
+  ctx.fillStyle = PALETTE.background;
+  ctx.fillRect(0, 0, logicalCanvasWidth, totalHeight);
+
+  // Layer 0: Header
+  const availableWidth = logicalCanvasWidth - PADDING * 2;
+  drawChartHeader(ctx, chart, PADDING, PADDING, availableWidth, headerHeight, texts);
 
   const isAllBranches = !!options.showAllBranches && !!chart.branches;
   const BASE_LANE_HEIGHT = constants.BAR_HEIGHT;

@@ -9,7 +9,6 @@ import {
   PALETTE,
   type RenderTexts,
   renderChart,
-  renderIncremental,
   renderLayout,
   type ViewOptions,
 } from "../core/renderer.js";
@@ -36,7 +35,6 @@ export class TJAChart extends HTMLElement {
   // Rendering Optimization State
   private _renderTask: number | null = null;
   private _pendingFullRender: boolean = true;
-  private _lastRenderedJudgementsLength: number = 0;
   private _layout: ChartLayout | null = null;
 
   constructor() {
@@ -249,22 +247,11 @@ export class TJAChart extends HTMLElement {
       return;
     }
 
-    let incrementalStart = 0;
-
-    // Determine if we can use incremental rendering
-    const hasNewJudgements = this._judgements.length > this._lastRenderedJudgementsLength;
-    const canIncremental = !this._pendingFullRender && hasNewJudgements && !!this._layout;
-
-    if (canIncremental) {
-      incrementalStart = this._lastRenderedJudgementsLength;
-    } else {
-      // We are doing a full render (either forced or because no incremental update needed/possible)
-      // But we only need to recreate layout if pending full render or layout missing
-      if (this._pendingFullRender || !this._layout) {
-        this._layout = createLayout(this._chart, this.canvas, this._viewOptions, this._judgements);
-        this._pendingFullRender = false;
-      }
-      incrementalStart = 0;
+    // We are doing a full render (either forced or because no incremental update needed/possible)
+    // But we only need to recreate layout if pending full render or layout missing
+    if (this._pendingFullRender || !this._layout) {
+      this._layout = createLayout(this._chart, this.canvas, this._viewOptions, this._judgements);
+      this._pendingFullRender = false;
     }
 
     const texts = this._texts || {
@@ -272,22 +259,9 @@ export class TJAChart extends HTMLElement {
       judgement: { perfect: "良", good: "可", poor: "不可" },
     };
 
-    if (incrementalStart > 0 && this._layout) {
-      renderIncremental(
-        ctx,
-        this._layout,
-        this._chart,
-        this._judgements,
-        this._judgementDeltas,
-        this._viewOptions,
-        texts,
-        incrementalStart,
-      );
-    } else if (this._layout) {
+    if (this._layout) {
       renderLayout(ctx, this._layout, this._chart, this._judgements, this._judgementDeltas, this._viewOptions, texts);
     }
-
-    this._lastRenderedJudgementsLength = this._judgements.length;
   }
 
   // Public method to force render (e.g. after resizing parent not caught by observer, or manual trigger)
