@@ -12,6 +12,7 @@ test.describe("Note Stats Component", () => {
         originalBarIndex: 0,
         charIndex: 0,
         judgeableNoteIndex: 0,
+        ordinal: 0,
       };
       // Mock ViewOptions and Chart
       const viewOptions = {
@@ -26,7 +27,8 @@ test.describe("Note Stats Component", () => {
         bars: [["1", "0", "0", "0"]],
       };
 
-      window.setStats(hit, chart, viewOptions);
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom test function
+      (window as any).setStats(hit, chart, viewOptions);
     });
 
     const stats = page.locator("note-stats");
@@ -44,6 +46,7 @@ test.describe("Note Stats Component", () => {
         originalBarIndex: 0,
         charIndex: 1,
         judgeableNoteIndex: 0,
+        ordinal: 0,
       };
       const viewOptions = {
         viewMode: "judgements",
@@ -55,10 +58,12 @@ test.describe("Note Stats Component", () => {
       const chart = {
         bars: [["1", "2", "0", "0"]],
       };
-      const judgements = ["perfect"];
-      const deltas = [10];
+      // 1st note (Don) -> dummy, 2nd note (Ka) -> perfect
+      const judgements = ["good", "perfect"];
+      const deltas = [0, 10];
 
-      window.setStats(hit, chart, viewOptions, judgements, deltas);
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom test function
+      (window as any).setStats(hit, chart, viewOptions, judgements, deltas);
     });
 
     const stats = page.locator("note-stats");
@@ -84,7 +89,8 @@ test.describe("Note Stats Component", () => {
         beatsPerLine: 16,
       };
       const chart = { bars: [["1"]] };
-      window.setStats(hit, chart, viewOptions);
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom test function
+      (window as any).setStats(hit, chart, viewOptions);
     });
 
     const stats = page.locator("note-stats");

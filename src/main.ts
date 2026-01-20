@@ -454,9 +454,7 @@ function initJudgementClient() {
     if (event.type === "gameplay_start") {
       console.log("Gameplay Start Event Received");
 
-      appState.judgements = [];
-
-      appState.judgementDeltas = [];
+      appState.judgements.clear();
 
       appState.currentChart = null;
 
@@ -489,9 +487,11 @@ function initJudgementClient() {
 
       if (chartListPanel) chartListPanel.resetExampleButton();
     } else if (event.type === "judgement") {
-      appState.judgements.push(event.judgement);
-
-      appState.judgementDeltas.push(event.msDelta);
+      const key = `${event.noteChar}_${event.noteOrdinalByChar}`;
+      appState.judgements.set(key, {
+        judgement: event.judgement,
+        delta: event.msDelta || 0,
+      });
 
       refreshChart();
     }
@@ -608,9 +608,8 @@ window.addEventListener("resize", () => {
 });
 
 // Expose for testing
-window.setJudgements = (newJudgements: string[], newDeltas?: (number | undefined)[]) => {
+window.setJudgements = (newJudgements: Map<string, { judgement: string; delta: number }>) => {
   appState.judgements = newJudgements;
-  appState.judgementDeltas = newDeltas || [];
   refreshChart();
   updateStatsComponent(null);
 };

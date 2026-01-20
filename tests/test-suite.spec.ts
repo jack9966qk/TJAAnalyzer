@@ -156,7 +156,34 @@ test.describe("Visual Regression", () => {
           judgements.push("poor");
         }
       }
-      window.setJudgements(judgements, []);
+      // Construct Map
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
+      const tjaChart = document.getElementById("chart-component") as any;
+      const chart = tjaChart.chart;
+      const map = new Map<string, { judgement: string; delta: number }>();
+
+      if (chart) {
+        let noteCount = 0;
+        const counters: Record<string, number> = {};
+
+        for (const bar of chart.bars) {
+          for (const char of bar) {
+            if (["1", "2", "3", "4"].includes(char)) {
+              if (noteCount < judgements.length) {
+                const j = judgements[noteCount];
+
+                if (counters[char] === undefined) counters[char] = 0;
+                const ordinal = counters[char];
+                counters[char]++;
+
+                map.set(`${char}_${ordinal}`, { judgement: j, delta: 0 });
+              }
+              noteCount++;
+            }
+          }
+        }
+      }
+      window.setJudgements(map);
     });
 
     const canvas = page.locator("#chart-component");
@@ -201,7 +228,34 @@ test.describe("Visual Regression", () => {
           judgements.push("poor");
         }
       }
-      window.setJudgements(judgements, []);
+      // Construct Map
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
+      const tjaChart = document.getElementById("chart-component") as any;
+      const chart = tjaChart.chart;
+      const map = new Map<string, { judgement: string; delta: number }>();
+
+      if (chart) {
+        let noteCount = 0;
+        const counters: Record<string, number> = {};
+
+        for (const bar of chart.bars) {
+          for (const char of bar) {
+            if (["1", "2", "3", "4"].includes(char)) {
+              if (noteCount < judgements.length) {
+                const j = judgements[noteCount];
+
+                if (counters[char] === undefined) counters[char] = 0;
+                const ordinal = counters[char];
+                counters[char]++;
+
+                map.set(`${char}_${ordinal}`, { judgement: j, delta: 0 });
+              }
+              noteCount++;
+            }
+          }
+        }
+      }
+      window.setJudgements(map);
     });
 
     const canvas = page.locator("#chart-component");
@@ -246,7 +300,34 @@ test.describe("Visual Regression", () => {
           judgements.push("poor");
         }
       }
-      window.setJudgements(judgements, []);
+      // Construct Map
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
+      const tjaChart = document.getElementById("chart-component") as any;
+      const chart = tjaChart.chart;
+      const map = new Map<string, { judgement: string; delta: number }>();
+
+      if (chart) {
+        let noteCount = 0;
+        const counters: Record<string, number> = {};
+
+        for (const bar of chart.bars) {
+          for (const char of bar) {
+            if (["1", "2", "3", "4"].includes(char)) {
+              if (noteCount < judgements.length) {
+                const j = judgements[noteCount];
+
+                if (counters[char] === undefined) counters[char] = 0;
+                const ordinal = counters[char];
+                counters[char]++;
+
+                map.set(`${char}_${ordinal}`, { judgement: j, delta: 0 });
+              }
+              noteCount++;
+            }
+          }
+        }
+      }
+      window.setJudgements(map);
     });
 
     const canvas = page.locator("#chart-component");
@@ -303,7 +384,35 @@ test.describe("Visual Regression", () => {
         deltas.push(d);
       }
 
-      window.setJudgements(judgements, deltas);
+      // Construct Map
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
+      const tjaChart = document.getElementById("chart-component") as any;
+      const chart = tjaChart.chart;
+      const map = new Map<string, { judgement: string; delta: number }>();
+
+      if (chart) {
+        let noteCount = 0;
+        const counters: Record<string, number> = {};
+
+        for (const bar of chart.bars) {
+          for (const char of bar) {
+            if (["1", "2", "3", "4"].includes(char)) {
+              if (noteCount < judgements.length) {
+                const j = judgements[noteCount];
+                const d = deltas[noteCount];
+
+                if (counters[char] === undefined) counters[char] = 0;
+                const ordinal = counters[char];
+                counters[char]++;
+
+                map.set(`${char}_${ordinal}`, { judgement: j, delta: d });
+              }
+              noteCount++;
+            }
+          }
+        }
+      }
+      window.setJudgements(map);
     });
 
     const canvas = page.locator("#chart-component");

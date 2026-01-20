@@ -124,28 +124,10 @@ export class JudgementOptions extends HTMLElement {
           (appState.viewOptions.viewMode === "judgements" ||
             appState.viewOptions.viewMode === "judgements-underline" ||
             appState.viewOptions.viewMode === "judgements-text") &&
-          appState.judgements.length > 0
+          appState.judgements.size > 0
         ) {
-          let notesPerLoop = 0;
-          let preLoopNotes = 0;
-
-          for (let i = 0; i < loop.startBarIndex; i++) {
-            const bar = appState.currentChart?.bars[i];
-            if (bar) for (const c of bar) if (["1", "2", "3", "4"].includes(c)) preLoopNotes++;
-          }
-          for (let k = 0; k < loop.period; k++) {
-            const bar = appState.currentChart?.bars[loop.startBarIndex + k];
-            if (bar) for (const c of bar) if (["1", "2", "3", "4"].includes(c)) notesPerLoop++;
-          }
-
-          const lastJudgedIndex = appState.judgements.length - 1;
-          if (lastJudgedIndex >= preLoopNotes && notesPerLoop > 0) {
-            const relativeIndex = lastJudgedIndex - preLoopNotes;
-            displayedIter = Math.floor(relativeIndex / notesPerLoop);
-          }
-
-          if (displayedIter < 0) displayedIter = 0;
-          if (displayedIter >= loop.iterations) displayedIter = loop.iterations - 1;
+          // Iterate loops to find max iteration with judgements
+          displayedIter = 0;
         }
         text = `${displayedIter + 1} / ${loop.iterations}`;
       }

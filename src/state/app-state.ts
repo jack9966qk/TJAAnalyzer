@@ -18,8 +18,7 @@ interface AppState {
   eseClient: EseClient;
   eseTree: GitNode[] | null;
   judgementClient: JudgementClient;
-  judgements: string[];
-  judgementDeltas: (number | undefined)[];
+  judgements: Map<string, { judgement: string; delta: number }>;
   currentEsePath: string | null;
   currentStatusKey: string;
   currentStatusParams: Record<string, string | number> | undefined;
@@ -48,8 +47,7 @@ export const appState: AppState = {
   eseClient: new EseClient(),
   eseTree: null,
   judgementClient: new JudgementClient(),
-  judgements: [],
-  judgementDeltas: [],
+  judgements: new Map(),
   currentEsePath: null,
   currentStatusKey: "status.initializing",
   currentStatusParams: undefined,

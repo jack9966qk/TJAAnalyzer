@@ -34,7 +34,35 @@ test.describe("Judgement View Edge Cases", () => {
 
     await page.evaluate(
       ({ judgements, deltas }) => {
-        window.setJudgements(judgements, deltas);
+        // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
+        const tjaChart = document.getElementById("chart-component") as any;
+        const chart = tjaChart.chart;
+        const map = new Map<string, { judgement: string; delta: number }>();
+
+        if (chart) {
+          let noteCount = 0;
+          const counters: Record<string, number> = {};
+
+          for (const bar of chart.bars) {
+            for (const char of bar) {
+              if (["1", "2", "3", "4"].includes(char)) {
+                if (noteCount < judgements.length) {
+                  const j = judgements[noteCount];
+                  const d = deltas[noteCount];
+
+                  if (counters[char] === undefined) counters[char] = 0;
+                  const ordinal = counters[char];
+                  counters[char]++;
+
+                  map.set(`${char}_${ordinal}`, { judgement: j, delta: d });
+                }
+                noteCount++;
+              }
+            }
+          }
+        }
+
+        window.setJudgements(map);
       },
       { judgements, deltas },
     );

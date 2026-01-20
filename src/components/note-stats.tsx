@@ -7,8 +7,7 @@ export class NoteStatsDisplay extends HTMLElement {
   private _hit: HitInfo | null = null;
   private _chart: ParsedChart | null = null;
   private _viewOptions: ViewOptions | null = null;
-  private _judgements: string[] = [];
-  private _judgementDeltas: (number | undefined)[] = [];
+  private _judgements: Map<string, { judgement: string; delta: number }> = new Map();
 
   constructor() {
     super();
@@ -34,13 +33,8 @@ export class NoteStatsDisplay extends HTMLElement {
     this.render();
   }
 
-  set judgements(value: string[]) {
+  set judgements(value: Map<string, { judgement: string; delta: number }>) {
     this._judgements = value;
-    this.render();
-  }
-
-  set judgementDeltas(value: (number | undefined)[]) {
-    this._judgementDeltas = value;
     this.render();
   }
 
@@ -132,7 +126,6 @@ export class NoteStatsDisplay extends HTMLElement {
     const chart = this._chart;
     const options = this._viewOptions;
     const judgements = this._judgements;
-    const judgementDeltas = this._judgementDeltas;
 
     const {
       collapsedLoop: collapsed,
@@ -163,7 +156,7 @@ export class NoteStatsDisplay extends HTMLElement {
       hit &&
       options &&
       (viewMode === "judgements" || viewMode === "judgements-underline" || viewMode === "judgements-text") &&
-      hit.judgeableNoteIndex !== null &&
+      hit.ordinal !== undefined && // Use ordinal instead of judgeableNoteIndex
       targetChart
     ) {
       const deltas: number[] = [];
@@ -171,53 +164,53 @@ export class NoteStatsDisplay extends HTMLElement {
       if (collapsed && targetChart.loop) {
         const loop = targetChart.loop;
         if (hit.originalBarIndex >= loop.startBarIndex && hit.originalBarIndex < loop.startBarIndex + loop.period) {
-          // Loop Logic
-          let baseIndex = 0;
-          for (let b = 0; b < hit.originalBarIndex; b++) {
-            const bar = targetChart.bars[b];
-            if (bar) {
-              for (const c of bar) if (["1", "2", "3", "4"].includes(c)) baseIndex++;
-            }
-          }
-          let offsetInBar = 0;
-          const targetBar = targetChart.bars[hit.originalBarIndex];
-          for (let c = 0; c < hit.charIndex; c++) {
-            if (["1", "2", "3", "4"].includes(targetBar[c])) offsetInBar++;
-          }
-          const noteIndexInFirstIter = baseIndex + offsetInBar;
-
-          let notesPerLoop = 0;
-          for (let k = 0; k < loop.period; k++) {
-            const bar = targetChart.bars[loop.startBarIndex + k];
-            if (bar) {
-              for (const c of bar) if (["1", "2", "3", "4"].includes(c)) notesPerLoop++;
-            }
+          const counters: Record<string, number> = {};
+          const map = new Map<string, number>();
+          // Build map for relevant bars? Or full chart.
+          for (let i = 0; i < targetChart.bars.length; i++) {
+            const bar = targetChart.bars[i];
+            if (bar)
+              for (let j = 0; j < bar.length; j++) {
+                const c = bar[j];
+                if (["1", "2", "3", "4"].includes(c)) {
+                  if (!counters[c]) counters[c] = 0;
+                  map.set(`${i}_${j}`, counters[c]);
+                  counters[c]++;
+                }
+              }
           }
 
-          // Determine current iteration index for bolding
+          // Determine relative position
+          // `hit.originalBarIndex` is inside the first loop iteration (template).
+          const relBarIdx = hit.originalBarIndex - loop.startBarIndex; // 0 to period-1
+
           let currentIterationIdx = -1;
-
-          if (options.selectedLoopIteration !== undefined) {
-            currentIterationIdx = options.selectedLoopIteration;
-          } else {
-            let preLoopNotes = 0;
-            for (let i = 0; i < loop.startBarIndex; i++) {
-              const bar = targetChart.bars[i];
-              if (bar) for (const c of bar) if (["1", "2", "3", "4"].includes(c)) preLoopNotes++;
-            }
-            const lastJudgedIndex = judgements.length - 1;
-            if (lastJudgedIndex >= preLoopNotes && notesPerLoop > 0) {
-              const relativeIndex = lastJudgedIndex - preLoopNotes;
-              currentIterationIdx = Math.floor(relativeIndex / notesPerLoop);
-            }
-          }
-          if (currentIterationIdx < 0) currentIterationIdx = 0;
+          const iterationOrdinals: number[] = [];
 
           for (let iter = 0; iter < loop.iterations; iter++) {
-            const globalIdx = noteIndexInFirstIter + iter * notesPerLoop;
-            if (globalIdx < judgementDeltas.length) {
-              const delta = judgementDeltas[globalIdx];
-              const judge = judgements[globalIdx];
+            const actualBarIdx = loop.startBarIndex + iter * loop.period + relBarIdx;
+            const ord = map.get(`${actualBarIdx}_${hit.charIndex}`);
+            if (ord !== undefined) {
+              iterationOrdinals.push(ord);
+              if (ord === hit.ordinal) {
+                currentIterationIdx = iter;
+              }
+            } else {
+              iterationOrdinals.push(-1); // Should not happen if loop logic is correct
+            }
+          }
+
+          // Render Deltas for all iterations
+          for (let iter = 0; iter < iterationOrdinals.length; iter++) {
+            const ord = iterationOrdinals[iter];
+            if (ord === -1) continue;
+
+            const key = `${hit.type}_${ord}`;
+            const judgeData = judgements.get(key);
+
+            if (judgeData) {
+              const delta = judgeData.delta;
+              const judge = judgeData.judgement;
 
               // Check visibility
               let isVisible = true;
@@ -227,16 +220,13 @@ export class NoteStatsDisplay extends HTMLElement {
 
               if (!isVisible) continue;
 
-              if (delta !== undefined) deltas.push(delta);
+              deltas.push(delta);
 
-              const text = delta !== undefined ? delta.toString() : "?";
+              const text = delta.toString();
               let color = "";
 
               if (coloringMode === "gradient") {
-                if (
-                  (judge === JudgementType.Perfect || judge === JudgementType.Good || judge === JudgementType.Poor) &&
-                  delta !== undefined
-                ) {
+                if (judge === JudgementType.Perfect || judge === JudgementType.Good || judge === JudgementType.Poor) {
                   color = getGradientColor(delta);
                 } else {
                   color = PALETTE.judgements.miss; // Dark Grey for non-standard
@@ -253,12 +243,9 @@ export class NoteStatsDisplay extends HTMLElement {
               }
 
               allDeltasElements.push(el);
-              if (iter < loop.iterations - 1) {
-                // We can't know for sure if the next one is visible or not easily without peeking,
-                // but we want comma separation.
-              }
             }
           }
+
           // Add commas
           if (allDeltasElements.length > 0) {
             const joined: JSX.Element[] = [];
@@ -281,18 +268,19 @@ export class NoteStatsDisplay extends HTMLElement {
             }
           }
         } else {
-          // Non-loop part
-          if (hit.judgeableNoteIndex < judgementDeltas.length) {
-            const delta = judgementDeltas[hit.judgeableNoteIndex];
-            const judge = judgements[hit.judgeableNoteIndex];
+          const key = `${hit.type}_${hit.ordinal}`;
+          const judgeData = judgements.get(key);
 
-            // Check visibility
+          if (judgeData) {
+            const delta = judgeData.delta;
+            const judge = judgeData.judgement;
+
             let isVisible = true;
             if (judge === JudgementType.Perfect && !judgementVisibility.perfect) isVisible = false;
             else if (judge === JudgementType.Good && !judgementVisibility.good) isVisible = false;
             else if (judge === JudgementType.Poor && !judgementVisibility.poor) isVisible = false;
 
-            if (isVisible && delta !== undefined) {
+            if (isVisible) {
               avgDeltaVal = `${delta}ms`;
               let color = "";
 
@@ -320,16 +308,19 @@ export class NoteStatsDisplay extends HTMLElement {
         }
       } else {
         // Standard Mode
-        if (hit.judgeableNoteIndex < judgementDeltas.length) {
-          const delta = judgementDeltas[hit.judgeableNoteIndex];
-          const judge = judgements[hit.judgeableNoteIndex];
+        const key = `${hit.type}_${hit.ordinal}`;
+        const judgeData = judgements.get(key);
+
+        if (judgeData) {
+          const delta = judgeData.delta;
+          const judge = judgeData.judgement;
 
           let isVisible = true;
           if (judge === JudgementType.Perfect && !judgementVisibility.perfect) isVisible = false;
           else if (judge === JudgementType.Good && !judgementVisibility.good) isVisible = false;
           else if (judge === JudgementType.Poor && !judgementVisibility.poor) isVisible = false;
 
-          if (isVisible && delta !== undefined) {
+          if (isVisible) {
             deltaVal = `${delta}ms`;
             let color = "";
             if (coloringMode === "gradient") {

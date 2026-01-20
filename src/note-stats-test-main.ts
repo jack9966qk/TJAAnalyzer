@@ -23,14 +23,36 @@ w.setStats = (
   hit: HitInfo | null,
   chart: ParsedChart | null,
   viewOptions: ViewOptions | null,
-  judgements: string[] = [],
-  judgementDeltas: (number | undefined)[] = [],
+  judgementsArr: string[] = [],
+  judgementDeltasArr: (number | undefined)[] = [],
 ) => {
   if (noteStats) {
-    if (chart) noteStats.chart = chart;
-    if (viewOptions) noteStats.viewOptions = viewOptions;
-    noteStats.judgements = judgements;
-    noteStats.judgementDeltas = judgementDeltas;
+    noteStats.chart = chart;
+    noteStats.viewOptions = viewOptions;
     noteStats.hit = hit;
+
+    const map = new Map<string, { judgement: string; delta: number }>();
+    if (chart && judgementsArr.length > 0) {
+      let noteCount = 0;
+      const counters: Record<string, number> = {};
+      for (const bar of chart.bars) {
+        for (const char of bar) {
+          if (["1", "2", "3", "4"].includes(char)) {
+            if (noteCount < judgementsArr.length) {
+              if (counters[char] === undefined) counters[char] = 0;
+              const ord = counters[char];
+              counters[char]++;
+
+              map.set(`${char}_${ord}`, {
+                judgement: judgementsArr[noteCount],
+                delta: judgementDeltasArr[noteCount] || 0,
+              });
+            }
+            noteCount++;
+          }
+        }
+      }
+    }
+    noteStats.judgements = map;
   }
 };

@@ -53,9 +53,8 @@ window.autoAnnotate = () => {
   tjaChart.autoAnnotate();
 };
 
-window.setJudgements = (judgements: string[], deltas: (number | undefined)[]) => {
-  tjaChart.judgements = judgements;
-  tjaChart.judgementDeltas = deltas || [];
+window.setJudgements = (newJudgements: Map<string, { judgement: string; delta: number }>) => {
+  tjaChart.judgements = newJudgements;
 };
 
 // Default Options

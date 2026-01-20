@@ -26,8 +26,7 @@ export class TJAChart extends HTMLElement {
   private messageContainer!: HTMLDivElement;
   private _chart: ParsedChart | null = null;
   private _viewOptions: ViewOptions | null = null;
-  private _judgements: string[] = [];
-  private _judgementDeltas: (number | undefined)[] = [];
+  private _judgements: Map<string, { judgement: string; delta: number }> = new Map();
   private _texts: RenderTexts | undefined;
   private _message: { text: string; type: "warning" | "info" } | null = null;
   private resizeObserver: ResizeObserver;
@@ -36,6 +35,7 @@ export class TJAChart extends HTMLElement {
   private _renderTask: number | null = null;
   private _pendingFullRender: boolean = true;
   private _layout: ChartLayout | null = null;
+  private _renderedJudgements: Map<string, { judgement: string; delta: number }> = new Map();
 
   constructor() {
     super();
@@ -53,7 +53,6 @@ export class TJAChart extends HTMLElement {
     this.upgradeProperty("chart");
     this.upgradeProperty("viewOptions");
     this.upgradeProperty("judgements");
-    this.upgradeProperty("judgementDeltas");
     this.upgradeProperty("texts");
 
     this.resizeObserver.observe(this);
@@ -162,18 +161,13 @@ export class TJAChart extends HTMLElement {
     return this._viewOptions;
   }
 
-  set judgements(value: string[]) {
+  set judgements(value: Map<string, { judgement: string; delta: number }>) {
     this._judgements = value;
     this.scheduleRender();
   }
 
-  get judgements(): string[] {
+  get judgements(): Map<string, { judgement: string; delta: number }> {
     return this._judgements;
-  }
-
-  set judgementDeltas(value: (number | undefined)[]) {
-    this._judgementDeltas = value;
-    this.scheduleRender();
   }
 
   set texts(value: RenderTexts) {
@@ -247,9 +241,11 @@ export class TJAChart extends HTMLElement {
       return;
     }
 
+    const isFullRender = this._pendingFullRender || !this._layout;
+
     // We are doing a full render (either forced or because no incremental update needed/possible)
     // But we only need to recreate layout if pending full render or layout missing
-    if (this._pendingFullRender || !this._layout) {
+    if (isFullRender) {
       this._layout = createLayout(this._chart, this.canvas, this._viewOptions, this._judgements);
       this._pendingFullRender = false;
     }
@@ -259,11 +255,62 @@ export class TJAChart extends HTMLElement {
       judgement: { perfect: "良", good: "可", poor: "不可" },
     };
 
+    let dirtyRowY: Set<number> | undefined;
+
+    if (!isFullRender && this._layout) {
+      // Differential Rendering
+      const changedKeys: string[] = [];
+
+      // Check for added or changed items
+      for (const [key, val] of this._judgements) {
+        const oldVal = this._renderedJudgements.get(key);
+        if (!oldVal || oldVal.judgement !== val.judgement || oldVal.delta !== val.delta) {
+          changedKeys.push(key);
+        }
+      }
+
+      // Check for removed items
+      for (const key of this._renderedJudgements.keys()) {
+        if (!this._judgements.has(key)) {
+          changedKeys.push(key);
+        }
+      }
+
+      if (changedKeys.length > 0) {
+        dirtyRowY = new Set<number>();
+        const grid = this._layout.noteOrdinalToGrid;
+        const layouts = this._layout.layouts;
+
+        for (const key of changedKeys) {
+          const locations = grid.get(key);
+          if (locations) {
+            for (const loc of locations) {
+              const barLayout = layouts[loc.virtualBarIdx];
+              if (barLayout) {
+                dirtyRowY.add(barLayout.y);
+              }
+            }
+          }
+        }
+      } else {
+        // Nothing changed
+        return;
+      }
+    }
+
     if (this._layout) {
-      renderLayout(ctx, this._layout, this._chart, this._judgements, this._judgementDeltas, this._viewOptions, texts);
+      renderLayout(ctx, this._layout, this._chart, this._judgements, this._viewOptions, texts, dirtyRowY);
+
+      // Update cache
+      if (!dirtyRowY) {
+        // Full render, sync completely
+        this._renderedJudgements = new Map(this._judgements);
+      } else {
+        // Partial render, sync completely (easier than patching)
+        this._renderedJudgements = new Map(this._judgements);
+      }
     }
   }
-
   // Public method to force render (e.g. after resizing parent not caught by observer, or manual trigger)
   refresh() {
     this._pendingFullRender = true;
@@ -383,7 +430,6 @@ export class TJAChart extends HTMLElement {
       this._chart,
       canvas,
       this._judgements,
-      this._judgementDeltas,
       options,
       this._texts || { loopPattern: "Loop x{n}", judgement: { perfect: "良", good: "可", poor: "不可" } }, // Fallback defaults if not set
       1,

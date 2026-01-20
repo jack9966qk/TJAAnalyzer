@@ -1,9 +1,12 @@
 import { exampleTJA } from "../core/example-data.js";
+import { parseTJA } from "../core/tja-parser.js";
 
 export interface JudgementEvent {
   type: "judgement";
   judgement: string;
   msDelta?: number;
+  noteChar: string;
+  noteOrdinalByChar: number;
 }
 
 export interface GameplayStartEvent {
@@ -105,22 +108,58 @@ export class JudgementClient {
 
     if (this.onStatusChangeCallback) this.onStatusChangeCallback("Connected");
 
+    const content = tjaContent || exampleTJA;
+    const diff = difficulty || "oni";
+
     if (this.onMessageCallback) {
       const gameplayStartEvent: GameplayStartEvent = {
         type: "gameplay_start",
         tjaSummaries: [
           {
             player: 1,
-            tjaContent: tjaContent || exampleTJA,
-            difficulty: difficulty || "oni",
+            tjaContent: content,
+            difficulty: diff,
           },
         ],
       };
       this.onMessageCallback(gameplayStartEvent);
     }
 
+    // Prepare simulation data
+    const parsed = parseTJA(content);
+    const chart = parsed[diff] || Object.values(parsed)[0];
+
+    if (!chart) {
+      console.error("Simulation failed: Could not parse chart");
+      return;
+    }
+
+    // Flatten notes to list
+    const notes: { type: string; ordinal: number }[] = [];
+    const ordinalCounters: Record<string, number> = {};
+
+    for (const bar of chart.bars) {
+      for (const char of bar) {
+        if (["1", "2", "3", "4"].includes(char)) {
+          if (ordinalCounters[char] === undefined) ordinalCounters[char] = 0;
+          notes.push({ type: char, ordinal: ordinalCounters[char] });
+          ordinalCounters[char]++;
+        }
+      }
+    }
+
+    let currentNoteIndex = 0;
+
     this.simulateInterval = window.setInterval(
       () => {
+        if (currentNoteIndex >= notes.length) {
+          if (this.simulateInterval) clearInterval(this.simulateInterval);
+          return;
+        }
+
+        const note = notes[currentNoteIndex];
+        currentNoteIndex++;
+
         const rand = Math.random();
         let randomType = "perfect";
         if (rand < 0.9) {
@@ -138,6 +177,8 @@ export class JudgementClient {
           type: "judgement",
           judgement: randomType,
           msDelta: randomDelta,
+          noteChar: note.type,
+          noteOrdinalByChar: note.ordinal,
         };
 
         if (this.onMessageCallback) {

@@ -203,7 +203,8 @@ LEVEL:10
 1000100010001000,
 #END`;
       window.loadChart(tja, "oni");
-      window.testOptions = {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
+      (window as any).testOptions = {
         viewMode: "original",
         coloringMode: "categorical",
         visibility: { perfect: true, good: true, poor: true },
@@ -214,7 +215,8 @@ LEVEL:10
         isAnnotationMode: true, // Initially true
         showAllBranches: false,
       };
-      window.setOptions(window.testOptions);
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
+      window.setOptions((window as any).testOptions);
     });
 
     const canvas = page.locator("#chart-component");
@@ -222,8 +224,10 @@ LEVEL:10
     await expect(canvas).toHaveScreenshot("annotation-visible-when-active.png");
 
     await page.evaluate(() => {
-      window.testOptions.isAnnotationMode = false;
-      window.setOptions(window.testOptions);
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
+      (window as any).testOptions.isAnnotationMode = false;
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
+      window.setOptions((window as any).testOptions);
     });
 
     // Should NOT show 'L'
