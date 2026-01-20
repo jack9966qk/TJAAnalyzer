@@ -1,5 +1,13 @@
 import * as webjsx from "webjsx";
-import { getGradientColor, type HitInfo, JudgementType, PALETTE, type ViewOptions } from "../core/renderer.js";
+import {
+  getGradientColor,
+  type HitInfo,
+  type JudgementKey,
+  JudgementType,
+  type JudgementValue,
+  PALETTE,
+  type ViewOptions,
+} from "../core/renderer.js";
 import type { ParsedChart } from "../core/tja-parser.js";
 import { i18n } from "../utils/i18n.js";
 
@@ -7,7 +15,7 @@ export class NoteStatsDisplay extends HTMLElement {
   private _hit: HitInfo | null = null;
   private _chart: ParsedChart | null = null;
   private _viewOptions: ViewOptions | null = null;
-  private _judgements: Map<string, { judgement: string; delta: number }> = new Map();
+  private _judgements: Map<JudgementKey, JudgementValue> = new Map();
 
   constructor() {
     super();
@@ -33,7 +41,7 @@ export class NoteStatsDisplay extends HTMLElement {
     this.render();
   }
 
-  set judgements(value: Map<string, { judgement: string; delta: number }>) {
+  set judgements(value: Map<JudgementKey, JudgementValue>) {
     this._judgements = value;
     this.render();
   }

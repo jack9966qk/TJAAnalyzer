@@ -22,7 +22,7 @@ import {
   updateStatsComponent,
 } from "./controllers/chart-controller.js";
 import { handleLayoutToggle, updateLayout } from "./controllers/layout-controller.js";
-import type { HitInfo } from "./core/renderer.js";
+import { createJudgementKey, type HitInfo, type JudgementKey, type JudgementValue } from "./core/renderer.js";
 import { appState } from "./state/app-state.js";
 import { i18n } from "./utils/i18n.js";
 import {
@@ -487,7 +487,7 @@ function initJudgementClient() {
 
       if (chartListPanel) chartListPanel.resetExampleButton();
     } else if (event.type === "judgement") {
-      const key = `${event.noteChar}_${event.noteOrdinalByChar}`;
+      const key = createJudgementKey(event.noteChar, event.noteOrdinalByChar);
       appState.judgements.set(key, {
         judgement: event.judgement,
         delta: event.msDelta || 0,
@@ -608,11 +608,13 @@ window.addEventListener("resize", () => {
 });
 
 // Expose for testing
-window.setJudgements = (newJudgements: Map<string, { judgement: string; delta: number }>) => {
+window.setJudgements = (newJudgements: Map<JudgementKey, JudgementValue>) => {
   appState.judgements = newJudgements;
   refreshChart();
   updateStatsComponent(null);
 };
+
+window.createJudgementKey = createJudgementKey;
 
 window.loadTJAContent = (content: string) => {
   appState.loadedTJAContent = content;

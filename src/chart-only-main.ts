@@ -1,6 +1,6 @@
 import { TJAChart } from "./components/tja-chart.js";
 import { exampleTJA } from "./core/example-data.js";
-import type { ViewOptions } from "./core/renderer.js";
+import { createJudgementKey, type JudgementKey, type JudgementValue, type ViewOptions } from "./core/renderer.js";
 import { parseTJA } from "./core/tja-parser.js";
 
 // Ensure side-effects
@@ -11,6 +11,8 @@ console.log("Chart Only Main Loaded");
 const tjaChart = document.getElementById("chart-component") as TJAChart;
 
 // Expose API for Playwright
+window.createJudgementKey = createJudgementKey;
+
 window.loadChart = (tjaContent: string, difficulty: string = "oni") => {
   try {
     const parsed = parseTJA(tjaContent);
@@ -53,7 +55,7 @@ window.autoAnnotate = () => {
   tjaChart.autoAnnotate();
 };
 
-window.setJudgements = (newJudgements: Map<string, { judgement: string; delta: number }>) => {
+window.setJudgements = (newJudgements: Map<JudgementKey, JudgementValue>) => {
   tjaChart.judgements = newJudgements;
 };
 

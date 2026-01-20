@@ -1,5 +1,6 @@
 import path from "node:path";
 import { expect, test } from "@playwright/test";
+import type { JudgementKey, JudgementValue } from "../src/core/renderer.js";
 
 test.describe("Visual Regression", () => {
   test("Initial Render", async ({ page }) => {
@@ -160,7 +161,7 @@ test.describe("Visual Regression", () => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
       const tjaChart = document.getElementById("chart-component") as any;
       const chart = tjaChart.chart;
-      const map = new Map<string, { judgement: string; delta: number }>();
+      const map = new Map<JudgementKey, JudgementValue>();
 
       if (chart) {
         let noteCount = 0;
@@ -176,7 +177,7 @@ test.describe("Visual Regression", () => {
                 const ordinal = counters[char];
                 counters[char]++;
 
-                map.set(`${char}_${ordinal}`, { judgement: j, delta: 0 });
+                map.set(window.createJudgementKey(char, ordinal), { judgement: j, delta: 0 });
               }
               noteCount++;
             }
@@ -232,7 +233,7 @@ test.describe("Visual Regression", () => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
       const tjaChart = document.getElementById("chart-component") as any;
       const chart = tjaChart.chart;
-      const map = new Map<string, { judgement: string; delta: number }>();
+      const map = new Map<JudgementKey, JudgementValue>();
 
       if (chart) {
         let noteCount = 0;
@@ -248,7 +249,7 @@ test.describe("Visual Regression", () => {
                 const ordinal = counters[char];
                 counters[char]++;
 
-                map.set(`${char}_${ordinal}`, { judgement: j, delta: 0 });
+                map.set(window.createJudgementKey(char, ordinal), { judgement: j, delta: 0 });
               }
               noteCount++;
             }
@@ -304,7 +305,7 @@ test.describe("Visual Regression", () => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
       const tjaChart = document.getElementById("chart-component") as any;
       const chart = tjaChart.chart;
-      const map = new Map<string, { judgement: string; delta: number }>();
+      const map = new Map<JudgementKey, JudgementValue>();
 
       if (chart) {
         let noteCount = 0;
@@ -320,7 +321,7 @@ test.describe("Visual Regression", () => {
                 const ordinal = counters[char];
                 counters[char]++;
 
-                map.set(`${char}_${ordinal}`, { judgement: j, delta: 0 });
+                map.set(window.createJudgementKey(char, ordinal), { judgement: j, delta: 0 });
               }
               noteCount++;
             }
@@ -388,7 +389,7 @@ test.describe("Visual Regression", () => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
       const tjaChart = document.getElementById("chart-component") as any;
       const chart = tjaChart.chart;
-      const map = new Map<string, { judgement: string; delta: number }>();
+      const map = new Map<JudgementKey, JudgementValue>();
 
       if (chart) {
         let noteCount = 0;
@@ -405,7 +406,7 @@ test.describe("Visual Regression", () => {
                 const ordinal = counters[char];
                 counters[char]++;
 
-                map.set(`${char}_${ordinal}`, { judgement: j, delta: d });
+                map.set(window.createJudgementKey(char, ordinal), { judgement: j, delta: d });
               }
               noteCount++;
             }

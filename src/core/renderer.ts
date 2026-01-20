@@ -12,6 +12,17 @@ export enum JudgementType {
   Mine = "mine",
 }
 
+export type JudgementKey = string; // Format: `${char}_${ordinal}`
+
+export function createJudgementKey(char: string, ordinal: number): JudgementKey {
+  return `${char}_${ordinal}`;
+}
+
+export interface JudgementValue {
+  judgement: string;
+  delta: number;
+}
+
 export const PALETTE = {
   background: "#d4d4d4ff",
   text: {
@@ -281,7 +292,7 @@ function isNoteSelected(barIdx: number, charIdx: number, selection: ViewOptions[
 function getVirtualBars(
   chart: ParsedChart,
   options: ViewOptions,
-  judgements: Map<string, { judgement: string; delta: number }>,
+  judgements: Map<JudgementKey, JudgementValue>,
   noteOrdinals: Map<string, number>,
 ): RenderBarInfo[] {
   const { bars, loop } = chart;
@@ -318,7 +329,7 @@ function getVirtualBars(
                 const char = bar[j];
                 if (["1", "2", "3", "4"].includes(char)) {
                   const ord = noteOrdinals.get(`${barIdx}_${j}`);
-                  if (ord !== undefined && judgements.has(`${char}_${ord}`)) {
+                  if (ord !== undefined && judgements.has(createJudgementKey(char, ord))) {
                     hasJudgement = true;
                     break;
                   }
@@ -485,7 +496,7 @@ export function getNoteAt(
   y: number,
   chart: ParsedChart,
   canvas: HTMLCanvasElement,
-  judgements: Map<string, { judgement: string; delta: number }> = new Map(),
+  judgements: Map<JudgementKey, JudgementValue> = new Map(),
   options: ViewOptions,
   layout?: ChartLayout,
 ): HitInfo | null {
@@ -685,7 +696,7 @@ export function createLayout(
   chart: ParsedChart,
   canvas: HTMLCanvasElement,
   options: ViewOptions,
-  judgements: Map<string, { judgement: string; delta: number }>,
+  judgements: Map<JudgementKey, JudgementValue>,
   customDpr?: number,
 ): ChartLayout {
   // Reset width to 100% to allow measuring the container's available width
@@ -717,7 +728,7 @@ export function createLayout(
         if (["1", "2", "3", "4"].includes(char)) {
           const ord = noteOrdinals.get(`${info.originalIndex}_${j}`);
           if (ord !== undefined) {
-            const key = `${char}_${ord}`;
+            const key = createJudgementKey(char, ord);
             if (!noteOrdinalToGrid.has(key)) noteOrdinalToGrid.set(key, []);
             noteOrdinalToGrid.get(key)?.push({ virtualBarIdx: vIdx, charIdx: j });
           }
@@ -753,7 +764,7 @@ export function renderLayout(
   ctx: CanvasRenderingContext2D,
   layout: ChartLayout,
   chart: ParsedChart,
-  judgements: Map<string, { judgement: string; delta: number }>,
+  judgements: Map<JudgementKey, JudgementValue>,
   options: ViewOptions,
   texts: RenderTexts,
   dirtyRowY?: Set<number>,
@@ -1156,7 +1167,7 @@ function drawAllBranchesNotes(
   layouts: BarLayout[],
   constants: RenderConstants,
   options: ViewOptions,
-  judgements: Map<string, { judgement: string; delta: number }>,
+  judgements: Map<JudgementKey, JudgementValue>,
   texts: RenderTexts,
   _balloonIndices: Map<string, number>,
   BASE_LANE_HEIGHT: number,
@@ -1247,7 +1258,7 @@ function drawAllBranchesNotes(
 export function renderChart(
   chart: ParsedChart,
   canvas: HTMLCanvasElement,
-  judgements: Map<string, { judgement: string; delta: number }> = new Map(),
+  judgements: Map<JudgementKey, JudgementValue> = new Map(),
   options: ViewOptions,
   texts: RenderTexts = DEFAULT_TEXTS,
   customDpr?: number,
@@ -2359,7 +2370,7 @@ function drawBarNotes(
   borderInnerW: number,
   borderUnderlineW: number,
   options: ViewOptions,
-  judgements: Map<string, { judgement: string; delta: number }>,
+  judgements: Map<JudgementKey, JudgementValue>,
   texts: RenderTexts,
   originalBarIndex: number = -1,
   loopInfo?: LoopInfo,
@@ -2411,7 +2422,7 @@ function drawBarNotes(
             if (noteOrdinals) {
               const ordinal = noteOrdinals.get(`${actualBarIdx}_${i}`);
               if (ordinal !== undefined) {
-                const key = `${char}_${ordinal}`;
+                const key = createJudgementKey(char, ordinal);
                 const judgeData = judgements.get(key);
 
                 if (judgeData) {
@@ -2443,7 +2454,7 @@ function drawBarNotes(
           if (noteOrdinals) {
             const ordinal = noteOrdinals.get(`${barIdx}_${i}`);
             if (ordinal !== undefined) {
-              const key = `${char}_${ordinal}`;
+              const key = createJudgementKey(char, ordinal);
               const judgeData = judgements.get(key);
               if (judgeData) {
                 const j = judgeData.judgement;
@@ -2477,7 +2488,7 @@ function drawBarNotes(
         if (noteOrdinals) {
           const ordinal = noteOrdinals.get(`${barIdx}_${i}`);
           if (ordinal !== undefined) {
-            const key = `${char}_${ordinal}`;
+            const key = createJudgementKey(char, ordinal);
             const judgeData = judgements.get(key);
             if (judgeData) {
               const judge = judgeData.judgement;
@@ -2575,7 +2586,7 @@ function drawBarNotes(
         if (noteOrdinals) {
           const ordinal = noteOrdinals.get(`${barIdx}_${i}`);
           if (ordinal !== undefined) {
-            const jd = judgements.get(`${noteChar}_${ordinal}`);
+            const jd = judgements.get(createJudgementKey(noteChar, ordinal));
             if (jd) judge = jd.judgement;
           }
         }

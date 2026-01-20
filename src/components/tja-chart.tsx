@@ -6,6 +6,8 @@ import {
   getNoteAt,
   getNotePosition,
   type HitInfo,
+  type JudgementKey,
+  type JudgementValue,
   PALETTE,
   type RenderTexts,
   renderChart,
@@ -26,7 +28,7 @@ export class TJAChart extends HTMLElement {
   private messageContainer!: HTMLDivElement;
   private _chart: ParsedChart | null = null;
   private _viewOptions: ViewOptions | null = null;
-  private _judgements: Map<string, { judgement: string; delta: number }> = new Map();
+  private _judgements: Map<JudgementKey, JudgementValue> = new Map();
   private _texts: RenderTexts | undefined;
   private _message: { text: string; type: "warning" | "info" } | null = null;
   private resizeObserver: ResizeObserver;
@@ -35,7 +37,7 @@ export class TJAChart extends HTMLElement {
   private _renderTask: number | null = null;
   private _pendingFullRender: boolean = true;
   private _layout: ChartLayout | null = null;
-  private _renderedJudgements: Map<string, { judgement: string; delta: number }> = new Map();
+  private _renderedJudgements: Map<JudgementKey, JudgementValue> = new Map();
 
   constructor() {
     super();
@@ -161,12 +163,12 @@ export class TJAChart extends HTMLElement {
     return this._viewOptions;
   }
 
-  set judgements(value: Map<string, { judgement: string; delta: number }>) {
+  set judgements(value: Map<JudgementKey, JudgementValue>) {
     this._judgements = value;
     this.scheduleRender();
   }
 
-  get judgements(): Map<string, { judgement: string; delta: number }> {
+  get judgements(): Map<JudgementKey, JudgementValue> {
     return this._judgements;
   }
 

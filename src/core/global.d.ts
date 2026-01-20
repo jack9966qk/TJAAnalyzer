@@ -1,4 +1,4 @@
-import type { ViewOptions } from "./renderer.ts";
+import type { ViewOptions, JudgementKey, JudgementValue } from "./renderer.ts";
 
 declare global {
   interface Window {
@@ -7,7 +7,8 @@ declare global {
     loadChart: (tjaContent: string, difficulty?: string) => void;
     setOptions: (options: Partial<ViewOptions>) => void;
     autoAnnotate: () => void;
-    setJudgements: (newJudgements: Map<string, { judgement: string; delta: number }>) => void;
+    setJudgements: (newJudgements: Map<JudgementKey, JudgementValue>) => void;
+    createJudgementKey: (char: string, ordinal: number) => JudgementKey;
     loadTJAContent: (content: string) => void;
     setViewOptions: (opts: Partial<ViewOptions>) => void;
   }

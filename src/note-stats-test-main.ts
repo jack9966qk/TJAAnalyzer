@@ -1,5 +1,11 @@
 import { NoteStatsDisplay } from "./components/note-stats.js";
-import type { HitInfo, ViewOptions } from "./core/renderer.js";
+import {
+  createJudgementKey,
+  type HitInfo,
+  type JudgementKey,
+  type JudgementValue,
+  type ViewOptions,
+} from "./core/renderer.js";
 import type { ParsedChart } from "./core/tja-parser.js";
 
 // Ensure NoteStatsDisplay is registered
@@ -31,7 +37,7 @@ w.setStats = (
     noteStats.viewOptions = viewOptions;
     noteStats.hit = hit;
 
-    const map = new Map<string, { judgement: string; delta: number }>();
+    const map = new Map<JudgementKey, JudgementValue>();
     if (chart && judgementsArr.length > 0) {
       let noteCount = 0;
       const counters: Record<string, number> = {};
@@ -43,7 +49,7 @@ w.setStats = (
               const ord = counters[char];
               counters[char]++;
 
-              map.set(`${char}_${ord}`, {
+              map.set(createJudgementKey(char, ord), {
                 judgement: judgementsArr[noteCount],
                 delta: judgementDeltasArr[noteCount] || 0,
               });

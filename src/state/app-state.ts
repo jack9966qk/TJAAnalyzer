@@ -1,7 +1,7 @@
 import { EseClient, type GitNode } from "../clients/ese-client.js";
 import { JudgementClient } from "../clients/judgement-client.js";
 import { exampleTJA } from "../core/example-data.js";
-import type { HitInfo, ViewOptions } from "../core/renderer.js";
+import type { HitInfo, JudgementKey, JudgementValue, ViewOptions } from "../core/renderer.js";
 import type { ParsedChart } from "../core/tja-parser.js";
 
 interface AppState {
@@ -18,7 +18,7 @@ interface AppState {
   eseClient: EseClient;
   eseTree: GitNode[] | null;
   judgementClient: JudgementClient;
-  judgements: Map<string, { judgement: string; delta: number }>;
+  judgements: Map<JudgementKey, JudgementValue>;
   currentEsePath: string | null;
   currentStatusKey: string;
   currentStatusParams: Record<string, string | number> | undefined;

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import type { JudgementKey, JudgementValue } from "../src/core/renderer.js";
 
 test.describe("Judgement View Edge Cases", () => {
   test.beforeEach(async ({ page }) => {
@@ -37,7 +38,7 @@ test.describe("Judgement View Edge Cases", () => {
         // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
         const tjaChart = document.getElementById("chart-component") as any;
         const chart = tjaChart.chart;
-        const map = new Map<string, { judgement: string; delta: number }>();
+        const map = new Map<JudgementKey, JudgementValue>();
 
         if (chart) {
           let noteCount = 0;
@@ -54,7 +55,7 @@ test.describe("Judgement View Edge Cases", () => {
                   const ordinal = counters[char];
                   counters[char]++;
 
-                  map.set(`${char}_${ordinal}`, { judgement: j, delta: d });
+                  map.set(window.createJudgementKey(char, ordinal), { judgement: j, delta: d });
                 }
                 noteCount++;
               }
