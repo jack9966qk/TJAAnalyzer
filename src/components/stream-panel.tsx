@@ -76,15 +76,7 @@ export class StreamPanel extends HTMLElement {
             Remote Connection
           </h4>
           <p data-i18n="ui.stream.desc" style="margin-bottom: 10px;">
-            Connect to an external program that broadcasts currently played chart and judgement events. For example,
-            <a
-              href="https://github.com/jack9966qk/TJAAnalyzer/releases/tag/OpenTaikoPatched"
-              target="_blank"
-              rel="noopener"
-            >
-              this patched version
-            </a>
-            of OpenTaiko listens to connections at port 2354 (need to run as admin).
+            Connect to an external program that broadcasts currently played chart and judgement events. For <a href="https://github.com/0auBSQ/OpenTaiko/releases/tag/0.6.0.95" target="_blank">OpenTaiko v0.6.0.95</a> or above, turn on "Game Event Broadcasting" in settings.
           </p>
           <div className="control-group">
             <label>

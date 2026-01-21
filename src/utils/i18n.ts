@@ -23,7 +23,7 @@ const resources: Resources = {
     "ui.stream.remote": "Remote Connection",
     "ui.stream.test": "Test Simulation",
     "ui.stream.desc":
-      'Connect to an external program that broadcasts currently played chart and judgement events. For example, <a href="https://github.com/jack9966qk/TJAAnalyzer/releases/tag/OpenTaikoPatched" target="_blank">this patched version</a> of OpenTaiko listens to connections at port 2354 (need to run as admin).',
+      'Connect to an external program that broadcasts currently played chart and judgement events. For <a href="https://github.com/0auBSQ/OpenTaiko/releases/tag/0.6.0.95" target="_blank">OpenTaiko v0.6.0.95</a> or above, turn on "Game Event Broadcasting" in settings.',
     "ui.stream.host": "Host:",
     "ui.stream.port": "Port:",
     "ui.stream.connect": "Connect",
@@ -151,7 +151,7 @@ const resources: Resources = {
     "ui.stream.remote": "远程连接",
     "ui.stream.test": "测试模拟",
     "ui.stream.desc":
-      '连接到广播当前游玩谱面和判定事件的外部程序。例如<a href="https://github.com/jack9966qk/TJAAnalyzer/releases/tag/OpenTaikoPatched" target="_blank">这个 OpenTaiko 修改版</a>会监听端口 2354（需要以管理员身份运行）。',
+      '连接到广播当前游玩谱面和判定事件的外部程序。对于 <a href="https://github.com/0auBSQ/OpenTaiko/releases/tag/0.6.0.95" target="_blank">OpenTaiko v0.6.0.95</a> 或更高版本，请在设置中开启 "Game Event Broadcasting"。',
     "ui.stream.host": "主机：",
     "ui.stream.port": "端口：",
     "ui.stream.connect": "连接",
@@ -278,7 +278,7 @@ const resources: Resources = {
     "ui.stream.remote": "リモート接続",
     "ui.stream.test": "テストシミュレーション",
     "ui.stream.desc":
-      '現在プレイ中の譜面や判定イベントをブロードキャストする外部プログラムに接続します。例えば、<a href="https://github.com/jack9966qk/TJAAnalyzer/releases/tag/OpenTaikoPatched" target="_blank">このOpenTaikoのパッチ適用版</a>はポート2354で接続を待ち受けます（管理者権限で実行する必要があります）。',
+      '現在プレイ中の譜面や判定イベントをブロードキャストする外部プログラムに接続します。<a href="https://github.com/0auBSQ/OpenTaiko/releases/tag/0.6.0.95" target="_blank">OpenTaiko v0.6.0.95</a> 以上の場合、設定で "Game Event Broadcasting" をオンにしてください。',
     "ui.stream.host": "ホスト:",
     "ui.stream.port": "ポート:",
     "ui.stream.connect": "接続",
