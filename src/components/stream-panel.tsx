@@ -5,7 +5,7 @@ import { i18n } from "../utils/i18n.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
 
 export class StreamPanel extends HTMLElement {
-  private _host = "127.0.0.1";
+  private _host = "localhost";
   private _port = "2354";
 
   connectedCallback() {
