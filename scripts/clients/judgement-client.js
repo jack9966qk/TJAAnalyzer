@@ -1,4 +1,5 @@
 import { exampleTJA } from "../core/example-data.js";
+import { parseTJA } from "../core/tja-parser.js";
 export class JudgementClient {
     eventSource = null;
     simulateInterval = null;
@@ -54,7 +55,7 @@ export class JudgementClient {
                 this.onStatusChangeCallback("Connection Failed");
         }
     }
-    disconnect() {
+    cleanup() {
         let wasConnected = false;
         if (this.eventSource) {
             this.eventSource.close();
@@ -66,39 +67,73 @@ export class JudgementClient {
             this.simulateInterval = null;
             wasConnected = true;
         }
+        return wasConnected;
+    }
+    disconnect() {
+        const wasConnected = this.cleanup();
         if (wasConnected && this.onStatusChangeCallback) {
             this.onStatusChangeCallback("Disconnected");
         }
     }
     startSimulation(tjaContent, difficulty) {
-        this.disconnect();
+        this.cleanup();
         console.log("Starting simulation...");
         if (this.onStatusChangeCallback)
             this.onStatusChangeCallback("Connected");
+        const content = tjaContent || exampleTJA;
+        const diff = difficulty || "oni";
         if (this.onMessageCallback) {
             const gameplayStartEvent = {
                 type: "gameplay_start",
                 tjaSummaries: [
                     {
                         player: 1,
-                        tjaContent: tjaContent || exampleTJA,
-                        difficulty: difficulty || "oni",
+                        tjaContent: content,
+                        difficulty: diff,
                     },
                 ],
             };
             this.onMessageCallback(gameplayStartEvent);
         }
+        // Prepare simulation data
+        const parsed = parseTJA(content);
+        const chart = parsed[diff] || Object.values(parsed)[0];
+        if (!chart) {
+            console.error("Simulation failed: Could not parse chart");
+            return;
+        }
+        // Flatten notes to list
+        const notes = [];
+        const ordinalCounters = {};
+        for (const bar of chart.bars) {
+            for (const char of bar) {
+                if (["1", "2", "3", "4"].includes(char)) {
+                    if (ordinalCounters[char] === undefined)
+                        ordinalCounters[char] = 0;
+                    notes.push({ type: char, ordinal: ordinalCounters[char] });
+                    ordinalCounters[char]++;
+                }
+            }
+        }
+        let currentNoteIndex = 0;
         this.simulateInterval = window.setInterval(() => {
+            if (currentNoteIndex >= notes.length) {
+                if (this.simulateInterval)
+                    clearInterval(this.simulateInterval);
+                return;
+            }
+            const note = notes[currentNoteIndex];
+            currentNoteIndex++;
             const rand = Math.random();
-            let randomType = "Perfect";
+            let randomType = "perfect";
             if (rand < 0.9) {
-                randomType = "Perfect";
+                randomType = "perfect";
             }
             else if (rand < 0.99) {
-                randomType = "Good";
+                randomType = "good";
             }
             else {
-                randomType = "Poor";
+                randomType = "poor";
             }
             // Random delta between -50 and 50 ms
             const randomDelta = Math.floor(Math.random() * 100) - 50;
@@ -106,6 +141,8 @@ export class JudgementClient {
                 type: "judgement",
                 judgement: randomType,
                 msDelta: randomDelta,
+                noteChar: note.type,
+                noteOrdinalByChar: note.ordinal,
             };
             if (this.onMessageCallback) {
                 this.onMessageCallback(event);

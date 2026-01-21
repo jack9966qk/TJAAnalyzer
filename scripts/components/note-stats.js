@@ -1,13 +1,12 @@
 import { jsx as _jsx, jsxs as _jsxs } from "webjsx/jsx-runtime";
 import * as webjsx from "webjsx";
-import { getGradientColor, PALETTE } from "../core/renderer.js";
+import { getGradientColor, JudgementType, PALETTE, } from "../core/renderer.js";
 import { i18n } from "../utils/i18n.js";
 export class NoteStatsDisplay extends HTMLElement {
     _hit = null;
     _chart = null;
     _viewOptions = null;
-    _judgements = [];
-    _judgementDeltas = [];
+    _judgements = new Map();
     constructor() {
         super();
         this.attachShadow({ mode: "open" });
@@ -29,10 +28,6 @@ export class NoteStatsDisplay extends HTMLElement {
     }
     set judgements(value) {
         this._judgements = value;
-        this.render();
-    }
-    set judgementDeltas(value) {
-        this._judgementDeltas = value;
         this.render();
     }
     formatBPM(val) {
@@ -113,7 +108,6 @@ export class NoteStatsDisplay extends HTMLElement {
         const chart = this._chart;
         const options = this._viewOptions;
         const judgements = this._judgements;
-        const judgementDeltas = this._judgementDeltas;
         const { collapsedLoop: collapsed, viewMode, coloringMode, visibility: judgementVisibility, } = options || {
             collapsedLoop: false,
             viewMode: "original",
@@ -137,81 +131,71 @@ export class NoteStatsDisplay extends HTMLElement {
         if (hit &&
             options &&
             (viewMode === "judgements" || viewMode === "judgements-underline" || viewMode === "judgements-text") &&
-            hit.judgeableNoteIndex !== null &&
+            hit.ordinal !== undefined && // Use ordinal instead of judgeableNoteIndex
             targetChart) {
             const deltas = [];
             if (collapsed && targetChart.loop) {
                 const loop = targetChart.loop;
                 if (hit.originalBarIndex >= loop.startBarIndex && hit.originalBarIndex < loop.startBarIndex + loop.period) {
-                    // Loop Logic
-                    let baseIndex = 0;
-                    for (let b = 0; b < hit.originalBarIndex; b++) {
-                        const bar = targetChart.bars[b];
-                        if (bar) {
-                            for (const c of bar)
-                                if (["1", "2", "3", "4"].includes(c))
-                                    baseIndex++;
-                        }
+                    const counters = {};
+                    const map = new Map();
+                    // Build map for relevant bars? Or full chart.
+                    for (let i = 0; i < targetChart.bars.length; i++) {
+                        const bar = targetChart.bars[i];
+                        if (bar)
+                            for (let j = 0; j < bar.length; j++) {
+                                const c = bar[j];
+                                if (["1", "2", "3", "4"].includes(c)) {
+                                    if (!counters[c])
+                                        counters[c] = 0;
+                                    map.set(`${i}_${j}`, counters[c]);
+                                    counters[c]++;
+                                }
+                            }
                     }
-                    let offsetInBar = 0;
-                    const targetBar = targetChart.bars[hit.originalBarIndex];
-                    for (let c = 0; c < hit.charIndex; c++) {
-                        if (["1", "2", "3", "4"].includes(targetBar[c]))
-                            offsetInBar++;
-                    }
-                    const noteIndexInFirstIter = baseIndex + offsetInBar;
-                    let notesPerLoop = 0;
-                    for (let k = 0; k < loop.period; k++) {
-                        const bar = targetChart.bars[loop.startBarIndex + k];
-                        if (bar) {
-                            for (const c of bar)
-                                if (["1", "2", "3", "4"].includes(c))
-                                    notesPerLoop++;
-                        }
-                    }
-                    // Determine current iteration index for bolding
+                    // Determine relative position
+                    // `hit.originalBarIndex` is inside the first loop iteration (template).
+                    const relBarIdx = hit.originalBarIndex - loop.startBarIndex; // 0 to period-1
                     let currentIterationIdx = -1;
-                    if (options.selectedLoopIteration !== undefined) {
-                        currentIterationIdx = options.selectedLoopIteration;
-                    }
-                    else {
-                        let preLoopNotes = 0;
-                        for (let i = 0; i < loop.startBarIndex; i++) {
-                            const bar = targetChart.bars[i];
-                            if (bar)
-                                for (const c of bar)
-                                    if (["1", "2", "3", "4"].includes(c))
-                                        preLoopNotes++;
-                        }
-                        const lastJudgedIndex = judgements.length - 1;
-                        if (lastJudgedIndex >= preLoopNotes && notesPerLoop > 0) {
-                            const relativeIndex = lastJudgedIndex - preLoopNotes;
-                            currentIterationIdx = Math.floor(relativeIndex / notesPerLoop);
-                        }
-                    }
-                    if (currentIterationIdx < 0)
-                        currentIterationIdx = 0;
+                    const iterationOrdinals = [];
                     for (let iter = 0; iter < loop.iterations; iter++) {
-                        const globalIdx = noteIndexInFirstIter + iter * notesPerLoop;
-                        if (globalIdx < judgementDeltas.length) {
-                            const delta = judgementDeltas[globalIdx];
-                            const judge = judgements[globalIdx];
+                        const actualBarIdx = loop.startBarIndex + iter * loop.period + relBarIdx;
+                        const ord = map.get(`${actualBarIdx}_${hit.charIndex}`);
+                        if (ord !== undefined) {
+                            iterationOrdinals.push(ord);
+                            if (ord === hit.ordinal) {
+                                currentIterationIdx = iter;
+                            }
+                        }
+                        else {
+                            iterationOrdinals.push(-1); // Should not happen if loop logic is correct
+                        }
+                    }
+                    // Render Deltas for all iterations
+                    for (let iter = 0; iter < iterationOrdinals.length; iter++) {
+                        const ord = iterationOrdinals[iter];
+                        if (ord === -1)
+                            continue;
+                        const key = `${hit.type}_${ord}`;
+                        const judgeData = judgements.get(key);
+                        if (judgeData) {
+                            const delta = judgeData.delta;
+                            const judge = judgeData.judgement;
                             // Check visibility
                             let isVisible = true;
-                            if (judge === "Perfect" && !judgementVisibility.perfect)
+                            if (judge === JudgementType.Perfect && !judgementVisibility.perfect)
                                 isVisible = false;
-                            else if (judge === "Good" && !judgementVisibility.good)
+                            else if (judge === JudgementType.Good && !judgementVisibility.good)
                                 isVisible = false;
-                            else if (judge === "Poor" && !judgementVisibility.poor)
+                            else if (judge === JudgementType.Poor && !judgementVisibility.poor)
                                 isVisible = false;
                             if (!isVisible)
                                 continue;
-                            if (delta !== undefined)
-                                deltas.push(delta);
-                            const text = delta !== undefined ? delta.toString() : "?";
+                            deltas.push(delta);
+                            const text = delta.toString();
                             let color = "";
                             if (coloringMode === "gradient") {
-                                if ((judge === "Perfect" || judge === "Good" || judge === "Poor") && delta !== undefined) {
+                                if (judge === JudgementType.Perfect || judge === JudgementType.Good || judge === JudgementType.Poor) {
                                     color = getGradientColor(delta);
                                 }
                                 else {
@@ -219,11 +203,11 @@ export class NoteStatsDisplay extends HTMLElement {
                                 }
                             }
                             else {
-                                if (judge === "Perfect")
+                                if (judge === JudgementType.Perfect)
                                     color = PALETTE.judgements.perfect;
-                                else if (judge === "Good")
+                                else if (judge === JudgementType.Good)
                                     color = PALETTE.judgements.good;
-                                else if (judge === "Poor")
+                                else if (judge === JudgementType.Poor)
                                     color = PALETTE.judgements.poor;
                             }
                             let el = _jsx("span", { style: color ? `color: ${color}` : "", children: text });
@@ -231,10 +215,6 @@ export class NoteStatsDisplay extends HTMLElement {
                                 el = _jsx("b", { children: el });
                             }
                             allDeltasElements.push(el);
-                            if (iter < loop.iterations - 1) {
-                                // We can't know for sure if the next one is visible or not easily without peeking,
-                                // but we want comma separation.
-                            }
                         }
                     }
                     // Add commas
@@ -260,23 +240,23 @@ export class NoteStatsDisplay extends HTMLElement {
                     }
                 }
                 else {
-                    // Non-loop part
-                    if (hit.judgeableNoteIndex < judgementDeltas.length) {
-                        const delta = judgementDeltas[hit.judgeableNoteIndex];
-                        const judge = judgements[hit.judgeableNoteIndex];
-                        // Check visibility
+                    const key = `${hit.type}_${hit.ordinal}`;
+                    const judgeData = judgements.get(key);
+                    if (judgeData) {
+                        const delta = judgeData.delta;
+                        const judge = judgeData.judgement;
                         let isVisible = true;
-                        if (judge === "Perfect" && !judgementVisibility.perfect)
+                        if (judge === JudgementType.Perfect && !judgementVisibility.perfect)
                             isVisible = false;
-                        else if (judge === "Good" && !judgementVisibility.good)
+                        else if (judge === JudgementType.Good && !judgementVisibility.good)
                             isVisible = false;
-                        else if (judge === "Poor" && !judgementVisibility.poor)
+                        else if (judge === JudgementType.Poor && !judgementVisibility.poor)
                             isVisible = false;
-                        if (isVisible && delta !== undefined) {
+                        if (isVisible) {
                             avgDeltaVal = `${delta}ms`;
                             let color = "";
                             if (coloringMode === "gradient") {
-                                if (judge === "Perfect" || judge === "Good" || judge === "Poor") {
+                                if (judge === JudgementType.Perfect || judge === JudgementType.Good || judge === JudgementType.Poor) {
                                     color = getGradientColor(delta);
                                 }
                                 else {
@@ -284,11 +264,11 @@ export class NoteStatsDisplay extends HTMLElement {
                                 }
                             }
                             else {
-                                if (judge === "Perfect")
+                                if (judge === JudgementType.Perfect)
                                     color = PALETTE.judgements.perfect;
-                                else if (judge === "Good")
+                                else if (judge === JudgementType.Good)
                                     color = PALETTE.judgements.good;
-                                else if (judge === "Poor")
+                                else if (judge === JudgementType.Poor)
                                     color = PALETTE.judgements.poor;
                             }
                             let el = _jsx("span", { children: delta });
@@ -304,21 +284,23 @@ export class NoteStatsDisplay extends HTMLElement {
             }
             else {
                 // Standard Mode
-                if (hit.judgeableNoteIndex < judgementDeltas.length) {
-                    const delta = judgementDeltas[hit.judgeableNoteIndex];
-                    const judge = judgements[hit.judgeableNoteIndex];
+                const key = `${hit.type}_${hit.ordinal}`;
+                const judgeData = judgements.get(key);
+                if (judgeData) {
+                    const delta = judgeData.delta;
+                    const judge = judgeData.judgement;
                     let isVisible = true;
-                    if (judge === "Perfect" && !judgementVisibility.perfect)
+                    if (judge === JudgementType.Perfect && !judgementVisibility.perfect)
                         isVisible = false;
-                    else if (judge === "Good" && !judgementVisibility.good)
+                    else if (judge === JudgementType.Good && !judgementVisibility.good)
                         isVisible = false;
-                    else if (judge === "Poor" && !judgementVisibility.poor)
+                    else if (judge === JudgementType.Poor && !judgementVisibility.poor)
                         isVisible = false;
-                    if (isVisible && delta !== undefined) {
+                    if (isVisible) {
                         deltaVal = `${delta}ms`;
                         let color = "";
                         if (coloringMode === "gradient") {
-                            if (judge === "Perfect" || judge === "Good" || judge === "Poor") {
+                            if (judge === JudgementType.Perfect || judge === JudgementType.Good || judge === JudgementType.Poor) {
                                 color = getGradientColor(delta);
                             }
                             else {
@@ -326,11 +308,11 @@ export class NoteStatsDisplay extends HTMLElement {
                             }
                         }
                         else {
-                            if (judge === "Perfect")
+                            if (judge === JudgementType.Perfect)
                                 color = PALETTE.judgements.perfect;
-                            else if (judge === "Good")
+                            else if (judge === JudgementType.Good)
                                 color = PALETTE.judgements.good;
-                            else if (judge === "Poor")
+                            else if (judge === JudgementType.Poor)
                                 color = PALETTE.judgements.poor;
                         }
                         if (color)
@@ -409,7 +391,9 @@ export class NoteStatsDisplay extends HTMLElement {
                 display: none !important;
             }
             ` }), _jsxs("div", { id: "container", children: [StatBox(i18n.t("stats.type"), hit ? this.getNoteName(hit.type) : def), StatBox(i18n.t("stats.gap"), gap), StatBox(i18n.t("stats.bpm"), hit ? this.formatBPM(hit.bpm) : def), StatBox(i18n.t("stats.hs"), hit ? this.formatHS(hit.scroll) : def), StatBox(i18n.t("stats.seenBpm"), hit ? this.formatBPM(hit.bpm * hit.scroll) : def), collapsed ? (_jsxs("div", { style: "display: contents;", children: [StatBox(i18n.t("stats.avgDelta"), avgDeltaVal), _jsxs("div", { className: "stat-full-line", children: ["Deltas: ", allDeltasElements] })] })) : (StatBox(i18n.t("stats.delta"), deltaVal))] })] }));
-        webjsx.applyDiff(this.shadowRoot, vdom);
+        if (this.shadowRoot) {
+            webjsx.applyDiff(this.shadowRoot, vdom);
+        }
     }
 }
 customElements.define("note-stats", NoteStatsDisplay);

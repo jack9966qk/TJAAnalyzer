@@ -48,7 +48,9 @@ export class SaveImageButton extends HTMLElement {
         const vdom = (_jsxs("div", { children: [_jsx("link", { rel: "stylesheet", href: "style.css" }), _jsx("button", { type: "button", className: "control-btn", onclick: this.handleClick.bind(this), children: _jsx("slot", { children: i18n.t("ui.exportImage") }) })] }));
         // Set host display style
         this.style.display = "contents";
-        webjsx.applyDiff(this.shadowRoot, vdom);
+        if (this.shadowRoot) {
+            webjsx.applyDiff(this.shadowRoot, vdom);
+        }
     }
 }
 customElements.define("save-image-button", SaveImageButton);

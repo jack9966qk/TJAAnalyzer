@@ -1,3 +1,6 @@
+import "./components/chart-list-panel.js"; // Ensure side-effect
+import "./components/local-file-panel.js"; // Ensure side-effect
+import "./components/stream-panel.js"; // Ensure side-effect
 import { NoteStatsDisplay } from "./components/note-stats.js";
 import "./components/save-image-button.js";
 import "./components/judgement-options.js"; // Ensure side-effect
@@ -7,13 +10,12 @@ import "./components/course-branch-select.js"; // Ensure side-effect
 import { TJAChart } from "./components/tja-chart.js";
 import "./components/view-options.js"; // Ensure side-effect
 import "./components/changelog-panel.js";
-import { clearJudgements, refreshChart, updateBranchSelectorState, updateCollapseLoopState, updateParsedCharts, updateSelectionUI, updateStatsComponent, } from "./controllers/chart-controller.js";
-import { filterEseResults } from "./controllers/ese-controller.js";
+import { refreshChart, updateBranchSelectorState, updateCollapseLoopState, updateParsedCharts, updateSelectionUI, updateStatsComponent, } from "./controllers/chart-controller.js";
 import { handleLayoutToggle, updateLayout } from "./controllers/layout-controller.js";
-import { exampleTJA } from "./core/example-data.js";
+import { createJudgementKey } from "./core/renderer.js";
 import { appState } from "./state/app-state.js";
 import { i18n } from "./utils/i18n.js";
-import { chartModeStatus, connectBtn, courseBranchSelect, doPanes, doTabs, dsBody, dsCollapseBtn, dsPanes, dsTabs, eseResults, eseSearchInput, eseShareBtn, hostInput, languageSelector, layoutToggleBtn, loadExampleBtn, optionsBody, optionsCollapseBtn, portInput, statusDisplay, testStreamBtn, tjaChart, tjaFilePicker, } from "./view/ui-elements.js";
+import { chartListPanel, chartModeStatus, courseBranchSelect, doPanes, doTabs, dsBody, dsCollapseBtn, dsPanes, dsTabs, languageSelector, layoutToggleBtn, optionsBody, optionsCollapseBtn, statusDisplay, tjaChart, } from "./view/ui-elements.js";
 // Ensure TJAChart is imported for side-effects (custom element registration)
 console.log("TJAChart module loaded", TJAChart);
 // Ensure NoteStatsDisplay is imported for side-effects
@@ -23,14 +25,6 @@ function updateStatus(key, params) {
     appState.currentStatusParams = params;
     if (statusDisplay) {
         statusDisplay.innerText = i18n.t(key, params);
-    }
-}
-function resetExampleButton() {
-    if (loadExampleBtn) {
-        loadExampleBtn.disabled = false;
-        loadExampleBtn.setAttribute("data-i18n", "ui.example.load");
-        loadExampleBtn.innerText = i18n.t("ui.example.load");
-        loadExampleBtn.classList.remove("disabled");
     }
 }
 function updateModeStatus(mode) {
@@ -90,49 +84,14 @@ function switchDataSourceMode(mode) {
     // Logic: Disconnect if moving away from stream and currently connected
     if (mode !== "stream") {
         // Check if connected
-        if (connectBtn && (connectBtn.innerText === "Disconnect" || appState.isSimulating)) {
+        if (appState.isStreamConnected || appState.isSimulating) {
             appState.judgementClient.disconnect();
         }
     }
     // List (Example + ESE) Logic
     if (mode === "list") {
-        if (!appState.eseTree) {
-            updateStatus("status.loadingEse");
-            // Show loading indicator in results
-            if (eseResults)
-                eseResults.innerHTML = '<div style="padding:10px;">Loading song list...</div>';
-            appState.eseClient
-                .getTjaFiles()
-                .then((tree) => {
-                appState.eseTree = tree;
-                updateStatus("status.eseReady");
-                filterEseResults("", { updateStatus, updateParsedCharts, resetExampleButton });
-                // Check pending load from URL
-                if (pendingEseLoad) {
-                    loadEseFromUrl(pendingEseLoad.path, pendingEseLoad.diff);
-                    pendingEseLoad = null;
-                }
-            })
-                .catch((e) => {
-                const errMsg = e instanceof Error ? e.message : String(e);
-                updateStatus("status.eseError", { error: errMsg });
-                if (eseResults)
-                    eseResults.innerHTML = `<div style="padding:10px; color:red">Error loading tree: ${errMsg}</div>`;
-            });
-        }
-        else if (pendingEseLoad) {
-            // Tree already loaded, just load the file
-            loadEseFromUrl(pendingEseLoad.path, pendingEseLoad.diff);
-            pendingEseLoad = null;
-        }
-    }
-    // Disable share button if not in List mode or no chart loaded (ESE specific)
-    if (eseShareBtn) {
-        if (mode === "list" && appState.currentEsePath) {
-            eseShareBtn.disabled = false;
-        }
-        else {
-            eseShareBtn.disabled = true;
+        if (chartListPanel) {
+            chartListPanel.activate();
         }
     }
     // Difficulty Selector Visibility
@@ -149,44 +108,6 @@ function switchDataSourceMode(mode) {
                 courseBranchSelect.hide();
         }
     }
-    // Clear picker if leaving file mode? Optional.
-    if (mode !== "file" && tjaFilePicker) {
-        // tjaFilePicker.value = ''; // Maybe keep it for convenience
-    }
-}
-let pendingEseLoad = null;
-async function loadEseFromUrl(path, diff) {
-    try {
-        updateStatus("status.loadingChart");
-        const content = await appState.eseClient.getFileContent(path);
-        appState.loadedTJAContent = content;
-        appState.currentEsePath = path;
-        if (eseShareBtn)
-            eseShareBtn.disabled = false;
-        // Update Search UI
-        if (eseSearchInput)
-            eseSearchInput.value = path;
-        filterEseResults(path, { updateStatus, updateParsedCharts, resetExampleButton });
-        updateParsedCharts(content);
-        if (appState.parsedTJACharts) {
-            // Fallback if requested diff not found
-            const targetDiff = appState.parsedTJACharts[diff] ? diff : Object.keys(appState.parsedTJACharts)[0];
-            if (appState.parsedTJACharts[targetDiff]) {
-                courseBranchSelect.difficulty = targetDiff;
-                appState.currentChart = appState.parsedTJACharts[targetDiff];
-                refreshChart();
-                updateCollapseLoopState();
-            }
-        }
-        updateStatus("status.chartLoaded");
-        resetExampleButton();
-    }
-    catch (e) {
-        console.error("Error in loadEseFromUrl", e);
-        const errMsg = e instanceof Error ? e.message : String(e);
-        alert(`Failed to load chart from URL: ${errMsg}`);
-        updateStatus("status.eseError", { error: errMsg });
-    }
 }
 function updateUIText() {
     document.querySelectorAll("[data-i18n]").forEach((el) => {
@@ -197,9 +118,6 @@ function updateUIText() {
             }
             else {
                 // For text nodes, we might have replaced content.
-                // If the element has children (e.g. checkbox label wrapping span), we should target the span.
-                // In index.html I put data-i18n on the specific text container elements (spans, h2, buttons).
-                // So innerText is safe.
                 el.innerHTML = i18n.t(key);
             }
         }
@@ -210,9 +128,6 @@ function updateUIText() {
             el.placeholder = i18n.t(key);
         }
     });
-    if (eseSearchInput) {
-        eseSearchInput.placeholder = i18n.t("ui.ese.searchPlaceholder");
-    }
     // Dynamic Elements
     updateStatus(appState.currentStatusKey, appState.currentStatusParams);
     // Difficulty selector updates itself
@@ -261,20 +176,6 @@ function updateDisplayState() {
     // Determine Judgement Visibility - Handled by component
     refreshChart();
 }
-// Helper to read file as text (compatibility wrapper)
-function readFileAsText(file) {
-    return new Promise((resolve, reject) => {
-        if (typeof file.text === "function") {
-            file.text().then(resolve).catch(reject);
-        }
-        else {
-            const reader = new FileReader();
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = () => reject(reader.error);
-            reader.readAsText(file);
-        }
-    });
-}
 function initLayout() {
     // Layout Init
     if (layoutToggleBtn) {
@@ -296,6 +197,13 @@ function initEventListeners() {
     if (!tjaChart) {
         console.error("tja-chart element not found.");
         return;
+    }
+    // Listen for status changes from ChartListPanel
+    if (chartListPanel) {
+        chartListPanel.addEventListener("status-change", (e) => {
+            const detail = e.detail;
+            updateStatus(detail.key, detail.params);
+        });
     }
     // Listeners for new checkboxes - Moved to judgement-options.ts
     // judgementStyleRadios & judgementColoringRadios - Moved to judgement-options.ts
@@ -341,107 +249,16 @@ function initEventListeners() {
             }
         });
     }
-    // Setup Stats Toggle
-    // Moved to view-options.ts
-    // Setup Load Example Button
-    if (loadExampleBtn) {
-        loadExampleBtn.addEventListener("click", () => {
-            appState.loadedTJAContent = exampleTJA;
-            // Disable button
-            loadExampleBtn.disabled = true;
-            loadExampleBtn.setAttribute("data-i18n", "ui.example.loaded");
-            loadExampleBtn.innerText = i18n.t("ui.example.loaded");
-            // Clear ESE state
-            appState.currentEsePath = null;
-            if (eseShareBtn)
-                eseShareBtn.disabled = true;
-            if (eseResults) {
-                // Clear highlights
-                document.querySelectorAll(".ese-result-item").forEach((el) => {
-                    el.classList.remove("selected");
-                });
-            }
-            if (eseSearchInput)
-                eseSearchInput.value = "";
-            try {
-                updateParsedCharts(appState.loadedTJAContent);
-                updateStatus("status.exampleLoaded");
-            }
-            catch (e) {
-                console.error("Error loading example:", e);
-                const msg = i18n.t("status.parseError", { error: e.message });
-                alert(msg);
-                if (statusDisplay)
-                    statusDisplay.innerText = msg;
-                resetExampleButton(); // Reset on error
-            }
+    // Setup File Picker (Now handled by local-file-panel)
+    const localFilePanel = document.querySelector("local-file-panel");
+    if (localFilePanel) {
+        localFilePanel.addEventListener("status-change", (e) => {
+            const detail = e.detail;
+            updateStatus(detail.key, detail.params);
         });
-    }
-    // Setup File Picker
-    if (tjaFilePicker) {
-        tjaFilePicker.addEventListener("change", async (event) => {
-            const files = event.target.files;
-            if (files && files.length > 0) {
-                const file = files[0];
-                try {
-                    const content = await readFileAsText(file);
-                    appState.loadedTJAContent = content;
-                    updateParsedCharts(content);
-                    updateStatus("status.fileLoaded");
-                    resetExampleButton();
-                }
-                catch (e) {
-                    console.error("Error parsing TJA file:", e);
-                    const msg = i18n.t("status.parseError", { error: e instanceof Error ? e.message : String(e) });
-                    alert(msg);
-                    if (statusDisplay)
-                        statusDisplay.innerText = msg;
-                }
-            }
-        });
-    }
-    // Setup ESE Search
-    if (eseSearchInput) {
-        eseSearchInput.addEventListener("input", () => {
-            const query = eseSearchInput.value.toLowerCase();
-            filterEseResults(query, { updateStatus, updateParsedCharts, resetExampleButton });
-        });
-    }
-    // Setup Stream Controls
-    if (connectBtn && hostInput && portInput) {
-        connectBtn.addEventListener("click", () => {
-            if (appState.isStreamConnected) {
-                appState.judgementClient.disconnect();
-            }
-            else {
-                const host = hostInput.value;
-                const port = parseInt(portInput.value, 10);
-                if (host && port) {
-                    appState.judgementClient.connect(host, port);
-                }
-                else {
-                    alert("Please enter valid Host and Port.");
-                }
-            }
-        });
-    }
-    if (testStreamBtn) {
-        testStreamBtn.addEventListener("click", () => {
-            if (appState.isSimulating) {
-                appState.judgementClient.disconnect();
-                appState.isSimulating = false;
-                testStreamBtn.setAttribute("data-i18n", "ui.test.start");
-                testStreamBtn.innerText = i18n.t("ui.test.start");
-            }
-            else {
-                appState.isSimulating = true;
-                clearJudgements();
-                updateDisplayState();
-                testStreamBtn.setAttribute("data-i18n", "ui.test.stop");
-                testStreamBtn.innerText = i18n.t("ui.test.stop");
-                // Use currently loaded content and selected difficulty
-                appState.judgementClient.startSimulation(appState.loadedTJAContent, courseBranchSelect.difficulty);
-            }
+        localFilePanel.addEventListener("chart-loaded", () => {
+            if (chartListPanel)
+                chartListPanel.resetExampleButton();
         });
     }
     // Setup Collapse Button
@@ -566,32 +383,14 @@ function initEventListeners() {
     courseBranchSelect.addEventListener("branch-change", () => {
         updateBranchSelectorState(false);
     });
-    // ESE Share Button
-    if (eseShareBtn) {
-        eseShareBtn.addEventListener("click", async () => {
-            if (!appState.currentEsePath)
-                return;
-            const url = new URL(window.location.href);
-            url.searchParams.set("ese", appState.currentEsePath);
-            url.searchParams.set("diff", courseBranchSelect.difficulty);
-            try {
-                await navigator.clipboard.writeText(url.toString());
-                alert("Link copied to clipboard!");
-            }
-            catch (e) {
-                console.error("Failed to copy link:", e);
-                alert("Failed to copy link.");
-            }
-        });
-    }
+    // ESE Share Button handled by ChartListPanel
 }
 function initJudgementClient() {
     // Judgement Client Callbacks
     appState.judgementClient.onMessage(async (event) => {
         if (event.type === "gameplay_start") {
             console.log("Gameplay Start Event Received");
-            appState.judgements = [];
-            appState.judgementDeltas = [];
+            appState.judgements.clear();
             appState.currentChart = null;
             appState.hasReceivedGameStart = true;
             // Clear selection
@@ -612,27 +411,19 @@ function initJudgementClient() {
             }
             updateCollapseLoopState();
             refreshChart();
-            resetExampleButton();
+            if (chartListPanel)
+                chartListPanel.resetExampleButton();
         }
         else if (event.type === "judgement") {
-            appState.judgements.push(event.judgement);
-            appState.judgementDeltas.push(event.msDelta);
+            const key = createJudgementKey(event.noteChar, event.noteOrdinalByChar);
+            appState.judgements.set(key, {
+                judgement: event.judgement,
+                delta: event.msDelta || 0,
+            });
             refreshChart();
         }
     });
     appState.judgementClient.onStatusChange((status) => {
-        if (connectBtn) {
-            if (status === "Connected") {
-                appState.isStreamConnected = true;
-                connectBtn.innerText = i18n.t("ui.stream.disconnect");
-            }
-            else {
-                // Only set to connect if disconnected or connecting...
-                if (status !== "Connecting...") {
-                    connectBtn.innerText = i18n.t("ui.stream.connect");
-                }
-            }
-        }
         if (status === "Connected") {
             appState.isStreamConnected = true;
             // Reset for new connection session
@@ -642,8 +433,6 @@ function initJudgementClient() {
             }
             else {
                 updateStatus("status.connected");
-                if (testStreamBtn)
-                    testStreamBtn.disabled = true;
             }
             // Clear chart to force waiting screen
             if (!appState.isSimulating) {
@@ -655,28 +444,16 @@ function initJudgementClient() {
         else if (status === "Connecting...") {
             updateStatus("status.connecting");
             appState.hasReceivedGameStart = false;
-            if (testStreamBtn)
-                testStreamBtn.disabled = true;
-            if (connectBtn)
-                connectBtn.disabled = true;
         }
         else {
             // Disconnected
             appState.isStreamConnected = false;
             appState.hasReceivedGameStart = false;
-            // Re-enable controls if we were in test mode
-            if (testStreamBtn) {
-                testStreamBtn.disabled = false;
-                if (appState.isSimulating) {
-                    testStreamBtn.setAttribute("data-i18n", "ui.test.start");
-                    testStreamBtn.innerText = i18n.t("ui.test.start");
-                }
-            }
-            if (connectBtn)
-                connectBtn.disabled = false;
             updateStatus(appState.isSimulating ? "status.simStopped" : "status.disconnected");
             appState.isSimulating = false;
         }
+        // Notify components
+        window.dispatchEvent(new CustomEvent("stream-status-change", { detail: { status } }));
         updateDisplayState();
     });
 }
@@ -689,13 +466,15 @@ function initLoad() {
     const eseParam = urlParams.get("ese");
     const diffParam = urlParams.get("diff");
     if (eseParam) {
-        pendingEseLoad = { path: eseParam, diff: diffParam || "oni" };
+        if (chartListPanel) {
+            chartListPanel.setPendingLoad(eseParam, diffParam || "oni");
+        }
         switchDataSourceMode("list");
     }
     else {
         switchDataSourceMode("list");
-        if (loadExampleBtn)
-            loadExampleBtn.click();
+        if (chartListPanel)
+            chartListPanel.loadExample();
     }
     initializePanelVisibility();
 }
@@ -704,7 +483,6 @@ function init() {
     initEventListeners();
     initJudgementClient();
     initLoad();
-    // Removing the setTimeout call here as it's now handled conditionally or by callbacks
 }
 function initializePanelVisibility() {
     if (!dsBody || !optionsBody)
@@ -746,12 +524,12 @@ window.addEventListener("resize", () => {
     }, 100);
 });
 // Expose for testing
-window.setJudgements = (newJudgements, newDeltas) => {
+window.setJudgements = (newJudgements) => {
     appState.judgements = newJudgements;
-    appState.judgementDeltas = newDeltas || [];
     refreshChart();
     updateStatsComponent(null);
 };
+window.createJudgementKey = createJudgementKey;
 window.loadTJAContent = (content) => {
     appState.loadedTJAContent = content;
     updateParsedCharts(content);

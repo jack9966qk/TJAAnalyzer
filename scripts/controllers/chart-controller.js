@@ -7,7 +7,6 @@ export function updateStatsComponent(hit) {
         noteStatsDisplay.chart = appState.currentChart;
         noteStatsDisplay.viewOptions = appState.viewOptions;
         noteStatsDisplay.judgements = appState.judgements;
-        noteStatsDisplay.judgementDeltas = appState.judgementDeltas;
         noteStatsDisplay.hit = hit;
     }
 }
@@ -19,8 +18,7 @@ export function updateSelectionUI() {
     }
 }
 export function clearJudgements() {
-    appState.judgements = [];
-    appState.judgementDeltas = [];
+    appState.judgements.clear();
     updateStatsComponent(appState.selectedNoteHitInfo);
 }
 export function updateBranchSelectorState(resetBranch = false) {
@@ -167,7 +165,6 @@ export function refreshChart() {
         tjaChart.chart = appState.currentChart;
         tjaChart.viewOptions = appState.viewOptions;
         tjaChart.judgements = appState.judgements;
-        tjaChart.judgementDeltas = appState.judgementDeltas;
         tjaChart.texts = texts;
         updateLoopControls();
     }

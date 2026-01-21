@@ -1,22 +1,21 @@
 import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "webjsx/jsx-runtime";
 import * as webjsx from "webjsx";
 import { generateAutoAnnotations } from "../core/auto-annotation.js";
-import { createLayout, getNoteAt, getNotePosition, PALETTE, renderChart, renderIncremental, renderLayout, } from "../core/renderer.js";
+import { createLayout, getNoteAt, getNotePosition, PALETTE, renderChart, renderLayout, } from "../core/renderer.js";
 export class TJAChart extends HTMLElement {
     canvas;
     messageContainer;
     _chart = null;
     _viewOptions = null;
-    _judgements = [];
-    _judgementDeltas = [];
+    _judgements = new Map();
     _texts;
     _message = null;
     resizeObserver;
     // Rendering Optimization State
     _renderTask = null;
     _pendingFullRender = true;
-    _lastRenderedJudgementsLength = 0;
     _layout = null;
+    _renderedJudgements = new Map();
     constructor() {
         super();
         this.attachShadow({ mode: "open" });
@@ -30,7 +29,6 @@ export class TJAChart extends HTMLElement {
         this.upgradeProperty("chart");
         this.upgradeProperty("viewOptions");
         this.upgradeProperty("judgements");
-        this.upgradeProperty("judgementDeltas");
         this.upgradeProperty("texts");
         this.resizeObserver.observe(this);
         this.scheduleRender();
@@ -70,7 +68,9 @@ export class TJAChart extends HTMLElement {
                             this.canvas.onclick = this.handleClick.bind(this);
                         }
                     } })] }));
-        webjsx.applyDiff(this.shadowRoot, vdom);
+        if (this.shadowRoot) {
+            webjsx.applyDiff(this.shadowRoot, vdom);
+        }
     }
     upgradeProperty(prop) {
         if (Object.hasOwn(this, prop)) {
@@ -120,10 +120,6 @@ export class TJAChart extends HTMLElement {
     }
     get judgements() {
         return this._judgements;
-    }
-    set judgementDeltas(value) {
-        this._judgementDeltas = value;
-        this.scheduleRender();
     }
     set texts(value) {
         this._texts = value;
@@ -181,33 +177,67 @@ export class TJAChart extends HTMLElement {
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             return;
         }
-        let incrementalStart = 0;
-        // Determine if we can use incremental rendering
-        const hasNewJudgements = this._judgements.length > this._lastRenderedJudgementsLength;
-        const canIncremental = !this._pendingFullRender && hasNewJudgements && !!this._layout;
-        if (canIncremental) {
-            incrementalStart = this._lastRenderedJudgementsLength;
-        }
-        else {
-            // We are doing a full render (either forced or because no incremental update needed/possible)
-            // But we only need to recreate layout if pending full render or layout missing
-            if (this._pendingFullRender || !this._layout) {
-                this._layout = createLayout(this._chart, this.canvas, this._viewOptions, this._judgements);
-                this._pendingFullRender = false;
-            }
-            incrementalStart = 0;
+        const isFullRender = this._pendingFullRender || !this._layout;
+        // We are doing a full render (either forced or because no incremental update needed/possible)
+        // But we only need to recreate layout if pending full render or layout missing
+        if (isFullRender) {
+            this._layout = createLayout(this._chart, this.canvas, this._viewOptions, this._judgements);
+            this._pendingFullRender = false;
         }
         const texts = this._texts || {
             loopPattern: "Loop x{n}",
             judgement: { perfect: "良", good: "可", poor: "不可" },
         };
-        if (incrementalStart > 0 && this._layout) {
-            renderIncremental(ctx, this._layout, this._chart, this._judgements, this._judgementDeltas, this._viewOptions, texts, incrementalStart);
+        let dirtyRowY;
+        if (!isFullRender && this._layout) {
+            // Differential Rendering
+            const changedKeys = [];
+            // Check for added or changed items
+            for (const [key, val] of this._judgements) {
+                const oldVal = this._renderedJudgements.get(key);
+                if (!oldVal || oldVal.judgement !== val.judgement || oldVal.delta !== val.delta) {
+                    changedKeys.push(key);
+                }
+            }
+            // Check for removed items
+            for (const key of this._renderedJudgements.keys()) {
+                if (!this._judgements.has(key)) {
+                    changedKeys.push(key);
+                }
+            }
+            if (changedKeys.length > 0) {
+                dirtyRowY = new Set();
+                const grid = this._layout.noteOrdinalToGrid;
+                const layouts = this._layout.layouts;
+                for (const key of changedKeys) {
+                    const locations = grid.get(key);
+                    if (locations) {
+                        for (const loc of locations) {
+                            const barLayout = layouts[loc.virtualBarIdx];
+                            if (barLayout) {
+                                dirtyRowY.add(barLayout.y);
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                // Nothing changed
+                return;
+            }
         }
-        else if (this._layout) {
-            renderLayout(ctx, this._layout, this._chart, this._judgements, this._judgementDeltas, this._viewOptions, texts);
+        if (this._layout) {
+            renderLayout(ctx, this._layout, this._chart, this._judgements, this._viewOptions, texts, dirtyRowY);
+            // Update cache
+            if (!dirtyRowY) {
+                // Full render, sync completely
+                this._renderedJudgements = new Map(this._judgements);
+            }
+            else {
+                // Partial render, sync completely (easier than patching)
+                this._renderedJudgements = new Map(this._judgements);
+            }
         }
-        this._lastRenderedJudgementsLength = this._judgements.length;
     }
     // Public method to force render (e.g. after resizing parent not caught by observer, or manual trigger)
     refresh() {
@@ -288,7 +318,7 @@ export class TJAChart extends HTMLElement {
         // We want the final image to be exactly 1024px wide.
         // We force DPR to 1 so that logical width == physical width.
         canvas.width = TARGET_WIDTH;
-        renderChart(this._chart, canvas, this._judgements, this._judgementDeltas, options, this._texts || { loopPattern: "Loop x{n}", judgement: { perfect: "良", good: "可", poor: "不可" } }, // Fallback defaults if not set
+        renderChart(this._chart, canvas, this._judgements, options, this._texts || { loopPattern: "Loop x{n}", judgement: { perfect: "良", good: "可", poor: "不可" } }, // Fallback defaults if not set
         1);
         return canvas.toDataURL("image/png");
     }

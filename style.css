@@ -810,3 +810,33 @@ body.horizontal-layout.controls-collapsed #layout-toggle-btn {
   left: 0;
   border-left: 1px solid var(--border-color);
 }
+
+.status-message {
+  width: 100%;
+  text-align: center;
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-weight: 500;
+  opacity: 1;
+  transition: opacity 0.15s ease-out;
+  box-sizing: border-box;
+  line-height: normal;
+}
+
+.status-message.entering {
+  opacity: 0;
+}
+
+.status-message.success {
+  color: var(--status-success-text);
+  background: var(--status-success-bg);
+}
+
+.status-message.error {
+  color: var(--error-text);
+  background: var(--error-bg);
+}
+
+.status-message.fading {
+  opacity: 0;
+}

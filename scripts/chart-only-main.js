@@ -1,11 +1,13 @@
 import { TJAChart } from "./components/tja-chart.js";
 import { exampleTJA } from "./core/example-data.js";
+import { createJudgementKey } from "./core/renderer.js";
 import { parseTJA } from "./core/tja-parser.js";
 // Ensure side-effects
 console.log("TJAChart module loaded", TJAChart);
 console.log("Chart Only Main Loaded");
 const tjaChart = document.getElementById("chart-component");
 // Expose API for Playwright
+window.createJudgementKey = createJudgementKey;
 window.loadChart = (tjaContent, difficulty = "oni") => {
     try {
         const parsed = parseTJA(tjaContent);
@@ -46,9 +48,8 @@ tjaChart.addEventListener("annotations-change", (e) => {
 window.autoAnnotate = () => {
     tjaChart.autoAnnotate();
 };
-window.setJudgements = (judgements, deltas) => {
-    tjaChart.judgements = judgements;
-    tjaChart.judgementDeltas = deltas || [];
+window.setJudgements = (newJudgements) => {
+    tjaChart.judgements = newJudgements;
 };
 // Default Options
 tjaChart.viewOptions = {

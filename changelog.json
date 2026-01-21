@@ -1,5 +1,75 @@
 [
   {
+    "hash": "632ee0f",
+    "message": "Update version as 0.7.0.",
+    "date": "2026-01-21"
+  },
+  {
+    "hash": "98c61e3",
+    "message": "Update default stream host as localhost.",
+    "date": "2026-01-21"
+  },
+  {
+    "hash": "1f9124d",
+    "message": "Update OpenTaiko description under the stream input tab.",
+    "date": "2026-01-21"
+  },
+  {
+    "hash": "c2f4f05",
+    "message": "Refactor JudgementKey usage with helper and format code.",
+    "date": "2026-01-21"
+  },
+  {
+    "hash": "8b5605c",
+    "message": "Update judgements representation to support the event format with notechar and ordinal. Reimplement chart incremental rendering.",
+    "date": "2026-01-21"
+  },
+  {
+    "hash": "1cc0f22",
+    "message": "Temporarily remove incremental rendering to prepare for the judgment event update.",
+    "date": "2026-01-19"
+  },
+  {
+    "hash": "66e95d7",
+    "message": "Refactor export functionality into separate component with status feedback.",
+    "date": "2026-01-19"
+  },
+  {
+    "hash": "afb576e",
+    "message": "Update stream event judgement type values.",
+    "date": "2026-01-18"
+  },
+  {
+    "hash": "c4e7790",
+    "message": "Add snapshot tests for web components.",
+    "date": "2026-01-18"
+  },
+  {
+    "hash": "c4dd34a",
+    "message": "Fix an issue where data source control appear in the incorrect tab after language swtich.",
+    "date": "2026-01-18"
+  },
+  {
+    "hash": "56d7e00",
+    "message": "Refactor stream input tab content as a web component.",
+    "date": "2026-01-18"
+  },
+  {
+    "hash": "e7c1b88",
+    "message": "Refactor local file tab content as a web component.",
+    "date": "2026-01-18"
+  },
+  {
+    "hash": "7504ca2",
+    "message": "Refactor chart list tab content as a web component.",
+    "date": "2026-01-18"
+  },
+  {
+    "hash": "e19514b",
+    "message": "Add functionality to export chart selection as a subdirectory on supported platforms. Apply biome fixes.",
+    "date": "2026-01-18"
+  },
+  {
     "hash": "3e7fb84",
     "message": "Update version to 0.6.10.",
     "date": "2026-01-17"
@@ -428,75 +498,5 @@
     "hash": "34d416c",
     "message": "Exapnd auto annotation to cover some notes in changing color in the middle or end of a segment.",
     "date": "2025-12-25"
-  },
-  {
-    "hash": "4e09eed",
-    "message": "Introduce the concept of note segmentation and use it to refine automatic hand annotation note selection.",
-    "date": "2025-12-25"
-  },
-  {
-    "hash": "ff0e4e0",
-    "message": "Basic auto hand annotation functionality.",
-    "date": "2025-12-25"
-  },
-  {
-    "hash": "dc19c63",
-    "message": "Update selected note style to have a yellow border.",
-    "date": "2025-12-25"
-  },
-  {
-    "hash": "aeef317",
-    "message": "Add save image button to judgement and annotate tabs.",
-    "date": "2025-12-25"
-  },
-  {
-    "hash": "b14897d",
-    "message": "Update version to 0.4.0",
-    "date": "2025-12-24"
-  },
-  {
-    "hash": "c19e9af",
-    "message": "Add over extended region with fade out effect to the start and end of each bar line.",
-    "date": "2025-12-24"
-  },
-  {
-    "hash": "50cf89f",
-    "message": "Add a grey background color to rendered chart. Update barlines to white. Make branch start vertical line color extend over the top of bar.",
-    "date": "2025-12-24"
-  },
-  {
-    "hash": "6ff677f",
-    "message": "Support rendering all branches stacked.",
-    "date": "2025-12-24"
-  },
-  {
-    "hash": "796a475",
-    "message": "Refactor: extract color constants to PALETTE and update chart background.",
-    "date": "2025-12-24"
-  },
-  {
-    "hash": "755cf5f",
-    "message": "Use bar strip for Gogo time and background color for branching.",
-    "date": "2025-12-24"
-  },
-  {
-    "hash": "2257b55",
-    "message": "Fix bug where #MEASURE in branches caused incorrect branch parsing.",
-    "date": "2025-12-24"
-  },
-  {
-    "hash": "6bb8894",
-    "message": "Update version to 0.3.3.",
-    "date": "2025-12-24"
-  },
-  {
-    "hash": "f4a4778",
-    "message": "Add missing localization for branching.",
-    "date": "2025-12-24"
-  },
-  {
-    "hash": "eaa6616",
-    "message": "Add placeholder text replacing rendered chart for chart branching and for the initial state after remote stream connection.",
-    "date": "2025-12-24"
   }
 ]
