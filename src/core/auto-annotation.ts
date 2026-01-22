@@ -1,5 +1,47 @@
-import { calculateInferredHands, type LocationKey, toLocationKey } from "./renderer.js";
+import { type LocationKey, toLocationKey } from "./primitives.js";
 import type { ParsedChart } from "./tja-parser.js";
+
+export function calculateInferredHands(
+  bars: string[][],
+  annotations: Record<LocationKey, string> | undefined,
+): Map<LocationKey, string> {
+  const inferred = new Map<LocationKey, string>();
+  let lastHand = "L"; // Initialize to L so the first note (which triggers reset or flip) can become R
+  let shouldResetToRight = true;
+
+  for (let i = 0; i < bars.length; i++) {
+    const bar = bars[i];
+    if (!bar) continue;
+    for (let j = 0; j < bar.length; j++) {
+      const char = bar[j];
+      const noteId = toLocationKey({ barIndex: i, charIndex: j });
+
+      if (["1", "2", "3", "4"].includes(char)) {
+        let currentInferred = "R";
+
+        if (shouldResetToRight) {
+          currentInferred = "R";
+          shouldResetToRight = false;
+        } else {
+          currentInferred = lastHand === "R" ? "L" : "R";
+        }
+
+        inferred.set(noteId, currentInferred);
+
+        // Determine source of truth for next note
+        if (annotations?.[noteId]) {
+          lastHand = annotations[noteId];
+        } else {
+          lastHand = currentInferred;
+        }
+      } else if (char === "8") {
+        // End of drumroll/balloon/kusudama
+        shouldResetToRight = true;
+      }
+    }
+  }
+  return inferred;
+}
 
 interface NoteTiming {
   id: LocationKey;

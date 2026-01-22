@@ -12,44 +12,30 @@ export enum JudgementType {
   Mine = "mine",
 }
 
-// Structural Types
-export interface NoteLocation {
-  barIndex: number;
-  charIndex: number;
-}
+import {
+  type NoteLocation,
+  type NoteIdentity,
+  type JudgementKey,
+  type LocationKey,
+  toJudgementKey,
+  toLocationKey,
+  parseJudgementKey,
+  parseLocationKey,
+  createJudgementKey,
+} from "./primitives.js";
+import { calculateInferredHands } from "./auto-annotation.js";
 
-export interface NoteIdentity {
-  char: string;
-  ordinal: number;
-}
-
-// Key Types for Map/Set
-export type JudgementKey = string; // Format: `${char}_${ordinal}`
-export type LocationKey = string; // Format: `${barIndex}_${charIndex}`
-
-// Helper Functions
-export function toJudgementKey(identity: NoteIdentity): JudgementKey {
-  return `${identity.char}_${identity.ordinal}`;
-}
-
-export function toLocationKey(location: NoteLocation): LocationKey {
-  return `${location.barIndex}_${location.charIndex}`;
-}
-
-export function parseJudgementKey(key: JudgementKey): NoteIdentity {
-  const [char, ordinalStr] = key.split("_");
-  return { char, ordinal: parseInt(ordinalStr, 10) };
-}
-
-export function parseLocationKey(key: LocationKey): NoteLocation {
-  const [barIndexStr, charIndexStr] = key.split("_");
-  return {
-    barIndex: parseInt(barIndexStr, 10),
-    charIndex: parseInt(charIndexStr, 10),
-  };
-}
-
-export const createJudgementKey = (char: string, ordinal: number) => toJudgementKey({ char, ordinal });
+export {
+  type NoteLocation,
+  type NoteIdentity,
+  type JudgementKey,
+  type LocationKey,
+  toJudgementKey,
+  toLocationKey,
+  parseJudgementKey,
+  parseLocationKey,
+  createJudgementKey,
+};
 
 export interface JudgementValue {
   judgement: string;
@@ -243,47 +229,7 @@ const DEFAULT_TEXTS: RenderTexts = {
   },
 };
 
-export function calculateInferredHands(
-  bars: string[][],
-  annotations: Record<LocationKey, string> | undefined,
-): Map<LocationKey, string> {
-  const inferred = new Map<LocationKey, string>();
-  let lastHand = "L"; // Initialize to L so the first note (which triggers reset or flip) can become R
-  let shouldResetToRight = true;
 
-  for (let i = 0; i < bars.length; i++) {
-    const bar = bars[i];
-    if (!bar) continue;
-    for (let j = 0; j < bar.length; j++) {
-      const char = bar[j];
-      const noteId = toLocationKey({ barIndex: i, charIndex: j });
-
-      if (["1", "2", "3", "4"].includes(char)) {
-        let currentInferred = "R";
-
-        if (shouldResetToRight) {
-          currentInferred = "R";
-          shouldResetToRight = false;
-        } else {
-          currentInferred = lastHand === "R" ? "L" : "R";
-        }
-
-        inferred.set(noteId, currentInferred);
-
-        // Determine source of truth for next note
-        if (annotations?.[noteId]) {
-          lastHand = annotations[noteId];
-        } else {
-          lastHand = currentInferred;
-        }
-      } else if (char === "8") {
-        // End of drumroll/balloon/kusudama
-        shouldResetToRight = true;
-      }
-    }
-  }
-  return inferred;
-}
 
 function isNoteSelected(barIdx: number, charIdx: number, selection: ViewOptions["selection"]): boolean {
   if (!selection) return false;
