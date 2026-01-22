@@ -59,9 +59,9 @@ export function generateTJAFromSelection(
   const { start, end } = selection;
 
   // Normalize selection range
-  let startBar = start.originalBarIndex;
+  let startBar = start.barIndex;
   let startChar = start.charIndex;
-  let endBar = end ? end.originalBarIndex : startBar;
+  let endBar = end ? end.barIndex : startBar;
   let endChar = end ? end.charIndex : startChar;
 
   if (startBar > endBar || (startBar === endBar && startChar > endChar)) {

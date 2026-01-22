@@ -12,6 +12,7 @@ import {
   type RenderTexts,
   renderChart,
   renderLayout,
+  toLocationKey,
   type ViewOptions,
 } from "../core/renderer.js";
 import type { ParsedChart } from "../core/tja-parser.js";
@@ -372,7 +373,7 @@ export class TJAChart extends HTMLElement {
     // Handle Annotation Mode Click
     if (this._viewOptions.isAnnotationMode) {
       if (hit && ["1", "2", "3", "4"].includes(hit.type)) {
-        const noteId = `${hit.originalBarIndex}_${hit.charIndex}`;
+        const noteId = toLocationKey({ barIndex: hit.originalBarIndex, charIndex: hit.charIndex });
         const annotations = { ...(this._viewOptions.annotations || {}) };
         const current = annotations[noteId];
 

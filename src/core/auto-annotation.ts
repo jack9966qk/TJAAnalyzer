@@ -1,8 +1,8 @@
-import { calculateInferredHands } from "./renderer.js";
+import { calculateInferredHands, type LocationKey, toLocationKey } from "./renderer.js";
 import type { ParsedChart } from "./tja-parser.js";
 
 interface NoteTiming {
-  id: string;
+  id: LocationKey;
   beat: number;
   hand: string;
   type: string;
@@ -15,8 +15,8 @@ interface Segment {
 
 export function generateAutoAnnotations(
   chart: ParsedChart,
-  existingAnnotations: Record<string, string>,
-): Record<string, string> {
+  existingAnnotations: Record<LocationKey, string>,
+): Record<LocationKey, string> {
   // Clone existing annotations to avoid side-effects if not desired,
   // though the caller can handle that. We'll return a new object with updates.
   const annotations = { ...existingAnnotations };
@@ -38,7 +38,7 @@ export function generateAutoAnnotations(
         const char = bar[j];
         // Only Don/Ka (Small/Large) are annotatable
         if (["1", "2", "3", "4"].includes(char)) {
-          const id = `${i}_${j}`;
+          const id = toLocationKey({ barIndex: i, charIndex: j });
           const hand = inferred.get(id);
           if (hand) {
             notes.push({ id, beat: currentBeat + j * step, hand, type: char });

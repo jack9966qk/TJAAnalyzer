@@ -35,7 +35,7 @@ test.describe("Visual Regression", () => {
         visibility: { perfect: true, good: true, poor: true },
         collapsedLoop: false,
         beatsPerLine: 16,
-        selection: { start: { originalBarIndex: 0, charIndex: 0 }, end: null },
+        selection: { start: { barIndex: 0, charIndex: 0 }, end: null },
         annotations: {},
         isAnnotationMode: false,
         showAllBranches: false,
@@ -1163,7 +1163,7 @@ test.describe("Selection Interaction", () => {
       const chart = document.getElementById("chart-component") as any;
       return chart.viewOptions.hoveredNote;
     });
-    expect(hoveredNote).toEqual({ originalBarIndex: 0, charIndex: 0, branch: "normal" });
+    expect(hoveredNote).toEqual({ barIndex: 0, charIndex: 0, branch: "normal" });
 
     // 2. Hide stats
     await showStatsCheckbox.uncheck();

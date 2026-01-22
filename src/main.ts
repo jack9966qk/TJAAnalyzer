@@ -362,9 +362,7 @@ function initEventListeners() {
     const viewOptionsEl = document.querySelector("view-options") as ViewOptions;
     const isStatsVisible = viewOptionsEl?.statsVisible ?? false;
     const newHoveredNote =
-      isStatsVisible && hit
-        ? { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex, branch: hit.branch }
-        : null;
+      isStatsVisible && hit ? { barIndex: hit.originalBarIndex, charIndex: hit.charIndex, branch: hit.branch } : null;
 
     const currentHovered = appState.viewOptions.hoveredNote;
     let changed = false;
@@ -375,7 +373,7 @@ function initEventListeners() {
       changed = true;
     } else {
       changed =
-        currentHovered.originalBarIndex !== newHoveredNote.originalBarIndex ||
+        currentHovered.barIndex !== newHoveredNote.barIndex ||
         currentHovered.charIndex !== newHoveredNote.charIndex ||
         currentHovered.branch !== newHoveredNote.branch;
     }
@@ -405,24 +403,24 @@ function initEventListeners() {
     if (hit) {
       if (!appState.viewOptions.selection) {
         appState.viewOptions.selection = {
-          start: { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex },
+          start: { barIndex: hit.originalBarIndex, charIndex: hit.charIndex },
           end: null,
         };
         appState.selectedNoteHitInfo = hit;
       } else if (appState.viewOptions.selection.start && !appState.viewOptions.selection.end) {
         if (
-          appState.viewOptions.selection.start.originalBarIndex === hit.originalBarIndex &&
+          appState.viewOptions.selection.start.barIndex === hit.originalBarIndex &&
           appState.viewOptions.selection.start.charIndex === hit.charIndex
         ) {
           appState.viewOptions.selection = null;
           appState.selectedNoteHitInfo = null;
         } else {
-          appState.viewOptions.selection.end = { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex };
+          appState.viewOptions.selection.end = { barIndex: hit.originalBarIndex, charIndex: hit.charIndex };
           appState.selectedNoteHitInfo = hit;
         }
       } else {
         appState.viewOptions.selection = {
-          start: { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex },
+          start: { barIndex: hit.originalBarIndex, charIndex: hit.charIndex },
           end: null,
         };
         appState.selectedNoteHitInfo = hit;

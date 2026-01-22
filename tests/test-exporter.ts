@@ -55,8 +55,8 @@ LEVEL:10
 
   runTest("Test 1: Full selection with Balloon (Middle)", () => {
     const selection: ViewOptions["selection"] = {
-      start: { originalBarIndex: 1, charIndex: 0 },
-      end: { originalBarIndex: 1, charIndex: 7 },
+      start: { barIndex: 1, charIndex: 0 },
+      end: { barIndex: 1, charIndex: 7 },
     };
     const output = generateTJAFromSelection(parsed, selection, "Oni");
     assertIncludes(output, "BALLOON:10");
@@ -66,8 +66,8 @@ LEVEL:10
 
   runTest("Test 2: Partial selection (Offset Balloon)", () => {
     const selection: ViewOptions["selection"] = {
-      start: { originalBarIndex: 2, charIndex: 0 },
-      end: { originalBarIndex: 2, charIndex: 7 },
+      start: { barIndex: 2, charIndex: 0 },
+      end: { barIndex: 2, charIndex: 7 },
     };
     const output = generateTJAFromSelection(parsed, selection, "Oni");
     assertIncludes(output, "BALLOON:15");
@@ -75,8 +75,8 @@ LEVEL:10
 
   runTest("Test 3: Partial selection cutting off Balloon", () => {
     const selection: ViewOptions["selection"] = {
-      start: { originalBarIndex: 1, charIndex: 2 },
-      end: { originalBarIndex: 1, charIndex: 7 },
+      start: { barIndex: 1, charIndex: 2 },
+      end: { barIndex: 1, charIndex: 7 },
     };
     const output = generateTJAFromSelection(parsed, selection, "Oni");
     assertNotIncludes(output, "BALLOON");
@@ -96,8 +96,8 @@ COURSE:Oni
 `;
     const parsed2 = parseTJA(tjaContent2).oni;
     const selection: ViewOptions["selection"] = {
-      start: { originalBarIndex: 1, charIndex: 0 },
-      end: { originalBarIndex: 1, charIndex: 7 },
+      start: { barIndex: 1, charIndex: 0 },
+      end: { barIndex: 1, charIndex: 7 },
     };
     const output = generateTJAFromSelection(parsed2, selection, "Oni");
 
@@ -120,8 +120,8 @@ LEVEL:8
 `;
     const parsed3 = parseTJA(tjaContent3).hard;
     const selection: ViewOptions["selection"] = {
-      start: { originalBarIndex: 0, charIndex: 0 },
-      end: { originalBarIndex: 0, charIndex: 7 },
+      start: { barIndex: 0, charIndex: 0 },
+      end: { barIndex: 0, charIndex: 7 },
     };
     const output = generateTJAFromSelection(parsed3, selection, "Hard");
     assertIncludes(output, "LEVEL:8");
@@ -144,8 +144,8 @@ COURSE:Oni
     const parsedLoop = parseTJA(tjaLoop).oni;
     // Select Bar 0
     const selection: ViewOptions["selection"] = {
-      start: { originalBarIndex: 0, charIndex: 0 },
-      end: { originalBarIndex: 0, charIndex: 7 },
+      start: { barIndex: 0, charIndex: 0 },
+      end: { barIndex: 0, charIndex: 7 },
     };
     const output = generateTJAFromSelection(parsedLoop, selection, "Oni", 2);
 
@@ -181,8 +181,8 @@ BALLOON:10
 `;
     const parsedBalloonLoop = parseTJA(tjaBalloonLoop).oni;
     const selection: ViewOptions["selection"] = {
-      start: { originalBarIndex: 0, charIndex: 0 },
-      end: { originalBarIndex: 0, charIndex: 7 },
+      start: { barIndex: 0, charIndex: 0 },
+      end: { barIndex: 0, charIndex: 7 },
     };
     const output = generateTJAFromSelection(parsedBalloonLoop, selection, "Oni", 3);
     assertIncludes(output, "BALLOON:10,10,10");
@@ -211,8 +211,8 @@ BPM:100
 
     // Select just the first note (Index 0)
     const selection: ViewOptions["selection"] = {
-      start: { originalBarIndex: 0, charIndex: 0 },
-      end: { originalBarIndex: 0, charIndex: 0 },
+      start: { barIndex: 0, charIndex: 0 },
+      end: { barIndex: 0, charIndex: 0 },
     };
     const output = generateTJAFromSelection(parsedMidBar, selection, "Oni", 1);
 
@@ -250,8 +250,8 @@ BALLOON:3
 `;
     const parsedCycle = parseTJA(tjaCycle).oni;
     const selection: ViewOptions["selection"] = {
-      start: { originalBarIndex: 0, charIndex: 0 },
-      end: { originalBarIndex: 0, charIndex: 7 },
+      start: { barIndex: 0, charIndex: 0 },
+      end: { barIndex: 0, charIndex: 7 },
     };
     // Export with 2 loops
     const exportedTja = generateTJAFromSelection(parsedCycle, selection, "Oni", 2);
@@ -295,8 +295,8 @@ COURSE:Oni
 `;
     const parsed4 = parseTJA(tjaContent4).oni;
     const selection: ViewOptions["selection"] = {
-      start: { originalBarIndex: 0, charIndex: 0 },
-      end: { originalBarIndex: 0, charIndex: 7 },
+      start: { barIndex: 0, charIndex: 0 },
+      end: { barIndex: 0, charIndex: 7 },
     };
     const output = generateTJAFromSelection(parsed4, selection, "Oni", 1, "My Custom Chart");
     assertIncludes(output, "TITLE:My Custom Chart");
@@ -313,8 +313,8 @@ COURSE:Oni
 `;
     const parsed5 = parseTJA(tjaContent5).oni;
     const selection: ViewOptions["selection"] = {
-      start: { originalBarIndex: 0, charIndex: 0 },
-      end: { originalBarIndex: 0, charIndex: 7 },
+      start: { barIndex: 0, charIndex: 0 },
+      end: { barIndex: 0, charIndex: 7 },
     };
     // Export with gapCount = 2, loopCount = 1
     // Expected Structure:

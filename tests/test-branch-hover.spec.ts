@@ -190,8 +190,8 @@ LEVEL:8
       return chart.viewOptions.hoveredNote;
     });
 
-    // { originalBarIndex: 0, charIndex: 0, branch: 'normal' }
-    expect(hoveredNote).toEqual({ originalBarIndex: 0, charIndex: 0, branch: "normal" });
+    // { barIndex: 0, charIndex: 0, branch: 'normal' }
+    expect(hoveredNote).toEqual({ barIndex: 0, charIndex: 0, branch: "normal" });
 
     // Snapshot to verify visual highlight (Yellow Border)
     await expect(canvas).toHaveScreenshot("repro-hover-unbranched.png");
