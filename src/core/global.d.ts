@@ -9,9 +9,7 @@ declare global {
     autoAnnotate: () => void;
     setJudgements: (newJudgements: JudgementMap<JudgementValue>) => void;
     createJudgementKey: (char: string, ordinal: number) => JudgementKey;
-    // biome-ignore lint/suspicious/noExplicitAny: Class constructor
     LocationMap: typeof LocationMap;
-    // biome-ignore lint/suspicious/noExplicitAny: Class constructor
     JudgementMap: typeof JudgementMap;
     loadTJAContent: (content: string) => void;
     setViewOptions: (opts: Partial<ViewOptions>) => void;

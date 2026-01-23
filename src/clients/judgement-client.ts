@@ -1,4 +1,5 @@
 import { exampleTJA } from "../core/example-data.js";
+import { JUDGEABLE_NOTES, type NoteType } from "../core/renderer.js";
 import { parseTJA } from "../core/tja-parser.js";
 
 export interface JudgementEvent {
@@ -140,7 +141,7 @@ export class JudgementClient {
 
     for (const bar of chart.bars) {
       for (const char of bar) {
-        if (["1", "2", "3", "4"].includes(char)) {
+        if (JUDGEABLE_NOTES.includes(char as NoteType)) {
           if (ordinalCounters[char] === undefined) ordinalCounters[char] = 0;
           notes.push({ type: char, ordinal: ordinalCounters[char] });
           ordinalCounters[char]++;

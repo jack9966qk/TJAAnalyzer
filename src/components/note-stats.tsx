@@ -2,10 +2,13 @@ import * as webjsx from "webjsx";
 import {
   getGradientColor,
   type HitInfo,
+  JUDGEABLE_NOTES,
   JudgementMap,
   JudgementType,
   type JudgementValue,
+  type NoteType,
   PALETTE,
+  RENDERABLE_NOTES,
   type ViewOptions,
 } from "../core/renderer.js";
 import type { ParsedChart } from "../core/tja-parser.js";
@@ -87,7 +90,7 @@ export class NoteStatsDisplay extends HTMLElement {
     const currentTotal = currentBar.length;
 
     for (let i = currentCharIdx - 1; i >= 0; i--) {
-      if (["1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(currentBar[i])) {
+      if (RENDERABLE_NOTES.includes(currentBar[i] as NoteType)) {
         const prevPos = i / currentTotal;
         const curPos = currentCharIdx / currentTotal;
         const diff = curPos - prevPos;
@@ -106,7 +109,7 @@ export class NoteStatsDisplay extends HTMLElement {
       const prevTotal = prevBar.length;
 
       for (let i = prevTotal - 1; i >= 0; i--) {
-        if (["1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(prevBar[i])) {
+        if (RENDERABLE_NOTES.includes(prevBar[i] as NoteType)) {
           const distInCurrent = currentCharIdx / currentTotal;
           const distBetween = (currentBarIdx - b - 1) * 1.0;
           const distInPrev = (prevTotal - i) / prevTotal;
@@ -180,7 +183,7 @@ export class NoteStatsDisplay extends HTMLElement {
             if (bar)
               for (let j = 0; j < bar.length; j++) {
                 const c = bar[j];
-                if (["1", "2", "3", "4"].includes(c)) {
+                if (JUDGEABLE_NOTES.includes(c as NoteType)) {
                   if (!counters[c]) counters[c] = 0;
                   map.set(`${i}_${j}`, counters[c]);
                   counters[c]++;

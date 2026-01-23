@@ -1,4 +1,4 @@
-import { LocationMap, type NoteLocation } from "./primitives.js";
+import { JUDGEABLE_NOTES, LocationMap, type NoteLocation, NoteType } from "./primitives.js";
 import type { ParsedChart } from "./tja-parser.js";
 
 export function calculateInferredHands(
@@ -16,7 +16,7 @@ export function calculateInferredHands(
       const char = bar[j];
       const noteId = { barIndex: i, charIndex: j };
 
-      if (["1", "2", "3", "4"].includes(char)) {
+      if (JUDGEABLE_NOTES.includes(char as NoteType)) {
         let currentInferred = "R";
 
         if (shouldResetToRight) {
@@ -35,7 +35,7 @@ export function calculateInferredHands(
         } else {
           lastHand = currentInferred;
         }
-      } else if (char === "8") {
+      } else if (char === NoteType.End) {
         // End of drumroll/balloon/kusudama
         shouldResetToRight = true;
       }
@@ -80,7 +80,7 @@ export function generateAutoAnnotations(
       for (let j = 0; j < bar.length; j++) {
         const char = bar[j];
         // Only Don/Ka (Small/Large) are annotatable
-        if (["1", "2", "3", "4"].includes(char)) {
+        if (JUDGEABLE_NOTES.includes(char as NoteType)) {
           const id = { barIndex: i, charIndex: j };
           const hand = inferred.get(id);
           if (hand) {
@@ -153,7 +153,7 @@ export function generateAutoAnnotations(
       toAnnotate.set(first.id, true);
 
       // Check for 3 opposite color notes before
-      const getColor = (c: string) => (c === "1" || c === "3" ? "d" : "k");
+      const getColor = (c: string) => (c === NoteType.Don || c === NoteType.DonBig ? "d" : "k");
 
       for (let i = 3; i < seg.notes.length; i++) {
         const current = seg.notes[i];

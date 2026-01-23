@@ -16,13 +16,26 @@ import { calculateInferredHands } from "./auto-annotation.js";
 import {
   createJudgementKey,
   createNoteLocation,
+  JUDGEABLE_NOTES,
   type JudgementKey,
   JudgementMap,
   LocationMap,
   type NoteLocation,
+  NoteType,
+  RENDERABLE_NOTES,
 } from "./primitives.js";
 
-export { type NoteLocation, type JudgementKey, JudgementMap, LocationMap, createJudgementKey, createNoteLocation };
+export {
+  type NoteLocation,
+  type JudgementKey,
+  JudgementMap,
+  LocationMap,
+  createJudgementKey,
+  createNoteLocation,
+  NoteType,
+  JUDGEABLE_NOTES,
+  RENDERABLE_NOTES,
+};
 
 export interface JudgementValue {
   judgement: string;
@@ -291,7 +304,7 @@ function getVirtualBars(
             if (bar) {
               for (let j = 0; j < bar.length; j++) {
                 const char = bar[j];
-                if (["1", "2", "3", "4"].includes(char)) {
+                if (JUDGEABLE_NOTES.includes(char as NoteType)) {
                   const locKey = { barIndex: barIdx, charIndex: j };
                   const identity = locToJudgementKey.get(locKey);
                   if (identity && judgements.has(identity)) {
@@ -346,7 +359,7 @@ function calculateGlobalBarStartIndices(bars: string[][]): number[] {
     indices.push(currentGlobalNoteIndex);
     if (bar) {
       for (const char of bar) {
-        if (["1", "2", "3", "4"].includes(char)) {
+        if (JUDGEABLE_NOTES.includes(char as NoteType)) {
           currentGlobalNoteIndex++;
         }
       }
@@ -531,7 +544,7 @@ export function getNoteAt(
 
     for (let i = 0; i < bar.length; i++) {
       const char = bar[i];
-      if (!["1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(char)) continue;
+      if (!RENDERABLE_NOTES.includes(char as NoteType)) continue;
 
       const noteX: number = barX + i * noteStep;
 
@@ -694,7 +707,7 @@ export function createLayout(
     if (info.bar) {
       for (let j = 0; j < info.bar.length; j++) {
         const char = info.bar[j];
-        if (["1", "2", "3", "4"].includes(char)) {
+        if (JUDGEABLE_NOTES.includes(char as NoteType)) {
           const locKey = { barIndex: info.originalIndex, charIndex: j };
           const ident = locToJudgementKey.get(locKey);
 
@@ -1937,7 +1950,7 @@ function calculateNoteMaps(bars: string[][]): {
     if (!bar) continue;
     for (let j = 0; j < bar.length; j++) {
       const char = bar[j];
-      if (["1", "2", "3", "4"].includes(char)) {
+      if (JUDGEABLE_NOTES.includes(char as NoteType)) {
         if (counters[char] === undefined) counters[char] = 0;
 
         const ordinal = counters[char];
@@ -2368,7 +2381,7 @@ function calculateNoteColors(
   if (viewMode === "judgements" || viewMode === "judgements-underline" || viewMode === "judgements-text") {
     for (let i = 0; i < noteCount; i++) {
       const char = bar[i];
-      if (!["1", "2", "3", "4"].includes(char)) continue;
+      if (!JUDGEABLE_NOTES.includes(char as NoteType)) continue;
 
       let effectiveDelta: number | undefined;
       let isValidJudge = false;
@@ -2513,7 +2526,7 @@ function drawJudgementsUnderline(
   for (let i = noteCount - 1; i >= 0; i--) {
     const noteChar = bar[i];
     // Only for judgeable notes
-    if (!["1", "2", "3", "4"].includes(noteChar)) continue;
+    if (!JUDGEABLE_NOTES.includes(noteChar as NoteType)) continue;
 
     // Only draw if we have a valid color
     if (noteColors[i]) {
@@ -2535,7 +2548,7 @@ function drawJudgementsUnderline(
 
   for (let i = noteCount - 1; i >= 0; i--) {
     const noteChar = bar[i];
-    if (!["1", "2", "3", "4"].includes(noteChar)) continue;
+    if (!JUDGEABLE_NOTES.includes(noteChar as NoteType)) continue;
 
     const color = noteColors[i];
     if (color) {
@@ -2578,7 +2591,7 @@ function drawJudgementsText(
 
   for (let i = 0; i < noteCount; i++) {
     const noteChar = bar[i];
-    if (!["1", "2", "3", "4"].includes(noteChar)) continue;
+    if (!JUDGEABLE_NOTES.includes(noteChar as NoteType)) continue;
 
     const color = noteColors[i];
 
@@ -2762,7 +2775,7 @@ function drawBarNotes(
       ctx.stroke();
 
       // Annotation Rendering
-      if (options.isAnnotationMode && options.annotations && ["1", "2", "3", "4"].includes(noteChar)) {
+      if (options.isAnnotationMode && options.annotations && JUDGEABLE_NOTES.includes(noteChar as NoteType)) {
         const noteId = { barIndex: originalBarIndex, charIndex: i };
         const annotation = options.annotations.get(noteId);
         if (annotation) {

@@ -239,6 +239,7 @@ test.describe("Visual Regression", () => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
       const tjaChart = document.getElementById("chart-component") as any;
       const chart = tjaChart.chart;
+      // biome-ignore lint/suspicious/noExplicitAny: Test helper
       const map = new (window as any).JudgementMap();
 
       if (chart) {

@@ -6,10 +6,12 @@ import {
   getNoteAt,
   getNotePosition,
   type HitInfo,
+  JUDGEABLE_NOTES,
   type JudgementKey,
   JudgementMap,
   type JudgementValue,
   LocationMap,
+  type NoteType,
   PALETTE,
   type RenderTexts,
   renderChart,
@@ -373,7 +375,7 @@ export class TJAChart extends HTMLElement {
 
     // Handle Annotation Mode Click
     if (this._viewOptions.isAnnotationMode) {
-      if (hit && ["1", "2", "3", "4"].includes(hit.type)) {
+      if (hit && JUDGEABLE_NOTES.includes(hit.type as NoteType)) {
         const noteId = { barIndex: hit.originalBarIndex, charIndex: hit.charIndex };
         // Clone is not strictly necessary for mutation if we just update the map instance in place,
         // but for safety/reactivity we might want to clone.

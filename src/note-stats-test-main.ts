@@ -2,8 +2,10 @@ import { NoteStatsDisplay } from "./components/note-stats.js";
 import {
   createJudgementKey,
   type HitInfo,
+  JUDGEABLE_NOTES,
   JudgementMap,
   type JudgementValue,
+  type NoteType,
   type ViewOptions,
 } from "./core/renderer.js";
 import type { ParsedChart } from "./core/tja-parser.js";
@@ -43,7 +45,7 @@ w.setStats = (
       const counters: Record<string, number> = {};
       for (const bar of chart.bars) {
         for (const char of bar) {
-          if (["1", "2", "3", "4"].includes(char)) {
+          if (JUDGEABLE_NOTES.includes(char as NoteType)) {
             if (noteCount < judgementsArr.length) {
               if (counters[char] === undefined) counters[char] = 0;
               const ord = counters[char];

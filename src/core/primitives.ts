@@ -3,6 +3,33 @@ export interface NoteLocation {
   charIndex: number;
 }
 
+export enum NoteType {
+  None = "0",
+  Don = "1",
+  Ka = "2",
+  DonBig = "3",
+  KaBig = "4",
+  Drumroll = "5",
+  DrumrollBig = "6",
+  Balloon = "7",
+  End = "8",
+  Kusudama = "9",
+}
+
+export const JUDGEABLE_NOTES = [NoteType.Don, NoteType.Ka, NoteType.DonBig, NoteType.KaBig];
+
+export const RENDERABLE_NOTES = [
+  NoteType.Don,
+  NoteType.Ka,
+  NoteType.DonBig,
+  NoteType.KaBig,
+  NoteType.Drumroll,
+  NoteType.DrumrollBig,
+  NoteType.Balloon,
+  NoteType.End,
+  NoteType.Kusudama,
+];
+
 export interface JudgementKey {
   char: string;
   ordinal: number;
@@ -95,6 +122,7 @@ export class JudgementMap<V> {
     return generator();
   }
 
+  // biome-ignore lint/suspicious/noExplicitAny: Standard forEach signature
   forEach(callbackfn: (value: V, key: JudgementKey, map: JudgementMap<V>) => void, thisArg?: any): void {
     this._map.forEach((value, key) => {
       callbackfn.call(thisArg, value, deserializeJudgementKey(key), this);
@@ -172,6 +200,7 @@ export class LocationMap<V> {
     return generator();
   }
 
+  // biome-ignore lint/suspicious/noExplicitAny: Standard forEach signature
   forEach(callbackfn: (value: V, key: NoteLocation, map: LocationMap<V>) => void, thisArg?: any): void {
     this._map.forEach((value, key) => {
       callbackfn.call(thisArg, value, deserializeLocationKey(key), this);
