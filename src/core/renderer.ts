@@ -1757,6 +1757,71 @@ function drawChartHeader(
   ctx.restore();
 }
 
+function drawGradientRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  color: string,
+  direction: "left" | "right",
+) {
+  const grad = ctx.createLinearGradient(x, y, x + width, y);
+  const cSolid = hexToRgba(color, 1);
+  const cMid = hexToRgba(color, 0.2);
+  const cTrans = hexToRgba(color, 0);
+
+  if (direction === "left") {
+    grad.addColorStop(0, cTrans);
+    grad.addColorStop(0.25, cMid);
+    grad.addColorStop(0.5, cSolid);
+    grad.addColorStop(1, cSolid);
+  } else {
+    grad.addColorStop(0, cSolid);
+    grad.addColorStop(0.5, cSolid);
+    grad.addColorStop(0.75, cMid);
+    grad.addColorStop(1, cTrans);
+  }
+
+  ctx.fillStyle = grad;
+  ctx.fillRect(x, y, width, height);
+}
+
+function drawGradientLine(
+  ctx: CanvasRenderingContext2D,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  color: string,
+  lineWidth: number,
+  direction: "left" | "right",
+) {
+  const grad = ctx.createLinearGradient(x1, y1, x2, y1); // Horizontal gradient
+  const cSolid = hexToRgba(color, 1);
+  const cMid = hexToRgba(color, 0.2);
+  const cTrans = hexToRgba(color, 0);
+
+  if (direction === "left") {
+    grad.addColorStop(0, cTrans);
+    grad.addColorStop(0.25, cMid);
+    grad.addColorStop(0.5, cSolid);
+    grad.addColorStop(1, cSolid);
+  } else {
+    grad.addColorStop(0, cSolid);
+    grad.addColorStop(0.5, cSolid);
+    grad.addColorStop(0.75, cMid);
+    grad.addColorStop(1, cTrans);
+  }
+
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = lineWidth;
+  ctx.beginPath();
+  ctx.moveTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.stroke();
+}
+
 function drawBarBackground(
   ctx: CanvasRenderingContext2D,
   x: number,
@@ -1783,78 +1848,19 @@ function drawBarBackground(
 
   // Helper for extensions
   const drawExtension = (exX: number, exW: number, isLeft: boolean) => {
+    const direction = isLeft ? "left" : "right";
+
     // 1. Background Gradient
-    const grad = ctx.createLinearGradient(exX, y, exX + exW, y);
-    const cSolid = hexToRgba(fillColor, 1);
-    const cMid = hexToRgba(fillColor, 0.2);
-    const cTrans = hexToRgba(fillColor, 0);
-
-    if (isLeft) {
-      grad.addColorStop(0, cTrans);
-      grad.addColorStop(0.25, cMid);
-      grad.addColorStop(0.5, cSolid);
-      grad.addColorStop(1, cSolid);
-    } else {
-      grad.addColorStop(0, cSolid);
-      grad.addColorStop(0.5, cSolid);
-      grad.addColorStop(0.75, cMid);
-      grad.addColorStop(1, cTrans);
-    }
-
-    ctx.fillStyle = grad;
-    ctx.fillRect(exX, y, exW, height);
+    drawGradientRect(ctx, exX, y, exW, height, fillColor, direction);
 
     // 2. Horizontal Borders Gradient
-    const borderGrad = ctx.createLinearGradient(exX, y, exX + exW, y);
-    const bcSolid = hexToRgba(PALETTE.ui.barBorder, 1);
-    const bcMid = hexToRgba(PALETTE.ui.barBorder, 0.2);
-    const bcTrans = hexToRgba(PALETTE.ui.barBorder, 0);
-
-    if (isLeft) {
-      borderGrad.addColorStop(0, bcTrans);
-      borderGrad.addColorStop(0.25, bcMid);
-      borderGrad.addColorStop(0.5, bcSolid);
-      borderGrad.addColorStop(1, bcSolid);
-    } else {
-      borderGrad.addColorStop(0, bcSolid);
-      borderGrad.addColorStop(0.5, bcSolid);
-      borderGrad.addColorStop(0.75, bcMid);
-      borderGrad.addColorStop(1, bcTrans);
-    }
-
-    ctx.strokeStyle = borderGrad;
-    ctx.lineWidth = borderW;
-    ctx.beginPath();
-    ctx.moveTo(exX, y);
-    ctx.lineTo(exX + exW, y);
-    ctx.moveTo(exX, y + height);
-    ctx.lineTo(exX + exW, y + height);
-    ctx.stroke();
+    // Top Border
+    drawGradientLine(ctx, exX, y, exX + exW, y, PALETTE.ui.barBorder, borderW, direction);
+    // Bottom Border
+    drawGradientLine(ctx, exX, y + height, exX + exW, y + height, PALETTE.ui.barBorder, borderW, direction);
 
     // 3. Center Line Gradient
-    const centerGrad = ctx.createLinearGradient(exX, y, exX + exW, y);
-    const ccSolid = hexToRgba(PALETTE.ui.centerLine, 1);
-    const ccMid = hexToRgba(PALETTE.ui.centerLine, 0.2);
-    const ccTrans = hexToRgba(PALETTE.ui.centerLine, 0);
-
-    if (isLeft) {
-      centerGrad.addColorStop(0, ccTrans);
-      centerGrad.addColorStop(0.25, ccMid);
-      centerGrad.addColorStop(0.5, ccSolid);
-      centerGrad.addColorStop(1, ccSolid);
-    } else {
-      centerGrad.addColorStop(0, ccSolid);
-      centerGrad.addColorStop(0.5, ccSolid);
-      centerGrad.addColorStop(0.75, ccMid);
-      centerGrad.addColorStop(1, ccTrans);
-    }
-
-    ctx.strokeStyle = centerGrad;
-    ctx.lineWidth = centerW;
-    ctx.beginPath();
-    ctx.moveTo(exX, centerY);
-    ctx.lineTo(exX + exW, centerY);
-    ctx.stroke();
+    drawGradientLine(ctx, exX, centerY, exX + exW, centerY, PALETTE.ui.centerLine, centerW, direction);
   };
 
   if (drawLeftExt && overExtendWidth > 0) {
@@ -2866,25 +2872,8 @@ function drawGogoIndicator(
 
   // Helper for extensions
   const drawExtension = (exX: number, exW: number, isLeft: boolean) => {
-    const grad = ctx.createLinearGradient(exX, y, exX + exW, y);
-    const cSolid = hexToRgba(GOGO_COLOR, 1);
-    const cMid = hexToRgba(GOGO_COLOR, 0.2);
-    const cTrans = hexToRgba(GOGO_COLOR, 0);
-
-    if (isLeft) {
-      grad.addColorStop(0, cTrans);
-      grad.addColorStop(0.25, cMid);
-      grad.addColorStop(0.5, cSolid);
-      grad.addColorStop(1, cSolid);
-    } else {
-      grad.addColorStop(0, cSolid);
-      grad.addColorStop(0.5, cSolid);
-      grad.addColorStop(0.75, cMid);
-      grad.addColorStop(1, cTrans);
-    }
-
-    ctx.fillStyle = grad;
-    ctx.fillRect(exX, y, exW, height);
+    const direction = isLeft ? "left" : "right";
+    drawGradientRect(ctx, exX, y, exW, height, GOGO_COLOR, direction);
   };
 
   const isStartGogo = gogoTime;
