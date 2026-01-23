@@ -3,7 +3,6 @@ import { generateAutoAnnotations } from "../core/auto-annotation.js";
 import {
   type ChartLayout,
   createLayout,
-  createNoteLocation,
   getNoteAt,
   getNotePosition,
   type HitInfo,

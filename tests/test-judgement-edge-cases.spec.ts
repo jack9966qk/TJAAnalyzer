@@ -1,5 +1,4 @@
 import { expect, test } from "@playwright/test";
-import { JudgementMap, type JudgementValue } from "../src/core/renderer.js";
 
 interface TestWindow extends Window {
   // biome-ignore lint/suspicious/noExplicitAny: Test helper

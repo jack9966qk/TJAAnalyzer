@@ -2352,37 +2352,17 @@ function drawCapsule(
   ctx.stroke();
 }
 
-function drawBarNotes(
-  ctx: CanvasRenderingContext2D,
+function calculateNoteColors(
   bar: string[],
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  rSmall: number,
-  rBig: number,
-  borderOuterW: number,
-  borderInnerW: number,
-  borderUnderlineW: number,
+  noteCount: number,
   options: ViewOptions,
   judgements: JudgementMap<JudgementValue>,
-  texts: RenderTexts,
-  originalBarIndex: number = -1,
-  loopInfo?: LoopInfo,
-  inferredHands?: LocationMap<string>,
-  currentBranch?: "normal" | "expert" | "master",
-  locToJudgementKey?: LocationMap<JudgementKey>,
-  effectiveBarIndex?: number,
-): void {
-  const { viewMode, coloringMode, visibility: judgementVisibility, selection } = options;
-
-  const centerY: number = y + height / 2;
-  const noteCount: number = bar.length;
-  if (noteCount === 0) return;
-
-  const noteStep: number = width / noteCount;
-
-  // Pre-calculate colors for judgeable notes if needed
+  originalBarIndex: number,
+  loopInfo: LoopInfo | undefined,
+  locToJudgementKey: LocationMap<JudgementKey> | undefined,
+  effectiveBarIndex: number | undefined,
+): (string | null)[] {
+  const { viewMode, coloringMode, visibility: judgementVisibility } = options;
   const noteColors: (string | null)[] = new Array(noteCount).fill(null);
 
   if (viewMode === "judgements" || viewMode === "judgements-underline" || viewMode === "judgements-text") {
@@ -2504,107 +2484,203 @@ function drawBarNotes(
       }
     }
   }
+  return noteColors;
+}
+
+function drawJudgementsUnderline(
+  ctx: CanvasRenderingContext2D,
+  bar: string[],
+  noteColors: (string | null)[],
+  noteCount: number,
+  x: number,
+  y: number,
+  height: number,
+  noteStep: number,
+  rSmall: number,
+  rBig: number,
+  borderUnderlineW: number,
+): void {
+  const barBottom = y + height;
+  const lineY = barBottom + height * 0.1; // Slightly below bar
+  const lineWidth = height * 0.15; // Visible thickness
+
+  // Pass 1.1: Draw Black Borders (Backwards iteration)
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.strokeStyle = PALETTE.ui.barBorder;
+  ctx.lineWidth = lineWidth + borderUnderlineW * 2;
+
+  for (let i = noteCount - 1; i >= 0; i--) {
+    const noteChar = bar[i];
+    // Only for judgeable notes
+    if (!["1", "2", "3", "4"].includes(noteChar)) continue;
+
+    // Only draw if we have a valid color
+    if (noteColors[i]) {
+      const noteX: number = x + i * noteStep;
+      const radius = ["3", "4"].includes(noteChar) ? rBig : rSmall;
+
+      ctx.beginPath();
+      ctx.moveTo(noteX - radius, lineY);
+      ctx.lineTo(noteX + radius, lineY);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+
+  // Pass 1.2: Draw Colored Lines (Backwards iteration)
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.lineWidth = lineWidth;
+
+  for (let i = noteCount - 1; i >= 0; i--) {
+    const noteChar = bar[i];
+    if (!["1", "2", "3", "4"].includes(noteChar)) continue;
+
+    const color = noteColors[i];
+    if (color) {
+      const noteX: number = x + i * noteStep;
+      const radius = ["3", "4"].includes(noteChar) ? rBig : rSmall;
+
+      ctx.strokeStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(noteX - radius, lineY);
+      ctx.lineTo(noteX + radius, lineY);
+      ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+function drawJudgementsText(
+  ctx: CanvasRenderingContext2D,
+  bar: string[],
+  noteColors: (string | null)[],
+  noteCount: number,
+  x: number,
+  height: number,
+  centerY: number,
+  noteStep: number,
+  rSmall: number,
+  rBig: number,
+  texts: RenderTexts,
+  judgements: JudgementMap<JudgementValue>,
+  locToJudgementKey: LocationMap<JudgementKey> | undefined,
+  effectiveBarIndex: number | undefined,
+  originalBarIndex: number,
+): void {
+  ctx.save();
+  ctx.font = `bold ${rBig * 1.2}px ${FONT_STACK}`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "bottom";
+  ctx.lineWidth = height * 0.05; // Border width for text
+  ctx.strokeStyle = PALETTE.judgements.textBorder;
+
+  for (let i = 0; i < noteCount; i++) {
+    const noteChar = bar[i];
+    if (!["1", "2", "3", "4"].includes(noteChar)) continue;
+
+    const color = noteColors[i];
+
+    if (color) {
+      // Look up judgement again
+      const barIdx = effectiveBarIndex !== undefined ? effectiveBarIndex : originalBarIndex;
+      let judge = "";
+      if (locToJudgementKey) {
+        const locKey = { barIndex: barIdx, charIndex: i };
+        const ident = locToJudgementKey.get(locKey);
+        if (ident) {
+          const jd = judgements.get(ident);
+          if (jd) judge = jd.judgement;
+        }
+      }
+
+      let text = "";
+      if (judge === JudgementType.Perfect) text = texts.judgement.perfect;
+      else if (judge === JudgementType.Good) text = texts.judgement.good;
+      else if (judge === JudgementType.Poor) text = texts.judgement.poor;
+
+      if (text) {
+        const noteX: number = x + i * noteStep;
+        const noteTopY = centerY - (["3", "4"].includes(noteChar) ? rBig : rSmall);
+        // Slightly above note
+        const textY = noteTopY;
+
+        ctx.strokeText(text, noteX, textY);
+        ctx.fillStyle = color;
+        ctx.fillText(text, noteX, textY);
+      }
+    }
+  }
+  ctx.restore();
+}
+
+function drawBarNotes(
+  ctx: CanvasRenderingContext2D,
+  bar: string[],
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  rSmall: number,
+  rBig: number,
+  borderOuterW: number,
+  borderInnerW: number,
+  borderUnderlineW: number,
+  options: ViewOptions,
+  judgements: JudgementMap<JudgementValue>,
+  texts: RenderTexts,
+  originalBarIndex: number = -1,
+  loopInfo?: LoopInfo,
+  inferredHands?: LocationMap<string>,
+  currentBranch?: "normal" | "expert" | "master",
+  locToJudgementKey?: LocationMap<JudgementKey>,
+  effectiveBarIndex?: number,
+): void {
+  const { viewMode, selection } = options;
+
+  const centerY: number = y + height / 2;
+  const noteCount: number = bar.length;
+  if (noteCount === 0) return;
+
+  const noteStep: number = width / noteCount;
+
+  // Pre-calculate colors for judgeable notes if needed
+  const noteColors = calculateNoteColors(
+    bar,
+    noteCount,
+    options,
+    judgements,
+    originalBarIndex,
+    loopInfo,
+    locToJudgementKey,
+    effectiveBarIndex,
+  );
 
   // Phase 1: Draw Underlines (Judgements Underline Mode only)
   if (viewMode === "judgements-underline") {
-    const barBottom = y + height;
-    const lineY = barBottom + height * 0.1; // Slightly below bar
-    const lineWidth = height * 0.15; // Visible thickness
-
-    // Pass 1.1: Draw Black Borders (Backwards iteration)
-    ctx.save();
-    ctx.lineCap = "round";
-    ctx.strokeStyle = PALETTE.ui.barBorder;
-    ctx.lineWidth = lineWidth + borderUnderlineW * 2;
-
-    for (let i = noteCount - 1; i >= 0; i--) {
-      const noteChar = bar[i];
-      // Only for judgeable notes
-      if (!["1", "2", "3", "4"].includes(noteChar)) continue;
-
-      // Only draw if we have a valid color
-      if (noteColors[i]) {
-        const noteX: number = x + i * noteStep;
-        const radius = ["3", "4"].includes(noteChar) ? rBig : rSmall;
-
-        ctx.beginPath();
-        ctx.moveTo(noteX - radius, lineY);
-        ctx.lineTo(noteX + radius, lineY);
-        ctx.stroke();
-      }
-    }
-    ctx.restore();
-
-    // Pass 1.2: Draw Colored Lines (Backwards iteration)
-    ctx.save();
-    ctx.lineCap = "round";
-    ctx.lineWidth = lineWidth;
-
-    for (let i = noteCount - 1; i >= 0; i--) {
-      const noteChar = bar[i];
-      if (!["1", "2", "3", "4"].includes(noteChar)) continue;
-
-      const color = noteColors[i];
-      if (color) {
-        const noteX: number = x + i * noteStep;
-        const radius = ["3", "4"].includes(noteChar) ? rBig : rSmall;
-
-        ctx.strokeStyle = color;
-        ctx.beginPath();
-        ctx.moveTo(noteX - radius, lineY);
-        ctx.lineTo(noteX + radius, lineY);
-        ctx.stroke();
-      }
-    }
-    ctx.restore();
+    drawJudgementsUnderline(ctx, bar, noteColors, noteCount, x, y, height, noteStep, rSmall, rBig, borderUnderlineW);
   }
 
   // Phase 1.5: Draw Text (Judgements Text Mode only)
   if (viewMode === "judgements-text") {
-    ctx.save();
-    ctx.font = `bold ${rBig * 1.2}px ${FONT_STACK}`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "bottom";
-    ctx.lineWidth = height * 0.05; // Border width for text
-    ctx.strokeStyle = PALETTE.judgements.textBorder;
-
-    for (let i = 0; i < noteCount; i++) {
-      const noteChar = bar[i];
-      if (!["1", "2", "3", "4"].includes(noteChar)) continue;
-
-      const color = noteColors[i];
-
-      if (color) {
-        // Look up judgement again
-        const barIdx = effectiveBarIndex !== undefined ? effectiveBarIndex : originalBarIndex;
-        let judge = "";
-        if (locToJudgementKey) {
-          const locKey = { barIndex: barIdx, charIndex: i };
-          const ident = locToJudgementKey.get(locKey);
-          if (ident) {
-            const jd = judgements.get(ident);
-            if (jd) judge = jd.judgement;
-          }
-        }
-
-        let text = "";
-        if (judge === JudgementType.Perfect) text = texts.judgement.perfect;
-        else if (judge === JudgementType.Good) text = texts.judgement.good;
-        else if (judge === JudgementType.Poor) text = texts.judgement.poor;
-
-        if (text) {
-          const noteX: number = x + i * noteStep;
-          const noteTopY = centerY - (["3", "4"].includes(noteChar) ? rBig : rSmall);
-          // Slightly above note
-          const textY = noteTopY;
-
-          ctx.strokeText(text, noteX, textY);
-          ctx.fillStyle = color;
-          ctx.fillText(text, noteX, textY);
-        }
-      }
-    }
-    ctx.restore();
+    drawJudgementsText(
+      ctx,
+      bar,
+      noteColors,
+      noteCount,
+      x,
+      height,
+      centerY,
+      noteStep,
+      rSmall,
+      rBig,
+      texts,
+      judgements,
+      locToJudgementKey,
+      effectiveBarIndex,
+      originalBarIndex,
+    );
   }
 
   // Phase 2: Draw Note Heads
