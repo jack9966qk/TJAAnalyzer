@@ -2628,6 +2628,31 @@ function drawJudgementsText(
   ctx.restore();
 }
 
+function getNoteStyle(noteChar: string, rSmall: number, rBig: number): { color: string | null; radius: number } {
+  let color: string | null = null;
+  let radius: number = 0;
+
+  switch (noteChar) {
+    case NoteType.Don: // Don (Red Small)
+      color = PALETTE.notes.don;
+      radius = rSmall;
+      break;
+    case NoteType.Ka: // Ka (Blue Small)
+      color = PALETTE.notes.ka;
+      radius = rSmall;
+      break;
+    case NoteType.DonBig: // Don (Red Big)
+      color = PALETTE.notes.don;
+      radius = rBig;
+      break;
+    case NoteType.KaBig: // Ka (Blue Big)
+      color = PALETTE.notes.ka;
+      radius = rBig;
+      break;
+  }
+  return { color, radius };
+}
+
 function drawBarNotes(
   ctx: CanvasRenderingContext2D,
   bar: string[],
@@ -2701,27 +2726,9 @@ function drawBarNotes(
     const noteChar = bar[i];
     const noteX: number = x + i * noteStep;
 
-    let color: string | null = null;
-    let radius: number = 0;
-
-    switch (noteChar) {
-      case "1": // Don (Red Small)
-        color = PALETTE.notes.don;
-        radius = rSmall;
-        break;
-      case "2": // Ka (Blue Small)
-        color = PALETTE.notes.ka;
-        radius = rSmall;
-        break;
-      case "3": // Don (Red Big)
-        color = PALETTE.notes.don;
-        radius = rBig;
-        break;
-      case "4": // Ka (Blue Big)
-        color = PALETTE.notes.ka;
-        radius = rBig;
-        break;
-    }
+    const style = getNoteStyle(noteChar, rSmall, rBig);
+    let color = style.color;
+    const radius = style.radius;
 
     if (color) {
       let borderColor = PALETTE.notes.border.white; // Default white border
