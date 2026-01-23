@@ -12,30 +12,17 @@ export enum JudgementType {
   Mine = "mine",
 }
 
-import {
-  type NoteLocation,
-  type NoteIdentity,
-  type JudgementKey,
-  type LocationKey,
-  toJudgementKey,
-  toLocationKey,
-  parseJudgementKey,
-  parseLocationKey,
-  createJudgementKey,
-} from "./primitives.js";
 import { calculateInferredHands } from "./auto-annotation.js";
-
-export {
-  type NoteLocation,
-  type NoteIdentity,
-  type JudgementKey,
-  type LocationKey,
-  toJudgementKey,
-  toLocationKey,
-  parseJudgementKey,
-  parseLocationKey,
+import {
   createJudgementKey,
-};
+  createNoteLocation,
+  type JudgementKey,
+  JudgementMap,
+  LocationMap,
+  type NoteLocation,
+} from "./primitives.js";
+
+export { type NoteLocation, type JudgementKey, JudgementMap, LocationMap, createJudgementKey, createNoteLocation };
 
 export interface JudgementValue {
   judgement: string;
@@ -151,15 +138,15 @@ export interface ChartLayout {
   constants: RenderConstants;
   totalHeight: number;
   globalBarStartIndices: number[];
-  balloonIndices: Map<LocationKey, number>;
-  inferredHands: Map<LocationKey, string>;
+  balloonIndices: LocationMap<number>;
+  inferredHands: LocationMap<string>;
   logicalCanvasWidth: number;
   dpr: number;
   headerHeight: number;
   offsetY: number;
   baseBarWidth: number;
-  locToIdent: Map<LocationKey, NoteIdentity>;
-  noteOrdinalToGrid: Map<JudgementKey, { virtualBarIdx: number; charIdx: number }[]>;
+  locToJudgementKey: LocationMap<JudgementKey>;
+  noteOrdinalToGrid: JudgementMap<{ virtualBarIdx: number; charIdx: number }[]>;
 }
 
 export interface JudgementVisibility {
@@ -181,7 +168,7 @@ export interface ViewOptions {
     end: NoteLocation | null;
   } | null;
   hoveredNote?: (NoteLocation & { branch?: "normal" | "expert" | "master" }) | null;
-  annotations?: Record<LocationKey, string>;
+  annotations?: LocationMap<string>;
   isAnnotationMode?: boolean;
 }
 
@@ -229,8 +216,6 @@ const DEFAULT_TEXTS: RenderTexts = {
   },
 };
 
-
-
 function isNoteSelected(barIdx: number, charIdx: number, selection: ViewOptions["selection"]): boolean {
   if (!selection) return false;
 
@@ -271,8 +256,8 @@ function isNoteSelected(barIdx: number, charIdx: number, selection: ViewOptions[
 function getVirtualBars(
   chart: ParsedChart,
   options: ViewOptions,
-  judgements: Map<JudgementKey, JudgementValue>,
-  locToIdent: Map<LocationKey, NoteIdentity>,
+  judgements: JudgementMap<JudgementValue>,
+  locToJudgementKey: LocationMap<JudgementKey>,
 ): RenderBarInfo[] {
   const { bars, loop } = chart;
   let virtualBars: RenderBarInfo[] = [];
@@ -307,9 +292,9 @@ function getVirtualBars(
               for (let j = 0; j < bar.length; j++) {
                 const char = bar[j];
                 if (["1", "2", "3", "4"].includes(char)) {
-                  const locKey = toLocationKey({ barIndex: barIdx, charIndex: j });
-                  const identity = locToIdent.get(locKey);
-                  if (identity && judgements.has(toJudgementKey(identity))) {
+                  const locKey = { barIndex: barIdx, charIndex: j };
+                  const identity = locToJudgementKey.get(locKey);
+                  if (identity && judgements.has(identity)) {
                     hasJudgement = true;
                     break;
                   }
@@ -476,7 +461,7 @@ export function getNoteAt(
   y: number,
   chart: ParsedChart,
   canvas: HTMLCanvasElement,
-  judgements: Map<JudgementKey, JudgementValue> = new Map(),
+  judgements: JudgementMap<JudgementValue> = new JudgementMap(),
   options: ViewOptions,
   layout?: ChartLayout,
 ): HitInfo | null {
@@ -584,9 +569,9 @@ export function getNoteAt(
         const effectiveBarIndex = info.effectiveBarIndex !== undefined ? info.effectiveBarIndex : info.originalIndex;
 
         let ordinal: number | undefined;
-        if (activeLayout.locToIdent) {
-          const locKey = toLocationKey({ barIndex: effectiveBarIndex, charIndex: i });
-          const ident = activeLayout.locToIdent.get(locKey);
+        if (activeLayout.locToJudgementKey) {
+          const locKey = { barIndex: effectiveBarIndex, charIndex: i };
+          const ident = activeLayout.locToJudgementKey.get(locKey);
           if (ident) ordinal = ident.ordinal;
         }
 
@@ -620,7 +605,7 @@ export function getNotePosition(
     activeLayout = layout;
   } else {
     // For getNotePosition we don't need judgements really, pass empty
-    activeLayout = createLayout(chart, canvas, options, new Map());
+    activeLayout = createLayout(chart, canvas, options, new JudgementMap());
   }
 
   const { layouts, virtualBars } = activeLayout;
@@ -679,7 +664,7 @@ export function createLayout(
   chart: ParsedChart,
   canvas: HTMLCanvasElement,
   options: ViewOptions,
-  judgements: Map<JudgementKey, JudgementValue>,
+  judgements: JudgementMap<JudgementValue>,
   customDpr?: number,
 ): ChartLayout {
   // Reset width to 100% to allow measuring the container's available width
@@ -698,25 +683,24 @@ export function createLayout(
   const { bars } = chart;
   const globalBarStartIndices = calculateGlobalBarStartIndices(bars);
   const balloonIndices = calculateBalloonIndices(bars);
-  const { locToIdent } = calculateNoteMaps(bars);
-  const virtualBars = getVirtualBars(chart, options, judgements, locToIdent);
+  const { locToJudgementKey } = calculateNoteMaps(bars);
+  const virtualBars = getVirtualBars(chart, options, judgements, locToJudgementKey);
 
   const { layouts, constants, totalHeight } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offsetY);
 
   // Compute Grid for Dirty Row Optimization
-  const noteOrdinalToGrid = new Map<JudgementKey, { virtualBarIdx: number; charIdx: number }[]>();
+  const noteOrdinalToGrid = new JudgementMap<{ virtualBarIdx: number; charIdx: number }[]>();
   virtualBars.forEach((info, vIdx) => {
     if (info.bar) {
       for (let j = 0; j < info.bar.length; j++) {
         const char = info.bar[j];
         if (["1", "2", "3", "4"].includes(char)) {
-          const locKey = toLocationKey({ barIndex: info.originalIndex, charIndex: j });
-          const ident = locToIdent.get(locKey);
+          const locKey = { barIndex: info.originalIndex, charIndex: j };
+          const ident = locToJudgementKey.get(locKey);
 
           if (ident) {
-            const identKey = toJudgementKey(ident);
-            if (!noteOrdinalToGrid.has(identKey)) noteOrdinalToGrid.set(identKey, []);
-            noteOrdinalToGrid.get(identKey)?.push({ virtualBarIdx: vIdx, charIdx: j });
+            if (!noteOrdinalToGrid.has(ident)) noteOrdinalToGrid.set(ident, []);
+            noteOrdinalToGrid.get(ident)?.push({ virtualBarIdx: vIdx, charIdx: j });
           }
         }
       }
@@ -741,7 +725,7 @@ export function createLayout(
     headerHeight,
     offsetY,
     baseBarWidth,
-    locToIdent,
+    locToJudgementKey,
     noteOrdinalToGrid,
   };
 }
@@ -750,7 +734,7 @@ export function renderLayout(
   ctx: CanvasRenderingContext2D,
   layout: ChartLayout,
   chart: ParsedChart,
-  judgements: Map<JudgementKey, JudgementValue>,
+  judgements: JudgementMap<JudgementValue>,
   options: ViewOptions,
   texts: RenderTexts,
   dirtyRowY?: Set<number>,
@@ -765,7 +749,7 @@ export function renderLayout(
     balloonIndices,
     inferredHands,
     headerHeight,
-    locToIdent,
+    locToJudgementKey,
   } = layout;
 
   // Safety check for canvas limits
@@ -868,7 +852,7 @@ export function renderLayout(
       texts,
       balloonIndices,
       BASE_LANE_HEIGHT,
-      locToIdent,
+      locToJudgementKey,
       dirtyRowY,
     );
   } else {
@@ -909,7 +893,7 @@ export function renderLayout(
         options.collapsedLoop ? chart.loop : undefined,
         inferredHands,
         chart.branchType,
-        locToIdent,
+        locToJudgementKey,
         info.effectiveBarIndex,
       );
     }
@@ -1153,11 +1137,11 @@ function drawAllBranchesNotes(
   layouts: BarLayout[],
   constants: RenderConstants,
   options: ViewOptions,
-  judgements: Map<JudgementKey, JudgementValue>,
+  judgements: JudgementMap<JudgementValue>,
   texts: RenderTexts,
-  _balloonIndices: Map<LocationKey, number>,
+  _balloonIndices: LocationMap<number>,
   BASE_LANE_HEIGHT: number,
-  locToIdent: Map<LocationKey, NoteIdentity>,
+  locToJudgementKey: LocationMap<JudgementKey>,
   dirtyRowY?: Set<number>,
 ) {
   if (!chart.branches) return;
@@ -1213,7 +1197,7 @@ function drawAllBranchesNotes(
       const isBranched = params ? params.isBranched : false;
       if (!isBranched && b.type !== "normal") continue;
 
-      const drawOptions = { ...options, annotations: {}, selection: null };
+      const drawOptions = { ...options, annotations: new LocationMap<string>(), selection: null };
 
       drawBarNotes(
         ctx,
@@ -1234,7 +1218,7 @@ function drawAllBranchesNotes(
         undefined,
         undefined,
         b.type as "normal" | "expert" | "master",
-        locToIdent,
+        locToJudgementKey,
         info.effectiveBarIndex,
       );
     }
@@ -1244,7 +1228,7 @@ function drawAllBranchesNotes(
 export function renderChart(
   chart: ParsedChart,
   canvas: HTMLCanvasElement,
-  judgements: Map<JudgementKey, JudgementValue> = new Map(),
+  judgements: JudgementMap<JudgementValue> = new JudgementMap(),
   options: ViewOptions,
   texts: RenderTexts = DEFAULT_TEXTS,
   customDpr?: number,
@@ -1271,7 +1255,7 @@ export function renderChart(
     logicalCanvasWidth,
     dpr,
     headerHeight,
-    locToIdent,
+    locToJudgementKey,
   } = layout;
 
   const { loop } = chart;
@@ -1612,7 +1596,7 @@ export function renderChart(
         const isBranched = params ? params.isBranched : false;
         if (!isBranched && b.type !== "normal") continue;
 
-        const drawOptions = { ...options, annotations: {}, selection: null };
+        const drawOptions = { ...options, annotations: new LocationMap<string>(), selection: null };
 
         drawBarNotes(
           ctx,
@@ -1633,7 +1617,7 @@ export function renderChart(
           undefined,
           undefined,
           b.type as "normal" | "expert" | "master",
-          locToIdent,
+          locToJudgementKey,
           info.effectiveBarIndex,
         );
       }
@@ -1666,7 +1650,7 @@ export function renderChart(
         options.collapsedLoop ? chart.loop : undefined,
         inferredHands,
         chart.branchType,
-        locToIdent,
+        locToJudgementKey,
         info.effectiveBarIndex,
       );
     }
@@ -1935,11 +1919,11 @@ function hexToRgba(hex: string, alpha: number): string {
 }
 
 function calculateNoteMaps(bars: string[][]): {
-  locToIdent: Map<LocationKey, NoteIdentity>;
-  identToLoc: Map<JudgementKey, NoteLocation[]>;
+  locToJudgementKey: LocationMap<JudgementKey>;
+  identToLoc: JudgementMap<NoteLocation[]>;
 } {
-  const locToIdent = new Map<LocationKey, NoteIdentity>();
-  const identToLoc = new Map<JudgementKey, NoteLocation[]>();
+  const locToJudgementKey = new LocationMap<JudgementKey>();
+  const identToLoc = new JudgementMap<NoteLocation[]>();
   const counters: Record<string, number> = {};
 
   for (let i = 0; i < bars.length; i++) {
@@ -1951,28 +1935,25 @@ function calculateNoteMaps(bars: string[][]): {
         if (counters[char] === undefined) counters[char] = 0;
 
         const ordinal = counters[char];
-        const identity: NoteIdentity = { char, ordinal };
+        const identity: JudgementKey = { char, ordinal };
         const location: NoteLocation = { barIndex: i, charIndex: j };
 
-        const locKey = toLocationKey(location);
-        const identKey = toJudgementKey(identity);
+        locToJudgementKey.set(location, identity);
 
-        locToIdent.set(locKey, identity);
-
-        if (!identToLoc.has(identKey)) {
-          identToLoc.set(identKey, []);
+        if (!identToLoc.has(identity)) {
+          identToLoc.set(identity, []);
         }
-        identToLoc.get(identKey)?.push(location);
+        identToLoc.get(identity)?.push(location);
 
         counters[char]++;
       }
     }
   }
-  return { locToIdent, identToLoc };
+  return { locToJudgementKey, identToLoc };
 }
 
-function calculateBalloonIndices(bars: string[][]): Map<LocationKey, number> {
-  const map = new Map<LocationKey, number>();
+function calculateBalloonIndices(bars: string[][]): LocationMap<number> {
+  const map = new LocationMap<number>();
   let balloonCount = 0;
 
   for (let i = 0; i < bars.length; i++) {
@@ -1980,7 +1961,7 @@ function calculateBalloonIndices(bars: string[][]): Map<LocationKey, number> {
     if (!bar) continue;
     for (let j = 0; j < bar.length; j++) {
       if (bar[j] === "7" || bar[j] === "9") {
-        map.set(toLocationKey({ barIndex: i, charIndex: j }), balloonCount);
+        map.set({ barIndex: i, charIndex: j }, balloonCount);
         balloonCount++;
       }
     }
@@ -1996,7 +1977,7 @@ function drawLongNotes(
   constants: any,
   viewMode: "original" | "judgements" | "judgements-underline" | "judgements-text",
   balloonCounts: number[],
-  balloonIndices: Map<LocationKey, number>,
+  balloonIndices: LocationMap<number>,
   dirtyRowY?: Set<number>,
 ): void {
   const {
@@ -2055,9 +2036,10 @@ function drawLongNotes(
           if (isDirty) {
             if (currentLongNote.type === "7" || currentLongNote.type === "9") {
               // Balloon
-              const balloonIdx = balloonIndices.get(
-                toLocationKey({ barIndex: currentLongNote.originalBarIdx, charIndex: currentLongNote.originalNoteIdx }),
-              );
+              const balloonIdx = balloonIndices.get({
+                barIndex: currentLongNote.originalBarIdx,
+                charIndex: currentLongNote.originalNoteIdx,
+              });
               const count =
                 balloonIdx !== undefined && balloonCounts[balloonIdx] !== undefined ? balloonCounts[balloonIdx] : 5;
               drawBalloonSegment(
@@ -2109,9 +2091,10 @@ function drawLongNotes(
 
       if (isDirty) {
         if (currentLongNote.type === "7" || currentLongNote.type === "9") {
-          const balloonIdx = balloonIndices.get(
-            toLocationKey({ barIndex: currentLongNote.originalBarIdx, charIndex: currentLongNote.originalNoteIdx }),
-          );
+          const balloonIdx = balloonIndices.get({
+            barIndex: currentLongNote.originalBarIdx,
+            charIndex: currentLongNote.originalNoteIdx,
+          });
           const count =
             balloonIdx !== undefined && balloonCounts[balloonIdx] !== undefined ? balloonCounts[balloonIdx] : 5;
           drawBalloonSegment(
@@ -2376,13 +2359,13 @@ function drawBarNotes(
   borderInnerW: number,
   borderUnderlineW: number,
   options: ViewOptions,
-  judgements: Map<JudgementKey, JudgementValue>,
+  judgements: JudgementMap<JudgementValue>,
   texts: RenderTexts,
   originalBarIndex: number = -1,
   loopInfo?: LoopInfo,
-  inferredHands?: Map<LocationKey, string>,
+  inferredHands?: LocationMap<string>,
   currentBranch?: "normal" | "expert" | "master",
-  locToIdent?: Map<LocationKey, NoteIdentity>,
+  locToJudgementKey?: LocationMap<JudgementKey>,
   effectiveBarIndex?: number,
 ): void {
   const { viewMode, coloringMode, visibility: judgementVisibility, selection } = options;
@@ -2425,12 +2408,11 @@ function drawBarNotes(
             const actualBarIdx =
               loopInfo.startBarIndex + iter * loopInfo.period + (originalBarIndex - loopInfo.startBarIndex);
             // Look up ordinal
-            if (locToIdent) {
-              const locKey = toLocationKey({ barIndex: actualBarIdx, charIndex: i });
-              const ident = locToIdent.get(locKey);
+            if (locToJudgementKey) {
+              const locKey = { barIndex: actualBarIdx, charIndex: i };
+              const ident = locToJudgementKey.get(locKey);
               if (ident) {
-                const key = toJudgementKey(ident);
-                const judgeData = judgements.get(key);
+                const judgeData = judgements.get(ident);
 
                 if (judgeData) {
                   const j = judgeData.judgement;
@@ -2458,12 +2440,11 @@ function drawBarNotes(
         } else {
           // Standard or specific iteration
           const barIdx = effectiveBarIndex !== undefined ? effectiveBarIndex : originalBarIndex;
-          if (locToIdent) {
-            const locKey = toLocationKey({ barIndex: barIdx, charIndex: i });
-            const ident = locToIdent.get(locKey);
+          if (locToJudgementKey) {
+            const locKey = { barIndex: barIdx, charIndex: i };
+            const ident = locToJudgementKey.get(locKey);
             if (ident) {
-              const key = toJudgementKey(ident);
-              const judgeData = judgements.get(key);
+              const judgeData = judgements.get(ident);
               if (judgeData) {
                 const j = judgeData.judgement;
 
@@ -2493,12 +2474,11 @@ function drawBarNotes(
       } else {
         // Categorical Logic
         const barIdx = effectiveBarIndex !== undefined ? effectiveBarIndex : originalBarIndex;
-        if (locToIdent) {
-          const locKey = toLocationKey({ barIndex: barIdx, charIndex: i });
-          const ident = locToIdent.get(locKey);
+        if (locToJudgementKey) {
+          const locKey = { barIndex: barIdx, charIndex: i };
+          const ident = locToJudgementKey.get(locKey);
           if (ident) {
-            const key = toJudgementKey(ident);
-            const judgeData = judgements.get(key);
+            const judgeData = judgements.get(ident);
             if (judgeData) {
               const judge = judgeData.judgement;
               if (judge === JudgementType.Perfect && judgementVisibility.perfect)
@@ -2592,11 +2572,11 @@ function drawBarNotes(
         // Look up judgement again
         const barIdx = effectiveBarIndex !== undefined ? effectiveBarIndex : originalBarIndex;
         let judge = "";
-        if (locToIdent) {
-          const locKey = toLocationKey({ barIndex: barIdx, charIndex: i });
-          const ident = locToIdent.get(locKey);
+        if (locToJudgementKey) {
+          const locKey = { barIndex: barIdx, charIndex: i };
+          const ident = locToJudgementKey.get(locKey);
           if (ident) {
-            const jd = judgements.get(toJudgementKey(ident));
+            const jd = judgements.get(ident);
             if (jd) judge = jd.judgement;
           }
         }
@@ -2701,8 +2681,8 @@ function drawBarNotes(
 
       // Annotation Rendering
       if (options.isAnnotationMode && options.annotations && ["1", "2", "3", "4"].includes(noteChar)) {
-        const noteId = toLocationKey({ barIndex: originalBarIndex, charIndex: i });
-        const annotation = options.annotations[noteId];
+        const noteId = { barIndex: originalBarIndex, charIndex: i };
+        const annotation = options.annotations.get(noteId);
         if (annotation) {
           let textColor = PALETTE.ui.annotation.match;
           if (inferredHands) {

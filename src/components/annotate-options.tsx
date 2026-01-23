@@ -1,5 +1,6 @@
 import * as webjsx from "webjsx";
 import { refreshChart } from "../controllers/chart-controller.js";
+import { LocationMap } from "../core/renderer.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { tjaChart } from "../view/ui-elements.js";
@@ -20,7 +21,7 @@ export class AnnotateOptions extends HTMLElement {
   }
 
   private handleClearAnnotations() {
-    appState.annotations = {};
+    appState.annotations = new LocationMap();
     refreshChart();
   }
 

@@ -3,16 +3,18 @@ import { generateAutoAnnotations } from "../core/auto-annotation.js";
 import {
   type ChartLayout,
   createLayout,
+  createNoteLocation,
   getNoteAt,
   getNotePosition,
   type HitInfo,
   type JudgementKey,
+  JudgementMap,
   type JudgementValue,
+  LocationMap,
   PALETTE,
   type RenderTexts,
   renderChart,
   renderLayout,
-  toLocationKey,
   type ViewOptions,
 } from "../core/renderer.js";
 import type { ParsedChart } from "../core/tja-parser.js";
@@ -29,7 +31,7 @@ export class TJAChart extends HTMLElement {
   private messageContainer!: HTMLDivElement;
   private _chart: ParsedChart | null = null;
   private _viewOptions: ViewOptions | null = null;
-  private _judgements: Map<JudgementKey, JudgementValue> = new Map();
+  private _judgements: JudgementMap<JudgementValue> = new JudgementMap();
   private _texts: RenderTexts | undefined;
   private _message: { text: string; type: "warning" | "info" } | null = null;
   private resizeObserver: ResizeObserver;
@@ -38,7 +40,7 @@ export class TJAChart extends HTMLElement {
   private _renderTask: number | null = null;
   private _pendingFullRender: boolean = true;
   private _layout: ChartLayout | null = null;
-  private _renderedJudgements: Map<JudgementKey, JudgementValue> = new Map();
+  private _renderedJudgements: JudgementMap<JudgementValue> = new JudgementMap();
 
   constructor() {
     super();
@@ -164,12 +166,12 @@ export class TJAChart extends HTMLElement {
     return this._viewOptions;
   }
 
-  set judgements(value: Map<JudgementKey, JudgementValue>) {
+  set judgements(value: JudgementMap<JudgementValue>) {
     this._judgements = value;
     this.scheduleRender();
   }
 
-  get judgements(): Map<JudgementKey, JudgementValue> {
+  get judgements(): JudgementMap<JudgementValue> {
     return this._judgements;
   }
 
@@ -262,7 +264,7 @@ export class TJAChart extends HTMLElement {
 
     if (!isFullRender && this._layout) {
       // Differential Rendering
-      const changedKeys: string[] = [];
+      const changedKeys: JudgementKey[] = [];
 
       // Check for added or changed items
       for (const [key, val] of this._judgements) {
@@ -307,10 +309,10 @@ export class TJAChart extends HTMLElement {
       // Update cache
       if (!dirtyRowY) {
         // Full render, sync completely
-        this._renderedJudgements = new Map(this._judgements);
+        this._renderedJudgements = new JudgementMap(this._judgements);
       } else {
         // Partial render, sync completely (easier than patching)
-        this._renderedJudgements = new Map(this._judgements);
+        this._renderedJudgements = new JudgementMap(this._judgements);
       }
     }
   }
@@ -373,13 +375,16 @@ export class TJAChart extends HTMLElement {
     // Handle Annotation Mode Click
     if (this._viewOptions.isAnnotationMode) {
       if (hit && ["1", "2", "3", "4"].includes(hit.type)) {
-        const noteId = toLocationKey({ barIndex: hit.originalBarIndex, charIndex: hit.charIndex });
-        const annotations = { ...(this._viewOptions.annotations || {}) };
-        const current = annotations[noteId];
+        const noteId = { barIndex: hit.originalBarIndex, charIndex: hit.charIndex };
+        // Clone is not strictly necessary for mutation if we just update the map instance in place,
+        // but for safety/reactivity we might want to clone.
+        // However, LocationMap copy constructor handles it.
+        const annotations = new LocationMap(this._viewOptions.annotations);
+        const current = annotations.get(noteId);
 
-        if (!current) annotations[noteId] = "L";
-        else if (current === "L") annotations[noteId] = "R";
-        else delete annotations[noteId];
+        if (!current) annotations.set(noteId, "L");
+        else if (current === "L") annotations.set(noteId, "R");
+        else annotations.delete(noteId);
 
         this.dispatchEvent(
           new CustomEvent("annotations-change", {
@@ -403,7 +408,7 @@ export class TJAChart extends HTMLElement {
 
   autoAnnotate() {
     if (!this._chart) return;
-    const currentAnnotations = this._viewOptions?.annotations || {};
+    const currentAnnotations = this._viewOptions?.annotations || new LocationMap();
     const newAnnotations = generateAutoAnnotations(this._chart, currentAnnotations);
 
     this.dispatchEvent(

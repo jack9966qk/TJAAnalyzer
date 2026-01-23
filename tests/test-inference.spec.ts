@@ -1,5 +1,10 @@
 import { expect, test } from "@playwright/test";
 
+interface TestWindow extends Window {
+  // biome-ignore lint/suspicious/noExplicitAny: Test helper
+  LocationMap: any;
+}
+
 test.describe("Annotation Inference", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/chart-only.html");
@@ -28,7 +33,7 @@ LEVEL:10
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: {},
+        annotations: new (window as unknown as TestWindow).LocationMap(),
         isAnnotationMode: true,
         showAllBranches: false,
       });

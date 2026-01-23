@@ -2,7 +2,7 @@ import { NoteStatsDisplay } from "./components/note-stats.js";
 import {
   createJudgementKey,
   type HitInfo,
-  type JudgementKey,
+  JudgementMap,
   type JudgementValue,
   type ViewOptions,
 } from "./core/renderer.js";
@@ -37,7 +37,7 @@ w.setStats = (
     noteStats.viewOptions = viewOptions;
     noteStats.hit = hit;
 
-    const map = new Map<JudgementKey, JudgementValue>();
+    const map = new JudgementMap<JudgementValue>();
     if (chart && judgementsArr.length > 0) {
       let noteCount = 0;
       const counters: Record<string, number> = {};

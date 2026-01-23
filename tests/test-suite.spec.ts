@@ -1,6 +1,13 @@
 import path from "node:path";
 import { expect, test } from "@playwright/test";
-import type { JudgementKey, JudgementValue } from "../src/core/renderer.js";
+import { JudgementMap, type JudgementValue } from "../src/core/renderer.js";
+
+interface TestWindow extends Window {
+  // biome-ignore lint/suspicious/noExplicitAny: Test helper
+  JudgementMap: any;
+  // biome-ignore lint/suspicious/noExplicitAny: Test helper
+  LocationMap: any;
+}
 
 test.describe("Visual Regression", () => {
   test("Initial Render", async ({ page }) => {
@@ -36,7 +43,7 @@ test.describe("Visual Regression", () => {
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: { start: { barIndex: 0, charIndex: 0 }, end: null },
-        annotations: {},
+        annotations: new (window as unknown as TestWindow).LocationMap(),
         isAnnotationMode: false,
         showAllBranches: false,
       });
@@ -135,7 +142,7 @@ test.describe("Visual Regression", () => {
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: {},
+        annotations: new window.LocationMap(),
         isAnnotationMode: false,
         showAllBranches: false,
       });
@@ -161,7 +168,7 @@ test.describe("Visual Regression", () => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
       const tjaChart = document.getElementById("chart-component") as any;
       const chart = tjaChart.chart;
-      const map = new Map<JudgementKey, JudgementValue>();
+      const map = new (window as unknown as TestWindow).JudgementMap();
 
       if (chart) {
         let noteCount = 0;
@@ -177,7 +184,7 @@ test.describe("Visual Regression", () => {
                 const ordinal = counters[char];
                 counters[char]++;
 
-                map.set(window.createJudgementKey(char, ordinal), { judgement: j, delta: 0 });
+                map.set({ char, ordinal }, { judgement: j, delta: 0 });
               }
               noteCount++;
             }
@@ -207,7 +214,7 @@ test.describe("Visual Regression", () => {
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: {},
+        annotations: new (window as unknown as TestWindow).LocationMap(),
         isAnnotationMode: false,
         showAllBranches: false,
       });
@@ -233,7 +240,7 @@ test.describe("Visual Regression", () => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
       const tjaChart = document.getElementById("chart-component") as any;
       const chart = tjaChart.chart;
-      const map = new Map<JudgementKey, JudgementValue>();
+      const map = new (window as any).JudgementMap();
 
       if (chart) {
         let noteCount = 0;
@@ -249,7 +256,7 @@ test.describe("Visual Regression", () => {
                 const ordinal = counters[char];
                 counters[char]++;
 
-                map.set(window.createJudgementKey(char, ordinal), { judgement: j, delta: 0 });
+                map.set({ char, ordinal }, { judgement: j, delta: 0 });
               }
               noteCount++;
             }
@@ -279,7 +286,7 @@ test.describe("Visual Regression", () => {
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: {},
+        annotations: new (window as unknown as TestWindow).LocationMap(),
         isAnnotationMode: false,
         showAllBranches: false,
       });
@@ -305,7 +312,7 @@ test.describe("Visual Regression", () => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
       const tjaChart = document.getElementById("chart-component") as any;
       const chart = tjaChart.chart;
-      const map = new Map<JudgementKey, JudgementValue>();
+      const map = new (window as unknown as TestWindow).JudgementMap();
 
       if (chart) {
         let noteCount = 0;
@@ -321,7 +328,7 @@ test.describe("Visual Regression", () => {
                 const ordinal = counters[char];
                 counters[char]++;
 
-                map.set(window.createJudgementKey(char, ordinal), { judgement: j, delta: 0 });
+                map.set({ char, ordinal }, { judgement: j, delta: 0 });
               }
               noteCount++;
             }
@@ -351,7 +358,7 @@ test.describe("Visual Regression", () => {
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: {},
+        annotations: new (window as unknown as TestWindow).LocationMap(),
         isAnnotationMode: false,
         showAllBranches: false,
       });
@@ -389,7 +396,7 @@ test.describe("Visual Regression", () => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
       const tjaChart = document.getElementById("chart-component") as any;
       const chart = tjaChart.chart;
-      const map = new Map<JudgementKey, JudgementValue>();
+      const map = new (window as unknown as TestWindow).JudgementMap();
 
       if (chart) {
         let noteCount = 0;
@@ -406,7 +413,7 @@ test.describe("Visual Regression", () => {
                 const ordinal = counters[char];
                 counters[char]++;
 
-                map.set(window.createJudgementKey(char, ordinal), { judgement: j, delta: d });
+                map.set({ char, ordinal }, { judgement: j, delta: d });
               }
               noteCount++;
             }
@@ -479,7 +486,7 @@ SCOREDIFF:
         selectedLoopIteration: undefined,
         beatsPerLine: 16,
         selection: null,
-        annotations: {},
+        annotations: new (window as unknown as TestWindow).LocationMap(),
         isAnnotationMode: false,
       });
     }, loopTJA);

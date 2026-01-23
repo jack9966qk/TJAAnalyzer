@@ -1,8 +1,9 @@
 import * as webjsx from "webjsx";
 import {
+  createJudgementKey,
   getGradientColor,
   type HitInfo,
-  type JudgementKey,
+  JudgementMap,
   JudgementType,
   type JudgementValue,
   PALETTE,
@@ -15,7 +16,7 @@ export class NoteStatsDisplay extends HTMLElement {
   private _hit: HitInfo | null = null;
   private _chart: ParsedChart | null = null;
   private _viewOptions: ViewOptions | null = null;
-  private _judgements: Map<JudgementKey, JudgementValue> = new Map();
+  private _judgements: JudgementMap<JudgementValue> = new JudgementMap();
 
   constructor() {
     super();
@@ -41,7 +42,7 @@ export class NoteStatsDisplay extends HTMLElement {
     this.render();
   }
 
-  set judgements(value: Map<JudgementKey, JudgementValue>) {
+  set judgements(value: JudgementMap<JudgementValue>) {
     this._judgements = value;
     this.render();
   }
@@ -213,7 +214,7 @@ export class NoteStatsDisplay extends HTMLElement {
             const ord = iterationOrdinals[iter];
             if (ord === -1) continue;
 
-            const key = `${hit.type}_${ord}`;
+            const key = { char: hit.type, ordinal: ord };
             const judgeData = judgements.get(key);
 
             if (judgeData) {
@@ -276,7 +277,7 @@ export class NoteStatsDisplay extends HTMLElement {
             }
           }
         } else {
-          const key = `${hit.type}_${hit.ordinal}`;
+          const key = { char: hit.type, ordinal: hit.ordinal };
           const judgeData = judgements.get(key);
 
           if (judgeData) {
@@ -316,7 +317,7 @@ export class NoteStatsDisplay extends HTMLElement {
         }
       } else {
         // Standard Mode
-        const key = `${hit.type}_${hit.ordinal}`;
+        const key = { char: hit.type, ordinal: hit.ordinal };
         const judgeData = judgements.get(key);
 
         if (judgeData) {

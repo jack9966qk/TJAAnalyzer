@@ -1,7 +1,7 @@
 import { EseClient, type GitNode } from "../clients/ese-client.js";
 import { JudgementClient } from "../clients/judgement-client.js";
 import { exampleTJA } from "../core/example-data.js";
-import type { HitInfo, JudgementKey, JudgementValue, ViewOptions } from "../core/renderer.js";
+import { type HitInfo, JudgementMap, type JudgementValue, LocationMap, type ViewOptions } from "../core/renderer.js";
 import type { ParsedChart } from "../core/tja-parser.js";
 
 interface AppState {
@@ -14,11 +14,11 @@ interface AppState {
   isStreamConnected: boolean;
   hasReceivedGameStart: boolean;
   selectedNoteHitInfo: HitInfo | null;
-  annotations: Record<string, string>;
+  annotations: LocationMap<string>;
   eseClient: EseClient;
   eseTree: GitNode[] | null;
   judgementClient: JudgementClient;
-  judgements: Map<JudgementKey, JudgementValue>;
+  judgements: JudgementMap<JudgementValue>;
   currentEsePath: string | null;
   currentStatusKey: string;
   currentStatusParams: Record<string, string | number> | undefined;
@@ -35,7 +35,7 @@ export const appState: AppState = {
     selectedLoopIteration: undefined,
     beatsPerLine: 16,
     selection: null,
-    annotations: {},
+    annotations: new LocationMap(),
   },
   loadedTJAContent: exampleTJA,
   activeDataSourceMode: "list",
@@ -43,11 +43,11 @@ export const appState: AppState = {
   isStreamConnected: false,
   hasReceivedGameStart: false,
   selectedNoteHitInfo: null,
-  annotations: {},
+  annotations: new LocationMap(),
   eseClient: new EseClient(),
   eseTree: null,
   judgementClient: new JudgementClient(),
-  judgements: new Map(),
+  judgements: new JudgementMap(),
   currentEsePath: null,
   currentStatusKey: "status.initializing",
   currentStatusParams: undefined,

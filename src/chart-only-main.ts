@@ -1,6 +1,12 @@
 import { TJAChart } from "./components/tja-chart.js";
 import { exampleTJA } from "./core/example-data.js";
-import { createJudgementKey, type JudgementKey, type JudgementValue, type ViewOptions } from "./core/renderer.js";
+import {
+  createJudgementKey,
+  JudgementMap,
+  type JudgementValue,
+  LocationMap,
+  type ViewOptions,
+} from "./core/renderer.js";
 import { parseTJA } from "./core/tja-parser.js";
 
 // Ensure side-effects
@@ -12,6 +18,8 @@ const tjaChart = document.getElementById("chart-component") as TJAChart;
 
 // Expose API for Playwright
 window.createJudgementKey = createJudgementKey;
+window.LocationMap = LocationMap;
+window.JudgementMap = JudgementMap;
 
 window.loadChart = (tjaContent: string, difficulty: string = "oni") => {
   try {
@@ -55,7 +63,7 @@ window.autoAnnotate = () => {
   tjaChart.autoAnnotate();
 };
 
-window.setJudgements = (newJudgements: Map<JudgementKey, JudgementValue>) => {
+window.setJudgements = (newJudgements: JudgementMap<JudgementValue>) => {
   tjaChart.judgements = newJudgements;
 };
 
@@ -68,7 +76,7 @@ tjaChart.viewOptions = {
   selectedLoopIteration: undefined,
   beatsPerLine: 16,
   selection: null,
-  annotations: {},
+  annotations: new LocationMap(),
   isAnnotationMode: false,
   showAllBranches: false,
 };

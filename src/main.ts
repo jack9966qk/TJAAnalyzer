@@ -22,7 +22,7 @@ import {
   updateStatsComponent,
 } from "./controllers/chart-controller.js";
 import { handleLayoutToggle, updateLayout } from "./controllers/layout-controller.js";
-import { createJudgementKey, type HitInfo, type JudgementKey, type JudgementValue } from "./core/renderer.js";
+import { createJudgementKey, type HitInfo, type JudgementMap, type JudgementValue } from "./core/renderer.js";
 import { appState } from "./state/app-state.js";
 import { i18n } from "./utils/i18n.js";
 import {
@@ -606,7 +606,7 @@ window.addEventListener("resize", () => {
 });
 
 // Expose for testing
-window.setJudgements = (newJudgements: Map<JudgementKey, JudgementValue>) => {
+window.setJudgements = (newJudgements: JudgementMap<JudgementValue>) => {
   appState.judgements = newJudgements;
   refreshChart();
   updateStatsComponent(null);

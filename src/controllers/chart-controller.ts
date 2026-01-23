@@ -1,6 +1,6 @@
 import type { JudgementOptions } from "../components/judgement-options.js";
 import type { SelectOptions } from "../components/select-options.js";
-import type { HitInfo, RenderTexts } from "../core/renderer.js";
+import { type HitInfo, LocationMap, type RenderTexts } from "../core/renderer.js";
 import { parseTJA } from "../core/tja-parser.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
@@ -95,7 +95,7 @@ export function updateParsedCharts(content: string) {
   updateSelectionUI();
 
   // Clear Annotations
-  appState.annotations = {};
+  appState.annotations = new LocationMap();
 
   courseBranchSelect.clearDifficultyOptions();
 

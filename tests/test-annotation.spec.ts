@@ -29,7 +29,7 @@ LEVEL:10
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: {},
+        annotations: new window.LocationMap(),
         isAnnotationMode: true, // Enable Annotation
         showAllBranches: false,
       });
@@ -76,7 +76,7 @@ LEVEL:10
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: {},
+        annotations: new window.LocationMap(),
         isAnnotationMode: true,
         showAllBranches: false,
       });
@@ -203,6 +203,8 @@ LEVEL:10
 1000100010001000,
 #END`;
       window.loadChart(tja, "oni");
+      const map = new window.LocationMap();
+      map.set({ barIndex: 0, charIndex: 0 }, "L");
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
       (window as any).testOptions = {
         viewMode: "original",
@@ -211,7 +213,7 @@ LEVEL:10
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: { "0_0": "L" }, // Pre-annotate
+        annotations: map, // Pre-annotate
         isAnnotationMode: true, // Initially true
         showAllBranches: false,
       };

@@ -1,4 +1,4 @@
-import type { ViewOptions, JudgementKey, JudgementValue } from "./renderer.ts";
+import type { ViewOptions, JudgementMap, JudgementValue, JudgementKey, LocationMap } from "./renderer.ts";
 
 declare global {
   interface Window {
@@ -7,8 +7,12 @@ declare global {
     loadChart: (tjaContent: string, difficulty?: string) => void;
     setOptions: (options: Partial<ViewOptions>) => void;
     autoAnnotate: () => void;
-    setJudgements: (newJudgements: Map<JudgementKey, JudgementValue>) => void;
+    setJudgements: (newJudgements: JudgementMap<JudgementValue>) => void;
     createJudgementKey: (char: string, ordinal: number) => JudgementKey;
+    // biome-ignore lint/suspicious/noExplicitAny: Class constructor
+    LocationMap: typeof LocationMap;
+    // biome-ignore lint/suspicious/noExplicitAny: Class constructor
+    JudgementMap: typeof JudgementMap;
     loadTJAContent: (content: string) => void;
     setViewOptions: (opts: Partial<ViewOptions>) => void;
   }

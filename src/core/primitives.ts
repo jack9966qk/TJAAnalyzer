@@ -1,33 +1,27 @@
-// Structural Types
 export interface NoteLocation {
   barIndex: number;
   charIndex: number;
 }
 
-export interface NoteIdentity {
+export interface JudgementKey {
   char: string;
   ordinal: number;
 }
 
-// Key Types for Map/Set
-export type JudgementKey = string; // Format: `${char}_${ordinal}`
-export type LocationKey = string; // Format: `${barIndex}_${charIndex}`
-
-// Helper Functions
-export function toJudgementKey(identity: NoteIdentity): JudgementKey {
-  return `${identity.char}_${identity.ordinal}`;
+function serializeJudgementKey(key: JudgementKey): string {
+  return `${key.char}_${key.ordinal}`;
 }
 
-export function toLocationKey(location: NoteLocation): LocationKey {
-  return `${location.barIndex}_${location.charIndex}`;
-}
-
-export function parseJudgementKey(key: JudgementKey): NoteIdentity {
+function deserializeJudgementKey(key: string): JudgementKey {
   const [char, ordinalStr] = key.split("_");
   return { char, ordinal: parseInt(ordinalStr, 10) };
 }
 
-export function parseLocationKey(key: LocationKey): NoteLocation {
+function serializeLocationKey(location: NoteLocation): string {
+  return `${location.barIndex}_${location.charIndex}`;
+}
+
+function deserializeLocationKey(key: string): NoteLocation {
   const [barIndexStr, charIndexStr] = key.split("_");
   return {
     barIndex: parseInt(barIndexStr, 10),
@@ -35,4 +29,159 @@ export function parseLocationKey(key: LocationKey): NoteLocation {
   };
 }
 
-export const createJudgementKey = (char: string, ordinal: number) => toJudgementKey({ char, ordinal });
+export class JudgementMap<V> {
+  private _map = new Map<string, V>();
+
+  constructor(entries?: readonly (readonly [JudgementKey, V])[] | null | JudgementMap<V>) {
+    if (entries) {
+      if (entries instanceof JudgementMap) {
+        entries.forEach((v, k) => {
+          this.set(k, v);
+        });
+      } else {
+        for (const [key, value] of entries) {
+          this.set(key, value);
+        }
+      }
+    }
+  }
+
+  set(key: JudgementKey, value: V): this {
+    this._map.set(serializeJudgementKey(key), value);
+    return this;
+  }
+
+  get(key: JudgementKey): V | undefined {
+    return this._map.get(serializeJudgementKey(key));
+  }
+
+  has(key: JudgementKey): boolean {
+    return this._map.has(serializeJudgementKey(key));
+  }
+
+  delete(key: JudgementKey): boolean {
+    return this._map.delete(serializeJudgementKey(key));
+  }
+
+  clear(): void {
+    this._map.clear();
+  }
+
+  get size(): number {
+    return this._map.size;
+  }
+
+  keys(): IterableIterator<JudgementKey> {
+    const internalKeys = this._map.keys();
+    const generator = function* () {
+      for (const k of internalKeys) {
+        yield deserializeJudgementKey(k);
+      }
+    };
+    return generator();
+  }
+
+  values(): IterableIterator<V> {
+    return this._map.values();
+  }
+
+  entries(): IterableIterator<[JudgementKey, V]> {
+    const internalEntries = this._map.entries();
+    const generator = function* () {
+      for (const [k, v] of internalEntries) {
+        yield [deserializeJudgementKey(k), v] as [JudgementKey, V];
+      }
+    };
+    return generator();
+  }
+
+  forEach(callbackfn: (value: V, key: JudgementKey, map: JudgementMap<V>) => void, thisArg?: any): void {
+    this._map.forEach((value, key) => {
+      callbackfn.call(thisArg, value, deserializeJudgementKey(key), this);
+    });
+  }
+
+  [Symbol.iterator](): IterableIterator<[JudgementKey, V]> {
+    return this.entries();
+  }
+}
+
+export class LocationMap<V> {
+  private _map = new Map<string, V>();
+
+  constructor(entries?: readonly (readonly [NoteLocation, V])[] | null | LocationMap<V>) {
+    if (entries) {
+      if (entries instanceof LocationMap) {
+        entries.forEach((v, k) => {
+          this.set(k, v);
+        });
+      } else {
+        for (const [key, value] of entries) {
+          this.set(key, value);
+        }
+      }
+    }
+  }
+
+  set(key: NoteLocation, value: V): this {
+    this._map.set(serializeLocationKey(key), value);
+    return this;
+  }
+
+  get(key: NoteLocation): V | undefined {
+    return this._map.get(serializeLocationKey(key));
+  }
+
+  has(key: NoteLocation): boolean {
+    return this._map.has(serializeLocationKey(key));
+  }
+
+  delete(key: NoteLocation): boolean {
+    return this._map.delete(serializeLocationKey(key));
+  }
+
+  clear(): void {
+    this._map.clear();
+  }
+
+  get size(): number {
+    return this._map.size;
+  }
+
+  keys(): IterableIterator<NoteLocation> {
+    const internalKeys = this._map.keys();
+    const generator = function* () {
+      for (const k of internalKeys) {
+        yield deserializeLocationKey(k);
+      }
+    };
+    return generator();
+  }
+
+  values(): IterableIterator<V> {
+    return this._map.values();
+  }
+
+  entries(): IterableIterator<[NoteLocation, V]> {
+    const internalEntries = this._map.entries();
+    const generator = function* () {
+      for (const [k, v] of internalEntries) {
+        yield [deserializeLocationKey(k), v] as [NoteLocation, V];
+      }
+    };
+    return generator();
+  }
+
+  forEach(callbackfn: (value: V, key: NoteLocation, map: LocationMap<V>) => void, thisArg?: any): void {
+    this._map.forEach((value, key) => {
+      callbackfn.call(thisArg, value, deserializeLocationKey(key), this);
+    });
+  }
+
+  [Symbol.iterator](): IterableIterator<[NoteLocation, V]> {
+    return this.entries();
+  }
+}
+
+export const createJudgementKey = (char: string, ordinal: number): JudgementKey => ({ char, ordinal });
+export const createNoteLocation = (barIndex: number, charIndex: number): NoteLocation => ({ barIndex, charIndex });

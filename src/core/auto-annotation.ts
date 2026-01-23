@@ -1,11 +1,11 @@
-import { type LocationKey, toLocationKey } from "./primitives.js";
+import { LocationMap, type NoteLocation } from "./primitives.js";
 import type { ParsedChart } from "./tja-parser.js";
 
 export function calculateInferredHands(
   bars: string[][],
-  annotations: Record<LocationKey, string> | undefined,
-): Map<LocationKey, string> {
-  const inferred = new Map<LocationKey, string>();
+  annotations: LocationMap<string> | undefined,
+): LocationMap<string> {
+  const inferred = new LocationMap<string>();
   let lastHand = "L"; // Initialize to L so the first note (which triggers reset or flip) can become R
   let shouldResetToRight = true;
 
@@ -14,7 +14,7 @@ export function calculateInferredHands(
     if (!bar) continue;
     for (let j = 0; j < bar.length; j++) {
       const char = bar[j];
-      const noteId = toLocationKey({ barIndex: i, charIndex: j });
+      const noteId = { barIndex: i, charIndex: j };
 
       if (["1", "2", "3", "4"].includes(char)) {
         let currentInferred = "R";
@@ -29,8 +29,9 @@ export function calculateInferredHands(
         inferred.set(noteId, currentInferred);
 
         // Determine source of truth for next note
-        if (annotations?.[noteId]) {
-          lastHand = annotations[noteId];
+        const annotation = annotations?.get(noteId);
+        if (annotation) {
+          lastHand = annotation;
         } else {
           lastHand = currentInferred;
         }
@@ -44,7 +45,7 @@ export function calculateInferredHands(
 }
 
 interface NoteTiming {
-  id: LocationKey;
+  id: NoteLocation;
   beat: number;
   hand: string;
   type: string;
@@ -57,11 +58,11 @@ interface Segment {
 
 export function generateAutoAnnotations(
   chart: ParsedChart,
-  existingAnnotations: Record<LocationKey, string>,
-): Record<LocationKey, string> {
+  existingAnnotations: LocationMap<string>,
+): LocationMap<string> {
   // Clone existing annotations to avoid side-effects if not desired,
   // though the caller can handle that. We'll return a new object with updates.
-  const annotations = { ...existingAnnotations };
+  const annotations = new LocationMap(existingAnnotations);
   const inferred = calculateInferredHands(chart.bars, annotations);
 
   const notes: NoteTiming[] = [];
@@ -80,7 +81,7 @@ export function generateAutoAnnotations(
         const char = bar[j];
         // Only Don/Ka (Small/Large) are annotatable
         if (["1", "2", "3", "4"].includes(char)) {
-          const id = toLocationKey({ barIndex: i, charIndex: j });
+          const id = { barIndex: i, charIndex: j };
           const hand = inferred.get(id);
           if (hand) {
             notes.push({ id, beat: currentBeat + j * step, hand, type: char });
@@ -92,7 +93,7 @@ export function generateAutoAnnotations(
   }
 
   // Identify notes to annotate
-  const toAnnotate = new Set<string>();
+  const toAnnotate = new LocationMap<boolean>(); // Use Map as Set
 
   const segments: Segment[] = [];
   let currentSegment: NoteTiming[] = [];
@@ -144,14 +145,12 @@ export function generateAutoAnnotations(
     if (seg.notes.length === 0) continue;
 
     const first = seg.notes[0];
-    const [barIdxStr] = first.id.split("_");
-    const barIdx = parseInt(barIdxStr, 10);
-    const params = chart.barParams[barIdx];
+    const params = chart.barParams[first.id.barIndex];
     const measureRatio = params ? params.measureRatio : 1.0;
     const quarterNote = measureRatio;
 
     if (seg.gap < quarterNote - 0.0001) {
-      toAnnotate.add(first.id);
+      toAnnotate.set(first.id, true);
 
       // Check for 3 opposite color notes before
       const getColor = (c: string) => (c === "1" || c === "3" ? "d" : "k");
@@ -168,19 +167,19 @@ export function generateAutoAnnotations(
         const c3 = getColor(prev3.type);
 
         if (c1 === c2 && c2 === c3 && c1 !== cCurr) {
-          toAnnotate.add(current.id);
+          toAnnotate.set(current.id, true);
         }
       }
     }
   }
 
   // Update annotations
-  toAnnotate.forEach((id) => {
+  for (const [id] of toAnnotate) {
     const hand = inferred.get(id);
     if (hand) {
-      annotations[id] = hand;
+      annotations.set(id, hand);
     }
-  });
+  }
 
   return annotations;
 }
