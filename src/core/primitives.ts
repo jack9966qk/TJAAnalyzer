@@ -136,8 +136,7 @@ export class JudgementMap<V> {
     return generator();
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: Standard forEach signature
-  forEach(callbackfn: (value: V, key: JudgementKey, map: JudgementMap<V>) => void, thisArg?: any): void {
+  forEach(callbackfn: (value: V, key: JudgementKey, map: JudgementMap<V>) => void, thisArg?: unknown): void {
     this._map.forEach((value, key) => {
       callbackfn.call(thisArg, value, deserializeJudgementKey(key), this);
     });
@@ -214,8 +213,7 @@ export class LocationMap<V> {
     return generator();
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: Standard forEach signature
-  forEach(callbackfn: (value: V, key: NoteLocation, map: LocationMap<V>) => void, thisArg?: any): void {
+  forEach(callbackfn: (value: V, key: NoteLocation, map: LocationMap<V>) => void, thisArg?: unknown): void {
     this._map.forEach((value, key) => {
       callbackfn.call(thisArg, value, deserializeLocationKey(key), this);
     });

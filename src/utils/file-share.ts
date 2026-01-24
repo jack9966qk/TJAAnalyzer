@@ -50,7 +50,7 @@ export async function shareFile(
         if (typeof content === "string") {
           await N.filesystem.writeFile(entry, content);
         } else {
-          await N.filesystem.writeBinaryFile(entry, content);
+          await N.filesystem.writeBinaryFile(entry, content.buffer as ArrayBuffer);
         }
         return;
       } else {

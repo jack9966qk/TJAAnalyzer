@@ -5,6 +5,14 @@ import { shareFile } from "../utils/file-share.js";
 import { i18n } from "../utils/i18n.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
 
+export interface ExportButtonProps {
+  "export-type"?: "download" | "directory";
+  "chart-name"?: string;
+  "loop-count"?: string | number;
+  "gap-count"?: string | number;
+  disabled?: boolean;
+}
+
 export class ExportButton extends HTMLElement {
   // Attributes/Props
   exportType: "download" | "directory" = "download";
@@ -89,8 +97,7 @@ export class ExportButton extends HTMLElement {
       const content = this.generateContent();
 
       if (this.exportType === "directory") {
-        // biome-ignore lint/suspicious/noExplicitAny: target type varies
-        let target: any;
+        let target: string | FileSystemDirectoryHandle;
         try {
           target = await this.pickDirectory();
         } catch (e) {
@@ -140,28 +147,23 @@ export class ExportButton extends HTMLElement {
     this.render();
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: File System Access API types
-  private async pickDirectory(): Promise<any> {
+  private async pickDirectory(): Promise<string | FileSystemDirectoryHandle> {
     // 1. Neutralino
     if (window.Neutralino) {
-      const entries = await window.Neutralino.os.showOpenDialog(
+      const entry = await window.Neutralino.os.showFolderDialog(
         i18n.t("ui.export.selectDir") || "Select Export Directory",
-        {
-          properties: ["openDirectory"],
-        },
+        {},
       );
-      if (entries && entries.length > 0) {
-        return entries[0];
+      if (entry) {
+        return entry;
       }
       throw new Error("Cancelled by user");
     }
 
     // 2. Web File System Access API
-    // biome-ignore lint/suspicious/noExplicitAny: File System Access API
-    if ((window as any).showDirectoryPicker) {
+    if (window.showDirectoryPicker) {
       try {
-        // biome-ignore lint/suspicious/noExplicitAny: File System Access API
-        const handle = await (window as any).showDirectoryPicker();
+        const handle = await window.showDirectoryPicker();
         return handle;
       } catch (e) {
         if (e instanceof Error && e.name === "AbortError") throw new Error("Cancelled by user");
@@ -172,8 +174,11 @@ export class ExportButton extends HTMLElement {
     throw new Error("No directory picker available");
   }
 
-  // biome-ignore lint/suspicious/noExplicitAny: Target type
-  private async saveToDirectory(content: string, target: any, runSave: (action: () => Promise<void>) => Promise<void>) {
+  private async saveToDirectory(
+    content: string,
+    target: string | FileSystemDirectoryHandle,
+    runSave: (action: () => Promise<void>) => Promise<void>,
+  ) {
     if (typeof target === "string") {
       await this.exportToDirectoryNeutralino(content, target, runSave);
     } else {
@@ -209,8 +214,8 @@ export class ExportButton extends HTMLElement {
       const button = await os.showMessageBox(
         "Overwrite?",
         `Directory "${name}" already exists. Overwrite?`,
-        "YES_NO",
-        "QUESTION",
+        window.Neutralino.MessageBoxChoice.YES_NO,
+        window.Neutralino.Icon.QUESTION,
       );
       if (button !== "YES") throw new Error("Cancelled by user");
     }
@@ -220,7 +225,7 @@ export class ExportButton extends HTMLElement {
       if (exists) {
         // Clear directory
         try {
-          await fs.removeDirectory(targetDir);
+          await fs.remove(targetDir);
         } catch (e) {
           console.warn("removeDirectory failed", e);
         }
@@ -240,8 +245,7 @@ export class ExportButton extends HTMLElement {
 
   private async exportToDirectoryWeb(
     content: string,
-    // biome-ignore lint/suspicious/noExplicitAny: File System Access API
-    rootHandle: any,
+    rootHandle: FileSystemDirectoryHandle,
     runSave: (action: () => Promise<void>) => Promise<void>,
   ) {
     const name = this.chartName;

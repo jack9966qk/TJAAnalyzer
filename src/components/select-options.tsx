@@ -47,8 +47,7 @@ export class SelectOptions extends HTMLElement {
   render() {
     const hasSelection = !!appState.viewOptions.selection;
     const hasNeutralino = !!window.Neutralino;
-    // biome-ignore lint/suspicious/noExplicitAny: File System Access API
-    const hasWebFS = !!(window as any).showDirectoryPicker;
+    const hasWebFS = !!window.showDirectoryPicker;
     const canSelectDir = hasNeutralino || hasWebFS;
 
     const vdom = (

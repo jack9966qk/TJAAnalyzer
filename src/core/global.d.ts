@@ -1,9 +1,11 @@
+import type * as NeutralinoLib from "@neutralinojs/lib";
 import type { ViewOptions, JudgementMap, JudgementValue, JudgementKey, LocationMap } from "./renderer.ts";
+import type { ExportButtonProps } from "../components/export-button.tsx";
+import type { SaveImageButtonProps } from "../components/save-image-button.tsx";
 
 declare global {
   interface Window {
-    // biome-ignore lint/suspicious/noExplicitAny: Neutralino global
-    Neutralino: any;
+    Neutralino: typeof NeutralinoLib;
     loadChart: (tjaContent: string, difficulty?: string) => void;
     setOptions: (options: Partial<ViewOptions>) => void;
     autoAnnotate: () => void;
@@ -13,16 +15,20 @@ declare global {
     JudgementMap: typeof JudgementMap;
     loadTJAContent: (content: string) => void;
     setViewOptions: (opts: Partial<ViewOptions>) => void;
+    showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>;
   }
 }
 
 declare global {
   namespace JSX {
+    interface HtmlTag {
+      // biome-ignore lint/suspicious/noExplicitAny: Standard HTML attributes
+      [key: string]: any;
+    }
+
     interface IntrinsicElements {
-      // biome-ignore lint/suspicious/noExplicitAny: Custom element
-      "save-image-button": any;
-      // biome-ignore lint/suspicious/noExplicitAny: Custom element
-      "export-button": any;
+      "save-image-button": HtmlTag & SaveImageButtonProps;
+      "export-button": HtmlTag & ExportButtonProps;
     }
   }
 }

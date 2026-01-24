@@ -4,6 +4,9 @@ import { shareFile } from "../utils/file-share.js";
 import { i18n } from "../utils/i18n.js";
 import { statusDisplay, tjaChart } from "../view/ui-elements.js";
 
+// biome-ignore lint/complexity/noBannedTypes: Placeholder for future props
+export type SaveImageButtonProps = {};
+
 export class SaveImageButton extends HTMLElement {
   constructor() {
     super();
