@@ -1,6 +1,7 @@
 import { EseClient } from "../clients/ese-client.js";
 import { JudgementClient } from "../clients/judgement-client.js";
 import { exampleTJA } from "../core/example-data.js";
+import { JudgementMap, LocationMap } from "../core/renderer.js";
 export const appState = {
     parsedTJACharts: null,
     currentChart: null,
@@ -12,7 +13,7 @@ export const appState = {
         selectedLoopIteration: undefined,
         beatsPerLine: 16,
         selection: null,
-        annotations: {},
+        annotations: new LocationMap(),
     },
     loadedTJAContent: exampleTJA,
     activeDataSourceMode: "list",
@@ -20,11 +21,11 @@ export const appState = {
     isStreamConnected: false,
     hasReceivedGameStart: false,
     selectedNoteHitInfo: null,
-    annotations: {},
+    annotations: new LocationMap(),
     eseClient: new EseClient(),
     eseTree: null,
     judgementClient: new JudgementClient(),
-    judgements: new Map(),
+    judgements: new JudgementMap(),
     currentEsePath: null,
     currentStatusKey: "status.initializing",
     currentStatusParams: undefined,

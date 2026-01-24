@@ -1,3 +1,4 @@
+import { NoteType } from "./primitives.js";
 // Helper to determine if a note is selected
 function getContextAt(chart, barIndex, charIndex) {
     const params = chart.barParams[barIndex];
@@ -36,9 +37,9 @@ function getContextAt(chart, barIndex, charIndex) {
 export function generateTJAFromSelection(chart, selection, courseName = "Oni", loopCount = 10, chartName = "Exported Selection", gapCount = 1) {
     const { start, end } = selection;
     // Normalize selection range
-    let startBar = start.originalBarIndex;
+    let startBar = start.barIndex;
     let startChar = start.charIndex;
-    let endBar = end ? end.originalBarIndex : startBar;
+    let endBar = end ? end.barIndex : startBar;
     let endChar = end ? end.charIndex : startChar;
     if (startBar > endBar || (startBar === endBar && startChar > endChar)) {
         [startBar, endBar] = [endBar, startBar];
@@ -52,7 +53,7 @@ export function generateTJAFromSelection(chart, selection, courseName = "Oni", l
         const bar = chart.bars[b];
         if (bar) {
             for (const c of bar) {
-                if (c === "7" || c === "9")
+                if (c === NoteType.Balloon || c === NoteType.Kusudama)
                     balloonCursor++;
             }
         }
@@ -67,7 +68,7 @@ export function generateTJAFromSelection(chart, selection, courseName = "Oni", l
         const validEnd = b === endBar ? endChar : bar.length - 1;
         for (let i = 0; i < bar.length; i++) {
             const c = bar[i];
-            if (c === "7" || c === "9") {
+            if (c === NoteType.Balloon || c === NoteType.Kusudama) {
                 // If this note is within selection, we keep it and need its value
                 if (i >= validStart && i <= validEnd) {
                     if (balloonCursor < chart.balloonCounts.length) {

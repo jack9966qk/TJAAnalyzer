@@ -1,3 +1,4 @@
+import { LocationMap } from "../core/renderer.js";
 import { parseTJA } from "../core/tja-parser.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
@@ -83,7 +84,7 @@ export function updateParsedCharts(content) {
     appState.selectedNoteHitInfo = null;
     updateSelectionUI();
     // Clear Annotations
-    appState.annotations = {};
+    appState.annotations = new LocationMap();
     courseBranchSelect.clearDifficultyOptions();
     const difficulties = Object.keys(appState.parsedTJACharts);
     if (difficulties.length === 0) {

@@ -1,5 +1,5 @@
 import { NoteStatsDisplay } from "./components/note-stats.js";
-import { createJudgementKey, } from "./core/renderer.js";
+import { createJudgementKey, JUDGEABLE_NOTES, JudgementMap, } from "./core/renderer.js";
 // Ensure NoteStatsDisplay is registered
 console.log("NoteStatsDisplay module loaded", NoteStatsDisplay);
 const noteStats = document.getElementById("note-stats");
@@ -9,13 +9,13 @@ w.setStats = (hit, chart, viewOptions, judgementsArr = [], judgementDeltasArr = 
         noteStats.chart = chart;
         noteStats.viewOptions = viewOptions;
         noteStats.hit = hit;
-        const map = new Map();
+        const map = new JudgementMap();
         if (chart && judgementsArr.length > 0) {
             let noteCount = 0;
             const counters = {};
             for (const bar of chart.bars) {
                 for (const char of bar) {
-                    if (["1", "2", "3", "4"].includes(char)) {
+                    if (JUDGEABLE_NOTES.includes(char)) {
                         if (noteCount < judgementsArr.length) {
                             if (counters[char] === undefined)
                                 counters[char] = 0;

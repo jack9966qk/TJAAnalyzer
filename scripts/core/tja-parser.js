@@ -1,3 +1,4 @@
+import { NoteType, toNoteType } from "./primitives.js";
 function createInitialState(bpm) {
     return {
         bpm: bpm,
@@ -172,7 +173,7 @@ export function parseTJA(content) {
                                 bars.push([]);
                             }
                             else {
-                                bars.push(cleanedBar.split(""));
+                                bars.push(cleanedBar.split("").map(toNoteType));
                             }
                             params.push({
                                 bpm: barStartBpm,
@@ -374,7 +375,7 @@ function detectLoop(bars) {
 function isBarEmpty(bar) {
     if (bar.length === 0)
         return true;
-    return bar.every((c) => c === "0");
+    return bar.every((c) => c === NoteType.None);
 }
 function areBarsEqual(b1, b2) {
     if (b1.length !== b2.length)

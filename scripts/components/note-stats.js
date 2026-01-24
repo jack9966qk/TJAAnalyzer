@@ -1,12 +1,12 @@
 import { jsx as _jsx, jsxs as _jsxs } from "webjsx/jsx-runtime";
 import * as webjsx from "webjsx";
-import { getGradientColor, JudgementType, PALETTE, } from "../core/renderer.js";
+import { getGradientColor, JUDGEABLE_NOTES, JudgementMap, JudgementType, NoteType, PALETTE, RENDERABLE_NOTES, } from "../core/renderer.js";
 import { i18n } from "../utils/i18n.js";
 export class NoteStatsDisplay extends HTMLElement {
     _hit = null;
     _chart = null;
     _viewOptions = null;
-    _judgements = new Map();
+    _judgements = new JudgementMap();
     constructor() {
         super();
         this.attachShadow({ mode: "open" });
@@ -38,14 +38,14 @@ export class NoteStatsDisplay extends HTMLElement {
     }
     getNoteName(char) {
         const map = {
-            "1": "don",
-            "2": "ka",
-            "3": "DON",
-            "4": "KA",
-            "5": "roll",
-            "6": "ROLL",
-            "7": "balloon",
-            "9": "Kusudama",
+            [NoteType.Don]: "don",
+            [NoteType.Ka]: "ka",
+            [NoteType.DonBig]: "DON",
+            [NoteType.KaBig]: "KA",
+            [NoteType.Drumroll]: "roll",
+            [NoteType.DrumrollBig]: "ROLL",
+            [NoteType.Balloon]: "balloon",
+            [NoteType.Kusudama]: "Kusudama",
         };
         return map[char] || "unknown";
     }
@@ -65,29 +65,32 @@ export class NoteStatsDisplay extends HTMLElement {
     getGapInfo(chart, currentBarIdx, currentCharIdx) {
         const currentBar = chart.bars[currentBarIdx];
         const currentTotal = currentBar.length;
+        // Get measure ratio, default to 1.0 if not present
+        const currentRatio = chart.barParams?.[currentBarIdx]?.measureRatio ?? 1.0;
         for (let i = currentCharIdx - 1; i >= 0; i--) {
-            if (["1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(currentBar[i])) {
+            if (RENDERABLE_NOTES.includes(currentBar[i])) {
                 const prevPos = i / currentTotal;
                 const curPos = currentCharIdx / currentTotal;
                 const diff = curPos - prevPos;
-                return this.formatGap(diff);
+                return this.formatGap(diff * currentRatio);
             }
         }
+        // Accumulate gap from start of current bar
+        let accumulatedGap = (currentCharIdx / currentTotal) * currentRatio;
         for (let b = currentBarIdx - 1; b >= 0; b--) {
             const prevBar = chart.bars[b];
+            const prevRatio = chart.barParams?.[b]?.measureRatio ?? 1.0;
             if (!prevBar || prevBar.length === 0) {
-                const minGap = currentCharIdx / currentTotal + (currentBarIdx - b);
-                if (minGap > 1.0 + 0.001)
+                accumulatedGap += prevRatio;
+                if (accumulatedGap > 1.0 + 0.001)
                     return null;
                 continue;
             }
             const prevTotal = prevBar.length;
             for (let i = prevTotal - 1; i >= 0; i--) {
-                if (["1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(prevBar[i])) {
-                    const distInCurrent = currentCharIdx / currentTotal;
-                    const distBetween = (currentBarIdx - b - 1) * 1.0;
+                if (RENDERABLE_NOTES.includes(prevBar[i])) {
                     const distInPrev = (prevTotal - i) / prevTotal;
-                    const totalGap = distInCurrent + distBetween + distInPrev;
+                    const totalGap = accumulatedGap + distInPrev * prevRatio;
                     if (totalGap <= 1.0 + 0.0001) {
                         return this.formatGap(totalGap);
                     }
@@ -96,8 +99,8 @@ export class NoteStatsDisplay extends HTMLElement {
                     }
                 }
             }
-            const minGap = currentCharIdx / currentTotal + (currentBarIdx - b);
-            if (minGap > 1.0)
+            accumulatedGap += prevRatio;
+            if (accumulatedGap > 1.0)
                 return null;
         }
         return null;
@@ -145,7 +148,7 @@ export class NoteStatsDisplay extends HTMLElement {
                         if (bar)
                             for (let j = 0; j < bar.length; j++) {
                                 const c = bar[j];
-                                if (["1", "2", "3", "4"].includes(c)) {
+                                if (JUDGEABLE_NOTES.includes(c)) {
                                     if (!counters[c])
                                         counters[c] = 0;
                                     map.set(`${i}_${j}`, counters[c]);
@@ -176,7 +179,7 @@ export class NoteStatsDisplay extends HTMLElement {
                         const ord = iterationOrdinals[iter];
                         if (ord === -1)
                             continue;
-                        const key = `${hit.type}_${ord}`;
+                        const key = { char: hit.type, ordinal: ord };
                         const judgeData = judgements.get(key);
                         if (judgeData) {
                             const delta = judgeData.delta;
@@ -240,7 +243,7 @@ export class NoteStatsDisplay extends HTMLElement {
                     }
                 }
                 else {
-                    const key = `${hit.type}_${hit.ordinal}`;
+                    const key = { char: hit.type, ordinal: hit.ordinal };
                     const judgeData = judgements.get(key);
                     if (judgeData) {
                         const delta = judgeData.delta;
@@ -284,7 +287,7 @@ export class NoteStatsDisplay extends HTMLElement {
             }
             else {
                 // Standard Mode
-                const key = `${hit.type}_${hit.ordinal}`;
+                const key = { char: hit.type, ordinal: hit.ordinal };
                 const judgeData = judgements.get(key);
                 if (judgeData) {
                     const delta = judgeData.delta;

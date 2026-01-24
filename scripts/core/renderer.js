@@ -1,3 +1,6 @@
+import { calculateInferredHands } from "./auto-annotation.js";
+import { createJudgementKey, createNoteLocation, isBig, isJudgeable, isRenderable, JUDGEABLE_NOTES, JudgementMap, LocationMap, NoteType, RENDERABLE_NOTES, } from "./primitives.js";
+export { JudgementMap, LocationMap, createJudgementKey, createNoteLocation, NoteType, JUDGEABLE_NOTES, RENDERABLE_NOTES, isJudgeable, isBig, isRenderable, };
 export var JudgementType;
 (function (JudgementType) {
     JudgementType["Perfect"] = "perfect";
@@ -10,9 +13,6 @@ export var JudgementType;
     JudgementType["Adlib"] = "adlib";
     JudgementType["Mine"] = "mine";
 })(JudgementType || (JudgementType = {}));
-export function createJudgementKey(char, ordinal) {
-    return `${char}_${ordinal}`;
-}
 export const PALETTE = {
     background: "#d4d4d4ff",
     text: {
@@ -82,22 +82,21 @@ export const PALETTE = {
     gogo: "#f8a33cff",
 };
 const FONT_STACK = "'Hiragino Kaku Gothic ProN', 'Meiryo', 'Yu Gothic', sans-serif";
-// Configuration Constants
 const PADDING = 20;
-const RATIOS = {
-    BAR_HEIGHT: 0.14,
-    ROW_SPACING: 0.16,
-    NOTE_RADIUS_SMALL: 0.035,
-    NOTE_RADIUS_BIG: 0.05,
-    LINE_WIDTH_BAR_BORDER: 0.01,
-    LINE_WIDTH_CENTER: 0.005,
-    LINE_WIDTH_NOTE_OUTER: 0.022,
-    LINE_WIDTH_NOTE_INNER: 0.0075,
-    LINE_WIDTH_UNDERLINE_BORDER: 0.008,
-    BAR_NUMBER_FONT_SIZE_RATIO: 0.045,
-    STATUS_FONT_SIZE_RATIO: 0.045,
-    BAR_NUMBER_OFFSET_Y_RATIO: 0.005,
-    HEADER_HEIGHT: 0.35,
+const LAYOUT_RATIOS = {
+    barHeight: 0.14,
+    rowSpacing: 0.16,
+    noteRadiusSmall: 0.035,
+    noteRadiusBig: 0.05,
+    lineWidthBarBorder: 0.01,
+    lineWidthCenter: 0.005,
+    lineWidthNoteOuter: 0.022,
+    lineWidthNoteInner: 0.0075,
+    lineWidthUnderlineBorder: 0.008,
+    barNumberFontSize: 0.045,
+    statusFontSize: 0.045,
+    barNumberOffsetY: 0.005,
+    headerHeight: 0.35,
 };
 const DEFAULT_TEXTS = {
     loopPattern: "Loop x{n}",
@@ -114,55 +113,18 @@ const DEFAULT_TEXTS = {
         edit: "Oni (Ura)",
     },
 };
-export function calculateInferredHands(bars, annotations) {
-    const inferred = new Map();
-    let lastHand = "L"; // Initialize to L so the first note (which triggers reset or flip) can become R
-    let shouldResetToRight = true;
-    for (let i = 0; i < bars.length; i++) {
-        const bar = bars[i];
-        if (!bar)
-            continue;
-        for (let j = 0; j < bar.length; j++) {
-            const char = bar[j];
-            const noteId = `${i}_${j}`;
-            if (["1", "2", "3", "4"].includes(char)) {
-                let currentInferred = "R";
-                if (shouldResetToRight) {
-                    currentInferred = "R";
-                    shouldResetToRight = false;
-                }
-                else {
-                    currentInferred = lastHand === "R" ? "L" : "R";
-                }
-                inferred.set(noteId, currentInferred);
-                // Determine source of truth for next note
-                if (annotations?.[noteId]) {
-                    lastHand = annotations[noteId];
-                }
-                else {
-                    lastHand = currentInferred;
-                }
-            }
-            else if (char === "8") {
-                // End of drumroll/balloon/kusudama
-                shouldResetToRight = true;
-            }
-        }
-    }
-    return inferred;
-}
 function isNoteSelected(barIdx, charIdx, selection) {
     if (!selection)
         return false;
     const { start, end } = selection;
     if (!end) {
-        return start.originalBarIndex === barIdx && start.charIndex === charIdx;
+        return start.barIndex === barIdx && start.charIndex === charIdx;
     }
     // Range selection
     // Determine min/max to handle reverse selection
-    let startBar = start.originalBarIndex;
+    let startBar = start.barIndex;
     let startChar = start.charIndex;
-    let endBar = end.originalBarIndex;
+    let endBar = end.barIndex;
     let endChar = end.charIndex;
     if (startBar > endBar || (startBar === endBar && startChar > endChar)) {
         [startBar, endBar] = [endBar, startBar];
@@ -181,7 +143,7 @@ function isNoteSelected(barIdx, charIdx, selection) {
     }
     return true; // strictly between startBar and endBar
 }
-function getVirtualBars(chart, options, judgements, noteOrdinals) {
+function getVirtualBars(chart, options, judgements, locToJudgementKey) {
     const { bars, loop } = chart;
     let virtualBars = [];
     if (options.collapsedLoop && loop) {
@@ -210,9 +172,10 @@ function getVirtualBars(chart, options, judgements, noteOrdinals) {
                         if (bar) {
                             for (let j = 0; j < bar.length; j++) {
                                 const char = bar[j];
-                                if (["1", "2", "3", "4"].includes(char)) {
-                                    const ord = noteOrdinals.get(`${barIdx}_${j}`);
-                                    if (ord !== undefined && judgements.has(createJudgementKey(char, ord))) {
+                                if (isJudgeable(char)) {
+                                    const locKey = { barIndex: barIdx, charIndex: j };
+                                    const identity = locToJudgementKey.get(locKey);
+                                    if (identity && judgements.has(identity)) {
                                         hasJudgement = true;
                                         break;
                                     }
@@ -265,7 +228,7 @@ function calculateGlobalBarStartIndices(bars) {
         indices.push(currentGlobalNoteIndex);
         if (bar) {
             for (const char of bar) {
-                if (["1", "2", "3", "4"].includes(char)) {
+                if (isJudgeable(char)) {
                     currentGlobalNoteIndex++;
                 }
             }
@@ -280,27 +243,24 @@ function calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offset
     // Base width is width of one 4/4 bar (4 beats).
     // Number of base bars per row = beatsPerLine / 4
     const baseBarWidth = availableWidth / (options.beatsPerLine / 4);
-    // Base dimensions for a SINGLE lane
-    const BASE_LANE_HEIGHT = baseBarWidth * RATIOS.BAR_HEIGHT;
-    const ROW_SPACING = baseBarWidth * RATIOS.ROW_SPACING;
     // Constants for drawing
     const constants = {
-        BAR_HEIGHT: BASE_LANE_HEIGHT,
-        ROW_SPACING,
-        NOTE_RADIUS_SMALL: baseBarWidth * RATIOS.NOTE_RADIUS_SMALL,
-        NOTE_RADIUS_BIG: baseBarWidth * RATIOS.NOTE_RADIUS_BIG,
-        LW_BAR: baseBarWidth * RATIOS.LINE_WIDTH_BAR_BORDER,
-        LW_CENTER: baseBarWidth * RATIOS.LINE_WIDTH_CENTER,
-        LW_NOTE_OUTER: baseBarWidth * RATIOS.LINE_WIDTH_NOTE_OUTER,
-        LW_NOTE_INNER: baseBarWidth * RATIOS.LINE_WIDTH_NOTE_INNER,
-        LW_UNDERLINE_BORDER: baseBarWidth * RATIOS.LINE_WIDTH_UNDERLINE_BORDER,
-        BAR_NUMBER_FONT_SIZE: baseBarWidth * RATIOS.BAR_NUMBER_FONT_SIZE_RATIO,
-        STATUS_FONT_SIZE: baseBarWidth * RATIOS.STATUS_FONT_SIZE_RATIO,
-        BAR_NUMBER_OFFSET_Y: baseBarWidth * RATIOS.BAR_NUMBER_OFFSET_Y_RATIO,
-        HEADER_HEIGHT: baseBarWidth * RATIOS.HEADER_HEIGHT,
+        barHeight: baseBarWidth * LAYOUT_RATIOS.barHeight,
+        rowSpacing: baseBarWidth * LAYOUT_RATIOS.rowSpacing,
+        noteRadiusSmall: baseBarWidth * LAYOUT_RATIOS.noteRadiusSmall,
+        noteRadiusBig: baseBarWidth * LAYOUT_RATIOS.noteRadiusBig,
+        lineWidthBarBorder: baseBarWidth * LAYOUT_RATIOS.lineWidthBarBorder,
+        lineWidthCenter: baseBarWidth * LAYOUT_RATIOS.lineWidthCenter,
+        lineWidthNoteOuter: baseBarWidth * LAYOUT_RATIOS.lineWidthNoteOuter,
+        lineWidthNoteInner: baseBarWidth * LAYOUT_RATIOS.lineWidthNoteInner,
+        lineWidthUnderlineBorder: baseBarWidth * LAYOUT_RATIOS.lineWidthUnderlineBorder,
+        barNumberFontSize: baseBarWidth * LAYOUT_RATIOS.barNumberFontSize,
+        statusFontSize: baseBarWidth * LAYOUT_RATIOS.statusFontSize,
+        barNumberOffsetY: baseBarWidth * LAYOUT_RATIOS.barNumberOffsetY,
+        headerHeight: baseBarWidth * LAYOUT_RATIOS.headerHeight,
     };
     // 2. Calculate Layout Positions
-    const layouts = [];
+    const barFrames = [];
     let currentY = offsetY;
     let currentRowX = 0;
     let currentRowMaxHeight = 0;
@@ -313,7 +273,7 @@ function calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offset
         const actualBarWidth = baseBarWidth * measureRatio;
         // Determine if this bar is displayed as branched (3 lanes) or common (1 lane)
         const isBranchedDisplay = (!!options.showAllBranches && chart.branches && params && params.isBranched) || false;
-        const thisBarHeight = isBranchedDisplay ? BASE_LANE_HEIGHT * 3 : BASE_LANE_HEIGHT;
+        const thisBarHeight = isBranchedDisplay ? constants.barHeight * 3 : constants.barHeight;
         // Check for break conditions
         let shouldBreak = false;
         // 1. Width Overflow
@@ -325,12 +285,12 @@ function calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offset
             shouldBreak = true;
         }
         if (shouldBreak) {
-            currentY += currentRowMaxHeight + ROW_SPACING;
+            currentY += currentRowMaxHeight + constants.rowSpacing;
             currentRowX = 0;
             currentRowMaxHeight = 0;
             isRowEmpty = true;
         }
-        layouts.push({
+        barFrames.push({
             x: PADDING + currentRowX,
             y: currentY,
             width: actualBarWidth,
@@ -341,10 +301,10 @@ function calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offset
         previousIsBranched = isBranchedDisplay;
         isRowEmpty = false;
     }
-    const totalHeight = layouts.length > 0 ? currentY + currentRowMaxHeight + PADDING : offsetY + PADDING;
-    return { layouts, constants, totalHeight, baseBarWidth };
+    const totalHeight = barFrames.length > 0 ? currentY + currentRowMaxHeight + PADDING : offsetY + PADDING;
+    return { barFrames, constants, totalHeight, baseBarWidth };
 }
-export function getNoteAt(x, y, chart, canvas, judgements = new Map(), options, layout) {
+export function getNoteAt(x, y, chart, canvas, judgements = new JudgementMap(), options, layout) {
     let activeLayout;
     if (layout) {
         activeLayout = layout;
@@ -352,57 +312,57 @@ export function getNoteAt(x, y, chart, canvas, judgements = new Map(), options, 
     else {
         activeLayout = createLayout(chart, canvas, options, judgements);
     }
-    const { layouts, constants, virtualBars } = activeLayout;
-    const { NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG } = constants;
+    const { barFrames, constants, virtualBars } = activeLayout;
+    const { noteRadiusSmall: NOTE_RADIUS_SMALL, noteRadiusBig: NOTE_RADIUS_BIG } = constants;
     const maxRadius = NOTE_RADIUS_BIG;
     const isAllBranches = !!options.showAllBranches && !!chart.branches;
     // Hit testing loop
     // Iterate backwards as per rendering order (notes on top)
     for (let index = virtualBars.length - 1; index >= 0; index--) {
         const info = virtualBars[index];
-        const layout = layouts[index];
+        const frame = barFrames[index];
         // Quick bounding box check
-        if (x < layout.x - maxRadius ||
-            x > layout.x + layout.width + maxRadius ||
-            y < layout.y - maxRadius ||
-            y > layout.y + layout.height + maxRadius) {
+        if (x < frame.x - maxRadius ||
+            x > frame.x + frame.width + maxRadius ||
+            y < frame.y - maxRadius ||
+            y > frame.y + frame.height + maxRadius) {
             continue;
         }
-        const barX = layout.x;
-        let barY = layout.y;
+        const barX = frame.x;
+        let barY = frame.y;
         let targetChart = chart;
         let currentBranch = chart.branchType;
         const params = chart.barParams[info.originalIndex];
         const isBranchedBar = isAllBranches && params && params.isBranched;
         if (isBranchedBar && chart.branches) {
-            const subHeight = layout.height / 3;
-            if (y >= layout.y && y < layout.y + subHeight) {
+            const subHeight = frame.height / 3;
+            if (y >= frame.y && y < frame.y + subHeight) {
                 targetChart = chart.branches.normal || chart;
                 currentBranch = "normal";
-                barY = layout.y;
+                barY = frame.y;
             }
-            else if (y >= layout.y + subHeight && y < layout.y + 2 * subHeight) {
+            else if (y >= frame.y + subHeight && y < frame.y + 2 * subHeight) {
                 targetChart = chart.branches.expert || chart;
                 currentBranch = "expert";
-                barY = layout.y + subHeight;
+                barY = frame.y + subHeight;
             }
-            else if (y >= layout.y + 2 * subHeight && y < layout.y + 3 * subHeight) {
+            else if (y >= frame.y + 2 * subHeight && y < frame.y + 3 * subHeight) {
                 targetChart = chart.branches.master || chart;
                 currentBranch = "master";
-                barY = layout.y + 2 * subHeight;
+                barY = frame.y + 2 * subHeight;
             }
             else {
                 continue;
             }
         }
-        const centerY = barY + (isBranchedBar ? layout.height / 3 : layout.height) / 2;
+        const centerY = barY + (isBranchedBar ? frame.height / 3 : frame.height) / 2;
         const bar = targetChart.bars[info.originalIndex];
         if (!bar || bar.length === 0)
             continue;
-        const noteStep = layout.width / bar.length;
+        const noteStep = frame.width / bar.length;
         for (let i = 0; i < bar.length; i++) {
             const char = bar[i];
-            if (!["1", "2", "3", "4", "5", "6", "7", "8", "9"].includes(char))
+            if (!isRenderable(char))
                 continue;
             const noteX = barX + i * noteStep;
             // Check distance
@@ -411,7 +371,7 @@ export function getNoteAt(x, y, chart, canvas, judgements = new Map(), options, 
             const dist = Math.sqrt(dx * dx + dy * dy);
             // Determine radius
             let radius = NOTE_RADIUS_SMALL;
-            if (["3", "4", "6", "9"].includes(char))
+            if (isBig(char))
                 radius = NOTE_RADIUS_BIG;
             if (dist <= radius) {
                 // Hit!
@@ -434,8 +394,11 @@ export function getNoteAt(x, y, chart, canvas, judgements = new Map(), options, 
                 }
                 const effectiveBarIndex = info.effectiveBarIndex !== undefined ? info.effectiveBarIndex : info.originalIndex;
                 let ordinal;
-                if (activeLayout.noteOrdinals) {
-                    ordinal = activeLayout.noteOrdinals.get(`${effectiveBarIndex}_${i}`);
+                if (activeLayout.locToJudgementKey) {
+                    const locKey = { barIndex: effectiveBarIndex, charIndex: i };
+                    const ident = activeLayout.locToJudgementKey.get(locKey);
+                    if (ident)
+                        ordinal = ident.ordinal;
                 }
                 return {
                     originalBarIndex: info.originalIndex,
@@ -458,21 +421,21 @@ export function getNotePosition(chart, canvas, options, targetBarIndex, targetCh
     }
     else {
         // For getNotePosition we don't need judgements really, pass empty
-        activeLayout = createLayout(chart, canvas, options, new Map());
+        activeLayout = createLayout(chart, canvas, options, new JudgementMap());
     }
-    const { layouts, virtualBars } = activeLayout;
+    const { barFrames, virtualBars } = activeLayout;
     for (let index = 0; index < virtualBars.length; index++) {
         const info = virtualBars[index];
         if (info.originalIndex === targetBarIndex) {
-            const layout = layouts[index];
+            const frame = barFrames[index];
             const bar = info.bar;
             if (!bar || bar.length === 0)
                 return null;
-            const noteStep = layout.width / bar.length;
-            const x = layout.x + targetCharIndex * noteStep;
-            let y = layout.y + layout.height / 2;
+            const noteStep = frame.width / bar.length;
+            const x = frame.x + targetCharIndex * noteStep;
+            let y = frame.y + frame.height / 2;
             if (!!options.showAllBranches && chart.branches && chart.barParams[info.originalIndex].isBranched) {
-                y = layout.y + layout.height / 6;
+                y = frame.y + frame.height / 6;
             }
             return { x, y };
         }
@@ -514,26 +477,27 @@ export function createLayout(chart, canvas, options, judgements, customDpr) {
     // Calculate Header Dimensions
     const availableWidth = logicalCanvasWidth - PADDING * 2;
     const baseBarWidth = availableWidth / (options.beatsPerLine / 4);
-    const headerHeight = baseBarWidth * RATIOS.HEADER_HEIGHT;
+    const headerHeight = baseBarWidth * LAYOUT_RATIOS.headerHeight;
     const offsetY = PADDING + headerHeight + PADDING; // Padding above and below header
     const { bars } = chart;
     const globalBarStartIndices = calculateGlobalBarStartIndices(bars);
     const balloonIndices = calculateBalloonIndices(bars);
-    const noteOrdinals = calculateNoteOrdinals(bars);
-    const virtualBars = getVirtualBars(chart, options, judgements, noteOrdinals);
-    const { layouts, constants, totalHeight } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offsetY);
-    const noteOrdinalToGrid = new Map();
+    const { locToJudgementKey } = calculateNoteMaps(bars);
+    const virtualBars = getVirtualBars(chart, options, judgements, locToJudgementKey);
+    const { barFrames, constants, totalHeight } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offsetY);
+    // Compute Grid for Dirty Row Optimization
+    const noteOrdinalToGrid = new JudgementMap();
     virtualBars.forEach((info, vIdx) => {
         if (info.bar) {
             for (let j = 0; j < info.bar.length; j++) {
                 const char = info.bar[j];
-                if (["1", "2", "3", "4"].includes(char)) {
-                    const ord = noteOrdinals.get(`${info.originalIndex}_${j}`);
-                    if (ord !== undefined) {
-                        const key = createJudgementKey(char, ord);
-                        if (!noteOrdinalToGrid.has(key))
-                            noteOrdinalToGrid.set(key, []);
-                        noteOrdinalToGrid.get(key)?.push({ virtualBarIdx: vIdx, charIdx: j });
+                if (isJudgeable(char)) {
+                    const locKey = { barIndex: info.originalIndex, charIndex: j };
+                    const ident = locToJudgementKey.get(locKey);
+                    if (ident) {
+                        if (!noteOrdinalToGrid.has(ident))
+                            noteOrdinalToGrid.set(ident, []);
+                        noteOrdinalToGrid.get(ident)?.push({ virtualBarIdx: vIdx, charIdx: j });
                     }
                 }
             }
@@ -544,7 +508,7 @@ export function createLayout(chart, canvas, options, judgements, customDpr) {
     const dpr = customDpr !== undefined ? customDpr : window.devicePixelRatio || 1;
     return {
         virtualBars,
-        layouts,
+        barFrames,
         constants,
         totalHeight,
         globalBarStartIndices,
@@ -555,12 +519,12 @@ export function createLayout(chart, canvas, options, judgements, customDpr) {
         headerHeight,
         offsetY,
         baseBarWidth,
-        noteOrdinals,
+        locToJudgementKey,
         noteOrdinalToGrid,
     };
 }
-export function renderLayout(ctx, layout, chart, judgements, options, texts, dirtyRowY) {
-    const { logicalCanvasWidth, dpr, totalHeight, layouts, constants, virtualBars, balloonIndices, inferredHands, headerHeight, noteOrdinals, } = layout;
+export function renderLayout(canvasContext, layout, chart, judgements, options, texts, dirtyRowY) {
+    const { logicalCanvasWidth, dpr, totalHeight, barFrames, constants, virtualBars, balloonIndices, inferredHands, headerHeight, locToJudgementKey, } = layout;
     // Safety check for canvas limits
     const MAX_CANVAS_DIMENSION = 32000;
     let effectiveDpr = dpr;
@@ -573,7 +537,7 @@ export function renderLayout(ctx, layout, chart, judgements, options, texts, dir
         finalCanvasHeight = MAX_CANVAS_DIMENSION;
         finalStyleHeight = MAX_CANVAS_DIMENSION / effectiveDpr;
     }
-    const canvas = ctx.canvas;
+    const canvas = canvasContext.canvas;
     // Resize only if full render (dirtyRowY undefined) or if dimensions mismatch
     // Optimization: Trust that canvas size is correct for partial updates
     if (!dirtyRowY) {
@@ -582,70 +546,80 @@ export function renderLayout(ctx, layout, chart, judgements, options, texts, dir
         canvas.style.width = `${logicalCanvasWidth}px`;
         canvas.style.height = `${finalStyleHeight}px`;
     }
-    ctx.resetTransform();
-    ctx.scale(effectiveDpr, effectiveDpr);
+    canvasContext.resetTransform();
+    canvasContext.scale(effectiveDpr, effectiveDpr);
     if (dirtyRowY) {
-        ctx.save();
-        ctx.beginPath();
+        canvasContext.save();
+        canvasContext.beginPath();
         const rowHeights = new Map();
-        layouts.forEach((l) => {
+        barFrames.forEach((l) => {
             if (dirtyRowY.has(l.y)) {
                 const current = rowHeights.get(l.y) || 0;
                 rowHeights.set(l.y, Math.max(current, l.height));
             }
         });
-        const MARGIN = constants.NOTE_RADIUS_BIG * 3;
+        const MARGIN = constants.noteRadiusBig * 3;
         dirtyRowY.forEach((y) => {
-            const h = rowHeights.get(y) || constants.BAR_HEIGHT;
-            ctx.rect(0, y - MARGIN, logicalCanvasWidth, h + MARGIN * 2);
+            const h = rowHeights.get(y) || constants.barHeight;
+            canvasContext.rect(0, y - MARGIN, logicalCanvasWidth, h + MARGIN * 2);
         });
-        ctx.clip();
-        ctx.fillStyle = PALETTE.background;
+        canvasContext.clip();
+        canvasContext.fillStyle = PALETTE.background;
         dirtyRowY.forEach((y) => {
-            const h = rowHeights.get(y) || constants.BAR_HEIGHT;
-            ctx.fillRect(0, y - MARGIN, logicalCanvasWidth, h + MARGIN * 2);
+            const h = rowHeights.get(y) || constants.barHeight;
+            canvasContext.fillRect(0, y - MARGIN, logicalCanvasWidth, h + MARGIN * 2);
         });
     }
     else {
         // Clear
-        ctx.fillStyle = PALETTE.background;
-        ctx.fillRect(0, 0, logicalCanvasWidth, totalHeight);
+        canvasContext.fillStyle = PALETTE.background;
+        canvasContext.fillRect(0, 0, logicalCanvasWidth, totalHeight);
     }
+    const renderContext = {
+        canvasContext: canvasContext,
+        options,
+        judgements,
+        texts,
+        constants,
+        inferredHands,
+        locToJudgementKey,
+    };
     // Layer 0: Header
     if (!dirtyRowY) {
         const availableWidth = logicalCanvasWidth - PADDING * 2;
-        drawChartHeader(ctx, chart, PADDING, PADDING, availableWidth, headerHeight, texts);
+        const headerFrame = { x: PADDING, y: PADDING, width: availableWidth, height: headerHeight };
+        drawChartHeader(canvasContext, chart, headerFrame, texts);
     }
     const isAllBranches = !!options.showAllBranches && !!chart.branches;
-    const BASE_LANE_HEIGHT = constants.BAR_HEIGHT;
+    const BASE_LANE_HEIGHT = constants.barHeight;
     // Layer 1: Backgrounds
     virtualBars.forEach((info, index) => {
-        const layout = layouts[index];
-        if (dirtyRowY && !dirtyRowY.has(layout.y))
+        const frame = barFrames[index];
+        if (dirtyRowY && !dirtyRowY.has(frame.y))
             return;
-        drawBarBackgroundWrapper(ctx, layout, info, index, chart, options, constants, virtualBars, layouts, texts, isAllBranches, BASE_LANE_HEIGHT);
+        drawBarBackgroundWrapper(canvasContext, frame, info, index, chart, options, constants, virtualBars, barFrames, texts, isAllBranches, BASE_LANE_HEIGHT);
     });
     // Layer 1.5 & 2: Notes
     if (isAllBranches && chart.branches) {
-        drawAllBranchesNotes(ctx, chart, virtualBars, layouts, constants, options, judgements, texts, balloonIndices, BASE_LANE_HEIGHT, noteOrdinals, dirtyRowY);
+        drawAllBranchesNotes(renderContext, chart, virtualBars, barFrames, balloonIndices, BASE_LANE_HEIGHT, dirtyRowY);
     }
     else {
         // Layer 1.5: Drumrolls and Balloons
-        drawLongNotes(ctx, virtualBars, layouts, constants, options.viewMode, chart.balloonCounts, balloonIndices, dirtyRowY);
+        drawLongNotes(canvasContext, virtualBars, barFrames, constants, options.viewMode, chart.balloonCounts, balloonIndices, dirtyRowY);
         // Layer 2: Notes
         for (let index = virtualBars.length - 1; index >= 0; index--) {
             const info = virtualBars[index];
-            const layout = layouts[index];
-            if (dirtyRowY && !dirtyRowY.has(layout.y))
+            const frame = barFrames[index];
+            if (dirtyRowY && !dirtyRowY.has(frame.y))
                 continue;
-            drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, options, judgements, texts, info.originalIndex, options.collapsedLoop ? chart.loop : undefined, inferredHands, chart.branchType, noteOrdinals, info.effectiveBarIndex);
+            drawBarNotes(renderContext, info.bar, frame, info.originalIndex, options.collapsedLoop ? chart.loop : undefined, chart.branchType, info.effectiveBarIndex);
         }
     }
     if (dirtyRowY) {
-        ctx.restore();
+        canvasContext.restore();
     }
 }
-function drawBarBackgroundWrapper(ctx, layout, info, index, chart, options, constants, virtualBars, layouts, texts, isAllBranches, BASE_LANE_HEIGHT) {
+function drawBarBackgroundWrapper(canvasContext, frame, info, index, chart, options, constants, virtualBars, barFrames, texts, isAllBranches, BASE_LANE_HEIGHT) {
     const params = chart.barParams[info.originalIndex];
     const gogoTime = params ? params.gogoTime : false;
     const gogoChanges = params ? params.gogoChanges : undefined;
@@ -654,82 +628,88 @@ function drawBarBackgroundWrapper(ctx, layout, info, index, chart, options, cons
     // Detect neighbors for over-extension
     let hasLeftNeighbor = false;
     if (index > 0) {
-        const prevLayout = layouts[index - 1];
-        if (Math.abs(prevLayout.y - layout.y) < 1.0) {
+        const prevFrame = barFrames[index - 1];
+        if (Math.abs(prevFrame.y - frame.y) < 1.0) {
             hasLeftNeighbor = true;
         }
     }
     let hasRightNeighbor = false;
     if (index < virtualBars.length - 1) {
-        const nextLayout = layouts[index + 1];
-        if (Math.abs(nextLayout.y - layout.y) < 1.0) {
+        const nextFrame = barFrames[index + 1];
+        if (Math.abs(nextFrame.y - frame.y) < 1.0) {
             hasRightNeighbor = true;
         }
     }
-    const overExtendWidth = 2 * constants.NOTE_RADIUS_SMALL;
+    const overExtendWidth = 2 * constants.noteRadiusSmall;
     const isBranchStart = params ? !!params.isBranchStart : false;
     if (isAllBranches && chart.branches) {
         if (isBranched) {
             const subHeight = BASE_LANE_HEIGHT;
-            drawBarBackground(ctx, layout.x, layout.y, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, "normal", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
-            drawBarBackground(ctx, layout.x, layout.y + subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, "expert", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
-            drawBarBackground(ctx, layout.x, layout.y + 2 * subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, "master", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+            const normalFrame = { x: frame.x, y: frame.y, width: frame.width, height: subHeight };
+            drawBarBackground(canvasContext, normalFrame, constants.lineWidthBarBorder, constants.lineWidthCenter, true, "normal", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+            const expertFrame = { x: frame.x, y: frame.y + subHeight, width: frame.width, height: subHeight };
+            drawBarBackground(canvasContext, expertFrame, constants.lineWidthBarBorder, constants.lineWidthCenter, true, "expert", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+            const masterFrame = { x: frame.x, y: frame.y + 2 * subHeight, width: frame.width, height: subHeight };
+            drawBarBackground(canvasContext, masterFrame, constants.lineWidthBarBorder, constants.lineWidthCenter, true, "master", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
             if (isBranchStart) {
-                ctx.beginPath();
-                ctx.strokeStyle = PALETTE.branches.startLine;
-                ctx.lineWidth = constants.LW_BAR;
-                ctx.moveTo(layout.x, layout.y);
-                ctx.lineTo(layout.x, layout.y + layout.height);
-                ctx.stroke();
+                canvasContext.beginPath();
+                canvasContext.strokeStyle = PALETTE.branches.startLine;
+                canvasContext.lineWidth = constants.lineWidthBarBorder;
+                canvasContext.moveTo(frame.x, frame.y);
+                canvasContext.lineTo(frame.x, frame.y + frame.height);
+                canvasContext.stroke();
             }
         }
         else {
-            drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, false, "normal", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+            drawBarBackground(canvasContext, frame, constants.lineWidthBarBorder, constants.lineWidthCenter, false, "normal", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
         }
         if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
-            const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
-            const stripY = layout.y - stripHeight - constants.LW_BAR / 2;
-            drawGogoIndicator(ctx, layout.x, stripY, stripHeight, layout.width, gogoTime, gogoChanges, noteCount, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+            const stripHeight = constants.barNumberFontSize + constants.barNumberOffsetY * 2;
+            const stripY = frame.y - stripHeight - constants.lineWidthBarBorder / 2;
+            const gogoFrame = { x: frame.x, y: stripY, width: frame.width, height: stripHeight };
+            drawGogoIndicator(canvasContext, gogoFrame, gogoTime, gogoChanges, noteCount, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
         }
         if (!options.isAnnotationMode) {
-            drawBarLabels(ctx, info.originalIndex, layout.x, layout.y, layout.width, BASE_LANE_HEIGHT, constants.BAR_NUMBER_FONT_SIZE, constants.STATUS_FONT_SIZE, constants.BAR_NUMBER_OFFSET_Y, params, noteCount, info.originalIndex === 0, constants.LW_BAR, isBranchStart);
+            drawBarLabels(canvasContext, frame, info.originalIndex, constants.barNumberFontSize, constants.statusFontSize, constants.barNumberOffsetY, params, noteCount, info.originalIndex === 0, constants.lineWidthBarBorder, isBranchStart);
         }
         if (info.isLoopStart && chart.loop) {
-            ctx.fillStyle = PALETTE.text.primary;
-            ctx.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px ${FONT_STACK}`;
-            ctx.textAlign = "right";
+            canvasContext.fillStyle = PALETTE.text.primary;
+            canvasContext.font = `bold ${constants.barNumberFontSize}px ${FONT_STACK}`;
+            canvasContext.textAlign = "right";
             const text = texts.loopPattern.replace("{n}", chart.loop.iterations.toString());
-            ctx.fillText(text, layout.x + layout.width, layout.y - constants.BAR_NUMBER_OFFSET_Y);
+            canvasContext.fillText(text, frame.x + frame.width, frame.y - constants.barNumberOffsetY);
         }
     }
     else {
-        drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, isBranched, chart.branchType, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+        drawBarBackground(canvasContext, frame, constants.lineWidthBarBorder, constants.lineWidthCenter, isBranched, chart.branchType, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
         if (isBranchStart) {
-            ctx.beginPath();
-            ctx.strokeStyle = PALETTE.branches.startLine;
-            ctx.lineWidth = constants.LW_BAR;
-            ctx.moveTo(layout.x, layout.y);
-            ctx.lineTo(layout.x, layout.y + layout.height);
-            ctx.stroke();
+            canvasContext.beginPath();
+            canvasContext.strokeStyle = PALETTE.branches.startLine;
+            canvasContext.lineWidth = constants.lineWidthBarBorder;
+            canvasContext.moveTo(frame.x, frame.y);
+            canvasContext.lineTo(frame.x, frame.y + frame.height);
+            canvasContext.stroke();
         }
         if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
-            const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
-            const stripY = layout.y - stripHeight - constants.LW_BAR / 2;
-            drawGogoIndicator(ctx, layout.x, stripY, stripHeight, layout.width, gogoTime, gogoChanges, noteCount, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
+            const stripHeight = constants.barNumberFontSize + constants.barNumberOffsetY * 2;
+            const stripY = frame.y - stripHeight - constants.lineWidthBarBorder / 2;
+            const gogoFrame = { x: frame.x, y: stripY, width: frame.width, height: stripHeight };
+            drawGogoIndicator(canvasContext, gogoFrame, gogoTime, gogoChanges, noteCount, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
         }
         if (!options.isAnnotationMode) {
-            drawBarLabels(ctx, info.originalIndex, layout.x, layout.y, layout.width, layout.height, constants.BAR_NUMBER_FONT_SIZE, constants.STATUS_FONT_SIZE, constants.BAR_NUMBER_OFFSET_Y, params, noteCount, info.originalIndex === 0, constants.LW_BAR, isBranchStart);
+            drawBarLabels(canvasContext, frame, info.originalIndex, constants.barNumberFontSize, constants.statusFontSize, constants.barNumberOffsetY, params, noteCount, info.originalIndex === 0, constants.lineWidthBarBorder, isBranchStart);
         }
         if (info.isLoopStart && chart.loop) {
-            ctx.fillStyle = PALETTE.text.primary;
-            ctx.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px ${FONT_STACK}`;
-            ctx.textAlign = "right";
+            canvasContext.fillStyle = PALETTE.text.primary;
+            canvasContext.font = `bold ${constants.barNumberFontSize}px ${FONT_STACK}`;
+            canvasContext.textAlign = "right";
             const text = texts.loopPattern.replace("{n}", chart.loop.iterations.toString());
-            ctx.fillText(text, layout.x + layout.width, layout.y - constants.BAR_NUMBER_OFFSET_Y);
+            canvasContext.fillText(text, frame.x + frame.width, frame.y - constants.barNumberOffsetY);
         }
     }
 }
-function drawAllBranchesNotes(ctx, chart, virtualBars, layouts, constants, options, judgements, texts, _balloonIndices, BASE_LANE_HEIGHT, noteOrdinals, dirtyRowY) {
+function drawAllBranchesNotes(renderContext, chart, virtualBars, barFrames, _balloonIndices, BASE_LANE_HEIGHT, dirtyRowY) {
+    const { canvasContext, options, constants } = renderContext;
     if (!chart.branches)
         return;
     const branches = [
@@ -742,44 +722,46 @@ function drawAllBranchesNotes(ctx, chart, virtualBars, layouts, constants, optio
             ...vb,
             bar: b.data.bars[vb.originalIndex],
         }));
-        const branchLayouts = layouts.map((l, idx) => {
+        const branchFrames = barFrames.map((f, idx) => {
             const params = chart.barParams[virtualBars[idx].originalIndex];
             const isBranched = params ? params.isBranched : false;
             if (isBranched) {
                 return {
-                    ...l,
-                    y: l.y + b.yOffset,
+                    ...f,
+                    y: f.y + b.yOffset,
                     height: BASE_LANE_HEIGHT,
                 };
             }
             else {
                 return {
-                    ...l,
-                    y: l.y,
+                    ...f,
+                    y: f.y,
                     height: BASE_LANE_HEIGHT,
                 };
             }
         });
-        drawLongNotes(ctx, branchVirtualBars, branchLayouts, constants, options.viewMode, b.data.balloonCounts, calculateBalloonIndices(b.data.bars), dirtyRowY);
+        drawLongNotes(canvasContext, branchVirtualBars, branchFrames, constants, options.viewMode, b.data.balloonCounts, calculateBalloonIndices(b.data.bars), dirtyRowY);
         for (let index = branchVirtualBars.length - 1; index >= 0; index--) {
             const info = branchVirtualBars[index];
-            const layout = branchLayouts[index];
-            if (dirtyRowY && !dirtyRowY.has(layout.y))
+            const frame = branchFrames[index];
+            if (dirtyRowY && !dirtyRowY.has(frame.y))
                 continue;
             // OPTIMIZATION: If unbranched, only draw for 'normal' branch to avoid overdraw
             const params = chart.barParams[info.originalIndex];
             const isBranched = params ? params.isBranched : false;
             if (!isBranched && b.type !== "normal")
                 continue;
-            const drawOptions = { ...options, annotations: {}, selection: null };
-            drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, drawOptions, judgements, texts, info.originalIndex, undefined, undefined, b.type, noteOrdinals, // Note: Ordinals are calculated on base chart (normal). Branches might desync if they have different note counts.
-            info.effectiveBarIndex);
+            const branchContext = {
+                ...renderContext,
+                options: { ...options, annotations: new LocationMap(), selection: null },
+            };
+            drawBarNotes(branchContext, info.bar, frame, info.originalIndex, undefined, b.type, info.effectiveBarIndex);
         }
     });
 }
-export function renderChart(chart, canvas, judgements = new Map(), options, texts = DEFAULT_TEXTS, customDpr) {
-    const ctx = canvas.getContext("2d");
-    if (!ctx) {
+export function renderChart(chart, canvas, judgements = new JudgementMap(), options, texts = DEFAULT_TEXTS, customDpr) {
+    const canvasContext = canvas.getContext("2d");
+    if (!canvasContext) {
         console.error("2D rendering context not found for canvas.");
         return;
     }
@@ -788,8 +770,7 @@ export function renderChart(chart, canvas, judgements = new Map(), options, text
     const layout = createLayout(chart, canvas, options, judgements, customDpr);
     // For now, unpack layout to keep using the existing rendering logic in this function
     // This is an intermediate step. Later we will replace this with renderLayout()
-    const { virtualBars, layouts, constants, totalHeight, balloonIndices, inferredHands, logicalCanvasWidth, dpr, headerHeight, noteOrdinals, } = layout;
-    const { loop } = chart;
+    const { virtualBars, barFrames, constants, totalHeight, balloonIndices, inferredHands, logicalCanvasWidth, dpr, headerHeight, locToJudgementKey, } = layout;
     // Safety check for canvas limits
     const MAX_CANVAS_DIMENSION = 32000;
     if (totalHeight * dpr > MAX_CANVAS_DIMENSION) {
@@ -810,183 +791,47 @@ export function renderChart(chart, canvas, judgements = new Map(), options, text
     canvas.height = finalCanvasHeight;
     canvas.style.width = `${logicalCanvasWidth}px`;
     canvas.style.height = `${finalStyleHeight}px`;
-    ctx.scale(effectiveDpr, effectiveDpr);
+    canvasContext.scale(effectiveDpr, effectiveDpr);
     // Clear
-    ctx.fillStyle = PALETTE.background;
-    ctx.fillRect(0, 0, logicalCanvasWidth, totalHeight);
+    canvasContext.fillStyle = PALETTE.background;
+    canvasContext.fillRect(0, 0, logicalCanvasWidth, totalHeight);
+    const renderContext = {
+        canvasContext,
+        options,
+        judgements,
+        texts,
+        constants,
+        inferredHands,
+        locToJudgementKey,
+    };
     // Layer 0: Header
     const availableWidth = logicalCanvasWidth - PADDING * 2;
-    drawChartHeader(ctx, chart, PADDING, PADDING, availableWidth, headerHeight, texts);
+    const headerFrame = { x: PADDING, y: PADDING, width: availableWidth, height: headerHeight };
+    drawChartHeader(canvasContext, chart, headerFrame, texts);
     const isAllBranches = !!options.showAllBranches && !!chart.branches;
-    const BASE_LANE_HEIGHT = constants.BAR_HEIGHT;
+    const BASE_LANE_HEIGHT = constants.barHeight;
     // Layer 1: Backgrounds
     virtualBars.forEach((info, index) => {
-        const layout = layouts[index];
-        const params = chart.barParams[info.originalIndex];
-        const gogoTime = params ? params.gogoTime : false;
-        const gogoChanges = params ? params.gogoChanges : undefined;
-        const noteCount = info.bar ? info.bar.length : 0;
-        const isBranched = params ? params.isBranched : false;
-        // Detect neighbors for over-extension
-        let hasLeftNeighbor = false;
-        if (index > 0) {
-            const prevLayout = layouts[index - 1];
-            if (Math.abs(prevLayout.y - layout.y) < 1.0) {
-                hasLeftNeighbor = true;
-            }
-        }
-        let hasRightNeighbor = false;
-        if (index < virtualBars.length - 1) {
-            const nextLayout = layouts[index + 1];
-            if (Math.abs(nextLayout.y - layout.y) < 1.0) {
-                hasRightNeighbor = true;
-            }
-        }
-        const overExtendWidth = 2 * constants.NOTE_RADIUS_SMALL;
-        // Detect Branch Start
-        const isBranchStart = params ? !!params.isBranchStart : false;
-        if (isAllBranches && chart.branches) {
-            if (isBranched) {
-                // For branched bar, layout.height should already be 3 * BASE_LANE_HEIGHT (from calculateLayout)
-                // We split this into 3 stacked lanes.
-                const subHeight = BASE_LANE_HEIGHT;
-                // Draw 3 lanes
-                drawBarBackground(ctx, layout.x, layout.y, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, "normal", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
-                drawBarBackground(ctx, layout.x, layout.y + subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, "expert", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
-                drawBarBackground(ctx, layout.x, layout.y + 2 * subHeight, layout.width, subHeight, constants.LW_BAR, constants.LW_CENTER, true, "master", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
-                // Yellow Branch Start Line
-                if (isBranchStart) {
-                    ctx.beginPath();
-                    ctx.strokeStyle = PALETTE.branches.startLine;
-                    ctx.lineWidth = constants.LW_BAR;
-                    // Draw line covering full height (3 lanes)
-                    ctx.moveTo(layout.x, layout.y);
-                    ctx.lineTo(layout.x, layout.y + layout.height);
-                    ctx.stroke();
-                }
-            }
-            else {
-                // Unbranched (Common) Bar
-                // layout.height should be H (single lane)
-                drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, false, "normal", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
-            }
-            // Common Elements for All Branches Mode (Gogo, Labels, Loop)
-            // Place above the top lane (or the single lane)
-            // Draw Gogo Indicator
-            if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
-                const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
-                const stripY = layout.y - stripHeight - constants.LW_BAR / 2;
-                drawGogoIndicator(ctx, layout.x, stripY, stripHeight, layout.width, gogoTime, gogoChanges, noteCount, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
-            }
-            // Draw Bar Labels
-            if (!options.isAnnotationMode) {
-                // If branched, labels should align with top lane (Normal) height which is BASE_LANE_HEIGHT.
-                // If unbranched, height is BASE_LANE_HEIGHT.
-                // So always pass BASE_LANE_HEIGHT as height for label drawing context.
-                drawBarLabels(ctx, info.originalIndex, layout.x, layout.y, layout.width, BASE_LANE_HEIGHT, constants.BAR_NUMBER_FONT_SIZE, constants.STATUS_FONT_SIZE, constants.BAR_NUMBER_OFFSET_Y, params, noteCount, info.originalIndex === 0, constants.LW_BAR, isBranchStart);
-            }
-            // Draw Loop Indicator
-            if (info.isLoopStart && loop) {
-                ctx.fillStyle = PALETTE.text.primary;
-                ctx.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px ${FONT_STACK}`;
-                ctx.textAlign = "right";
-                const text = texts.loopPattern.replace("{n}", loop.iterations.toString());
-                ctx.fillText(text, layout.x + layout.width, layout.y - constants.BAR_NUMBER_OFFSET_Y);
-            }
-        }
-        else {
-            // Standard View
-            drawBarBackground(ctx, layout.x, layout.y, layout.width, layout.height, constants.LW_BAR, constants.LW_CENTER, isBranched, chart.branchType, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
-            // Yellow Branch Start Line (Standard View)
-            if (isBranchStart) {
-                ctx.beginPath();
-                ctx.strokeStyle = PALETTE.branches.startLine;
-                ctx.lineWidth = constants.LW_BAR;
-                ctx.moveTo(layout.x, layout.y);
-                ctx.lineTo(layout.x, layout.y + layout.height);
-                ctx.stroke();
-            }
-            // Draw Gogo Indicator
-            if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
-                const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
-                const stripY = layout.y - stripHeight - constants.LW_BAR / 2;
-                drawGogoIndicator(ctx, layout.x, stripY, stripHeight, layout.width, gogoTime, gogoChanges, noteCount, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
-            }
-            // Draw Bar Labels (Number, BPM, HS)
-            if (!options.isAnnotationMode) {
-                drawBarLabels(ctx, info.originalIndex, layout.x, layout.y, layout.width, layout.height, constants.BAR_NUMBER_FONT_SIZE, constants.STATUS_FONT_SIZE, constants.BAR_NUMBER_OFFSET_Y, params, noteCount, info.originalIndex === 0, constants.LW_BAR, isBranchStart);
-            }
-            // Draw Loop Indicator
-            if (info.isLoopStart && loop) {
-                ctx.fillStyle = PALETTE.text.primary;
-                ctx.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px ${FONT_STACK}`;
-                ctx.textAlign = "right";
-                const text = texts.loopPattern.replace("{n}", loop.iterations.toString());
-                ctx.fillText(text, layout.x + layout.width, layout.y - constants.BAR_NUMBER_OFFSET_Y);
-            }
-        }
+        const frame = barFrames[index];
+        drawBarBackgroundWrapper(canvasContext, frame, info, index, chart, options, constants, virtualBars, barFrames, texts, isAllBranches, BASE_LANE_HEIGHT);
     });
     // Layer 1.5 & 2: Notes
     if (isAllBranches && chart.branches) {
-        const branches = [
-            { type: "normal", data: chart.branches.normal || chart, yOffset: 0 },
-            { type: "expert", data: chart.branches.expert || chart, yOffset: BASE_LANE_HEIGHT },
-            { type: "master", data: chart.branches.master || chart, yOffset: BASE_LANE_HEIGHT * 2 },
-        ];
-        branches.forEach((b) => {
-            // Create virtualBars for this branch
-            const branchVirtualBars = virtualBars.map((vb) => ({
-                ...vb,
-                bar: b.data.bars[vb.originalIndex],
-            }));
-            // Dynamically calculate layouts for this branch
-            const branchLayouts = layouts.map((l, idx) => {
-                const params = chart.barParams[virtualBars[idx].originalIndex];
-                const isBranched = params ? params.isBranched : false;
-                if (isBranched) {
-                    // Branched: Use split height and offset
-                    return {
-                        ...l,
-                        y: l.y + b.yOffset,
-                        height: BASE_LANE_HEIGHT,
-                    };
-                }
-                else {
-                    // Unbranched: Use full height, no offset (Centered)
-                    // Note: Unbranched bar height is BASE_LANE_HEIGHT. No offset needed.
-                    return {
-                        ...l,
-                        y: l.y,
-                        height: BASE_LANE_HEIGHT,
-                    };
-                }
-            });
-            drawLongNotes(ctx, branchVirtualBars, branchLayouts, constants, options.viewMode, b.data.balloonCounts, calculateBalloonIndices(b.data.bars));
-            for (let index = branchVirtualBars.length - 1; index >= 0; index--) {
-                const info = branchVirtualBars[index];
-                const layout = branchLayouts[index];
-                // OPTIMIZATION: If unbranched, only draw for 'normal' branch to avoid overdraw
-                const params = chart.barParams[info.originalIndex];
-                const isBranched = params ? params.isBranched : false;
-                if (!isBranched && b.type !== "normal")
-                    continue;
-                const drawOptions = { ...options, annotations: {}, selection: null };
-                drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, drawOptions, judgements, texts, info.originalIndex, undefined, undefined, b.type, noteOrdinals, info.effectiveBarIndex);
-            }
-        });
+        drawAllBranchesNotes(renderContext, chart, virtualBars, barFrames, balloonIndices, BASE_LANE_HEIGHT);
     }
     else {
         // Layer 1.5: Drumrolls and Balloons
-        drawLongNotes(ctx, virtualBars, layouts, constants, options.viewMode, chart.balloonCounts, balloonIndices);
+        drawLongNotes(canvasContext, virtualBars, barFrames, constants, options.viewMode, chart.balloonCounts, balloonIndices);
         // Layer 2: Notes
         for (let index = virtualBars.length - 1; index >= 0; index--) {
             const info = virtualBars[index];
-            const layout = layouts[index];
-            drawBarNotes(ctx, info.bar, layout.x, layout.y, layout.width, layout.height, constants.NOTE_RADIUS_SMALL, constants.NOTE_RADIUS_BIG, constants.LW_NOTE_OUTER, constants.LW_NOTE_INNER, constants.LW_UNDERLINE_BORDER, options, judgements, texts, info.originalIndex, options.collapsedLoop ? chart.loop : undefined, inferredHands, chart.branchType, noteOrdinals, info.effectiveBarIndex);
+            const frame = barFrames[index];
+            drawBarNotes(renderContext, info.bar, frame, info.originalIndex, options.collapsedLoop ? chart.loop : undefined, chart.branchType, info.effectiveBarIndex);
         }
     }
 }
-function drawChartHeader(ctx, chart, x, y, width, height, texts) {
+function drawChartHeader(canvasContext, chart, frame, texts) {
+    const { x, y, width, height } = frame;
     const title = chart.title || "Untitled";
     const subtitle = chart.subtitle || "";
     const startBpm = chart.bpm || 120;
@@ -1015,22 +860,22 @@ function drawChartHeader(ctx, chart, x, y, width, height, texts) {
     const titleFontSize = height * 0.4;
     const subtitleFontSize = height * 0.25;
     const metaFontSize = height * 0.25;
-    ctx.save();
+    canvasContext.save();
     // Draw Title
-    ctx.fillStyle = PALETTE.text.primary;
-    ctx.font = `bold ${titleFontSize}px ${FONT_STACK}`;
-    ctx.textAlign = "left";
-    ctx.textBaseline = "top";
-    ctx.fillText(title, x, y);
+    canvasContext.fillStyle = PALETTE.text.primary;
+    canvasContext.font = `bold ${titleFontSize}px ${FONT_STACK}`;
+    canvasContext.textAlign = "left";
+    canvasContext.textBaseline = "top";
+    canvasContext.fillText(title, x, y);
     // Draw Subtitle (below title)
     if (subtitle) {
-        ctx.font = `${subtitleFontSize}px ${FONT_STACK}`;
-        ctx.fillStyle = PALETTE.text.secondary;
-        ctx.fillText(subtitle, x, y + titleFontSize + 5);
+        canvasContext.font = `${subtitleFontSize}px ${FONT_STACK}`;
+        canvasContext.fillStyle = PALETTE.text.secondary;
+        canvasContext.fillText(subtitle, x, y + titleFontSize + 5);
     }
     // Draw Metadata (Right aligned)
     const metaY = y;
-    ctx.textAlign = "right";
+    canvasContext.textAlign = "right";
     // Course & Level
     const courseKey = course.toLowerCase();
     let courseName = course.charAt(0).toUpperCase() + course.slice(1);
@@ -1059,16 +904,61 @@ function drawChartHeader(ctx, chart, x, y, width, height, texts) {
     else if (c.includes("easy")) {
         courseColor = PALETTE.courses.easy; // Orange
     }
-    ctx.fillStyle = courseColor;
-    ctx.font = `bold ${metaFontSize}px ${FONT_STACK}`;
-    ctx.fillText(courseText, x + width, metaY);
+    canvasContext.fillStyle = courseColor;
+    canvasContext.font = `bold ${metaFontSize}px ${FONT_STACK}`;
+    canvasContext.fillText(courseText, x + width, metaY);
     // BPM
-    ctx.fillStyle = PALETTE.text.primary;
-    ctx.font = `${metaFontSize}px ${FONT_STACK}`;
-    ctx.fillText(bpmText, x + width, metaY + metaFontSize + 5);
-    ctx.restore();
+    canvasContext.fillStyle = PALETTE.text.primary;
+    canvasContext.font = `${metaFontSize}px ${FONT_STACK}`;
+    canvasContext.fillText(bpmText, x + width, metaY + metaFontSize + 5);
+    canvasContext.restore();
 }
-function drawBarBackground(ctx, x, y, width, height, borderW, centerW, isBranched, branchType = "normal", drawLeftExt = false, drawRightExt = false, overExtendWidth = 0) {
+function drawGradientRect(canvasContext, x, y, width, height, color, direction) {
+    const grad = canvasContext.createLinearGradient(x, y, x + width, y);
+    const cSolid = hexToRgba(color, 1);
+    const cMid = hexToRgba(color, 0.2);
+    const cTrans = hexToRgba(color, 0);
+    if (direction === "left") {
+        grad.addColorStop(0, cTrans);
+        grad.addColorStop(0.25, cMid);
+        grad.addColorStop(0.5, cSolid);
+        grad.addColorStop(1, cSolid);
+    }
+    else {
+        grad.addColorStop(0, cSolid);
+        grad.addColorStop(0.5, cSolid);
+        grad.addColorStop(0.75, cMid);
+        grad.addColorStop(1, cTrans);
+    }
+    canvasContext.fillStyle = grad;
+    canvasContext.fillRect(x, y, width, height);
+}
+function drawGradientLine(canvasContext, x1, y1, x2, y2, color, lineWidth, direction) {
+    const grad = canvasContext.createLinearGradient(x1, y1, x2, y1); // Horizontal gradient
+    const cSolid = hexToRgba(color, 1);
+    const cMid = hexToRgba(color, 0.2);
+    const cTrans = hexToRgba(color, 0);
+    if (direction === "left") {
+        grad.addColorStop(0, cTrans);
+        grad.addColorStop(0.25, cMid);
+        grad.addColorStop(0.5, cSolid);
+        grad.addColorStop(1, cSolid);
+    }
+    else {
+        grad.addColorStop(0, cSolid);
+        grad.addColorStop(0.5, cSolid);
+        grad.addColorStop(0.75, cMid);
+        grad.addColorStop(1, cTrans);
+    }
+    canvasContext.strokeStyle = grad;
+    canvasContext.lineWidth = lineWidth;
+    canvasContext.beginPath();
+    canvasContext.moveTo(x1, y1);
+    canvasContext.lineTo(x2, y2);
+    canvasContext.stroke();
+}
+function drawBarBackground(canvasContext, frame, borderW, centerW, isBranched, branchType = "normal", drawLeftExt = false, drawRightExt = false, overExtendWidth = 0) {
+    const { x, y, width, height } = frame;
     const centerY = y + height / 2;
     let fillColor = PALETTE.branches.default;
     if (isBranched) {
@@ -1081,73 +971,16 @@ function drawBarBackground(ctx, x, y, width, height, borderW, centerW, isBranche
     }
     // Helper for extensions
     const drawExtension = (exX, exW, isLeft) => {
+        const direction = isLeft ? "left" : "right";
         // 1. Background Gradient
-        const grad = ctx.createLinearGradient(exX, y, exX + exW, y);
-        const cSolid = hexToRgba(fillColor, 1);
-        const cMid = hexToRgba(fillColor, 0.2);
-        const cTrans = hexToRgba(fillColor, 0);
-        if (isLeft) {
-            grad.addColorStop(0, cTrans);
-            grad.addColorStop(0.25, cMid);
-            grad.addColorStop(0.5, cSolid);
-            grad.addColorStop(1, cSolid);
-        }
-        else {
-            grad.addColorStop(0, cSolid);
-            grad.addColorStop(0.5, cSolid);
-            grad.addColorStop(0.75, cMid);
-            grad.addColorStop(1, cTrans);
-        }
-        ctx.fillStyle = grad;
-        ctx.fillRect(exX, y, exW, height);
+        drawGradientRect(canvasContext, exX, y, exW, height, fillColor, direction);
         // 2. Horizontal Borders Gradient
-        const borderGrad = ctx.createLinearGradient(exX, y, exX + exW, y);
-        const bcSolid = hexToRgba(PALETTE.ui.barBorder, 1);
-        const bcMid = hexToRgba(PALETTE.ui.barBorder, 0.2);
-        const bcTrans = hexToRgba(PALETTE.ui.barBorder, 0);
-        if (isLeft) {
-            borderGrad.addColorStop(0, bcTrans);
-            borderGrad.addColorStop(0.25, bcMid);
-            borderGrad.addColorStop(0.5, bcSolid);
-            borderGrad.addColorStop(1, bcSolid);
-        }
-        else {
-            borderGrad.addColorStop(0, bcSolid);
-            borderGrad.addColorStop(0.5, bcSolid);
-            borderGrad.addColorStop(0.75, bcMid);
-            borderGrad.addColorStop(1, bcTrans);
-        }
-        ctx.strokeStyle = borderGrad;
-        ctx.lineWidth = borderW;
-        ctx.beginPath();
-        ctx.moveTo(exX, y);
-        ctx.lineTo(exX + exW, y);
-        ctx.moveTo(exX, y + height);
-        ctx.lineTo(exX + exW, y + height);
-        ctx.stroke();
+        // Top Border
+        drawGradientLine(canvasContext, exX, y, exX + exW, y, PALETTE.ui.barBorder, borderW, direction);
+        // Bottom Border
+        drawGradientLine(canvasContext, exX, y + height, exX + exW, y + height, PALETTE.ui.barBorder, borderW, direction);
         // 3. Center Line Gradient
-        const centerGrad = ctx.createLinearGradient(exX, y, exX + exW, y);
-        const ccSolid = hexToRgba(PALETTE.ui.centerLine, 1);
-        const ccMid = hexToRgba(PALETTE.ui.centerLine, 0.2);
-        const ccTrans = hexToRgba(PALETTE.ui.centerLine, 0);
-        if (isLeft) {
-            centerGrad.addColorStop(0, ccTrans);
-            centerGrad.addColorStop(0.25, ccMid);
-            centerGrad.addColorStop(0.5, ccSolid);
-            centerGrad.addColorStop(1, ccSolid);
-        }
-        else {
-            centerGrad.addColorStop(0, ccSolid);
-            centerGrad.addColorStop(0.5, ccSolid);
-            centerGrad.addColorStop(0.75, ccMid);
-            centerGrad.addColorStop(1, ccTrans);
-        }
-        ctx.strokeStyle = centerGrad;
-        ctx.lineWidth = centerW;
-        ctx.beginPath();
-        ctx.moveTo(exX, centerY);
-        ctx.lineTo(exX + exW, centerY);
-        ctx.stroke();
+        drawGradientLine(canvasContext, exX, centerY, exX + exW, centerY, PALETTE.ui.centerLine, centerW, direction);
     };
     if (drawLeftExt && overExtendWidth > 0) {
         drawExtension(x - overExtendWidth, overExtendWidth, true);
@@ -1156,33 +989,33 @@ function drawBarBackground(ctx, x, y, width, height, borderW, centerW, isBranche
         drawExtension(x + width, overExtendWidth, false);
     }
     // 1. Fill Background
-    ctx.fillStyle = fillColor;
-    ctx.fillRect(x, y, width, height);
+    canvasContext.fillStyle = fillColor;
+    canvasContext.fillRect(x, y, width, height);
     // Draw Bar Border (Horizontal)
-    ctx.strokeStyle = PALETTE.ui.barBorder;
-    ctx.lineWidth = borderW;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x + width, y);
-    ctx.moveTo(x, y + height);
-    ctx.lineTo(x + width, y + height);
-    ctx.stroke();
+    canvasContext.strokeStyle = PALETTE.ui.barBorder;
+    canvasContext.lineWidth = borderW;
+    canvasContext.beginPath();
+    canvasContext.moveTo(x, y);
+    canvasContext.lineTo(x + width, y);
+    canvasContext.moveTo(x, y + height);
+    canvasContext.lineTo(x + width, y + height);
+    canvasContext.stroke();
     // Draw Bar Border (Vertical)
-    ctx.strokeStyle = PALETTE.ui.barVerticalLine;
-    ctx.lineWidth = borderW;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x, y + height);
-    ctx.moveTo(x + width, y);
-    ctx.lineTo(x + width, y + height);
-    ctx.stroke();
+    canvasContext.strokeStyle = PALETTE.ui.barVerticalLine;
+    canvasContext.lineWidth = borderW;
+    canvasContext.beginPath();
+    canvasContext.moveTo(x, y);
+    canvasContext.lineTo(x, y + height);
+    canvasContext.moveTo(x + width, y);
+    canvasContext.lineTo(x + width, y + height);
+    canvasContext.stroke();
     // Draw Center Line
-    ctx.strokeStyle = PALETTE.ui.centerLine;
-    ctx.lineWidth = centerW;
-    ctx.beginPath();
-    ctx.moveTo(x, centerY);
-    ctx.lineTo(x + width, centerY);
-    ctx.stroke();
+    canvasContext.strokeStyle = PALETTE.ui.centerLine;
+    canvasContext.lineWidth = centerW;
+    canvasContext.beginPath();
+    canvasContext.moveTo(x, centerY);
+    canvasContext.lineTo(x + width, centerY);
+    canvasContext.stroke();
 }
 function hexToRgba(hex, alpha) {
     const h = hex.replace("#", "");
@@ -1204,8 +1037,9 @@ function hexToRgba(hex, alpha) {
     }
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
-function calculateNoteOrdinals(bars) {
-    const ordinals = new Map();
+function calculateNoteMaps(bars) {
+    const locToJudgementKey = new LocationMap();
+    const identToLoc = new JudgementMap();
     const counters = {};
     for (let i = 0; i < bars.length; i++) {
         const bar = bars[i];
@@ -1213,80 +1047,88 @@ function calculateNoteOrdinals(bars) {
             continue;
         for (let j = 0; j < bar.length; j++) {
             const char = bar[j];
-            if (["1", "2", "3", "4"].includes(char)) {
+            if (isJudgeable(char)) {
                 if (counters[char] === undefined)
                     counters[char] = 0;
-                ordinals.set(`${i}_${j}`, counters[char]);
+                const ordinal = counters[char];
+                const identity = { char, ordinal };
+                const location = { barIndex: i, charIndex: j };
+                locToJudgementKey.set(location, identity);
+                if (!identToLoc.has(identity)) {
+                    identToLoc.set(identity, []);
+                }
+                identToLoc.get(identity)?.push(location);
                 counters[char]++;
             }
         }
     }
-    return ordinals;
+    return { locToJudgementKey, identToLoc };
 }
 function calculateBalloonIndices(bars) {
-    const map = new Map();
+    const map = new LocationMap();
     let balloonCount = 0;
     for (let i = 0; i < bars.length; i++) {
         const bar = bars[i];
         if (!bar)
             continue;
         for (let j = 0; j < bar.length; j++) {
-            if (bar[j] === "7" || bar[j] === "9") {
-                map.set(`${i}_${j}`, balloonCount);
+            if (bar[j] === NoteType.Balloon || bar[j] === NoteType.Kusudama) {
+                map.set({ barIndex: i, charIndex: j }, balloonCount);
                 balloonCount++;
             }
         }
     }
     return map;
 }
-function drawLongNotes(ctx, virtualBars, layouts, 
-// biome-ignore lint/suspicious/noExplicitAny: RenderConstants type complexity
-constants, viewMode, balloonCounts, balloonIndices, dirtyRowY) {
-    const { NOTE_RADIUS_SMALL: rSmall, NOTE_RADIUS_BIG: rBig, LW_NOTE_OUTER: borderOuterW, LW_NOTE_INNER: borderInnerW, } = constants;
+function drawLongNotes(canvasContext, virtualBars, barFrames, constants, viewMode, balloonCounts, balloonIndices, dirtyRowY) {
+    const { noteRadiusSmall: rSmall, noteRadiusBig: rBig, lineWidthNoteOuter: borderOuterW, lineWidthNoteInner: borderInnerW, } = constants;
     let currentLongNote = null;
     // Iterate all bars
     for (let i = 0; i < virtualBars.length; i++) {
         const bar = virtualBars[i].bar;
         if (!bar)
             continue;
-        const layout = layouts[i];
-        const isDirty = !dirtyRowY || dirtyRowY.has(layout.y);
+        const frame = barFrames[i];
+        const isDirty = !dirtyRowY || dirtyRowY.has(frame.y);
         const originalBarIdx = virtualBars[i].originalIndex;
         const noteCount = bar.length;
         if (noteCount === 0 && !currentLongNote)
             continue;
-        const noteStep = noteCount > 0 ? layout.width / noteCount : 0;
-        const barX = layout.x;
-        const centerY = layout.y + layout.height / 2;
+        const noteStep = noteCount > 0 ? frame.width / noteCount : 0;
+        const barX = frame.x;
+        const centerY = frame.y + frame.height / 2;
         // Track the starting index of the segment in THIS bar
         let segmentStartIdx = 0;
         let segmentActive = !!currentLongNote;
         for (let j = 0; j < noteCount; j++) {
             const char = bar[j];
-            if (char === "5" || char === "6" || char === "7" || char === "9") {
+            if ([NoteType.Drumroll, NoteType.DrumrollBig, NoteType.Balloon, NoteType.Kusudama].includes(char)) {
                 // Start a new long note
                 currentLongNote = { type: char, startBarIdx: i, startNoteIdx: j, originalBarIdx, originalNoteIdx: j };
                 segmentActive = true;
                 segmentStartIdx = j;
             }
-            else if (char === "8") {
+            else if (char === NoteType.End) {
                 if (currentLongNote) {
                     // End the long note
-                    const radius = currentLongNote.type === "6" || currentLongNote.type === "9" ? rBig : rSmall;
+                    const radius = currentLongNote.type === NoteType.DrumrollBig || currentLongNote.type === NoteType.Kusudama ? rBig : rSmall;
                     const startX = barX + segmentStartIdx * noteStep;
                     const endX = barX + j * noteStep;
                     const hasStartCap = segmentStartIdx === currentLongNote.startNoteIdx && i === currentLongNote.startBarIdx;
                     const hasEndCap = true;
                     if (isDirty) {
-                        if (currentLongNote.type === "7" || currentLongNote.type === "9") {
+                        if (currentLongNote.type === NoteType.Balloon || currentLongNote.type === NoteType.Kusudama) {
                             // Balloon
-                            const balloonIdx = balloonIndices.get(`${currentLongNote.originalBarIdx}_${currentLongNote.originalNoteIdx}`);
+                            const balloonIdx = balloonIndices.get({
+                                barIndex: currentLongNote.originalBarIdx,
+                                charIndex: currentLongNote.originalNoteIdx,
+                            });
                             const count = balloonIdx !== undefined && balloonCounts[balloonIdx] !== undefined ? balloonCounts[balloonIdx] : 5;
-                            drawBalloonSegment(ctx, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, count, currentLongNote.type === "9");
+                            drawBalloonSegment(canvasContext, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, count, currentLongNote.type === NoteType.Kusudama);
                         }
                         else {
                             // Drumroll
-                            drawDrumrollSegment(ctx, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, currentLongNote.type);
+                            drawDrumrollSegment(canvasContext, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, currentLongNote.type);
                         }
                     }
                     currentLongNote = null;
@@ -1296,34 +1138,37 @@ constants, viewMode, balloonCounts, balloonIndices, dirtyRowY) {
         }
         // If still active at end of bar, draw segment to end
         if (segmentActive && currentLongNote) {
-            const radius = currentLongNote.type === "6" || currentLongNote.type === "9" ? rBig : rSmall;
+            const radius = currentLongNote.type === NoteType.DrumrollBig || currentLongNote.type === NoteType.Kusudama ? rBig : rSmall;
             const startX = barX + segmentStartIdx * noteStep;
-            const endX = barX + layout.width; // Visual end of bar
+            const endX = barX + frame.width; // Visual end of bar
             const hasStartCap = segmentStartIdx === currentLongNote.startNoteIdx && i === currentLongNote.startBarIdx;
             const hasEndCap = false; // Continuation
             if (isDirty) {
-                if (currentLongNote.type === "7" || currentLongNote.type === "9") {
-                    const balloonIdx = balloonIndices.get(`${currentLongNote.originalBarIdx}_${currentLongNote.originalNoteIdx}`);
+                if (currentLongNote.type === NoteType.Balloon || currentLongNote.type === NoteType.Kusudama) {
+                    const balloonIdx = balloonIndices.get({
+                        barIndex: currentLongNote.originalBarIdx,
+                        charIndex: currentLongNote.originalNoteIdx,
+                    });
                     const count = balloonIdx !== undefined && balloonCounts[balloonIdx] !== undefined ? balloonCounts[balloonIdx] : 5;
-                    drawBalloonSegment(ctx, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, count, currentLongNote.type === "9");
+                    drawBalloonSegment(canvasContext, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, count, currentLongNote.type === NoteType.Kusudama);
                 }
                 else {
-                    drawDrumrollSegment(ctx, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, currentLongNote.type);
+                    drawDrumrollSegment(canvasContext, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, currentLongNote.type);
                 }
             }
         }
     }
 }
-function drawDrumrollSegment(ctx, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, viewMode, _type) {
+function drawDrumrollSegment(canvasContext, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, viewMode, _type) {
     let fillColor = PALETTE.notes.drumroll;
     let innerBorderColor = PALETTE.notes.border.white;
     if (viewMode === "judgements") {
         fillColor = PALETTE.notes.unjudged;
         innerBorderColor = PALETTE.notes.border.grey;
     }
-    drawCapsule(ctx, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, fillColor, innerBorderColor);
+    drawCapsule(canvasContext, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, fillColor, innerBorderColor);
 }
-function drawBalloonSegment(ctx, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, viewMode, count, isKusudama) {
+function drawBalloonSegment(canvasContext, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, viewMode, count, isKusudama) {
     let fillColor = PALETTE.notes.balloon; // Orangeish for balloon body
     let innerBorderColor = PALETTE.notes.border.white;
     if (viewMode === "judgements") {
@@ -1334,7 +1179,7 @@ function drawBalloonSegment(ctx, startX, endX, centerY, radius, startCap, endCap
     // The tail usually starts a bit after the head, but for simplicity we draw it as a capsule behind the head.
     // However, if we draw it as a capsule, the head will be drawn on top of it.
     // If startCap is true, we are drawing the head segment.
-    drawCapsule(ctx, startX, endX, centerY, radius * 0.8, startCap, endCap, borderOuterW, borderInnerW, fillColor, innerBorderColor);
+    drawCapsule(canvasContext, startX, endX, centerY, radius * 0.8, startCap, endCap, borderOuterW, borderInnerW, fillColor, innerBorderColor);
     // If this is the start segment, draw the balloon head
     if (startCap) {
         let headColor = PALETTE.notes.balloon; // Orange
@@ -1344,116 +1189,111 @@ function drawBalloonSegment(ctx, startX, endX, centerY, radius, startCap, endCap
             headColor = PALETTE.notes.unjudged;
         }
         // Draw Head
-        ctx.beginPath();
-        ctx.arc(startX, centerY, radius, 0, Math.PI * 2);
-        ctx.lineWidth = borderOuterW;
-        ctx.strokeStyle = PALETTE.notes.border.black;
-        ctx.stroke();
-        ctx.fillStyle = headColor;
-        ctx.fill();
-        ctx.lineWidth = borderInnerW;
-        ctx.strokeStyle = innerBorderColor;
-        ctx.stroke();
+        canvasContext.beginPath();
+        canvasContext.arc(startX, centerY, radius, 0, Math.PI * 2);
+        canvasContext.lineWidth = borderOuterW;
+        canvasContext.strokeStyle = PALETTE.notes.border.black;
+        canvasContext.stroke();
+        canvasContext.fillStyle = headColor;
+        canvasContext.fill();
+        canvasContext.lineWidth = borderInnerW;
+        canvasContext.strokeStyle = innerBorderColor;
+        canvasContext.stroke();
         // Draw Count
         if (viewMode !== "judgements") {
-            ctx.fillStyle = PALETTE.text.inverted;
-            ctx.font = `bold ${radius * 1.5}px ${FONT_STACK}`;
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(count.toString(), startX, centerY - radius * 0.2);
+            canvasContext.fillStyle = PALETTE.text.inverted;
+            canvasContext.font = `bold ${radius * 1.5}px ${FONT_STACK}`;
+            canvasContext.textAlign = "center";
+            canvasContext.textBaseline = "middle";
+            canvasContext.fillText(count.toString(), startX, centerY - radius * 0.2);
         }
     }
 }
-function drawCapsule(ctx, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, fillColor, innerBorderColor) {
+function drawCapsule(canvasContext, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, fillColor, innerBorderColor) {
     // 1. Outer Border (Open Path if no caps to avoid vertical lines)
-    ctx.beginPath();
+    canvasContext.beginPath();
     // Top Edge Part
     if (startCap) {
         // From Left-Middle to Top-Left
-        ctx.arc(startX, centerY, radius, Math.PI, Math.PI * 1.5, false);
+        canvasContext.arc(startX, centerY, radius, Math.PI, Math.PI * 1.5, false);
     }
     else {
-        ctx.moveTo(startX, centerY - radius);
+        canvasContext.moveTo(startX, centerY - radius);
     }
-    ctx.lineTo(endX, centerY - radius);
+    canvasContext.lineTo(endX, centerY - radius);
     if (endCap) {
         // From Top-Right to Bottom-Right
-        ctx.arc(endX, centerY, radius, Math.PI * 1.5, Math.PI * 2.5, false);
+        canvasContext.arc(endX, centerY, radius, Math.PI * 1.5, Math.PI * 2.5, false);
     }
     else {
-        ctx.moveTo(endX, centerY + radius);
+        canvasContext.moveTo(endX, centerY + radius);
     }
     // Bottom Edge Part
-    ctx.lineTo(startX, centerY + radius);
+    canvasContext.lineTo(startX, centerY + radius);
     if (startCap) {
         // From Bottom-Left to Left-Middle
-        ctx.arc(startX, centerY, radius, Math.PI * 0.5, Math.PI, false);
+        canvasContext.arc(startX, centerY, radius, Math.PI * 0.5, Math.PI, false);
     }
-    ctx.strokeStyle = PALETTE.notes.border.black;
-    ctx.lineWidth = borderOuterW;
-    ctx.stroke();
+    canvasContext.strokeStyle = PALETTE.notes.border.black;
+    canvasContext.lineWidth = borderOuterW;
+    canvasContext.stroke();
     // 2. Fill (Closed Path)
-    ctx.beginPath();
-    ctx.moveTo(startX, centerY + radius);
+    canvasContext.beginPath();
+    canvasContext.moveTo(startX, centerY + radius);
     // Left Edge
     if (startCap) {
-        ctx.arc(startX, centerY, radius, Math.PI / 2, Math.PI * 1.5, false);
+        canvasContext.arc(startX, centerY, radius, Math.PI / 2, Math.PI * 1.5, false);
     }
     else {
-        ctx.lineTo(startX, centerY - radius);
+        canvasContext.lineTo(startX, centerY - radius);
     }
     // Top Edge
-    ctx.lineTo(endX, centerY - radius);
+    canvasContext.lineTo(endX, centerY - radius);
     // Right Edge
     if (endCap) {
-        ctx.arc(endX, centerY, radius, Math.PI * 1.5, Math.PI * 2.5, false);
+        canvasContext.arc(endX, centerY, radius, Math.PI * 1.5, Math.PI * 2.5, false);
     }
     else {
-        ctx.lineTo(endX, centerY + radius);
+        canvasContext.lineTo(endX, centerY + radius);
     }
     // Bottom Edge
-    ctx.lineTo(startX, centerY + radius);
-    ctx.closePath();
-    ctx.fillStyle = fillColor;
-    ctx.fill();
+    canvasContext.lineTo(startX, centerY + radius);
+    canvasContext.closePath();
+    canvasContext.fillStyle = fillColor;
+    canvasContext.fill();
     // 3. Inner Border
-    ctx.beginPath();
+    canvasContext.beginPath();
     // 1. Trace Top: Left -> Right
     if (startCap) {
-        ctx.arc(startX, centerY, radius, Math.PI, Math.PI * 1.5, false);
+        canvasContext.arc(startX, centerY, radius, Math.PI, Math.PI * 1.5, false);
     }
     else {
-        ctx.moveTo(startX, centerY - radius);
+        canvasContext.moveTo(startX, centerY - radius);
     }
-    ctx.lineTo(endX, centerY - radius);
+    canvasContext.lineTo(endX, centerY - radius);
     if (endCap) {
-        ctx.arc(endX, centerY, radius, Math.PI * 1.5, Math.PI * 2.5, false);
+        canvasContext.arc(endX, centerY, radius, Math.PI * 1.5, Math.PI * 2.5, false);
     }
     else {
-        ctx.moveTo(endX, centerY + radius);
+        canvasContext.moveTo(endX, centerY + radius);
     }
     // 2. Trace Bottom: Right -> Left
-    ctx.lineTo(startX, centerY + radius);
+    canvasContext.lineTo(startX, centerY + radius);
     if (startCap) {
-        ctx.arc(startX, centerY, radius, Math.PI * 0.5, Math.PI, false);
+        canvasContext.arc(startX, centerY, radius, Math.PI * 0.5, Math.PI, false);
     }
-    ctx.strokeStyle = innerBorderColor;
-    ctx.lineWidth = borderInnerW;
-    ctx.stroke();
+    canvasContext.strokeStyle = innerBorderColor;
+    canvasContext.lineWidth = borderInnerW;
+    canvasContext.stroke();
 }
-function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW, borderInnerW, borderUnderlineW, options, judgements, texts, originalBarIndex = -1, loopInfo, inferredHands, currentBranch, noteOrdinals, effectiveBarIndex) {
-    const { viewMode, coloringMode, visibility: judgementVisibility, selection } = options;
-    const centerY = y + height / 2;
-    const noteCount = bar.length;
-    if (noteCount === 0)
-        return;
-    const noteStep = width / noteCount;
-    // Pre-calculate colors for judgeable notes if needed
+function calculateNoteColors(renderContext, bar, noteCount, originalBarIndex, loopInfo, effectiveBarIndex) {
+    const { options, judgements, locToJudgementKey } = renderContext;
+    const { viewMode, coloringMode, visibility: judgementVisibility } = options;
     const noteColors = new Array(noteCount).fill(null);
     if (viewMode === "judgements" || viewMode === "judgements-underline" || viewMode === "judgements-text") {
         for (let i = 0; i < noteCount; i++) {
             const char = bar[i];
-            if (!["1", "2", "3", "4"].includes(char))
+            if (!isJudgeable(char))
                 continue;
             let effectiveDelta;
             let isValidJudge = false;
@@ -1473,11 +1313,11 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
                     for (let iter = 0; iter < loopInfo.iterations; iter++) {
                         const actualBarIdx = loopInfo.startBarIndex + iter * loopInfo.period + (originalBarIndex - loopInfo.startBarIndex);
                         // Look up ordinal
-                        if (noteOrdinals) {
-                            const ordinal = noteOrdinals.get(`${actualBarIdx}_${i}`);
-                            if (ordinal !== undefined) {
-                                const key = createJudgementKey(char, ordinal);
-                                const judgeData = judgements.get(key);
+                        if (locToJudgementKey) {
+                            const locKey = { barIndex: actualBarIdx, charIndex: i };
+                            const ident = locToJudgementKey.get(locKey);
+                            if (ident) {
+                                const judgeData = judgements.get(ident);
                                 if (judgeData) {
                                     const j = judgeData.judgement;
                                     // Check visibility
@@ -1507,11 +1347,11 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
                 else {
                     // Standard or specific iteration
                     const barIdx = effectiveBarIndex !== undefined ? effectiveBarIndex : originalBarIndex;
-                    if (noteOrdinals) {
-                        const ordinal = noteOrdinals.get(`${barIdx}_${i}`);
-                        if (ordinal !== undefined) {
-                            const key = createJudgementKey(char, ordinal);
-                            const judgeData = judgements.get(key);
+                    if (locToJudgementKey) {
+                        const locKey = { barIndex: barIdx, charIndex: i };
+                        const ident = locToJudgementKey.get(locKey);
+                        if (ident) {
+                            const judgeData = judgements.get(ident);
                             if (judgeData) {
                                 const j = judgeData.judgement;
                                 let isVisible = true;
@@ -1544,11 +1384,11 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
             else {
                 // Categorical Logic
                 const barIdx = effectiveBarIndex !== undefined ? effectiveBarIndex : originalBarIndex;
-                if (noteOrdinals) {
-                    const ordinal = noteOrdinals.get(`${barIdx}_${i}`);
-                    if (ordinal !== undefined) {
-                        const key = createJudgementKey(char, ordinal);
-                        const judgeData = judgements.get(key);
+                if (locToJudgementKey) {
+                    const locKey = { barIndex: barIdx, charIndex: i };
+                    const ident = locToJudgementKey.get(locKey);
+                    if (ident) {
+                        const judgeData = judgements.get(ident);
                         if (judgeData) {
                             const judge = judgeData.judgement;
                             if (judge === JudgementType.Perfect && judgementVisibility.perfect)
@@ -1566,144 +1406,178 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
             }
         }
     }
+    return noteColors;
+}
+function drawJudgementsUnderline(canvasContext, bar, noteColors, noteCount, frame, rSmall, rBig, borderUnderlineW) {
+    const { x, y, width, height } = frame;
+    const noteStep = width / noteCount;
+    const barBottom = y + height;
+    const lineY = barBottom + height * 0.1; // Slightly below bar
+    const lineWidth = height * 0.15; // Visible thickness
+    // Pass 1.1: Draw Black Borders (Backwards iteration)
+    canvasContext.save();
+    canvasContext.lineCap = "round";
+    canvasContext.strokeStyle = PALETTE.ui.barBorder;
+    canvasContext.lineWidth = lineWidth + borderUnderlineW * 2;
+    for (let i = noteCount - 1; i >= 0; i--) {
+        const noteChar = bar[i];
+        // Only for judgeable notes
+        if (!isJudgeable(noteChar))
+            continue;
+        // Only draw if we have a valid color
+        if (noteColors[i]) {
+            const noteX = x + i * noteStep;
+            const radius = ["3", "4"].includes(noteChar) ? rBig : rSmall;
+            canvasContext.beginPath();
+            canvasContext.moveTo(noteX - radius, lineY);
+            canvasContext.lineTo(noteX + radius, lineY);
+            canvasContext.stroke();
+        }
+    }
+    canvasContext.restore();
+    // Pass 1.2: Draw Colored Lines (Backwards iteration)
+    canvasContext.save();
+    canvasContext.lineCap = "round";
+    canvasContext.lineWidth = lineWidth;
+    for (let i = noteCount - 1; i >= 0; i--) {
+        const noteChar = bar[i];
+        if (!isJudgeable(noteChar))
+            continue;
+        const color = noteColors[i];
+        if (color) {
+            const noteX = x + i * noteStep;
+            const radius = ["3", "4"].includes(noteChar) ? rBig : rSmall;
+            canvasContext.strokeStyle = color;
+            canvasContext.beginPath();
+            canvasContext.moveTo(noteX - radius, lineY);
+            canvasContext.lineTo(noteX + radius, lineY);
+            canvasContext.stroke();
+        }
+    }
+    canvasContext.restore();
+}
+function drawJudgementsText(canvasContext, bar, noteColors, noteCount, frame, rSmall, rBig, texts, judgements, locToJudgementKey, effectiveBarIndex, originalBarIndex) {
+    const { x, width, height } = frame;
+    const centerY = frame.y + frame.height / 2;
+    const noteStep = width / noteCount;
+    canvasContext.save();
+    canvasContext.font = `bold ${rBig * 1.2}px ${FONT_STACK}`;
+    canvasContext.textAlign = "center";
+    canvasContext.textBaseline = "bottom";
+    canvasContext.lineWidth = height * 0.05; // Border width for text
+    canvasContext.strokeStyle = PALETTE.judgements.textBorder;
+    for (let i = 0; i < noteCount; i++) {
+        const noteChar = bar[i];
+        if (!isJudgeable(noteChar))
+            continue;
+        const color = noteColors[i];
+        if (color) {
+            // Look up judgement again
+            const barIdx = effectiveBarIndex !== undefined ? effectiveBarIndex : originalBarIndex;
+            let judge = "";
+            if (locToJudgementKey) {
+                const locKey = { barIndex: barIdx, charIndex: i };
+                const ident = locToJudgementKey.get(locKey);
+                if (ident) {
+                    const jd = judgements.get(ident);
+                    if (jd)
+                        judge = jd.judgement;
+                }
+            }
+            let text = "";
+            if (judge === JudgementType.Perfect)
+                text = texts.judgement.perfect;
+            else if (judge === JudgementType.Good)
+                text = texts.judgement.good;
+            else if (judge === JudgementType.Poor)
+                text = texts.judgement.poor;
+            if (text) {
+                const noteX = x + i * noteStep;
+                const radius = [NoteType.DonBig, NoteType.KaBig].includes(noteChar) ? rBig : rSmall;
+                const noteTopY = centerY - radius;
+                // Slightly above note
+                const textY = noteTopY;
+                canvasContext.strokeText(text, noteX, textY);
+                canvasContext.fillStyle = color;
+                canvasContext.fillText(text, noteX, textY);
+            }
+        }
+    }
+    canvasContext.restore();
+}
+function getNoteStyle(noteChar, rSmall, rBig) {
+    let color = null;
+    let radius = 0;
+    switch (noteChar) {
+        case NoteType.Don:
+            color = PALETTE.notes.don;
+            radius = rSmall;
+            break;
+        case NoteType.Ka:
+            color = PALETTE.notes.ka;
+            radius = rSmall;
+            break;
+        case NoteType.DonBig:
+            color = PALETTE.notes.don;
+            radius = rBig;
+            break;
+        case NoteType.KaBig:
+            color = PALETTE.notes.ka;
+            radius = rBig;
+            break;
+    }
+    return { color, radius };
+}
+function drawBarNotes(renderContext, bar, frame, originalBarIndex = -1, loopInfo, currentBranch, effectiveBarIndex) {
+    const { canvasContext, options, judgements, texts, constants, inferredHands, locToJudgementKey } = renderContext;
+    const { noteRadiusSmall: rSmall, noteRadiusBig: rBig, lineWidthNoteOuter: borderOuterW, lineWidthNoteInner: borderInnerW, lineWidthUnderlineBorder: borderUnderlineW, } = constants;
+    const { viewMode, selection } = options;
+    const { x, width } = frame;
+    const centerY = frame.y + frame.height / 2;
+    const noteCount = bar.length;
+    if (noteCount === 0)
+        return;
+    const noteStep = width / noteCount;
+    // Pre-calculate colors for judgeable notes if needed
+    const noteColors = calculateNoteColors(renderContext, bar, noteCount, originalBarIndex, loopInfo, effectiveBarIndex);
     // Phase 1: Draw Underlines (Judgements Underline Mode only)
     if (viewMode === "judgements-underline") {
-        const barBottom = y + height;
-        const lineY = barBottom + height * 0.1; // Slightly below bar
-        const lineWidth = height * 0.15; // Visible thickness
-        // Pass 1.1: Draw Black Borders (Backwards iteration)
-        ctx.save();
-        ctx.lineCap = "round";
-        ctx.strokeStyle = PALETTE.ui.barBorder;
-        ctx.lineWidth = lineWidth + borderUnderlineW * 2;
-        for (let i = noteCount - 1; i >= 0; i--) {
-            const noteChar = bar[i];
-            // Only for judgeable notes
-            if (!["1", "2", "3", "4"].includes(noteChar))
-                continue;
-            // Only draw if we have a valid color
-            if (noteColors[i]) {
-                const noteX = x + i * noteStep;
-                const radius = ["3", "4"].includes(noteChar) ? rBig : rSmall;
-                ctx.beginPath();
-                ctx.moveTo(noteX - radius, lineY);
-                ctx.lineTo(noteX + radius, lineY);
-                ctx.stroke();
-            }
-        }
-        ctx.restore();
-        // Pass 1.2: Draw Colored Lines (Backwards iteration)
-        ctx.save();
-        ctx.lineCap = "round";
-        ctx.lineWidth = lineWidth;
-        for (let i = noteCount - 1; i >= 0; i--) {
-            const noteChar = bar[i];
-            if (!["1", "2", "3", "4"].includes(noteChar))
-                continue;
-            const color = noteColors[i];
-            if (color) {
-                const noteX = x + i * noteStep;
-                const radius = ["3", "4"].includes(noteChar) ? rBig : rSmall;
-                ctx.strokeStyle = color;
-                ctx.beginPath();
-                ctx.moveTo(noteX - radius, lineY);
-                ctx.lineTo(noteX + radius, lineY);
-                ctx.stroke();
-            }
-        }
-        ctx.restore();
+        drawJudgementsUnderline(canvasContext, bar, noteColors, noteCount, frame, rSmall, rBig, borderUnderlineW);
     }
     // Phase 1.5: Draw Text (Judgements Text Mode only)
     if (viewMode === "judgements-text") {
-        ctx.save();
-        ctx.font = `bold ${rBig * 1.2}px ${FONT_STACK}`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "bottom";
-        ctx.lineWidth = height * 0.05; // Border width for text
-        ctx.strokeStyle = PALETTE.judgements.textBorder;
-        for (let i = 0; i < noteCount; i++) {
-            const noteChar = bar[i];
-            if (!["1", "2", "3", "4"].includes(noteChar))
-                continue;
-            const color = noteColors[i];
-            if (color) {
-                // Look up judgement again
-                const barIdx = effectiveBarIndex !== undefined ? effectiveBarIndex : originalBarIndex;
-                let judge = "";
-                if (noteOrdinals) {
-                    const ordinal = noteOrdinals.get(`${barIdx}_${i}`);
-                    if (ordinal !== undefined) {
-                        const jd = judgements.get(createJudgementKey(noteChar, ordinal));
-                        if (jd)
-                            judge = jd.judgement;
-                    }
-                }
-                let text = "";
-                if (judge === JudgementType.Perfect)
-                    text = texts.judgement.perfect;
-                else if (judge === JudgementType.Good)
-                    text = texts.judgement.good;
-                else if (judge === JudgementType.Poor)
-                    text = texts.judgement.poor;
-                if (text) {
-                    const noteX = x + i * noteStep;
-                    const noteTopY = centerY - (["3", "4"].includes(noteChar) ? rBig : rSmall);
-                    // Slightly above note
-                    const textY = noteTopY;
-                    ctx.strokeText(text, noteX, textY);
-                    ctx.fillStyle = color;
-                    ctx.fillText(text, noteX, textY);
-                }
-            }
-        }
-        ctx.restore();
+        drawJudgementsText(canvasContext, bar, noteColors, noteCount, frame, rSmall, rBig, texts, judgements, locToJudgementKey, effectiveBarIndex, originalBarIndex);
     }
     // Phase 2: Draw Note Heads
     for (let i = noteCount - 1; i >= 0; i--) {
         const noteChar = bar[i];
         const noteX = x + i * noteStep;
-        let color = null;
-        let radius = 0;
-        switch (noteChar) {
-            case "1": // Don (Red Small)
-                color = PALETTE.notes.don;
-                radius = rSmall;
-                break;
-            case "2": // Ka (Blue Small)
-                color = PALETTE.notes.ka;
-                radius = rSmall;
-                break;
-            case "3": // Don (Red Big)
-                color = PALETTE.notes.don;
-                radius = rBig;
-                break;
-            case "4": // Ka (Blue Big)
-                color = PALETTE.notes.ka;
-                radius = rBig;
-                break;
-        }
+        const style = getNoteStyle(noteChar, rSmall, rBig);
+        let color = style.color;
+        const radius = style.radius;
         if (color) {
-            let borderColor = PALETTE.notes.border.white; // Default white border
+            let borderColor = PALETTE.notes.border.white;
             if (viewMode === "judgements") {
-                color = PALETTE.notes.unjudged; // Default unjudged fill color (Grey)
-                borderColor = PALETTE.notes.border.grey; // Default unjudged border color (Grey)
+                color = PALETTE.notes.unjudged;
+                borderColor = PALETTE.notes.border.grey;
                 const assignedColor = noteColors[i];
                 if (assignedColor) {
                     color = assignedColor;
-                    borderColor = PALETTE.notes.border.white; // Revert to standard white border for judged notes
+                    // Revert to standard white border for judged notes
+                    borderColor = PALETTE.notes.border.white;
                 }
             }
             // Note: In judgements-underline mode, we keep original colors (Red/Blue) and white border
             // The underline is drawn in Phase 1.
-            ctx.beginPath();
-            ctx.arc(noteX, centerY, radius, 0, Math.PI * 2);
+            canvasContext.beginPath();
+            canvasContext.arc(noteX, centerY, radius, 0, Math.PI * 2);
             // Black border (outside)
             let effectiveBorderOuterW = borderOuterW;
             let effectiveBorderInnerW = borderInnerW;
             let effectiveInnerBorderColor = borderColor;
             const isSelected = isNoteSelected(originalBarIndex, i, selection);
             const isHovered = options.hoveredNote &&
-                options.hoveredNote.originalBarIndex === originalBarIndex &&
+                options.hoveredNote.barIndex === originalBarIndex &&
                 options.hoveredNote.charIndex === i &&
                 options.hoveredNote.branch === currentBranch; // Match branch
             if (isSelected) {
@@ -1714,73 +1588,74 @@ function drawBarNotes(ctx, bar, x, y, width, height, rSmall, rBig, borderOuterW,
             else if (isHovered) {
                 effectiveInnerBorderColor = PALETTE.notes.border.yellow;
             }
-            ctx.lineWidth = effectiveBorderOuterW;
-            ctx.strokeStyle = PALETTE.notes.border.black;
-            ctx.stroke();
-            ctx.fillStyle = color;
-            ctx.fill();
-            ctx.lineWidth = effectiveBorderInnerW;
-            ctx.strokeStyle = effectiveInnerBorderColor; // Dynamic border
-            ctx.stroke();
+            canvasContext.lineWidth = effectiveBorderOuterW;
+            canvasContext.strokeStyle = PALETTE.notes.border.black;
+            canvasContext.stroke();
+            canvasContext.fillStyle = color;
+            canvasContext.fill();
+            canvasContext.lineWidth = effectiveBorderInnerW;
+            canvasContext.strokeStyle = effectiveInnerBorderColor; // Dynamic border
+            canvasContext.stroke();
             // Annotation Rendering
-            if (options.isAnnotationMode && options.annotations && ["1", "2", "3", "4"].includes(noteChar)) {
-                const noteId = `${originalBarIndex}_${i}`;
-                const annotation = options.annotations[noteId];
+            if (options.isAnnotationMode && options.annotations && isJudgeable(noteChar)) {
+                const noteId = { barIndex: originalBarIndex, charIndex: i };
+                const annotation = options.annotations.get(noteId);
                 if (annotation) {
                     let textColor = PALETTE.ui.annotation.match;
                     if (inferredHands) {
                         const inferred = inferredHands.get(noteId);
                         if (inferred && inferred !== annotation) {
-                            textColor = PALETTE.ui.annotation.mismatch; // Red if mismatch
+                            textColor = PALETTE.ui.annotation.mismatch;
                         }
                     }
-                    ctx.save();
+                    canvasContext.save();
                     // Larger size
-                    ctx.font = `bold ${rBig * 1.5}px ${FONT_STACK}`;
-                    ctx.fillStyle = textColor;
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "bottom";
+                    canvasContext.font = `bold ${rBig * 1.5}px ${FONT_STACK}`;
+                    canvasContext.fillStyle = textColor;
+                    canvasContext.textAlign = "center";
+                    canvasContext.textBaseline = "bottom";
                     // Position at the top of the bar, similar to bar numbers
-                    const textY = y;
-                    ctx.fillText(annotation, noteX, textY);
-                    ctx.restore();
+                    const textY = frame.y;
+                    canvasContext.fillText(annotation, noteX, textY);
+                    canvasContext.restore();
                 }
             }
         }
     }
 }
-function drawBarLabels(ctx, originalBarIndex, x, y, width, height, numFontSize, statusFontSize, offsetY, params, noteCount, isFirstBar, barBorderWidth, isBranchStart = false) {
-    ctx.save();
+function drawBarLabels(canvasContext, frame, originalBarIndex, numFontSize, statusFontSize, offsetY, params, noteCount, isFirstBar, barBorderWidth, isBranchStart = false) {
+    const { x, y, width, height } = frame;
+    canvasContext.save();
     const lineHeight = statusFontSize;
     // Stack: BarNum (0), BPM (1), HS (2)
     // Baseline of HS is: y - offsetY - 2 * lineHeight
     // Top of HS is approx: y - offsetY - 3 * lineHeight
     const topY = y - offsetY - 3 * lineHeight;
     // Draw Bar Line Extensions (Left and Right)
-    ctx.lineWidth = barBorderWidth;
+    canvasContext.lineWidth = barBorderWidth;
     // Left Extension
-    ctx.beginPath();
-    ctx.strokeStyle = isBranchStart ? PALETTE.branches.startLine : PALETTE.ui.barVerticalLine;
-    ctx.moveTo(x, y);
-    ctx.lineTo(x, topY);
-    ctx.stroke();
+    canvasContext.beginPath();
+    canvasContext.strokeStyle = isBranchStart ? PALETTE.branches.startLine : PALETTE.ui.barVerticalLine;
+    canvasContext.moveTo(x, y);
+    canvasContext.lineTo(x, topY);
+    canvasContext.stroke();
     // Right Extension
-    ctx.beginPath();
-    ctx.strokeStyle = PALETTE.ui.barVerticalLine;
-    ctx.moveTo(x + width, y);
-    ctx.lineTo(x + width, topY);
-    ctx.stroke();
+    canvasContext.beginPath();
+    canvasContext.strokeStyle = PALETTE.ui.barVerticalLine;
+    canvasContext.moveTo(x + width, y);
+    canvasContext.lineTo(x + width, topY);
+    canvasContext.stroke();
     // Text Padding
     const textPadding = statusFontSize * 0.2;
     // 1. Draw Bar Number
-    ctx.font = `bold ${numFontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
-    ctx.fillStyle = PALETTE.text.label;
-    ctx.textAlign = "left";
-    ctx.textBaseline = "bottom";
+    canvasContext.font = `bold ${numFontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
+    canvasContext.fillStyle = PALETTE.text.label;
+    canvasContext.textAlign = "left";
+    canvasContext.textBaseline = "bottom";
     const barNumY = y - offsetY;
-    ctx.fillText((originalBarIndex + 1).toString(), x + textPadding, barNumY);
+    canvasContext.fillText((originalBarIndex + 1).toString(), x + textPadding, barNumY);
     if (!params) {
-        ctx.restore();
+        canvasContext.restore();
         return;
     }
     const labels = [];
@@ -1805,13 +1680,13 @@ function drawBarLabels(ctx, originalBarIndex, x, y, width, height, numFontSize, 
         }
     }
     if (labels.length === 0) {
-        ctx.restore();
+        canvasContext.restore();
         return;
     }
     const bpmY = barNumY - lineHeight;
     const hsY = bpmY - lineHeight;
-    ctx.font = `bold ${statusFontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
-    // Process Mid-Bar Lines (Dark Grey)
+    canvasContext.font = `bold ${statusFontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
+    // Process Mid-Bar Lines
     // Collect unique indices > 0
     const changeIndices = new Set();
     labels.forEach((l) => {
@@ -1819,15 +1694,15 @@ function drawBarLabels(ctx, originalBarIndex, x, y, width, height, numFontSize, 
             changeIndices.add(l.index);
     });
     if (changeIndices.size > 0 && noteCount > 0) {
-        ctx.beginPath();
-        ctx.strokeStyle = PALETTE.status.line; // Dark Grey
-        ctx.lineWidth = barBorderWidth * 0.8; // Slightly thinner
+        canvasContext.beginPath();
+        canvasContext.strokeStyle = PALETTE.status.line;
+        canvasContext.lineWidth = barBorderWidth * 0.8; // Slightly thinner
         changeIndices.forEach((idx) => {
             const lineX = x + (idx / noteCount) * width;
-            ctx.moveTo(lineX, y + height); // From bottom of bar
-            ctx.lineTo(lineX, topY); // To top of labels
+            canvasContext.moveTo(lineX, y + height); // From bottom of bar
+            canvasContext.lineTo(lineX, topY); // To top of labels
         });
-        ctx.stroke();
+        canvasContext.stroke();
     }
     // Render Text
     for (const label of labels) {
@@ -1838,38 +1713,23 @@ function drawBarLabels(ctx, originalBarIndex, x, y, width, height, numFontSize, 
         // Shift text
         const drawX = labelX + textPadding;
         if (label.type === "BPM") {
-            ctx.fillStyle = PALETTE.status.bpm;
-            ctx.fillText(`BPM ${label.val}`, drawX, bpmY);
+            canvasContext.fillStyle = PALETTE.status.bpm;
+            canvasContext.fillText(`BPM ${label.val}`, drawX, bpmY);
         }
         else if (label.type === "HS") {
-            ctx.fillStyle = PALETTE.status.hs;
-            ctx.fillText(`HS ${label.val}`, drawX, hsY);
+            canvasContext.fillStyle = PALETTE.status.hs;
+            canvasContext.fillText(`HS ${label.val}`, drawX, hsY);
         }
     }
-    ctx.restore();
+    canvasContext.restore();
 }
-function drawGogoIndicator(ctx, x, y, height, width, gogoTime, gogoChanges, noteCount, drawLeftExt = false, drawRightExt = false, overExtendWidth = 0) {
+function drawGogoIndicator(canvasContext, frame, gogoTime, gogoChanges, noteCount, drawLeftExt = false, drawRightExt = false, overExtendWidth = 0) {
+    const { x, y, width, height } = frame;
     const GOGO_COLOR = PALETTE.gogo;
     // Helper for extensions
     const drawExtension = (exX, exW, isLeft) => {
-        const grad = ctx.createLinearGradient(exX, y, exX + exW, y);
-        const cSolid = hexToRgba(GOGO_COLOR, 1);
-        const cMid = hexToRgba(GOGO_COLOR, 0.2);
-        const cTrans = hexToRgba(GOGO_COLOR, 0);
-        if (isLeft) {
-            grad.addColorStop(0, cTrans);
-            grad.addColorStop(0.25, cMid);
-            grad.addColorStop(0.5, cSolid);
-            grad.addColorStop(1, cSolid);
-        }
-        else {
-            grad.addColorStop(0, cSolid);
-            grad.addColorStop(0.5, cSolid);
-            grad.addColorStop(0.75, cMid);
-            grad.addColorStop(1, cTrans);
-        }
-        ctx.fillStyle = grad;
-        ctx.fillRect(exX, y, exW, height);
+        const direction = isLeft ? "left" : "right";
+        drawGradientRect(canvasContext, exX, y, exW, height, GOGO_COLOR, direction);
     };
     const isStartGogo = gogoTime;
     let isEndGogo = gogoTime;
@@ -1883,22 +1743,22 @@ function drawGogoIndicator(ctx, x, y, height, width, gogoTime, gogoChanges, note
         for (const change of sortedChanges) {
             const nextX = x + (change.index / noteCount) * width;
             if (nextX > currentX && isGogo) {
-                ctx.fillStyle = GOGO_COLOR;
-                ctx.fillRect(currentX, y, nextX - currentX, height);
+                canvasContext.fillStyle = GOGO_COLOR;
+                canvasContext.fillRect(currentX, y, nextX - currentX, height);
             }
             currentX = nextX;
             isGogo = change.isGogo;
         }
         if (currentX < x + width && isGogo) {
-            ctx.fillStyle = GOGO_COLOR;
-            ctx.fillRect(currentX, y, x + width - currentX, height);
+            canvasContext.fillStyle = GOGO_COLOR;
+            canvasContext.fillRect(currentX, y, x + width - currentX, height);
         }
     }
     else {
         // Simple Case
         if (gogoTime) {
-            ctx.fillStyle = GOGO_COLOR;
-            ctx.fillRect(x, y, width, height);
+            canvasContext.fillStyle = GOGO_COLOR;
+            canvasContext.fillRect(x, y, width, height);
         }
     }
     // Draw Extensions

@@ -44,7 +44,7 @@ export async function shareFile(fileName, content, mimeType, dialogTitle) {
                     await N.filesystem.writeFile(entry, content);
                 }
                 else {
-                    await N.filesystem.writeBinaryFile(entry, content);
+                    await N.filesystem.writeBinaryFile(entry, content.buffer);
                 }
                 return;
             }

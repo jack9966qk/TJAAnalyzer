@@ -12,7 +12,7 @@ import "./components/view-options.js"; // Ensure side-effect
 import "./components/changelog-panel.js";
 import { refreshChart, updateBranchSelectorState, updateCollapseLoopState, updateParsedCharts, updateSelectionUI, updateStatsComponent, } from "./controllers/chart-controller.js";
 import { handleLayoutToggle, updateLayout } from "./controllers/layout-controller.js";
-import { createJudgementKey } from "./core/renderer.js";
+import { createJudgementKey, } from "./core/renderer.js";
 import { appState } from "./state/app-state.js";
 import { i18n } from "./utils/i18n.js";
 import { chartListPanel, chartModeStatus, courseBranchSelect, doPanes, doTabs, dsBody, dsCollapseBtn, dsPanes, dsTabs, languageSelector, layoutToggleBtn, optionsBody, optionsCollapseBtn, statusDisplay, tjaChart, } from "./view/ui-elements.js";
@@ -305,9 +305,7 @@ function initEventListeners() {
         // Update Hover Style
         const viewOptionsEl = document.querySelector("view-options");
         const isStatsVisible = viewOptionsEl?.statsVisible ?? false;
-        const newHoveredNote = isStatsVisible && hit
-            ? { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex, branch: hit.branch }
-            : null;
+        const newHoveredNote = isStatsVisible && hit ? { barIndex: hit.originalBarIndex, charIndex: hit.charIndex, branch: hit.branch } : null;
         const currentHovered = appState.viewOptions.hoveredNote;
         let changed = false;
         if (!currentHovered && !newHoveredNote) {
@@ -318,7 +316,7 @@ function initEventListeners() {
         }
         else {
             changed =
-                currentHovered.originalBarIndex !== newHoveredNote.originalBarIndex ||
+                currentHovered.barIndex !== newHoveredNote.barIndex ||
                     currentHovered.charIndex !== newHoveredNote.charIndex ||
                     currentHovered.branch !== newHoveredNote.branch;
         }
@@ -345,25 +343,25 @@ function initEventListeners() {
         if (hit) {
             if (!appState.viewOptions.selection) {
                 appState.viewOptions.selection = {
-                    start: { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex },
+                    start: { barIndex: hit.originalBarIndex, charIndex: hit.charIndex },
                     end: null,
                 };
                 appState.selectedNoteHitInfo = hit;
             }
             else if (appState.viewOptions.selection.start && !appState.viewOptions.selection.end) {
-                if (appState.viewOptions.selection.start.originalBarIndex === hit.originalBarIndex &&
+                if (appState.viewOptions.selection.start.barIndex === hit.originalBarIndex &&
                     appState.viewOptions.selection.start.charIndex === hit.charIndex) {
                     appState.viewOptions.selection = null;
                     appState.selectedNoteHitInfo = null;
                 }
                 else {
-                    appState.viewOptions.selection.end = { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex };
+                    appState.viewOptions.selection.end = { barIndex: hit.originalBarIndex, charIndex: hit.charIndex };
                     appState.selectedNoteHitInfo = hit;
                 }
             }
             else {
                 appState.viewOptions.selection = {
-                    start: { originalBarIndex: hit.originalBarIndex, charIndex: hit.charIndex },
+                    start: { barIndex: hit.originalBarIndex, charIndex: hit.charIndex },
                     end: null,
                 };
                 appState.selectedNoteHitInfo = hit;
@@ -426,6 +424,7 @@ function initJudgementClient() {
     appState.judgementClient.onStatusChange((status) => {
         if (status === "Connected") {
             appState.isStreamConnected = true;
+            switchDisplayOptionTab("judgements");
             // Reset for new connection session
             appState.hasReceivedGameStart = false;
             if (appState.isSimulating) {
@@ -535,7 +534,6 @@ window.loadTJAContent = (content) => {
     updateParsedCharts(content);
     updateStatus("status.fileLoaded");
 };
-// biome-ignore lint/suspicious/noExplicitAny: Test helper
 window.setViewOptions = (opts) => {
     appState.viewOptions = { ...appState.viewOptions, ...opts };
     refreshChart();

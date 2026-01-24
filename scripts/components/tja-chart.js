@@ -1,13 +1,13 @@
 import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "webjsx/jsx-runtime";
 import * as webjsx from "webjsx";
 import { generateAutoAnnotations } from "../core/auto-annotation.js";
-import { createLayout, getNoteAt, getNotePosition, PALETTE, renderChart, renderLayout, } from "../core/renderer.js";
+import { createLayout, getNoteAt, getNotePosition, JUDGEABLE_NOTES, JudgementMap, LocationMap, PALETTE, renderChart, renderLayout, } from "../core/renderer.js";
 export class TJAChart extends HTMLElement {
     canvas;
     messageContainer;
     _chart = null;
     _viewOptions = null;
-    _judgements = new Map();
+    _judgements = new JudgementMap();
     _texts;
     _message = null;
     resizeObserver;
@@ -15,7 +15,7 @@ export class TJAChart extends HTMLElement {
     _renderTask = null;
     _pendingFullRender = true;
     _layout = null;
-    _renderedJudgements = new Map();
+    _renderedJudgements = new JudgementMap();
     constructor() {
         super();
         this.attachShadow({ mode: "open" });
@@ -208,14 +208,14 @@ export class TJAChart extends HTMLElement {
             if (changedKeys.length > 0) {
                 dirtyRowY = new Set();
                 const grid = this._layout.noteOrdinalToGrid;
-                const layouts = this._layout.layouts;
+                const barFrames = this._layout.barFrames;
                 for (const key of changedKeys) {
                     const locations = grid.get(key);
                     if (locations) {
                         for (const loc of locations) {
-                            const barLayout = layouts[loc.virtualBarIdx];
-                            if (barLayout) {
-                                dirtyRowY.add(barLayout.y);
+                            const frame = barFrames[loc.virtualBarIdx];
+                            if (frame) {
+                                dirtyRowY.add(frame.y);
                             }
                         }
                     }
@@ -231,11 +231,11 @@ export class TJAChart extends HTMLElement {
             // Update cache
             if (!dirtyRowY) {
                 // Full render, sync completely
-                this._renderedJudgements = new Map(this._judgements);
+                this._renderedJudgements = new JudgementMap(this._judgements);
             }
             else {
                 // Partial render, sync completely (easier than patching)
-                this._renderedJudgements = new Map(this._judgements);
+                this._renderedJudgements = new JudgementMap(this._judgements);
             }
         }
     }
@@ -273,16 +273,19 @@ export class TJAChart extends HTMLElement {
         const hit = getNoteAt(x, y, this._chart, this.canvas, this._judgements, this._viewOptions, this._layout || undefined);
         // Handle Annotation Mode Click
         if (this._viewOptions.isAnnotationMode) {
-            if (hit && ["1", "2", "3", "4"].includes(hit.type)) {
-                const noteId = `${hit.originalBarIndex}_${hit.charIndex}`;
-                const annotations = { ...(this._viewOptions.annotations || {}) };
-                const current = annotations[noteId];
+            if (hit && JUDGEABLE_NOTES.includes(hit.type)) {
+                const noteId = { barIndex: hit.originalBarIndex, charIndex: hit.charIndex };
+                // Clone is not strictly necessary for mutation if we just update the map instance in place,
+                // but for safety/reactivity we might want to clone.
+                // However, LocationMap copy constructor handles it.
+                const annotations = new LocationMap(this._viewOptions.annotations);
+                const current = annotations.get(noteId);
                 if (!current)
-                    annotations[noteId] = "L";
+                    annotations.set(noteId, "L");
                 else if (current === "L")
-                    annotations[noteId] = "R";
+                    annotations.set(noteId, "R");
                 else
-                    delete annotations[noteId];
+                    annotations.delete(noteId);
                 this.dispatchEvent(new CustomEvent("annotations-change", {
                     detail: annotations,
                     bubbles: true,
@@ -300,7 +303,7 @@ export class TJAChart extends HTMLElement {
     autoAnnotate() {
         if (!this._chart)
             return;
-        const currentAnnotations = this._viewOptions?.annotations || {};
+        const currentAnnotations = this._viewOptions?.annotations || new LocationMap();
         const newAnnotations = generateAutoAnnotations(this._chart, currentAnnotations);
         this.dispatchEvent(new CustomEvent("annotations-change", {
             detail: newAnnotations,
@@ -318,8 +321,7 @@ export class TJAChart extends HTMLElement {
         // We want the final image to be exactly 1024px wide.
         // We force DPR to 1 so that logical width == physical width.
         canvas.width = TARGET_WIDTH;
-        renderChart(this._chart, canvas, this._judgements, options, this._texts || { loopPattern: "Loop x{n}", judgement: { perfect: "良", good: "可", poor: "不可" } }, // Fallback defaults if not set
-        1);
+        renderChart(this._chart, canvas, this._judgements, options, this._texts, 1);
         return canvas.toDataURL("image/png");
     }
 }

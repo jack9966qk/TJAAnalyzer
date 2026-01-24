@@ -1,8 +1,46 @@
-import { calculateInferredHands } from "./renderer.js";
+import { JUDGEABLE_NOTES, LocationMap, NoteType } from "./primitives.js";
+export function calculateInferredHands(bars, annotations) {
+    const inferred = new LocationMap();
+    let lastHand = "L"; // Initialize to L so the first note (which triggers reset or flip) can become R
+    let shouldResetToRight = true;
+    for (let i = 0; i < bars.length; i++) {
+        const bar = bars[i];
+        if (!bar)
+            continue;
+        for (let j = 0; j < bar.length; j++) {
+            const char = bar[j];
+            const noteId = { barIndex: i, charIndex: j };
+            if (JUDGEABLE_NOTES.includes(char)) {
+                let currentInferred = "R";
+                if (shouldResetToRight) {
+                    currentInferred = "R";
+                    shouldResetToRight = false;
+                }
+                else {
+                    currentInferred = lastHand === "R" ? "L" : "R";
+                }
+                inferred.set(noteId, currentInferred);
+                // Determine source of truth for next note
+                const annotation = annotations?.get(noteId);
+                if (annotation) {
+                    lastHand = annotation;
+                }
+                else {
+                    lastHand = currentInferred;
+                }
+            }
+            else if (char === NoteType.End) {
+                // End of drumroll/balloon/kusudama
+                shouldResetToRight = true;
+            }
+        }
+    }
+    return inferred;
+}
 export function generateAutoAnnotations(chart, existingAnnotations) {
     // Clone existing annotations to avoid side-effects if not desired,
     // though the caller can handle that. We'll return a new object with updates.
-    const annotations = { ...existingAnnotations };
+    const annotations = new LocationMap(existingAnnotations);
     const inferred = calculateInferredHands(chart.bars, annotations);
     const notes = [];
     let currentBeat = 0;
@@ -17,8 +55,8 @@ export function generateAutoAnnotations(chart, existingAnnotations) {
             for (let j = 0; j < bar.length; j++) {
                 const char = bar[j];
                 // Only Don/Ka (Small/Large) are annotatable
-                if (["1", "2", "3", "4"].includes(char)) {
-                    const id = `${i}_${j}`;
+                if (JUDGEABLE_NOTES.includes(char)) {
+                    const id = { barIndex: i, charIndex: j };
                     const hand = inferred.get(id);
                     if (hand) {
                         notes.push({ id, beat: currentBeat + j * step, hand, type: char });
@@ -29,7 +67,7 @@ export function generateAutoAnnotations(chart, existingAnnotations) {
         currentBeat += barLengthBeats;
     }
     // Identify notes to annotate
-    const toAnnotate = new Set();
+    const toAnnotate = new LocationMap(); // Use Map as Set
     const segments = [];
     let currentSegment = [];
     for (let k = 0; k < notes.length; k++) {
@@ -75,15 +113,13 @@ export function generateAutoAnnotations(chart, existingAnnotations) {
         if (seg.notes.length === 0)
             continue;
         const first = seg.notes[0];
-        const [barIdxStr] = first.id.split("_");
-        const barIdx = parseInt(barIdxStr, 10);
-        const params = chart.barParams[barIdx];
+        const params = chart.barParams[first.id.barIndex];
         const measureRatio = params ? params.measureRatio : 1.0;
         const quarterNote = measureRatio;
         if (seg.gap < quarterNote - 0.0001) {
-            toAnnotate.add(first.id);
+            toAnnotate.set(first.id, true);
             // Check for 3 opposite color notes before
-            const getColor = (c) => (c === "1" || c === "3" ? "d" : "k");
+            const getColor = (c) => (c === NoteType.Don || c === NoteType.DonBig ? "d" : "k");
             for (let i = 3; i < seg.notes.length; i++) {
                 const current = seg.notes[i];
                 const prev1 = seg.notes[i - 1];
@@ -94,17 +130,17 @@ export function generateAutoAnnotations(chart, existingAnnotations) {
                 const c2 = getColor(prev2.type);
                 const c3 = getColor(prev3.type);
                 if (c1 === c2 && c2 === c3 && c1 !== cCurr) {
-                    toAnnotate.add(current.id);
+                    toAnnotate.set(current.id, true);
                 }
             }
         }
     }
     // Update annotations
-    toAnnotate.forEach((id) => {
+    for (const [id] of toAnnotate) {
         const hand = inferred.get(id);
         if (hand) {
-            annotations[id] = hand;
+            annotations.set(id, hand);
         }
-    });
+    }
     return annotations;
 }
