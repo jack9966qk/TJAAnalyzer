@@ -564,7 +564,16 @@ function initLoad() {
   initializePanelVisibility();
 }
 
-function init(): void {
+function init() {
+  if (typeof window.Neutralino !== "undefined") {
+    try {
+      window.Neutralino.init();
+    } catch (e) {
+      console.warn("Neutralino init failed", e);
+    }
+  } else {
+    console.log("Neutralino lib not found");
+  }
   initLayout();
 
   initEventListeners();

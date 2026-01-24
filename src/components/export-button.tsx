@@ -1,3 +1,4 @@
+import type { MessageBoxChoice } from "@neutralinojs/lib";
 import * as webjsx from "webjsx";
 import { generateTJAFromSelection } from "../core/tja-exporter.js";
 import { appState } from "../state/app-state.js";
@@ -120,6 +121,11 @@ export class ExportButton extends HTMLElement {
         await this.transitionToResult(async () => "success");
       }
     } catch (e) {
+      if (e instanceof Error && e.message === "Cancelled by user") {
+        this.status = "idle";
+        this.render();
+        return;
+      }
       console.error("Export failed:", e);
       await this.transitionToResult(async () => "error");
     }
@@ -214,8 +220,7 @@ export class ExportButton extends HTMLElement {
       const button = await os.showMessageBox(
         "Overwrite?",
         `Directory "${name}" already exists. Overwrite?`,
-        window.Neutralino.MessageBoxChoice.YES_NO,
-        window.Neutralino.Icon.QUESTION,
+        "YES_NO" as MessageBoxChoice,
       );
       if (button !== "YES") throw new Error("Cancelled by user");
     }
@@ -236,6 +241,13 @@ export class ExportButton extends HTMLElement {
         await fs.createDirectory(targetDir);
       } catch (_e) {
         // Ignore
+      }
+
+      // Check if directory exists now
+      try {
+        await fs.getStats(targetDir);
+      } catch (_e) {
+        throw new Error(`Failed to create directory: ${targetDir}`);
       }
 
       // Write file
