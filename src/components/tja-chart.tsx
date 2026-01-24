@@ -440,7 +440,7 @@ export class TJAChart extends HTMLElement {
       canvas,
       this._judgements,
       options,
-      this._texts || { loopPattern: "Loop x{n}", judgement: { perfect: "良", good: "可", poor: "不可" } }, // Fallback defaults if not set
+      this._texts,
       1,
     );
 

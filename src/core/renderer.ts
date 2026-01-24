@@ -1,19 +1,7 @@
 import type { BarParams, GogoChange, LoopInfo, ParsedChart } from "./tja-parser.js";
-
-export enum JudgementType {
-  Perfect = "perfect",
-  Great = "great",
-  Good = "good",
-  Poor = "poor",
-  Miss = "miss",
-  Bad = "bad",
-  Auto = "auto",
-  Adlib = "adlib",
-  Mine = "mine",
-}
-
 import { calculateInferredHands } from "./auto-annotation.js";
 import {
+  BIG_NOTES,
   createJudgementKey,
   createNoteLocation,
   JUDGEABLE_NOTES,
@@ -36,6 +24,18 @@ export {
   JUDGEABLE_NOTES,
   RENDERABLE_NOTES,
 };
+
+export enum JudgementType {
+  Perfect = "perfect",
+  Great = "great",
+  Good = "good",
+  Poor = "poor",
+  Miss = "miss",
+  Bad = "bad",
+  Auto = "auto",
+  Adlib = "adlib",
+  Mine = "mine",
+}
 
 export interface JudgementValue {
   judgement: string;
@@ -112,6 +112,23 @@ export const PALETTE = {
 };
 
 const FONT_STACK = "'Hiragino Kaku Gothic ProN', 'Meiryo', 'Yu Gothic', sans-serif";
+const PADDING: number = 20;
+
+const LAYOUT_RATIOS = {
+  barHeight: 0.14,
+  rowSpacing: 0.16,
+  noteRadiusSmall: 0.035,
+  noteRadiusBig: 0.05,
+  lineWidthBarBorder: 0.01,
+  lineWidthCenter: 0.005,
+  lineWidthNoteOuter: 0.022,
+  lineWidthNoteInner: 0.0075,
+  lineWidthUnderlineBorder: 0.008,
+  barNumberFontSize: 0.045,
+  statusFontSize: 0.045,
+  barNumberOffsetY: 0.005,
+  headerHeight: 0.35,
+};
 
 // Helper types for renderer and hit testing
 export interface RenderBarInfo {
@@ -130,19 +147,19 @@ export interface Frame {
 }
 
 export interface RenderConstants {
-  BAR_HEIGHT: number;
-  ROW_SPACING: number;
-  NOTE_RADIUS_SMALL: number;
-  NOTE_RADIUS_BIG: number;
-  LW_BAR: number;
-  LW_CENTER: number;
-  LW_NOTE_OUTER: number;
-  LW_NOTE_INNER: number;
-  LW_UNDERLINE_BORDER: number;
-  BAR_NUMBER_FONT_SIZE: number;
-  STATUS_FONT_SIZE: number;
-  BAR_NUMBER_OFFSET_Y: number;
-  HEADER_HEIGHT: number;
+  barHeight: number;
+  rowSpacing: number;
+  noteRadiusSmall: number;
+  noteRadiusBig: number;
+  lineWidthBarBorder: number;
+  lineWidthCenter: number;
+  lineWidthNoteOuter: number;
+  lineWidthNoteInner: number;
+  lineWidthUnderlineBorder: number;
+  barNumberFontSize: number;
+  statusFontSize: number;
+  barNumberOffsetY: number;
+  headerHeight: number;
 }
 
 export interface ChartLayout {
@@ -184,24 +201,6 @@ export interface ViewOptions {
   annotations?: LocationMap<string>;
   isAnnotationMode?: boolean;
 }
-
-// Configuration Constants
-const PADDING: number = 20;
-const RATIOS = {
-  BAR_HEIGHT: 0.14,
-  ROW_SPACING: 0.16,
-  NOTE_RADIUS_SMALL: 0.035,
-  NOTE_RADIUS_BIG: 0.05,
-  LINE_WIDTH_BAR_BORDER: 0.01,
-  LINE_WIDTH_CENTER: 0.005,
-  LINE_WIDTH_NOTE_OUTER: 0.022,
-  LINE_WIDTH_NOTE_INNER: 0.0075,
-  LINE_WIDTH_UNDERLINE_BORDER: 0.008,
-  BAR_NUMBER_FONT_SIZE_RATIO: 0.045,
-  STATUS_FONT_SIZE_RATIO: 0.045,
-  BAR_NUMBER_OFFSET_Y_RATIO: 0.005,
-  HEADER_HEIGHT: 0.35,
-};
 
 export interface RenderTexts {
   loopPattern: string; // e.g. "Loop x{n}"
@@ -392,25 +391,21 @@ function calculateLayout(
   // Number of base bars per row = beatsPerLine / 4
   const baseBarWidth: number = availableWidth / (options.beatsPerLine / 4);
 
-  // Base dimensions for a SINGLE lane
-  const BASE_LANE_HEIGHT = baseBarWidth * RATIOS.BAR_HEIGHT;
-  const ROW_SPACING = baseBarWidth * RATIOS.ROW_SPACING;
-
   // Constants for drawing
   const constants = {
-    BAR_HEIGHT: BASE_LANE_HEIGHT,
-    ROW_SPACING,
-    NOTE_RADIUS_SMALL: baseBarWidth * RATIOS.NOTE_RADIUS_SMALL,
-    NOTE_RADIUS_BIG: baseBarWidth * RATIOS.NOTE_RADIUS_BIG,
-    LW_BAR: baseBarWidth * RATIOS.LINE_WIDTH_BAR_BORDER,
-    LW_CENTER: baseBarWidth * RATIOS.LINE_WIDTH_CENTER,
-    LW_NOTE_OUTER: baseBarWidth * RATIOS.LINE_WIDTH_NOTE_OUTER,
-    LW_NOTE_INNER: baseBarWidth * RATIOS.LINE_WIDTH_NOTE_INNER,
-    LW_UNDERLINE_BORDER: baseBarWidth * RATIOS.LINE_WIDTH_UNDERLINE_BORDER,
-    BAR_NUMBER_FONT_SIZE: baseBarWidth * RATIOS.BAR_NUMBER_FONT_SIZE_RATIO,
-    STATUS_FONT_SIZE: baseBarWidth * RATIOS.STATUS_FONT_SIZE_RATIO,
-    BAR_NUMBER_OFFSET_Y: baseBarWidth * RATIOS.BAR_NUMBER_OFFSET_Y_RATIO,
-    HEADER_HEIGHT: baseBarWidth * RATIOS.HEADER_HEIGHT,
+    barHeight: baseBarWidth * LAYOUT_RATIOS.barHeight,
+    rowSpacing: baseBarWidth * LAYOUT_RATIOS.rowSpacing,
+    noteRadiusSmall: baseBarWidth * LAYOUT_RATIOS.noteRadiusSmall,
+    noteRadiusBig: baseBarWidth * LAYOUT_RATIOS.noteRadiusBig,
+    lineWidthBarBorder: baseBarWidth * LAYOUT_RATIOS.lineWidthBarBorder,
+    lineWidthCenter: baseBarWidth * LAYOUT_RATIOS.lineWidthCenter,
+    lineWidthNoteOuter: baseBarWidth * LAYOUT_RATIOS.lineWidthNoteOuter,
+    lineWidthNoteInner: baseBarWidth * LAYOUT_RATIOS.lineWidthNoteInner,
+    lineWidthUnderlineBorder: baseBarWidth * LAYOUT_RATIOS.lineWidthUnderlineBorder,
+    barNumberFontSize: baseBarWidth * LAYOUT_RATIOS.barNumberFontSize,
+    statusFontSize: baseBarWidth * LAYOUT_RATIOS.statusFontSize,
+    barNumberOffsetY: baseBarWidth * LAYOUT_RATIOS.barNumberOffsetY,
+    headerHeight: baseBarWidth * LAYOUT_RATIOS.headerHeight,
   };
 
   // 2. Calculate Layout Positions
@@ -429,7 +424,7 @@ function calculateLayout(
 
     // Determine if this bar is displayed as branched (3 lanes) or common (1 lane)
     const isBranchedDisplay = (!!options.showAllBranches && chart.branches && params && params.isBranched) || false;
-    const thisBarHeight = isBranchedDisplay ? BASE_LANE_HEIGHT * 3 : BASE_LANE_HEIGHT;
+    const thisBarHeight = isBranchedDisplay ? constants.barHeight * 3 : constants.barHeight;
 
     // Check for break conditions
     let shouldBreak = false;
@@ -445,7 +440,7 @@ function calculateLayout(
     }
 
     if (shouldBreak) {
-      currentY += currentRowMaxHeight + ROW_SPACING;
+      currentY += currentRowMaxHeight + constants.rowSpacing;
       currentRowX = 0;
       currentRowMaxHeight = 0;
       isRowEmpty = true;
@@ -497,7 +492,7 @@ export function getNoteAt(
   }
 
   const { barFrames, constants, virtualBars } = activeLayout;
-  const { NOTE_RADIUS_SMALL, NOTE_RADIUS_BIG } = constants;
+  const { noteRadiusSmall: NOTE_RADIUS_SMALL, noteRadiusBig: NOTE_RADIUS_BIG } = constants;
   const maxRadius = NOTE_RADIUS_BIG;
 
   const isAllBranches = !!options.showAllBranches && !!chart.branches;
@@ -565,7 +560,7 @@ export function getNoteAt(
 
       // Determine radius
       let radius = NOTE_RADIUS_SMALL;
-      if (["3", "4", "6", "9"].includes(char)) radius = NOTE_RADIUS_BIG;
+      if (BIG_NOTES.includes(char as NoteType)) radius = NOTE_RADIUS_BIG;
 
       if (dist <= radius) {
         // Hit!
@@ -700,7 +695,7 @@ export function createLayout(
   // Calculate Header Dimensions
   const availableWidth = logicalCanvasWidth - PADDING * 2;
   const baseBarWidth: number = availableWidth / (options.beatsPerLine / 4);
-  const headerHeight = baseBarWidth * RATIOS.HEADER_HEIGHT;
+  const headerHeight = baseBarWidth * LAYOUT_RATIOS.headerHeight;
   const offsetY = PADDING + headerHeight + PADDING; // Padding above and below header
 
   const { bars } = chart;
@@ -820,16 +815,16 @@ export function renderLayout(
       }
     });
 
-    const MARGIN = constants.NOTE_RADIUS_BIG * 3;
+    const MARGIN = constants.noteRadiusBig * 3;
     dirtyRowY.forEach((y) => {
-      const h = rowHeights.get(y) || constants.BAR_HEIGHT;
+      const h = rowHeights.get(y) || constants.barHeight;
       canvasContext.rect(0, y - MARGIN, logicalCanvasWidth, h + MARGIN * 2);
     });
     canvasContext.clip();
 
     canvasContext.fillStyle = PALETTE.background;
     dirtyRowY.forEach((y) => {
-      const h = rowHeights.get(y) || constants.BAR_HEIGHT;
+      const h = rowHeights.get(y) || constants.barHeight;
       canvasContext.fillRect(0, y - MARGIN, logicalCanvasWidth, h + MARGIN * 2);
     });
   } else {
@@ -856,7 +851,7 @@ export function renderLayout(
   }
 
   const isAllBranches = !!options.showAllBranches && !!chart.branches;
-  const BASE_LANE_HEIGHT = constants.BAR_HEIGHT;
+  const BASE_LANE_HEIGHT = constants.barHeight;
 
   // Layer 1: Backgrounds
   virtualBars.forEach((info, index) => {
@@ -954,7 +949,7 @@ function drawBarBackgroundWrapper(
     }
   }
 
-  const overExtendWidth = 2 * constants.NOTE_RADIUS_SMALL;
+  const overExtendWidth = 2 * constants.noteRadiusSmall;
   const isBranchStart = params ? !!params.isBranchStart : false;
 
   if (isAllBranches && chart.branches) {
@@ -964,8 +959,8 @@ function drawBarBackgroundWrapper(
       drawBarBackground(
         canvasContext,
         normalFrame,
-        constants.LW_BAR,
-        constants.LW_CENTER,
+        constants.lineWidthBarBorder,
+        constants.lineWidthCenter,
         true,
         "normal",
         !hasLeftNeighbor,
@@ -976,8 +971,8 @@ function drawBarBackgroundWrapper(
       drawBarBackground(
         canvasContext,
         expertFrame,
-        constants.LW_BAR,
-        constants.LW_CENTER,
+        constants.lineWidthBarBorder,
+        constants.lineWidthCenter,
         true,
         "expert",
         !hasLeftNeighbor,
@@ -988,8 +983,8 @@ function drawBarBackgroundWrapper(
       drawBarBackground(
         canvasContext,
         masterFrame,
-        constants.LW_BAR,
-        constants.LW_CENTER,
+        constants.lineWidthBarBorder,
+        constants.lineWidthCenter,
         true,
         "master",
         !hasLeftNeighbor,
@@ -1000,7 +995,7 @@ function drawBarBackgroundWrapper(
       if (isBranchStart) {
         canvasContext.beginPath();
         canvasContext.strokeStyle = PALETTE.branches.startLine;
-        canvasContext.lineWidth = constants.LW_BAR;
+        canvasContext.lineWidth = constants.lineWidthBarBorder;
         canvasContext.moveTo(frame.x, frame.y);
         canvasContext.lineTo(frame.x, frame.y + frame.height);
         canvasContext.stroke();
@@ -1009,8 +1004,8 @@ function drawBarBackgroundWrapper(
       drawBarBackground(
         canvasContext,
         frame,
-        constants.LW_BAR,
-        constants.LW_CENTER,
+        constants.lineWidthBarBorder,
+        constants.lineWidthCenter,
         false,
         "normal",
         !hasLeftNeighbor,
@@ -1020,8 +1015,8 @@ function drawBarBackgroundWrapper(
     }
 
     if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
-      const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
-      const stripY = frame.y - stripHeight - constants.LW_BAR / 2;
+      const stripHeight = constants.barNumberFontSize + constants.barNumberOffsetY * 2;
+      const stripY = frame.y - stripHeight - constants.lineWidthBarBorder / 2;
       const gogoFrame: Frame = { x: frame.x, y: stripY, width: frame.width, height: stripHeight };
       drawGogoIndicator(
         canvasContext,
@@ -1040,30 +1035,30 @@ function drawBarBackgroundWrapper(
         canvasContext,
         frame,
         info.originalIndex,
-        constants.BAR_NUMBER_FONT_SIZE,
-        constants.STATUS_FONT_SIZE,
-        constants.BAR_NUMBER_OFFSET_Y,
+        constants.barNumberFontSize,
+        constants.statusFontSize,
+        constants.barNumberOffsetY,
         params,
         noteCount,
         info.originalIndex === 0,
-        constants.LW_BAR,
+        constants.lineWidthBarBorder,
         isBranchStart,
       );
     }
 
     if (info.isLoopStart && chart.loop) {
       canvasContext.fillStyle = PALETTE.text.primary;
-      canvasContext.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px ${FONT_STACK}`;
+      canvasContext.font = `bold ${constants.barNumberFontSize}px ${FONT_STACK}`;
       canvasContext.textAlign = "right";
       const text = texts.loopPattern.replace("{n}", chart.loop.iterations.toString());
-      canvasContext.fillText(text, frame.x + frame.width, frame.y - constants.BAR_NUMBER_OFFSET_Y);
+      canvasContext.fillText(text, frame.x + frame.width, frame.y - constants.barNumberOffsetY);
     }
   } else {
     drawBarBackground(
       canvasContext,
       frame,
-      constants.LW_BAR,
-      constants.LW_CENTER,
+      constants.lineWidthBarBorder,
+      constants.lineWidthCenter,
       isBranched,
       chart.branchType,
       !hasLeftNeighbor,
@@ -1074,15 +1069,15 @@ function drawBarBackgroundWrapper(
     if (isBranchStart) {
       canvasContext.beginPath();
       canvasContext.strokeStyle = PALETTE.branches.startLine;
-      canvasContext.lineWidth = constants.LW_BAR;
+      canvasContext.lineWidth = constants.lineWidthBarBorder;
       canvasContext.moveTo(frame.x, frame.y);
       canvasContext.lineTo(frame.x, frame.y + frame.height);
       canvasContext.stroke();
     }
 
     if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
-      const stripHeight = constants.BAR_NUMBER_FONT_SIZE + constants.BAR_NUMBER_OFFSET_Y * 2;
-      const stripY = frame.y - stripHeight - constants.LW_BAR / 2;
+      const stripHeight = constants.barNumberFontSize + constants.barNumberOffsetY * 2;
+      const stripY = frame.y - stripHeight - constants.lineWidthBarBorder / 2;
       const gogoFrame: Frame = { x: frame.x, y: stripY, width: frame.width, height: stripHeight };
       drawGogoIndicator(
         canvasContext,
@@ -1101,23 +1096,23 @@ function drawBarBackgroundWrapper(
         canvasContext,
         frame,
         info.originalIndex,
-        constants.BAR_NUMBER_FONT_SIZE,
-        constants.STATUS_FONT_SIZE,
-        constants.BAR_NUMBER_OFFSET_Y,
+        constants.barNumberFontSize,
+        constants.statusFontSize,
+        constants.barNumberOffsetY,
         params,
         noteCount,
         info.originalIndex === 0,
-        constants.LW_BAR,
+        constants.lineWidthBarBorder,
         isBranchStart,
       );
     }
 
     if (info.isLoopStart && chart.loop) {
       canvasContext.fillStyle = PALETTE.text.primary;
-      canvasContext.font = `bold ${constants.BAR_NUMBER_FONT_SIZE}px ${FONT_STACK}`;
+      canvasContext.font = `bold ${constants.barNumberFontSize}px ${FONT_STACK}`;
       canvasContext.textAlign = "right";
       const text = texts.loopPattern.replace("{n}", chart.loop.iterations.toString());
-      canvasContext.fillText(text, frame.x + frame.width, frame.y - constants.BAR_NUMBER_OFFSET_Y);
+      canvasContext.fillText(text, frame.x + frame.width, frame.y - constants.barNumberOffsetY);
     }
   }
 }
@@ -1285,7 +1280,7 @@ export function renderChart(
   drawChartHeader(canvasContext, chart, headerFrame, texts);
 
   const isAllBranches = !!options.showAllBranches && !!chart.branches;
-  const BASE_LANE_HEIGHT = constants.BAR_HEIGHT;
+  const BASE_LANE_HEIGHT = constants.barHeight;
 
   // Layer 1: Backgrounds
   virtualBars.forEach((info, index) => {
@@ -1657,18 +1652,17 @@ function drawLongNotes(
   canvasContext: CanvasRenderingContext2D,
   virtualBars: RenderBarInfo[],
   barFrames: Frame[],
-  // biome-ignore lint/suspicious/noExplicitAny: RenderConstants type complexity
-  constants: any,
+  constants: RenderConstants,
   viewMode: "original" | "judgements" | "judgements-underline" | "judgements-text",
   balloonCounts: number[],
   balloonIndices: LocationMap<number>,
   dirtyRowY?: Set<number>,
 ): void {
   const {
-    NOTE_RADIUS_SMALL: rSmall,
-    NOTE_RADIUS_BIG: rBig,
-    LW_NOTE_OUTER: borderOuterW,
-    LW_NOTE_INNER: borderInnerW,
+    noteRadiusSmall: rSmall,
+    noteRadiusBig: rBig,
+    lineWidthNoteOuter: borderOuterW,
+    lineWidthNoteInner: borderInnerW,
   } = constants;
 
   let currentLongNote: {
@@ -2328,11 +2322,11 @@ function drawBarNotes(
 ): void {
   const { canvasContext, options, judgements, texts, constants, inferredHands, locToJudgementKey } = renderContext;
   const {
-    NOTE_RADIUS_SMALL: rSmall,
-    NOTE_RADIUS_BIG: rBig,
-    LW_NOTE_OUTER: borderOuterW,
-    LW_NOTE_INNER: borderInnerW,
-    LW_UNDERLINE_BORDER: borderUnderlineW,
+    noteRadiusSmall: rSmall,
+    noteRadiusBig: rBig,
+    lineWidthNoteOuter: borderOuterW,
+    lineWidthNoteInner: borderInnerW,
+    lineWidthUnderlineBorder: borderUnderlineW,
   } = constants;
   const { viewMode, selection } = options;
 

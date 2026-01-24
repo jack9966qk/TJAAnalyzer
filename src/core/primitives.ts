@@ -18,6 +18,8 @@ export enum NoteType {
 
 export const JUDGEABLE_NOTES = [NoteType.Don, NoteType.Ka, NoteType.DonBig, NoteType.KaBig];
 
+export const BIG_NOTES = [NoteType.DonBig, NoteType.KaBig, NoteType.DrumrollBig, NoteType.Kusudama];
+
 export const RENDERABLE_NOTES = [
   NoteType.Don,
   NoteType.Ka,
