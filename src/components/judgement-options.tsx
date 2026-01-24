@@ -233,7 +233,7 @@ export class JudgementOptions extends HTMLElement {
             style={`margin-left: 0; opacity: ${isStreamActive ? "1" : "0.5"}; pointer-events: ${isStreamActive ? "auto" : "none"};`}
           >
             <div className="sub-group">
-              <span className="sub-label">{i18n.t("ui.style")}:</span>
+              <span className="sub-label">{i18n.t("ui.style")}</span>
               <label>
                 <input
                   type="radio"
@@ -267,7 +267,7 @@ export class JudgementOptions extends HTMLElement {
             </div>
 
             <div className="sub-group">
-              <span className="sub-label">{i18n.t("ui.coloring")}:</span>
+              <span className="sub-label">{i18n.t("ui.coloring")}</span>
               <label>
                 <input
                   type="radio"
@@ -291,7 +291,7 @@ export class JudgementOptions extends HTMLElement {
             </div>
 
             <div className="sub-group">
-              <span className="sub-label">{i18n.t("ui.filter")}:</span>
+              <span className="sub-label">{i18n.t("ui.filter")}</span>
               <label>
                 <input
                   type="checkbox"
