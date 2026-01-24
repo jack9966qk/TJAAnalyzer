@@ -68,6 +68,11 @@ test.describe("Judgement View Edge Cases", () => {
         }
 
         window.setJudgements(map);
+
+        // Force full render to avoid partial rendering artifacts (e.g. clipped labels)
+        if (tjaChart.refresh) {
+          tjaChart.refresh();
+        }
       },
       { judgements, deltas },
     );
