@@ -505,6 +505,8 @@ function initJudgementClient() {
     if (status === "Connected") {
       appState.isStreamConnected = true;
 
+      switchDisplayOptionTab("judgements");
+
       // Reset for new connection session
       appState.hasReceivedGameStart = false;
 
