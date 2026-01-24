@@ -285,15 +285,15 @@ export class TJAChart extends HTMLElement {
       if (changedKeys.length > 0) {
         dirtyRowY = new Set<number>();
         const grid = this._layout.noteOrdinalToGrid;
-        const layouts = this._layout.layouts;
+        const barFrames = this._layout.barFrames;
 
         for (const key of changedKeys) {
           const locations = grid.get(key);
           if (locations) {
             for (const loc of locations) {
-              const barLayout = layouts[loc.virtualBarIdx];
-              if (barLayout) {
-                dirtyRowY.add(barLayout.y);
+              const frame = barFrames[loc.virtualBarIdx];
+              if (frame) {
+                dirtyRowY.add(frame.y);
               }
             }
           }
