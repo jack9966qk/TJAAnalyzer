@@ -70,6 +70,42 @@ export function generateTJAFromSelection(
     [startChar, endChar] = [endChar, startChar];
   }
 
+  // Extend selection end if it lands on a long note start
+  const endBarNotes = chart.bars[endBar];
+  if (endBarNotes && endChar < endBarNotes.length) {
+    const endNoteType = endBarNotes[endChar];
+    if (
+      [NoteType.Drumroll, NoteType.DrumrollBig, NoteType.Balloon, NoteType.Kusudama].includes(endNoteType as NoteType)
+    ) {
+      // Find the end ('8')
+      let found = false;
+      // Search in current bar first
+      for (let i = endChar + 1; i < endBarNotes.length; i++) {
+        if (endBarNotes[i] === NoteType.End) {
+          endChar = i;
+          found = true;
+          break;
+        }
+      }
+      // Search subsequent bars if not found
+      if (!found) {
+        for (let b = endBar + 1; b < chart.bars.length; b++) {
+          const nextBar = chart.bars[b];
+          if (!nextBar) continue;
+          for (let i = 0; i < nextBar.length; i++) {
+            if (nextBar[i] === NoteType.End) {
+              endBar = b;
+              endChar = i;
+              found = true;
+              break;
+            }
+          }
+          if (found) break;
+        }
+      }
+    }
+  }
+
   // 1. Calculate Balloon Data
   const selectionBalloons: number[] = [];
   let balloonCursor = 0; // Index into chart.balloonCounts

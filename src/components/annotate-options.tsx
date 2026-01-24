@@ -60,7 +60,10 @@ export class AnnotateOptions extends HTMLElement {
               {i18n.t("ui.clearAnnotations")}
             </button>
           </div>
-          <div className="control-group" style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+          <div
+            className="control-group"
+            style="display: flex; align-items: center; justify-content: space-between; gap: 10px;"
+          >
             <div style="display: flex; flex-direction: column; gap: 5px;">
               <label style="display: flex; align-items: center; cursor: pointer;">
                 <input
