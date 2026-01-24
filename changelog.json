@@ -1,5 +1,25 @@
 [
   {
+    "hash": "e5cd701",
+    "message": "Attempt to address a flaky test case.",
+    "date": "2026-01-25"
+  },
+  {
+    "hash": "07ca362",
+    "message": "Update version to 0.7.2.",
+    "date": "2026-01-25"
+  },
+  {
+    "hash": "ed0b183",
+    "message": "Improve long note rendering and selection logic.",
+    "date": "2026-01-25"
+  },
+  {
+    "hash": "506fe08",
+    "message": "Refactor annotate options UI and add always show annotations support.",
+    "date": "2026-01-25"
+  },
+  {
     "hash": "59b736d",
     "message": "Update version to 0.7.1.",
     "date": "2026-01-24"
@@ -478,25 +498,5 @@
     "hash": "3144f5e",
     "message": "Merge remote and test stream tabs into a single 'Stream Input' tab.",
     "date": "2025-12-29"
-  },
-  {
-    "hash": "4675abe",
-    "message": "Merge \"example data\" and \"ESE\" tabs into a single \"chart list\" tab.",
-    "date": "2025-12-29"
-  },
-  {
-    "hash": "f1894a1",
-    "message": "Hide annotations when the annotation tab is not active.",
-    "date": "2025-12-28"
-  },
-  {
-    "hash": "31f20ba",
-    "message": "Hide the collapse loop button if the chart is not compatible",
-    "date": "2025-12-27"
-  },
-  {
-    "hash": "224ad70",
-    "message": "Fix note-selected test case by using chart-only.html",
-    "date": "2025-12-27"
   }
 ]

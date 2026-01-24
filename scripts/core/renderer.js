@@ -364,6 +364,9 @@ export function getNoteAt(x, y, chart, canvas, judgements = new JudgementMap(), 
             const char = bar[i];
             if (!isRenderable(char))
                 continue;
+            // Skip discrete hit testing for End notes to allow long note segment logic to handle them (mapping to head)
+            if (char === NoteType.End)
+                continue;
             const noteX = barX + i * noteStep;
             // Check distance
             const dx = x - noteX;
@@ -407,6 +410,66 @@ export function getNoteAt(x, y, chart, canvas, judgements = new JudgementMap(), 
                     bpm: effectiveBpm,
                     scroll: effectiveScroll,
                     branch: currentBranch,
+                    ordinal: ordinal,
+                };
+            }
+        }
+    }
+    if (activeLayout.longNoteSegments) {
+        for (const segment of activeLayout.longNoteSegments) {
+            // Bounding box check
+            const minX = Math.min(segment.startX, segment.endX) - segment.radius;
+            const maxX = Math.max(segment.startX, segment.endX) + segment.radius;
+            const minY = segment.y - segment.radius;
+            const maxY = segment.y + segment.radius;
+            if (x < minX || x > maxX || y < minY || y > maxY)
+                continue;
+            // Capsule Distance Check
+            // Distance from point P(x,y) to line segment AB(startX, y, endX, y)
+            // Since y is constant, we just clamp x.
+            const clampedX = Math.max(Math.min(x, Math.max(segment.startX, segment.endX)), Math.min(segment.startX, segment.endX));
+            const dx = x - clampedX;
+            const dy = y - segment.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist <= segment.radius) {
+                // Hit!
+                // We need to fetch additional info (bpm, scroll) for the start note
+                const originalBarIdx = segment.originalBarIndex;
+                const charIdx = segment.startNoteIndex;
+                // Find effective params
+                const currentParams = chart.barParams[originalBarIdx];
+                let effectiveBpm = currentParams ? currentParams.bpm : 120;
+                let effectiveScroll = currentParams ? currentParams.scroll : 1.0;
+                if (currentParams?.bpmChanges) {
+                    for (const change of currentParams.bpmChanges) {
+                        if (charIdx >= change.index) {
+                            effectiveBpm = change.bpm;
+                        }
+                    }
+                }
+                if (currentParams?.scrollChanges) {
+                    for (const change of currentParams.scrollChanges) {
+                        if (charIdx >= change.index) {
+                            effectiveScroll = change.scroll;
+                        }
+                    }
+                }
+                let ordinal;
+                if (activeLayout.locToJudgementKey) {
+                    const locKey = { barIndex: originalBarIdx, charIndex: charIdx };
+                    const ident = activeLayout.locToJudgementKey.get(locKey);
+                    if (ident)
+                        ordinal = ident.ordinal;
+                }
+                return {
+                    originalBarIndex: originalBarIdx,
+                    charIndex: charIdx,
+                    type: segment.type,
+                    bpm: effectiveBpm,
+                    scroll: effectiveScroll,
+                    branch: chart.branchType,
+                    // Note: In showAllBranches mode, segments are currently only calculated for the root chart (usually normal branch).
+                    // Hit testing for other branches' long notes is a known limitation.
                     ordinal: ordinal,
                 };
             }
@@ -467,6 +530,81 @@ export function getGradientColor(delta) {
     }
     return `rgb(${r}, ${g}, ${b})`;
 }
+function calculateLongNoteSegments(virtualBars, barFrames, constants) {
+    const segments = [];
+    const { noteRadiusSmall: rSmall, noteRadiusBig: rBig } = constants;
+    let currentLongNote = null;
+    for (let i = 0; i < virtualBars.length; i++) {
+        const bar = virtualBars[i].bar;
+        if (!bar)
+            continue;
+        const frame = barFrames[i];
+        const originalBarIdx = virtualBars[i].originalIndex;
+        const noteCount = bar.length;
+        if (noteCount === 0 && !currentLongNote)
+            continue;
+        const noteStep = noteCount > 0 ? frame.width / noteCount : 0;
+        const barX = frame.x;
+        const centerY = frame.y + frame.height / 2;
+        let segmentStartIdx = 0;
+        let segmentActive = !!currentLongNote;
+        for (let j = 0; j < noteCount; j++) {
+            const char = bar[j];
+            if ([NoteType.Drumroll, NoteType.DrumrollBig, NoteType.Balloon, NoteType.Kusudama].includes(char)) {
+                currentLongNote = {
+                    type: char,
+                    startBarIdx: i,
+                    startNoteIdx: j,
+                    originalBarIndex: originalBarIdx,
+                    originalNoteIdx: j,
+                };
+                segmentActive = true;
+                segmentStartIdx = j;
+            }
+            else if (char === NoteType.End) {
+                if (currentLongNote) {
+                    const radius = currentLongNote.type === NoteType.DrumrollBig || currentLongNote.type === NoteType.Kusudama ? rBig : rSmall;
+                    const startX = barX + segmentStartIdx * noteStep;
+                    const endX = barX + j * noteStep;
+                    const hasStartCap = segmentStartIdx === currentLongNote.startNoteIdx && i === currentLongNote.startBarIdx;
+                    const hasEndCap = true;
+                    segments.push({
+                        startX,
+                        endX,
+                        y: centerY,
+                        radius,
+                        startCap: hasStartCap,
+                        endCap: hasEndCap,
+                        type: currentLongNote.type,
+                        originalBarIndex: currentLongNote.originalBarIndex,
+                        startNoteIndex: currentLongNote.originalNoteIdx,
+                    });
+                    currentLongNote = null;
+                    segmentActive = false;
+                }
+            }
+        }
+        if (segmentActive && currentLongNote) {
+            const radius = currentLongNote.type === NoteType.DrumrollBig || currentLongNote.type === NoteType.Kusudama ? rBig : rSmall;
+            const startX = barX + segmentStartIdx * noteStep;
+            const endX = barX + frame.width;
+            const hasStartCap = segmentStartIdx === currentLongNote.startNoteIdx && i === currentLongNote.startBarIdx;
+            const hasEndCap = false;
+            segments.push({
+                startX,
+                endX,
+                y: centerY,
+                radius,
+                startCap: hasStartCap,
+                endCap: hasEndCap,
+                type: currentLongNote.type,
+                originalBarIndex: currentLongNote.originalBarIndex,
+                startNoteIndex: currentLongNote.originalNoteIdx,
+            });
+        }
+    }
+    return segments;
+}
 export function createLayout(chart, canvas, options, judgements, customDpr) {
     // Reset width to 100% to allow measuring the container's available width
     canvas.style.width = "100%";
@@ -485,6 +623,7 @@ export function createLayout(chart, canvas, options, judgements, customDpr) {
     const { locToJudgementKey } = calculateNoteMaps(bars);
     const virtualBars = getVirtualBars(chart, options, judgements, locToJudgementKey);
     const { barFrames, constants, totalHeight } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options, offsetY);
+    const longNoteSegments = calculateLongNoteSegments(virtualBars, barFrames, constants);
     // Compute Grid for Dirty Row Optimization
     const noteOrdinalToGrid = new JudgementMap();
     virtualBars.forEach((info, vIdx) => {
@@ -521,6 +660,7 @@ export function createLayout(chart, canvas, options, judgements, customDpr) {
         baseBarWidth,
         locToJudgementKey,
         noteOrdinalToGrid,
+        longNoteSegments,
     };
 }
 export function renderLayout(canvasContext, layout, chart, judgements, options, texts, dirtyRowY) {
@@ -605,7 +745,7 @@ export function renderLayout(canvasContext, layout, chart, judgements, options, 
     }
     else {
         // Layer 1.5: Drumrolls and Balloons
-        drawLongNotes(canvasContext, virtualBars, barFrames, constants, options.viewMode, chart.balloonCounts, balloonIndices, dirtyRowY);
+        drawLongNotes(canvasContext, virtualBars, barFrames, constants, options.viewMode, chart.balloonCounts, balloonIndices, options.selection, dirtyRowY);
         // Layer 2: Notes
         for (let index = virtualBars.length - 1; index >= 0; index--) {
             const info = virtualBars[index];
@@ -669,9 +809,8 @@ function drawBarBackgroundWrapper(canvasContext, frame, info, index, chart, opti
             const gogoFrame = { x: frame.x, y: stripY, width: frame.width, height: stripHeight };
             drawGogoIndicator(canvasContext, gogoFrame, gogoTime, gogoChanges, noteCount, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
         }
-        if (!options.isAnnotationMode) {
-            drawBarLabels(canvasContext, frame, info.originalIndex, constants.barNumberFontSize, constants.statusFontSize, constants.barNumberOffsetY, params, noteCount, info.originalIndex === 0, constants.lineWidthBarBorder, isBranchStart);
-        }
+        const showText = options.isAnnotationMode || options.alwaysShowAnnotations ? !!options.showTextInAnnotationMode : true;
+        drawBarLabels(canvasContext, frame, info.originalIndex, constants.barNumberFontSize, constants.statusFontSize, constants.barNumberOffsetY, params, noteCount, info.originalIndex === 0, constants.lineWidthBarBorder, isBranchStart, showText);
         if (info.isLoopStart && chart.loop) {
             canvasContext.fillStyle = PALETTE.text.primary;
             canvasContext.font = `bold ${constants.barNumberFontSize}px ${FONT_STACK}`;
@@ -696,9 +835,8 @@ function drawBarBackgroundWrapper(canvasContext, frame, info, index, chart, opti
             const gogoFrame = { x: frame.x, y: stripY, width: frame.width, height: stripHeight };
             drawGogoIndicator(canvasContext, gogoFrame, gogoTime, gogoChanges, noteCount, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth);
         }
-        if (!options.isAnnotationMode) {
-            drawBarLabels(canvasContext, frame, info.originalIndex, constants.barNumberFontSize, constants.statusFontSize, constants.barNumberOffsetY, params, noteCount, info.originalIndex === 0, constants.lineWidthBarBorder, isBranchStart);
-        }
+        const showText = options.isAnnotationMode || options.alwaysShowAnnotations ? !!options.showTextInAnnotationMode : true;
+        drawBarLabels(canvasContext, frame, info.originalIndex, constants.barNumberFontSize, constants.statusFontSize, constants.barNumberOffsetY, params, noteCount, info.originalIndex === 0, constants.lineWidthBarBorder, isBranchStart, showText);
         if (info.isLoopStart && chart.loop) {
             canvasContext.fillStyle = PALETTE.text.primary;
             canvasContext.font = `bold ${constants.barNumberFontSize}px ${FONT_STACK}`;
@@ -740,7 +878,7 @@ function drawAllBranchesNotes(renderContext, chart, virtualBars, barFrames, _bal
                 };
             }
         });
-        drawLongNotes(canvasContext, branchVirtualBars, branchFrames, constants, options.viewMode, b.data.balloonCounts, calculateBalloonIndices(b.data.bars), dirtyRowY);
+        drawLongNotes(canvasContext, branchVirtualBars, branchFrames, constants, options.viewMode, b.data.balloonCounts, calculateBalloonIndices(b.data.bars), null, dirtyRowY);
         for (let index = branchVirtualBars.length - 1; index >= 0; index--) {
             const info = branchVirtualBars[index];
             const frame = branchFrames[index];
@@ -821,7 +959,7 @@ export function renderChart(chart, canvas, judgements = new JudgementMap(), opti
     }
     else {
         // Layer 1.5: Drumrolls and Balloons
-        drawLongNotes(canvasContext, virtualBars, barFrames, constants, options.viewMode, chart.balloonCounts, balloonIndices);
+        drawLongNotes(canvasContext, virtualBars, barFrames, constants, options.viewMode, chart.balloonCounts, balloonIndices, options.selection);
         // Layer 2: Notes
         for (let index = virtualBars.length - 1; index >= 0; index--) {
             const info = virtualBars[index];
@@ -1080,7 +1218,7 @@ function calculateBalloonIndices(bars) {
     }
     return map;
 }
-function drawLongNotes(canvasContext, virtualBars, barFrames, constants, viewMode, balloonCounts, balloonIndices, dirtyRowY) {
+function drawLongNotes(canvasContext, virtualBars, barFrames, constants, viewMode, balloonCounts, balloonIndices, selection, dirtyRowY) {
     const { noteRadiusSmall: rSmall, noteRadiusBig: rBig, lineWidthNoteOuter: borderOuterW, lineWidthNoteInner: borderInnerW, } = constants;
     let currentLongNote = null;
     // Iterate all bars
@@ -1097,7 +1235,6 @@ function drawLongNotes(canvasContext, virtualBars, barFrames, constants, viewMod
         const noteStep = noteCount > 0 ? frame.width / noteCount : 0;
         const barX = frame.x;
         const centerY = frame.y + frame.height / 2;
-        // Track the starting index of the segment in THIS bar
         let segmentStartIdx = 0;
         let segmentActive = !!currentLongNote;
         for (let j = 0; j < noteCount; j++) {
@@ -1116,6 +1253,7 @@ function drawLongNotes(canvasContext, virtualBars, barFrames, constants, viewMod
                     const endX = barX + j * noteStep;
                     const hasStartCap = segmentStartIdx === currentLongNote.startNoteIdx && i === currentLongNote.startBarIdx;
                     const hasEndCap = true;
+                    const isSelected = isNoteSelected(currentLongNote.originalBarIdx, currentLongNote.originalNoteIdx, selection || null);
                     if (isDirty) {
                         if (currentLongNote.type === NoteType.Balloon || currentLongNote.type === NoteType.Kusudama) {
                             // Balloon
@@ -1124,11 +1262,11 @@ function drawLongNotes(canvasContext, virtualBars, barFrames, constants, viewMod
                                 charIndex: currentLongNote.originalNoteIdx,
                             });
                             const count = balloonIdx !== undefined && balloonCounts[balloonIdx] !== undefined ? balloonCounts[balloonIdx] : 5;
-                            drawBalloonSegment(canvasContext, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, count, currentLongNote.type === NoteType.Kusudama);
+                            drawBalloonSegment(canvasContext, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, count, currentLongNote.type === NoteType.Kusudama, isSelected);
                         }
                         else {
                             // Drumroll
-                            drawDrumrollSegment(canvasContext, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, currentLongNote.type);
+                            drawDrumrollSegment(canvasContext, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, currentLongNote.type, isSelected);
                         }
                     }
                     currentLongNote = null;
@@ -1143,6 +1281,7 @@ function drawLongNotes(canvasContext, virtualBars, barFrames, constants, viewMod
             const endX = barX + frame.width; // Visual end of bar
             const hasStartCap = segmentStartIdx === currentLongNote.startNoteIdx && i === currentLongNote.startBarIdx;
             const hasEndCap = false; // Continuation
+            const isSelected = isNoteSelected(currentLongNote.originalBarIdx, currentLongNote.originalNoteIdx, selection || null);
             if (isDirty) {
                 if (currentLongNote.type === NoteType.Balloon || currentLongNote.type === NoteType.Kusudama) {
                     const balloonIdx = balloonIndices.get({
@@ -1150,36 +1289,57 @@ function drawLongNotes(canvasContext, virtualBars, barFrames, constants, viewMod
                         charIndex: currentLongNote.originalNoteIdx,
                     });
                     const count = balloonIdx !== undefined && balloonCounts[balloonIdx] !== undefined ? balloonCounts[balloonIdx] : 5;
-                    drawBalloonSegment(canvasContext, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, count, currentLongNote.type === NoteType.Kusudama);
+                    drawBalloonSegment(canvasContext, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, count, currentLongNote.type === NoteType.Kusudama, isSelected);
                 }
                 else {
-                    drawDrumrollSegment(canvasContext, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, currentLongNote.type);
+                    drawDrumrollSegment(canvasContext, startX, endX, centerY, radius, hasStartCap, hasEndCap, borderOuterW, borderInnerW, viewMode, currentLongNote.type, isSelected);
                 }
             }
         }
     }
 }
-function drawDrumrollSegment(canvasContext, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, viewMode, _type) {
+function getBorderStyles(isSelected, borderOuterW, borderInnerW, innerBorderColor) {
+    if (isSelected) {
+        return {
+            outerW: borderOuterW * 2,
+            innerW: borderInnerW * 2,
+            innerColor: PALETTE.notes.border.yellow,
+        };
+    }
+    return {
+        outerW: borderOuterW,
+        innerW: borderInnerW,
+        innerColor: innerBorderColor,
+    };
+}
+function drawDrumrollSegment(canvasContext, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, viewMode, _type, isSelected = false) {
     let fillColor = PALETTE.notes.drumroll;
     let innerBorderColor = PALETTE.notes.border.white;
     if (viewMode === "judgements") {
         fillColor = PALETTE.notes.unjudged;
         innerBorderColor = PALETTE.notes.border.grey;
     }
-    drawCapsule(canvasContext, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, fillColor, innerBorderColor);
+    // Handle Selection
+    const borderStyles = getBorderStyles(isSelected, borderOuterW, borderInnerW, innerBorderColor);
+    drawCapsule(canvasContext, startX, endX, centerY, radius, startCap, endCap, borderStyles.outerW, borderStyles.innerW, fillColor, borderStyles.innerColor);
 }
-function drawBalloonSegment(canvasContext, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, viewMode, count, isKusudama) {
+function drawBalloonSegment(canvasContext, startX, endX, centerY, radius, startCap, endCap, borderOuterW, borderInnerW, viewMode, count, isKusudama, isSelected = false) {
     let fillColor = PALETTE.notes.balloon; // Orangeish for balloon body
     let innerBorderColor = PALETTE.notes.border.white;
     if (viewMode === "judgements") {
         fillColor = PALETTE.notes.unjudged;
         innerBorderColor = PALETTE.notes.border.grey;
     }
+    // Handle Selection
+    const { outerW: effectiveBorderOuterW, innerW: effectiveBorderInnerW, innerColor: effectiveInnerBorderColor, } = getBorderStyles(isSelected, borderOuterW, borderInnerW, innerBorderColor);
+    // Note: For balloon head, we usually want the same inner border color.
+    // The original code was using effectiveInnerBorderColor for head too if selected.
+    const effectiveHeadInnerBorderColor = effectiveInnerBorderColor;
     // Draw the tail (body)
     // The tail usually starts a bit after the head, but for simplicity we draw it as a capsule behind the head.
     // However, if we draw it as a capsule, the head will be drawn on top of it.
     // If startCap is true, we are drawing the head segment.
-    drawCapsule(canvasContext, startX, endX, centerY, radius * 0.8, startCap, endCap, borderOuterW, borderInnerW, fillColor, innerBorderColor);
+    drawCapsule(canvasContext, startX, endX, centerY, radius * 0.8, startCap, endCap, effectiveBorderOuterW, effectiveBorderInnerW, fillColor, effectiveInnerBorderColor);
     // If this is the start segment, draw the balloon head
     if (startCap) {
         let headColor = PALETTE.notes.balloon; // Orange
@@ -1191,13 +1351,13 @@ function drawBalloonSegment(canvasContext, startX, endX, centerY, radius, startC
         // Draw Head
         canvasContext.beginPath();
         canvasContext.arc(startX, centerY, radius, 0, Math.PI * 2);
-        canvasContext.lineWidth = borderOuterW;
+        canvasContext.lineWidth = effectiveBorderOuterW;
         canvasContext.strokeStyle = PALETTE.notes.border.black;
         canvasContext.stroke();
         canvasContext.fillStyle = headColor;
         canvasContext.fill();
-        canvasContext.lineWidth = borderInnerW;
-        canvasContext.strokeStyle = innerBorderColor;
+        canvasContext.lineWidth = effectiveBorderInnerW;
+        canvasContext.strokeStyle = effectiveHeadInnerBorderColor;
         canvasContext.stroke();
         // Draw Count
         if (viewMode !== "judgements") {
@@ -1571,21 +1731,18 @@ function drawBarNotes(renderContext, bar, frame, originalBarIndex = -1, loopInfo
             // The underline is drawn in Phase 1.
             canvasContext.beginPath();
             canvasContext.arc(noteX, centerY, radius, 0, Math.PI * 2);
-            // Black border (outside)
-            let effectiveBorderOuterW = borderOuterW;
-            let effectiveBorderInnerW = borderInnerW;
-            let effectiveInnerBorderColor = borderColor;
             const isSelected = isNoteSelected(originalBarIndex, i, selection);
             const isHovered = options.hoveredNote &&
                 options.hoveredNote.barIndex === originalBarIndex &&
                 options.hoveredNote.charIndex === i &&
                 options.hoveredNote.branch === currentBranch; // Match branch
-            if (isSelected) {
-                effectiveBorderOuterW = borderOuterW * 2; // 2x the width
-                effectiveBorderInnerW = borderInnerW * 2; // 2x the width
-                effectiveInnerBorderColor = PALETTE.notes.border.yellow;
-            }
-            else if (isHovered) {
+            // Use helper for selection styles
+            const styles = getBorderStyles(isSelected, borderOuterW, borderInnerW, borderColor);
+            const effectiveBorderOuterW = styles.outerW;
+            const effectiveBorderInnerW = styles.innerW;
+            let effectiveInnerBorderColor = styles.innerColor;
+            // Apply hover style if not selected
+            if (!isSelected && isHovered) {
                 effectiveInnerBorderColor = PALETTE.notes.border.yellow;
             }
             canvasContext.lineWidth = effectiveBorderOuterW;
@@ -1597,7 +1754,7 @@ function drawBarNotes(renderContext, bar, frame, originalBarIndex = -1, loopInfo
             canvasContext.strokeStyle = effectiveInnerBorderColor; // Dynamic border
             canvasContext.stroke();
             // Annotation Rendering
-            if (options.isAnnotationMode && options.annotations && isJudgeable(noteChar)) {
+            if ((options.isAnnotationMode || options.alwaysShowAnnotations) && options.annotations && isJudgeable(noteChar)) {
                 const noteId = { barIndex: originalBarIndex, charIndex: i };
                 const annotation = options.annotations.get(noteId);
                 if (annotation) {
@@ -1623,37 +1780,39 @@ function drawBarNotes(renderContext, bar, frame, originalBarIndex = -1, loopInfo
         }
     }
 }
-function drawBarLabels(canvasContext, frame, originalBarIndex, numFontSize, statusFontSize, offsetY, params, noteCount, isFirstBar, barBorderWidth, isBranchStart = false) {
+function drawBarLabels(canvasContext, frame, originalBarIndex, numFontSize, statusFontSize, offsetY, params, noteCount, isFirstBar, barBorderWidth, isBranchStart = false, showText = true) {
     const { x, y, width, height } = frame;
     canvasContext.save();
     const lineHeight = statusFontSize;
     // Stack: BarNum (0), BPM (1), HS (2)
     // Baseline of HS is: y - offsetY - 2 * lineHeight
     // Top of HS is approx: y - offsetY - 3 * lineHeight
-    const topY = y - offsetY - 3 * lineHeight;
+    const topY = showText ? y - offsetY - 3 * lineHeight : y;
     // Draw Bar Line Extensions (Left and Right)
-    canvasContext.lineWidth = barBorderWidth;
-    // Left Extension
-    canvasContext.beginPath();
-    canvasContext.strokeStyle = isBranchStart ? PALETTE.branches.startLine : PALETTE.ui.barVerticalLine;
-    canvasContext.moveTo(x, y);
-    canvasContext.lineTo(x, topY);
-    canvasContext.stroke();
-    // Right Extension
-    canvasContext.beginPath();
-    canvasContext.strokeStyle = PALETTE.ui.barVerticalLine;
-    canvasContext.moveTo(x + width, y);
-    canvasContext.lineTo(x + width, topY);
-    canvasContext.stroke();
-    // Text Padding
-    const textPadding = statusFontSize * 0.2;
-    // 1. Draw Bar Number
-    canvasContext.font = `bold ${numFontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
-    canvasContext.fillStyle = PALETTE.text.label;
-    canvasContext.textAlign = "left";
-    canvasContext.textBaseline = "bottom";
-    const barNumY = y - offsetY;
-    canvasContext.fillText((originalBarIndex + 1).toString(), x + textPadding, barNumY);
+    if (showText) {
+        canvasContext.lineWidth = barBorderWidth;
+        // Left Extension
+        canvasContext.beginPath();
+        canvasContext.strokeStyle = isBranchStart ? PALETTE.branches.startLine : PALETTE.ui.barVerticalLine;
+        canvasContext.moveTo(x, y);
+        canvasContext.lineTo(x, topY);
+        canvasContext.stroke();
+        // Right Extension
+        canvasContext.beginPath();
+        canvasContext.strokeStyle = PALETTE.ui.barVerticalLine;
+        canvasContext.moveTo(x + width, y);
+        canvasContext.lineTo(x + width, topY);
+        canvasContext.stroke();
+        // Text Padding
+        const textPadding = statusFontSize * 0.2;
+        // 1. Draw Bar Number
+        canvasContext.font = `bold ${numFontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
+        canvasContext.fillStyle = PALETTE.text.label;
+        canvasContext.textAlign = "left";
+        canvasContext.textBaseline = "bottom";
+        const barNumY = y - offsetY;
+        canvasContext.fillText((originalBarIndex + 1).toString(), x + textPadding, barNumY);
+    }
     if (!params) {
         canvasContext.restore();
         return;
@@ -1683,42 +1842,59 @@ function drawBarLabels(canvasContext, frame, originalBarIndex, numFontSize, stat
         canvasContext.restore();
         return;
     }
-    const bpmY = barNumY - lineHeight;
+    const bpmY = y - offsetY - lineHeight;
     const hsY = bpmY - lineHeight;
     canvasContext.font = `bold ${statusFontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
     // Process Mid-Bar Lines
-    // Collect unique indices > 0
+    // Collect unique indices including 0
     const changeIndices = new Set();
     labels.forEach((l) => {
-        if (l.index > 0)
-            changeIndices.add(l.index);
+        changeIndices.add(l.index);
     });
     if (changeIndices.size > 0 && noteCount > 0) {
-        canvasContext.beginPath();
-        canvasContext.strokeStyle = PALETTE.status.line;
-        canvasContext.lineWidth = barBorderWidth * 0.8; // Slightly thinner
-        changeIndices.forEach((idx) => {
-            const lineX = x + (idx / noteCount) * width;
-            canvasContext.moveTo(lineX, y + height); // From bottom of bar
-            canvasContext.lineTo(lineX, topY); // To top of labels
-        });
-        canvasContext.stroke();
+        const hasZero = changeIndices.has(0);
+        if (hasZero) {
+            // Draw index 0 with full width to cover the bar border
+            canvasContext.beginPath();
+            canvasContext.strokeStyle = PALETTE.status.line;
+            canvasContext.lineWidth = barBorderWidth;
+            const lineX = x;
+            canvasContext.moveTo(lineX, y + height);
+            canvasContext.lineTo(lineX, topY);
+            canvasContext.stroke();
+            changeIndices.delete(0);
+        }
+        if (changeIndices.size > 0) {
+            canvasContext.beginPath();
+            canvasContext.strokeStyle = PALETTE.status.line;
+            canvasContext.lineWidth = barBorderWidth * 0.8; // Slightly thinner
+            changeIndices.forEach((idx) => {
+                const lineX = x + (idx / noteCount) * width;
+                canvasContext.moveTo(lineX, y + height); // From bottom of bar
+                canvasContext.lineTo(lineX, topY); // To top of labels
+            });
+            canvasContext.stroke();
+        }
     }
-    // Render Text
-    for (const label of labels) {
-        let labelX = x;
-        if (noteCount > 0) {
-            labelX = x + (label.index / noteCount) * width;
-        }
-        // Shift text
-        const drawX = labelX + textPadding;
-        if (label.type === "BPM") {
-            canvasContext.fillStyle = PALETTE.status.bpm;
-            canvasContext.fillText(`BPM ${label.val}`, drawX, bpmY);
-        }
-        else if (label.type === "HS") {
-            canvasContext.fillStyle = PALETTE.status.hs;
-            canvasContext.fillText(`HS ${label.val}`, drawX, hsY);
+    if (showText) {
+        // Text Padding
+        const textPadding = statusFontSize * 0.2;
+        // Render Text
+        for (const label of labels) {
+            let labelX = x;
+            if (noteCount > 0) {
+                labelX = x + (label.index / noteCount) * width;
+            }
+            // Shift text
+            const drawX = labelX + textPadding;
+            if (label.type === "BPM") {
+                canvasContext.fillStyle = PALETTE.status.bpm;
+                canvasContext.fillText(`BPM ${label.val}`, drawX, bpmY);
+            }
+            else if (label.type === "HS") {
+                canvasContext.fillStyle = PALETTE.status.hs;
+                canvasContext.fillText(`HS ${label.val}`, drawX, hsY);
+            }
         }
     }
     canvasContext.restore();

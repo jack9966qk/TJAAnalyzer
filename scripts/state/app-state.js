@@ -14,6 +14,8 @@ export const appState = {
         beatsPerLine: 16,
         selection: null,
         annotations: new LocationMap(),
+        showTextInAnnotationMode: false,
+        alwaysShowAnnotations: false,
     },
     loadedTJAContent: exampleTJA,
     activeDataSourceMode: "list",
