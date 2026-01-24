@@ -136,12 +136,12 @@ export class JudgementClient {
     }
 
     // Flatten notes to list
-    const notes: { type: string; ordinal: number }[] = [];
+    const notes: { type: NoteType; ordinal: number }[] = [];
     const ordinalCounters: Record<string, number> = {};
 
     for (const bar of chart.bars) {
       for (const char of bar) {
-        if (JUDGEABLE_NOTES.includes(char as NoteType)) {
+        if (JUDGEABLE_NOTES.includes(char)) {
           if (ordinalCounters[char] === undefined) ordinalCounters[char] = 0;
           notes.push({ type: char, ordinal: ordinalCounters[char] });
           ordinalCounters[char]++;

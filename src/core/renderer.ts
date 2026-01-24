@@ -1,9 +1,10 @@
-import type { BarParams, GogoChange, LoopInfo, ParsedChart } from "./tja-parser.js";
 import { calculateInferredHands } from "./auto-annotation.js";
 import {
-  BIG_NOTES,
   createJudgementKey,
   createNoteLocation,
+  isBig,
+  isJudgeable,
+  isRenderable,
   JUDGEABLE_NOTES,
   type JudgementKey,
   JudgementMap,
@@ -12,6 +13,7 @@ import {
   NoteType,
   RENDERABLE_NOTES,
 } from "./primitives.js";
+import type { BarParams, GogoChange, LoopInfo, ParsedChart } from "./tja-parser.js";
 
 export {
   type NoteLocation,
@@ -23,6 +25,9 @@ export {
   NoteType,
   JUDGEABLE_NOTES,
   RENDERABLE_NOTES,
+  isJudgeable,
+  isBig,
+  isRenderable,
 };
 
 export enum JudgementType {
@@ -132,7 +137,7 @@ const LAYOUT_RATIOS = {
 
 // Helper types for renderer and hit testing
 export interface RenderBarInfo {
-  bar: string[];
+  bar: NoteType[];
   originalIndex: number;
   isLoopStart?: boolean;
   isLoopEnd?: boolean;
@@ -313,7 +318,7 @@ function getVirtualBars(
             if (bar) {
               for (let j = 0; j < bar.length; j++) {
                 const char = bar[j];
-                if (JUDGEABLE_NOTES.includes(char as NoteType)) {
+                if (isJudgeable(char)) {
                   const locKey = { barIndex: barIdx, charIndex: j };
                   const identity = locToJudgementKey.get(locKey);
                   if (identity && judgements.has(identity)) {
@@ -361,14 +366,14 @@ function getVirtualBars(
   return virtualBars;
 }
 
-function calculateGlobalBarStartIndices(bars: string[][]): number[] {
+function calculateGlobalBarStartIndices(bars: NoteType[][]): number[] {
   const indices: number[] = [];
   let currentGlobalNoteIndex = 0;
   for (const bar of bars) {
     indices.push(currentGlobalNoteIndex);
     if (bar) {
       for (const char of bar) {
-        if (JUDGEABLE_NOTES.includes(char as NoteType)) {
+        if (isJudgeable(char)) {
           currentGlobalNoteIndex++;
         }
       }
@@ -467,7 +472,7 @@ function calculateLayout(
 export interface HitInfo {
   originalBarIndex: number;
   charIndex: number;
-  type: string;
+  type: NoteType;
   bpm: number;
   scroll: number;
   branch?: "normal" | "expert" | "master";
@@ -549,7 +554,7 @@ export function getNoteAt(
 
     for (let i = 0; i < bar.length; i++) {
       const char = bar[i];
-      if (!RENDERABLE_NOTES.includes(char as NoteType)) continue;
+      if (!isRenderable(char)) continue;
 
       const noteX: number = barX + i * noteStep;
 
@@ -560,7 +565,7 @@ export function getNoteAt(
 
       // Determine radius
       let radius = NOTE_RADIUS_SMALL;
-      if (BIG_NOTES.includes(char as NoteType)) radius = NOTE_RADIUS_BIG;
+      if (isBig(char)) radius = NOTE_RADIUS_BIG;
 
       if (dist <= radius) {
         // Hit!
@@ -718,7 +723,7 @@ export function createLayout(
     if (info.bar) {
       for (let j = 0; j < info.bar.length; j++) {
         const char = info.bar[j];
-        if (JUDGEABLE_NOTES.includes(char as NoteType)) {
+        if (isJudgeable(char)) {
           const locKey = { barIndex: info.originalIndex, charIndex: j };
           const ident = locToJudgementKey.get(locKey);
 
@@ -1597,7 +1602,7 @@ function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-function calculateNoteMaps(bars: string[][]): {
+function calculateNoteMaps(bars: NoteType[][]): {
   locToJudgementKey: LocationMap<JudgementKey>;
   identToLoc: JudgementMap<NoteLocation[]>;
 } {
@@ -1610,7 +1615,7 @@ function calculateNoteMaps(bars: string[][]): {
     if (!bar) continue;
     for (let j = 0; j < bar.length; j++) {
       const char = bar[j];
-      if (JUDGEABLE_NOTES.includes(char as NoteType)) {
+      if (isJudgeable(char)) {
         if (counters[char] === undefined) counters[char] = 0;
 
         const ordinal = counters[char];
@@ -1631,7 +1636,7 @@ function calculateNoteMaps(bars: string[][]): {
   return { locToJudgementKey, identToLoc };
 }
 
-function calculateBalloonIndices(bars: string[][]): LocationMap<number> {
+function calculateBalloonIndices(bars: NoteType[][]): LocationMap<number> {
   const map = new LocationMap<number>();
   let balloonCount = 0;
 
@@ -1639,7 +1644,7 @@ function calculateBalloonIndices(bars: string[][]): LocationMap<number> {
     const bar = bars[i];
     if (!bar) continue;
     for (let j = 0; j < bar.length; j++) {
-      if (bar[j] === "7" || bar[j] === "9") {
+      if (bar[j] === NoteType.Balloon || bar[j] === NoteType.Kusudama) {
         map.set({ barIndex: i, charIndex: j }, balloonCount);
         balloonCount++;
       }
@@ -1666,7 +1671,7 @@ function drawLongNotes(
   } = constants;
 
   let currentLongNote: {
-    type: string;
+    type: NoteType;
     startBarIdx: number;
     startNoteIdx: number;
     originalBarIdx: number;
@@ -1696,15 +1701,16 @@ function drawLongNotes(
     for (let j = 0; j < noteCount; j++) {
       const char = bar[j];
 
-      if (char === "5" || char === "6" || char === "7" || char === "9") {
+      if ([NoteType.Drumroll, NoteType.DrumrollBig, NoteType.Balloon, NoteType.Kusudama].includes(char)) {
         // Start a new long note
         currentLongNote = { type: char, startBarIdx: i, startNoteIdx: j, originalBarIdx, originalNoteIdx: j };
         segmentActive = true;
         segmentStartIdx = j;
-      } else if (char === "8") {
+      } else if (char === NoteType.End) {
         if (currentLongNote) {
           // End the long note
-          const radius = currentLongNote.type === "6" || currentLongNote.type === "9" ? rBig : rSmall;
+          const radius =
+            currentLongNote.type === NoteType.DrumrollBig || currentLongNote.type === NoteType.Kusudama ? rBig : rSmall;
           const startX = barX + segmentStartIdx * noteStep;
           const endX = barX + j * noteStep;
 
@@ -1712,7 +1718,7 @@ function drawLongNotes(
           const hasEndCap = true;
 
           if (isDirty) {
-            if (currentLongNote.type === "7" || currentLongNote.type === "9") {
+            if (currentLongNote.type === NoteType.Balloon || currentLongNote.type === NoteType.Kusudama) {
               // Balloon
               const balloonIdx = balloonIndices.get({
                 barIndex: currentLongNote.originalBarIdx,
@@ -1732,7 +1738,7 @@ function drawLongNotes(
                 borderInnerW,
                 viewMode,
                 count,
-                currentLongNote.type === "9",
+                currentLongNote.type === NoteType.Kusudama,
               );
             } else {
               // Drumroll
@@ -1760,7 +1766,8 @@ function drawLongNotes(
 
     // If still active at end of bar, draw segment to end
     if (segmentActive && currentLongNote) {
-      const radius = currentLongNote.type === "6" || currentLongNote.type === "9" ? rBig : rSmall;
+      const radius =
+        currentLongNote.type === NoteType.DrumrollBig || currentLongNote.type === NoteType.Kusudama ? rBig : rSmall;
       const startX = barX + segmentStartIdx * noteStep;
       const endX = barX + frame.width; // Visual end of bar
 
@@ -1768,7 +1775,7 @@ function drawLongNotes(
       const hasEndCap = false; // Continuation
 
       if (isDirty) {
-        if (currentLongNote.type === "7" || currentLongNote.type === "9") {
+        if (currentLongNote.type === NoteType.Balloon || currentLongNote.type === NoteType.Kusudama) {
           const balloonIdx = balloonIndices.get({
             barIndex: currentLongNote.originalBarIdx,
             charIndex: currentLongNote.originalNoteIdx,
@@ -1787,7 +1794,7 @@ function drawLongNotes(
             borderInnerW,
             viewMode,
             count,
-            currentLongNote.type === "9",
+            currentLongNote.type === NoteType.Kusudama,
           );
         } else {
           drawDrumrollSegment(
@@ -1871,7 +1878,6 @@ function drawBalloonSegment(
   // The tail usually starts a bit after the head, but for simplicity we draw it as a capsule behind the head.
   // However, if we draw it as a capsule, the head will be drawn on top of it.
   // If startCap is true, we are drawing the head segment.
-
   drawCapsule(
     canvasContext,
     startX,
@@ -2026,7 +2032,7 @@ function drawCapsule(
 
 function calculateNoteColors(
   renderContext: RenderContext,
-  bar: string[],
+  bar: NoteType[],
   noteCount: number,
   originalBarIndex: number,
   loopInfo: LoopInfo | undefined,
@@ -2039,7 +2045,7 @@ function calculateNoteColors(
   if (viewMode === "judgements" || viewMode === "judgements-underline" || viewMode === "judgements-text") {
     for (let i = 0; i < noteCount; i++) {
       const char = bar[i];
-      if (!JUDGEABLE_NOTES.includes(char as NoteType)) continue;
+      if (!isJudgeable(char)) continue;
 
       let effectiveDelta: number | undefined;
       let isValidJudge = false;
@@ -2060,7 +2066,6 @@ function calculateNoteColors(
           // We need to find the base note (in the first iteration of the loop)
           // `originalBarIndex` is the template bar index.
           // We iterate through all iterations `iter`
-
           for (let iter = 0; iter < loopInfo.iterations; iter++) {
             const actualBarIdx =
               loopInfo.startBarIndex + iter * loopInfo.period + (originalBarIndex - loopInfo.startBarIndex);
@@ -2160,7 +2165,7 @@ function calculateNoteColors(
 
 function drawJudgementsUnderline(
   canvasContext: CanvasRenderingContext2D,
-  bar: string[],
+  bar: NoteType[],
   noteColors: (string | null)[],
   noteCount: number,
   frame: Frame,
@@ -2183,7 +2188,7 @@ function drawJudgementsUnderline(
   for (let i = noteCount - 1; i >= 0; i--) {
     const noteChar = bar[i];
     // Only for judgeable notes
-    if (!JUDGEABLE_NOTES.includes(noteChar as NoteType)) continue;
+    if (!isJudgeable(noteChar)) continue;
 
     // Only draw if we have a valid color
     if (noteColors[i]) {
@@ -2205,7 +2210,7 @@ function drawJudgementsUnderline(
 
   for (let i = noteCount - 1; i >= 0; i--) {
     const noteChar = bar[i];
-    if (!JUDGEABLE_NOTES.includes(noteChar as NoteType)) continue;
+    if (!isJudgeable(noteChar)) continue;
 
     const color = noteColors[i];
     if (color) {
@@ -2224,7 +2229,7 @@ function drawJudgementsUnderline(
 
 function drawJudgementsText(
   canvasContext: CanvasRenderingContext2D,
-  bar: string[],
+  bar: NoteType[],
   noteColors: (string | null)[],
   noteCount: number,
   frame: Frame,
@@ -2249,7 +2254,7 @@ function drawJudgementsText(
 
   for (let i = 0; i < noteCount; i++) {
     const noteChar = bar[i];
-    if (!JUDGEABLE_NOTES.includes(noteChar as NoteType)) continue;
+    if (!isJudgeable(noteChar)) continue;
 
     const color = noteColors[i];
 
@@ -2273,7 +2278,8 @@ function drawJudgementsText(
 
       if (text) {
         const noteX: number = x + i * noteStep;
-        const noteTopY = centerY - (["3", "4"].includes(noteChar) ? rBig : rSmall);
+        const radius = [NoteType.DonBig, NoteType.KaBig].includes(noteChar) ? rBig : rSmall;
+        const noteTopY = centerY - radius;
         // Slightly above note
         const textY = noteTopY;
 
@@ -2286,24 +2292,24 @@ function drawJudgementsText(
   canvasContext.restore();
 }
 
-function getNoteStyle(noteChar: string, rSmall: number, rBig: number): { color: string | null; radius: number } {
+function getNoteStyle(noteChar: NoteType, rSmall: number, rBig: number): { color: string | null; radius: number } {
   let color: string | null = null;
   let radius: number = 0;
 
   switch (noteChar) {
-    case NoteType.Don: // Don (Red Small)
+    case NoteType.Don:
       color = PALETTE.notes.don;
       radius = rSmall;
       break;
-    case NoteType.Ka: // Ka (Blue Small)
+    case NoteType.Ka:
       color = PALETTE.notes.ka;
       radius = rSmall;
       break;
-    case NoteType.DonBig: // Don (Red Big)
+    case NoteType.DonBig:
       color = PALETTE.notes.don;
       radius = rBig;
       break;
-    case NoteType.KaBig: // Ka (Blue Big)
+    case NoteType.KaBig:
       color = PALETTE.notes.ka;
       radius = rBig;
       break;
@@ -2313,7 +2319,7 @@ function getNoteStyle(noteChar: string, rSmall: number, rBig: number): { color: 
 
 function drawBarNotes(
   renderContext: RenderContext,
-  bar: string[],
+  bar: NoteType[],
   frame: Frame,
   originalBarIndex: number = -1,
   loopInfo?: LoopInfo,
@@ -2373,22 +2379,22 @@ function drawBarNotes(
     const radius = style.radius;
 
     if (color) {
-      let borderColor = PALETTE.notes.border.white; // Default white border
+      let borderColor = PALETTE.notes.border.white;
 
       if (viewMode === "judgements") {
-        color = PALETTE.notes.unjudged; // Default unjudged fill color (Grey)
-        borderColor = PALETTE.notes.border.grey; // Default unjudged border color (Grey)
+        color = PALETTE.notes.unjudged;
+        borderColor = PALETTE.notes.border.grey;
 
         const assignedColor = noteColors[i];
         if (assignedColor) {
           color = assignedColor;
-          borderColor = PALETTE.notes.border.white; // Revert to standard white border for judged notes
+          // Revert to standard white border for judged notes
+          borderColor = PALETTE.notes.border.white;
         }
       }
 
       // Note: In judgements-underline mode, we keep original colors (Red/Blue) and white border
       // The underline is drawn in Phase 1.
-
       canvasContext.beginPath();
       canvasContext.arc(noteX, centerY, radius, 0, Math.PI * 2);
 
@@ -2424,7 +2430,7 @@ function drawBarNotes(
       canvasContext.stroke();
 
       // Annotation Rendering
-      if (options.isAnnotationMode && options.annotations && JUDGEABLE_NOTES.includes(noteChar as NoteType)) {
+      if (options.isAnnotationMode && options.annotations && isJudgeable(noteChar)) {
         const noteId = { barIndex: originalBarIndex, charIndex: i };
         const annotation = options.annotations.get(noteId);
         if (annotation) {
@@ -2432,7 +2438,7 @@ function drawBarNotes(
           if (inferredHands) {
             const inferred = inferredHands.get(noteId);
             if (inferred && inferred !== annotation) {
-              textColor = PALETTE.ui.annotation.mismatch; // Red if mismatch
+              textColor = PALETTE.ui.annotation.mismatch;
             }
           }
 
@@ -2549,7 +2555,7 @@ function drawBarLabels(
 
   canvasContext.font = `bold ${statusFontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
 
-  // Process Mid-Bar Lines (Dark Grey)
+  // Process Mid-Bar Lines
   // Collect unique indices > 0
   const changeIndices = new Set<number>();
   labels.forEach((l) => {
@@ -2558,7 +2564,7 @@ function drawBarLabels(
 
   if (changeIndices.size > 0 && noteCount > 0) {
     canvasContext.beginPath();
-    canvasContext.strokeStyle = PALETTE.status.line; // Dark Grey
+    canvasContext.strokeStyle = PALETTE.status.line;
     canvasContext.lineWidth = barBorderWidth * 0.8; // Slightly thinner
 
     changeIndices.forEach((idx) => {

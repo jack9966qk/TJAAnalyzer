@@ -2,7 +2,7 @@ import { JUDGEABLE_NOTES, LocationMap, type NoteLocation, NoteType } from "./pri
 import type { ParsedChart } from "./tja-parser.js";
 
 export function calculateInferredHands(
-  bars: string[][],
+  bars: NoteType[][],
   annotations: LocationMap<string> | undefined,
 ): LocationMap<string> {
   const inferred = new LocationMap<string>();
@@ -16,7 +16,7 @@ export function calculateInferredHands(
       const char = bar[j];
       const noteId = { barIndex: i, charIndex: j };
 
-      if (JUDGEABLE_NOTES.includes(char as NoteType)) {
+      if (JUDGEABLE_NOTES.includes(char)) {
         let currentInferred = "R";
 
         if (shouldResetToRight) {
@@ -80,7 +80,7 @@ export function generateAutoAnnotations(
       for (let j = 0; j < bar.length; j++) {
         const char = bar[j];
         // Only Don/Ka (Small/Large) are annotatable
-        if (JUDGEABLE_NOTES.includes(char as NoteType)) {
+        if (JUDGEABLE_NOTES.includes(char)) {
           const id = { barIndex: i, charIndex: j };
           const hand = inferred.get(id);
           if (hand) {

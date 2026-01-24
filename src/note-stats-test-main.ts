@@ -5,7 +5,6 @@ import {
   JUDGEABLE_NOTES,
   JudgementMap,
   type JudgementValue,
-  type NoteType,
   type ViewOptions,
 } from "./core/renderer.js";
 import type { ParsedChart } from "./core/tja-parser.js";
@@ -45,7 +44,7 @@ w.setStats = (
       const counters: Record<string, number> = {};
       for (const bar of chart.bars) {
         for (const char of bar) {
-          if (JUDGEABLE_NOTES.includes(char as NoteType)) {
+          if (JUDGEABLE_NOTES.includes(char)) {
             if (noteCount < judgementsArr.length) {
               if (counters[char] === undefined) counters[char] = 0;
               const ord = counters[char];

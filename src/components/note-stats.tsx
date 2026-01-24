@@ -6,7 +6,7 @@ import {
   JudgementMap,
   JudgementType,
   type JudgementValue,
-  type NoteType,
+  NoteType,
   PALETTE,
   RENDERABLE_NOTES,
   type ViewOptions,
@@ -59,14 +59,14 @@ export class NoteStatsDisplay extends HTMLElement {
 
   private getNoteName(char: string): string {
     const map: Record<string, string> = {
-      "1": "don",
-      "2": "ka",
-      "3": "DON",
-      "4": "KA",
-      "5": "roll",
-      "6": "ROLL",
-      "7": "balloon",
-      "9": "Kusudama",
+      [NoteType.Don]: "don",
+      [NoteType.Ka]: "ka",
+      [NoteType.DonBig]: "DON",
+      [NoteType.KaBig]: "KA",
+      [NoteType.Drumroll]: "roll",
+      [NoteType.DrumrollBig]: "ROLL",
+      [NoteType.Balloon]: "balloon",
+      [NoteType.Kusudama]: "Kusudama",
     };
     return map[char] || "unknown";
   }
@@ -90,7 +90,7 @@ export class NoteStatsDisplay extends HTMLElement {
     const currentTotal = currentBar.length;
 
     for (let i = currentCharIdx - 1; i >= 0; i--) {
-      if (RENDERABLE_NOTES.includes(currentBar[i] as NoteType)) {
+      if (RENDERABLE_NOTES.includes(currentBar[i])) {
         const prevPos = i / currentTotal;
         const curPos = currentCharIdx / currentTotal;
         const diff = curPos - prevPos;
@@ -109,7 +109,7 @@ export class NoteStatsDisplay extends HTMLElement {
       const prevTotal = prevBar.length;
 
       for (let i = prevTotal - 1; i >= 0; i--) {
-        if (RENDERABLE_NOTES.includes(prevBar[i] as NoteType)) {
+        if (RENDERABLE_NOTES.includes(prevBar[i])) {
           const distInCurrent = currentCharIdx / currentTotal;
           const distBetween = (currentBarIdx - b - 1) * 1.0;
           const distInPrev = (prevTotal - i) / prevTotal;
@@ -183,7 +183,7 @@ export class NoteStatsDisplay extends HTMLElement {
             if (bar)
               for (let j = 0; j < bar.length; j++) {
                 const c = bar[j];
-                if (JUDGEABLE_NOTES.includes(c as NoteType)) {
+                if (JUDGEABLE_NOTES.includes(c)) {
                   if (!counters[c]) counters[c] = 0;
                   map.set(`${i}_${j}`, counters[c]);
                   counters[c]++;

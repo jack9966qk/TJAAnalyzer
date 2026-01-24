@@ -1,3 +1,5 @@
+import { NoteType, toNoteType } from "./primitives.js";
+
 export interface LoopInfo {
   startBarIndex: number;
   period: number;
@@ -32,7 +34,7 @@ export interface BarParams {
 }
 
 export interface ParsedChart {
-  bars: string[][];
+  bars: NoteType[][];
   barParams: BarParams[];
   loop?: LoopInfo;
   balloonCounts: number[];
@@ -153,11 +155,11 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
       }
 
       // Buffers for parsing
-      const normalBars: string[][] = [];
+      const normalBars: NoteType[][] = [];
       const normalParams: BarParams[] = [];
-      const expertBars: string[][] = [];
+      const expertBars: NoteType[][] = [];
       const expertParams: BarParams[] = [];
-      const masterBars: string[][] = [];
+      const masterBars: NoteType[][] = [];
       const masterParams: BarParams[] = [];
 
       const stateN = createInitialState(bpm);
@@ -167,7 +169,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
       // Parsing helper
       const parseLines = (
         linesToParse: string[],
-        bars: string[][],
+        bars: NoteType[][],
         params: BarParams[],
         state: ParserState,
         isBranched: boolean,
@@ -248,7 +250,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
               if (cleanedBar.length === 0) {
                 bars.push([]);
               } else {
-                bars.push(cleanedBar.split(""));
+                bars.push(cleanedBar.split("").map(toNoteType));
               }
 
               params.push({
@@ -367,7 +369,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
 
       // Create Charts
       const createChart = (
-        bars: string[][],
+        bars: NoteType[][],
         params: BarParams[],
         type: "normal" | "expert" | "master",
       ): ParsedChart => {
@@ -403,7 +405,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
   return parsedCourses;
 }
 
-function detectLoop(bars: string[][]): LoopInfo | undefined {
+function detectLoop(bars: NoteType[][]): LoopInfo | undefined {
   // 1. Identify start (first non-empty bar)
   let firstNonEmpty = -1;
   for (let i = 0; i < bars.length; i++) {
@@ -469,12 +471,12 @@ function detectLoop(bars: string[][]): LoopInfo | undefined {
   return undefined;
 }
 
-function isBarEmpty(bar: string[]): boolean {
+function isBarEmpty(bar: NoteType[]): boolean {
   if (bar.length === 0) return true;
-  return bar.every((c) => c === "0");
+  return bar.every((c) => c === NoteType.None);
 }
 
-function areBarsEqual(b1: string[], b2: string[]): boolean {
+function areBarsEqual(b1: NoteType[], b2: NoteType[]): boolean {
   if (b1.length !== b2.length) return false;
   for (let i = 0; i < b1.length; i++) {
     if (b1[i] !== b2[i]) return false;

@@ -11,7 +11,6 @@ import {
   JudgementMap,
   type JudgementValue,
   LocationMap,
-  type NoteType,
   PALETTE,
   type RenderTexts,
   renderChart,
@@ -375,7 +374,7 @@ export class TJAChart extends HTMLElement {
 
     // Handle Annotation Mode Click
     if (this._viewOptions.isAnnotationMode) {
-      if (hit && JUDGEABLE_NOTES.includes(hit.type as NoteType)) {
+      if (hit && JUDGEABLE_NOTES.includes(hit.type)) {
         const noteId = { barIndex: hit.originalBarIndex, charIndex: hit.charIndex };
         // Clone is not strictly necessary for mutation if we just update the map instance in place,
         // but for safety/reactivity we might want to clone.
@@ -435,14 +434,7 @@ export class TJAChart extends HTMLElement {
     // We force DPR to 1 so that logical width == physical width.
     canvas.width = TARGET_WIDTH;
 
-    renderChart(
-      this._chart,
-      canvas,
-      this._judgements,
-      options,
-      this._texts,
-      1,
-    );
+    renderChart(this._chart, canvas, this._judgements, options, this._texts, 1);
 
     return canvas.toDataURL("image/png");
   }

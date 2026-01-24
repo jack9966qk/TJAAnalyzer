@@ -1,3 +1,4 @@
+import { NoteType } from "../src/core/primitives.js";
 import type { ViewOptions } from "../src/core/renderer.js";
 import { generateTJAFromSelection } from "../src/core/tja-exporter.js";
 import { parseTJA } from "../src/core/tja-parser.js";
@@ -359,11 +360,11 @@ COURSE:Oni
 
     // Bar 0 and 1 should be empty
     assert(
-      reParsed.bars[0].every((c) => c === "0"),
+      reParsed.bars[0].every((c) => c === NoteType.None),
       "Bar 0 should be empty (Gap)",
     );
     assert(
-      reParsed.bars[1].every((c) => c === "0"),
+      reParsed.bars[1].every((c) => c === NoteType.None),
       "Bar 1 should be empty (Gap)",
     );
 

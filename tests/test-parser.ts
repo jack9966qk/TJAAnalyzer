@@ -1,4 +1,5 @@
 import { exampleTJA } from "../src/core/example-data.js";
+import type { NoteType } from "../src/core/primitives.js";
 import { parseTJA } from "../src/core/tja-parser.js";
 
 try {
@@ -23,7 +24,7 @@ try {
     throw new Error("Parsed 0 bars for 'edit' difficulty. Something is wrong.");
   }
 
-  const firstBar: string[] = bars[0];
+  const firstBar: NoteType[] = bars[0];
   console.log("First bar of 'edit' difficulty:", firstBar);
 
   // Check BPM/Scroll

@@ -1,3 +1,4 @@
+import { NoteType } from "./primitives.js";
 import type { ViewOptions } from "./renderer.js";
 import type { ParsedChart } from "./tja-parser.js";
 
@@ -78,7 +79,7 @@ export function generateTJAFromSelection(
     const bar = chart.bars[b];
     if (bar) {
       for (const c of bar) {
-        if (c === "7" || c === "9") balloonCursor++;
+        if (c === NoteType.Balloon || c === NoteType.Kusudama) balloonCursor++;
       }
     }
   }
@@ -94,7 +95,7 @@ export function generateTJAFromSelection(
 
     for (let i = 0; i < bar.length; i++) {
       const c = bar[i];
-      if (c === "7" || c === "9") {
+      if (c === NoteType.Balloon || c === NoteType.Kusudama) {
         // If this note is within selection, we keep it and need its value
         if (i >= validStart && i <= validEnd) {
           if (balloonCursor < chart.balloonCounts.length) {

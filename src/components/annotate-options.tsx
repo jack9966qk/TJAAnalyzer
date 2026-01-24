@@ -45,7 +45,7 @@ export class AnnotateOptions extends HTMLElement {
           >
             {i18n.t("ui.clearAnnotations")}
           </button>
-          <save-image-button>{i18n.t("ui.exportImage")}</save-image-button>
+          <save-image-button></save-image-button>
         </div>
         <p style="font-size: 0.9em; color: #666; margin-top: 5px;">{i18n.t("ui.annotation.desc")}</p>
       </div>

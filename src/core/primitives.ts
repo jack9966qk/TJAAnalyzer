@@ -32,6 +32,18 @@ export const RENDERABLE_NOTES = [
   NoteType.Kusudama,
 ];
 
+export function isJudgeable(note: NoteType): boolean {
+  return JUDGEABLE_NOTES.includes(note);
+}
+
+export function isBig(note: NoteType): boolean {
+  return BIG_NOTES.includes(note);
+}
+
+export function isRenderable(note: NoteType): boolean {
+  return RENDERABLE_NOTES.includes(note);
+}
+
 export interface JudgementKey {
   char: string;
   ordinal: number;
@@ -216,3 +228,28 @@ export class LocationMap<V> {
 
 export const createJudgementKey = (char: string, ordinal: number): JudgementKey => ({ char, ordinal });
 export const createNoteLocation = (barIndex: number, charIndex: number): NoteLocation => ({ barIndex, charIndex });
+
+export function toNoteType(char: string): NoteType {
+  switch (char) {
+    case "1":
+      return NoteType.Don;
+    case "2":
+      return NoteType.Ka;
+    case "3":
+      return NoteType.DonBig;
+    case "4":
+      return NoteType.KaBig;
+    case "5":
+      return NoteType.Drumroll;
+    case "6":
+      return NoteType.DrumrollBig;
+    case "7":
+      return NoteType.Balloon;
+    case "8":
+      return NoteType.End;
+    case "9":
+      return NoteType.Kusudama;
+    default:
+      return NoteType.None;
+  }
+}

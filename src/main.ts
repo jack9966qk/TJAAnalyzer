@@ -22,7 +22,13 @@ import {
   updateStatsComponent,
 } from "./controllers/chart-controller.js";
 import { handleLayoutToggle, updateLayout } from "./controllers/layout-controller.js";
-import { createJudgementKey, type HitInfo, type JudgementMap, type JudgementValue } from "./core/renderer.js";
+import {
+  createJudgementKey,
+  type HitInfo,
+  type JudgementMap,
+  type JudgementValue,
+  type ViewOptions as RendererViewOptions,
+} from "./core/renderer.js";
 import { appState } from "./state/app-state.js";
 import { i18n } from "./utils/i18n.js";
 import {
@@ -620,8 +626,7 @@ window.loadTJAContent = (content: string) => {
   updateStatus("status.fileLoaded");
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: Test helper
-window.setViewOptions = (opts: any) => {
+window.setViewOptions = (opts: Partial<RendererViewOptions>) => {
   appState.viewOptions = { ...appState.viewOptions, ...opts };
   refreshChart();
 };
