@@ -88,21 +88,28 @@ export class NoteStatsDisplay extends HTMLElement {
   private getGapInfo(chart: ParsedChart, currentBarIdx: number, currentCharIdx: number): string | null {
     const currentBar = chart.bars[currentBarIdx];
     const currentTotal = currentBar.length;
+    // Get measure ratio, default to 1.0 if not present
+    const currentRatio = chart.barParams?.[currentBarIdx]?.measureRatio ?? 1.0;
 
     for (let i = currentCharIdx - 1; i >= 0; i--) {
       if (RENDERABLE_NOTES.includes(currentBar[i])) {
         const prevPos = i / currentTotal;
         const curPos = currentCharIdx / currentTotal;
         const diff = curPos - prevPos;
-        return this.formatGap(diff);
+        return this.formatGap(diff * currentRatio);
       }
     }
 
+    // Accumulate gap from start of current bar
+    let accumulatedGap = (currentCharIdx / currentTotal) * currentRatio;
+
     for (let b = currentBarIdx - 1; b >= 0; b--) {
       const prevBar = chart.bars[b];
+      const prevRatio = chart.barParams?.[b]?.measureRatio ?? 1.0;
+
       if (!prevBar || prevBar.length === 0) {
-        const minGap = currentCharIdx / currentTotal + (currentBarIdx - b);
-        if (minGap > 1.0 + 0.001) return null;
+        accumulatedGap += prevRatio;
+        if (accumulatedGap > 1.0 + 0.001) return null;
         continue;
       }
 
@@ -110,11 +117,8 @@ export class NoteStatsDisplay extends HTMLElement {
 
       for (let i = prevTotal - 1; i >= 0; i--) {
         if (RENDERABLE_NOTES.includes(prevBar[i])) {
-          const distInCurrent = currentCharIdx / currentTotal;
-          const distBetween = (currentBarIdx - b - 1) * 1.0;
           const distInPrev = (prevTotal - i) / prevTotal;
-
-          const totalGap = distInCurrent + distBetween + distInPrev;
+          const totalGap = accumulatedGap + distInPrev * prevRatio;
 
           if (totalGap <= 1.0 + 0.0001) {
             return this.formatGap(totalGap);
@@ -124,8 +128,8 @@ export class NoteStatsDisplay extends HTMLElement {
         }
       }
 
-      const minGap = currentCharIdx / currentTotal + (currentBarIdx - b);
-      if (minGap > 1.0) return null;
+      accumulatedGap += prevRatio;
+      if (accumulatedGap > 1.0) return null;
     }
 
     return null;
