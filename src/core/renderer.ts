@@ -205,6 +205,8 @@ export interface ViewOptions {
   hoveredNote?: (NoteLocation & { branch?: "normal" | "expert" | "master" }) | null;
   annotations?: LocationMap<string>;
   isAnnotationMode?: boolean;
+  showTextInAnnotationMode?: boolean;
+  alwaysShowAnnotations?: boolean;
 }
 
 export interface RenderTexts {
@@ -1035,21 +1037,25 @@ function drawBarBackgroundWrapper(
       );
     }
 
-    if (!options.isAnnotationMode) {
-      drawBarLabels(
-        canvasContext,
-        frame,
-        info.originalIndex,
-        constants.barNumberFontSize,
-        constants.statusFontSize,
-        constants.barNumberOffsetY,
-        params,
-        noteCount,
-        info.originalIndex === 0,
-        constants.lineWidthBarBorder,
-        isBranchStart,
-      );
-    }
+    const showText =
+      options.isAnnotationMode || options.alwaysShowAnnotations
+        ? !!options.showTextInAnnotationMode
+        : true;
+
+    drawBarLabels(
+      canvasContext,
+      frame,
+      info.originalIndex,
+      constants.barNumberFontSize,
+      constants.statusFontSize,
+      constants.barNumberOffsetY,
+      params,
+      noteCount,
+      info.originalIndex === 0,
+      constants.lineWidthBarBorder,
+      isBranchStart,
+      showText,
+    );
 
     if (info.isLoopStart && chart.loop) {
       canvasContext.fillStyle = PALETTE.text.primary;
@@ -1096,21 +1102,25 @@ function drawBarBackgroundWrapper(
       );
     }
 
-    if (!options.isAnnotationMode) {
-      drawBarLabels(
-        canvasContext,
-        frame,
-        info.originalIndex,
-        constants.barNumberFontSize,
-        constants.statusFontSize,
-        constants.barNumberOffsetY,
-        params,
-        noteCount,
-        info.originalIndex === 0,
-        constants.lineWidthBarBorder,
-        isBranchStart,
-      );
-    }
+    const showText =
+      options.isAnnotationMode || options.alwaysShowAnnotations
+        ? !!options.showTextInAnnotationMode
+        : true;
+
+    drawBarLabels(
+      canvasContext,
+      frame,
+      info.originalIndex,
+      constants.barNumberFontSize,
+      constants.statusFontSize,
+      constants.barNumberOffsetY,
+      params,
+      noteCount,
+      info.originalIndex === 0,
+      constants.lineWidthBarBorder,
+      isBranchStart,
+      showText,
+    );
 
     if (info.isLoopStart && chart.loop) {
       canvasContext.fillStyle = PALETTE.text.primary;
@@ -2430,7 +2440,7 @@ function drawBarNotes(
       canvasContext.stroke();
 
       // Annotation Rendering
-      if (options.isAnnotationMode && options.annotations && isJudgeable(noteChar)) {
+      if ((options.isAnnotationMode || options.alwaysShowAnnotations) && options.annotations && isJudgeable(noteChar)) {
         const noteId = { barIndex: originalBarIndex, charIndex: i };
         const annotation = options.annotations.get(noteId);
         if (annotation) {
@@ -2472,6 +2482,7 @@ function drawBarLabels(
   isFirstBar: boolean,
   barBorderWidth: number,
   isBranchStart: boolean = false,
+  showText: boolean = true,
 ): void {
   const { x, y, width, height } = frame;
   canvasContext.save();
@@ -2480,36 +2491,38 @@ function drawBarLabels(
   // Stack: BarNum (0), BPM (1), HS (2)
   // Baseline of HS is: y - offsetY - 2 * lineHeight
   // Top of HS is approx: y - offsetY - 3 * lineHeight
-  const topY = y - offsetY - 3 * lineHeight;
+  const topY = showText ? y - offsetY - 3 * lineHeight : y;
 
   // Draw Bar Line Extensions (Left and Right)
-  canvasContext.lineWidth = barBorderWidth;
+  if (showText) {
+    canvasContext.lineWidth = barBorderWidth;
 
-  // Left Extension
-  canvasContext.beginPath();
-  canvasContext.strokeStyle = isBranchStart ? PALETTE.branches.startLine : PALETTE.ui.barVerticalLine;
-  canvasContext.moveTo(x, y);
-  canvasContext.lineTo(x, topY);
-  canvasContext.stroke();
+    // Left Extension
+    canvasContext.beginPath();
+    canvasContext.strokeStyle = isBranchStart ? PALETTE.branches.startLine : PALETTE.ui.barVerticalLine;
+    canvasContext.moveTo(x, y);
+    canvasContext.lineTo(x, topY);
+    canvasContext.stroke();
 
-  // Right Extension
-  canvasContext.beginPath();
-  canvasContext.strokeStyle = PALETTE.ui.barVerticalLine;
-  canvasContext.moveTo(x + width, y);
-  canvasContext.lineTo(x + width, topY);
-  canvasContext.stroke();
+    // Right Extension
+    canvasContext.beginPath();
+    canvasContext.strokeStyle = PALETTE.ui.barVerticalLine;
+    canvasContext.moveTo(x + width, y);
+    canvasContext.lineTo(x + width, topY);
+    canvasContext.stroke();
 
-  // Text Padding
-  const textPadding = statusFontSize * 0.2;
+    // Text Padding
+    const textPadding = statusFontSize * 0.2;
 
-  // 1. Draw Bar Number
-  canvasContext.font = `bold ${numFontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
-  canvasContext.fillStyle = PALETTE.text.label;
-  canvasContext.textAlign = "left";
-  canvasContext.textBaseline = "bottom";
+    // 1. Draw Bar Number
+    canvasContext.font = `bold ${numFontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
+    canvasContext.fillStyle = PALETTE.text.label;
+    canvasContext.textAlign = "left";
+    canvasContext.textBaseline = "bottom";
 
-  const barNumY = y - offsetY;
-  canvasContext.fillText((originalBarIndex + 1).toString(), x + textPadding, barNumY);
+    const barNumY = y - offsetY;
+    canvasContext.fillText((originalBarIndex + 1).toString(), x + textPadding, barNumY);
+  }
 
   if (!params) {
     canvasContext.restore();
@@ -2550,47 +2563,67 @@ function drawBarLabels(
     return;
   }
 
-  const bpmY = barNumY - lineHeight;
+  const bpmY = (y - offsetY) - lineHeight;
   const hsY = bpmY - lineHeight;
 
   canvasContext.font = `bold ${statusFontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
 
   // Process Mid-Bar Lines
-  // Collect unique indices > 0
+  // Collect unique indices including 0
   const changeIndices = new Set<number>();
   labels.forEach((l) => {
-    if (l.index > 0) changeIndices.add(l.index);
+    changeIndices.add(l.index);
   });
 
   if (changeIndices.size > 0 && noteCount > 0) {
-    canvasContext.beginPath();
-    canvasContext.strokeStyle = PALETTE.status.line;
-    canvasContext.lineWidth = barBorderWidth * 0.8; // Slightly thinner
-
-    changeIndices.forEach((idx) => {
-      const lineX = x + (idx / noteCount) * width;
-      canvasContext.moveTo(lineX, y + height); // From bottom of bar
-      canvasContext.lineTo(lineX, topY); // To top of labels
-    });
-    canvasContext.stroke();
-  }
-
-  // Render Text
-  for (const label of labels) {
-    let labelX = x;
-    if (noteCount > 0) {
-      labelX = x + (label.index / noteCount) * width;
+    const hasZero = changeIndices.has(0);
+    if (hasZero) {
+      // Draw index 0 with full width to cover the bar border
+      canvasContext.beginPath();
+      canvasContext.strokeStyle = PALETTE.status.line;
+      canvasContext.lineWidth = barBorderWidth;
+      const lineX = x;
+      canvasContext.moveTo(lineX, y + height);
+      canvasContext.lineTo(lineX, topY);
+      canvasContext.stroke();
+      
+      changeIndices.delete(0);
     }
 
-    // Shift text
-    const drawX = labelX + textPadding;
+    if (changeIndices.size > 0) {
+      canvasContext.beginPath();
+      canvasContext.strokeStyle = PALETTE.status.line;
+      canvasContext.lineWidth = barBorderWidth * 0.8; // Slightly thinner
 
-    if (label.type === "BPM") {
-      canvasContext.fillStyle = PALETTE.status.bpm;
-      canvasContext.fillText(`BPM ${label.val}`, drawX, bpmY);
-    } else if (label.type === "HS") {
-      canvasContext.fillStyle = PALETTE.status.hs;
-      canvasContext.fillText(`HS ${label.val}`, drawX, hsY);
+      changeIndices.forEach((idx) => {
+        const lineX = x + (idx / noteCount) * width;
+        canvasContext.moveTo(lineX, y + height); // From bottom of bar
+        canvasContext.lineTo(lineX, topY); // To top of labels
+      });
+      canvasContext.stroke();
+    }
+  }
+
+  if (showText) {
+    // Text Padding
+    const textPadding = statusFontSize * 0.2;
+    // Render Text
+    for (const label of labels) {
+      let labelX = x;
+      if (noteCount > 0) {
+        labelX = x + (label.index / noteCount) * width;
+      }
+
+      // Shift text
+      const drawX = labelX + textPadding;
+
+      if (label.type === "BPM") {
+        canvasContext.fillStyle = PALETTE.status.bpm;
+        canvasContext.fillText(`BPM ${label.val}`, drawX, bpmY);
+      } else if (label.type === "HS") {
+        canvasContext.fillStyle = PALETTE.status.hs;
+        canvasContext.fillText(`HS ${label.val}`, drawX, hsY);
+      }
     }
   }
 
