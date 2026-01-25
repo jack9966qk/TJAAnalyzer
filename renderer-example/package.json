@@ -1,0 +1,17 @@
+{
+  "name": "renderer-example",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "vite"
+  },
+  "dependencies": {
+    "tja-renderer": "file:../renderer-package"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vite": "^5.0.0"
+  }
+}
