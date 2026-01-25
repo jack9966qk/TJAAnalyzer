@@ -59,6 +59,7 @@ export const PALETTE = {
     barBorder: "#000",
     barVerticalLine: "#ffffffff",
     centerLine: "#ccc",
+    gridLine: "#cccccc",
     selectionBorder: "#000",
     annotation: {
       match: "#000",
@@ -1078,6 +1079,7 @@ export function renderLayout(
       texts,
       isAllBranches,
       BASE_LANE_HEIGHT,
+      layout.baseBarWidth / 4,
     );
   });
 
@@ -1134,8 +1136,20 @@ function drawBarBackgroundWrapper(
   texts: RenderTexts,
   isAllBranches: boolean,
   BASE_LANE_HEIGHT: number,
+  beatWidth: number,
 ) {
   const params = chart.barParams[info.originalIndex];
+  
+  // Fallback if beatWidth is missing or 0
+  let effectiveBeatWidth = beatWidth;
+  if (!effectiveBeatWidth || effectiveBeatWidth <= 0) {
+     const measureRatio = params ? params.measureRatio : 1.0;
+     // frame.width = baseBarWidth * measureRatio
+     // baseBarWidth = frame.width / measureRatio
+     // beatWidth = baseBarWidth / 4
+     effectiveBeatWidth = (frame.width / measureRatio) / 4;
+  }
+  
   const gogoTime = params ? params.gogoTime : false;
   const gogoChanges = params ? params.gogoChanges : undefined;
   const noteCount = info.bar ? info.bar.length : 0;
@@ -1174,6 +1188,7 @@ function drawBarBackgroundWrapper(
         !hasLeftNeighbor,
         !hasRightNeighbor,
         overExtendWidth,
+        effectiveBeatWidth,
       );
       const expertFrame: Frame = { x: frame.x, y: frame.y + subHeight, width: frame.width, height: subHeight };
       drawBarBackground(
@@ -1186,6 +1201,7 @@ function drawBarBackgroundWrapper(
         !hasLeftNeighbor,
         !hasRightNeighbor,
         overExtendWidth,
+        effectiveBeatWidth,
       );
       const masterFrame: Frame = { x: frame.x, y: frame.y + 2 * subHeight, width: frame.width, height: subHeight };
       drawBarBackground(
@@ -1198,6 +1214,7 @@ function drawBarBackgroundWrapper(
         !hasLeftNeighbor,
         !hasRightNeighbor,
         overExtendWidth,
+        effectiveBeatWidth,
       );
 
       if (isBranchStart) {
@@ -1219,6 +1236,7 @@ function drawBarBackgroundWrapper(
         !hasLeftNeighbor,
         !hasRightNeighbor,
         overExtendWidth,
+        effectiveBeatWidth,
       );
     }
 
@@ -1274,6 +1292,7 @@ function drawBarBackgroundWrapper(
       !hasLeftNeighbor,
       !hasRightNeighbor,
       overExtendWidth,
+      effectiveBeatWidth,
     );
 
     if (isBranchStart) {
@@ -1442,6 +1461,7 @@ export function renderChart(
     dpr,
     headerHeight,
     locToJudgementKey,
+    baseBarWidth,
   } = layout;
 
   // Safety check for canvas limits
@@ -1511,6 +1531,7 @@ export function renderChart(
       texts,
       isAllBranches,
       BASE_LANE_HEIGHT,
+      baseBarWidth / 4,
     );
   });
 
@@ -1721,6 +1742,7 @@ function drawBarBackground(
   drawLeftExt: boolean = false,
   drawRightExt: boolean = false,
   overExtendWidth: number = 0,
+  beatWidth: number = 0,
 ): void {
   const { x, y, width, height } = frame;
   const centerY = y + height / 2;
@@ -1745,9 +1767,6 @@ function drawBarBackground(
     drawGradientLine(canvasContext, exX, y, exX + exW, y, PALETTE.ui.barBorder, borderW, direction);
     // Bottom Border
     drawGradientLine(canvasContext, exX, y + height, exX + exW, y + height, PALETTE.ui.barBorder, borderW, direction);
-
-    // 3. Center Line Gradient
-    drawGradientLine(canvasContext, exX, centerY, exX + exW, centerY, PALETTE.ui.centerLine, centerW, direction);
   };
 
   if (drawLeftExt && overExtendWidth > 0) {
@@ -1760,6 +1779,22 @@ function drawBarBackground(
   // 1. Fill Background
   canvasContext.fillStyle = fillColor;
   canvasContext.fillRect(x, y, width, height);
+
+  // Draw Grid Lines (Beat Dividers)
+  if (beatWidth > 0) {
+    const numBeats = width / beatWidth;
+
+    canvasContext.strokeStyle = PALETTE.ui.gridLine; // Use Palette Color
+    canvasContext.lineWidth = Math.max(centerW * 1.5, 2);
+    canvasContext.beginPath();
+    // Draw lines at integer beat intervals relative to bar start
+    for (let i = 1; i < numBeats - 0.01; i++) {
+      const lineX = x + i * beatWidth;
+      canvasContext.moveTo(lineX, y);
+      canvasContext.lineTo(lineX, y + height);
+    }
+    canvasContext.stroke();
+  }
 
   // Draw Bar Border (Horizontal)
   canvasContext.strokeStyle = PALETTE.ui.barBorder;
@@ -1779,14 +1814,6 @@ function drawBarBackground(
   canvasContext.lineTo(x, y + height);
   canvasContext.moveTo(x + width, y);
   canvasContext.lineTo(x + width, y + height);
-  canvasContext.stroke();
-
-  // Draw Center Line
-  canvasContext.strokeStyle = PALETTE.ui.centerLine;
-  canvasContext.lineWidth = centerW;
-  canvasContext.beginPath();
-  canvasContext.moveTo(x, centerY);
-  canvasContext.lineTo(x + width, centerY);
   canvasContext.stroke();
 }
 
