@@ -300,7 +300,6 @@ button:disabled {
   border: 1px solid var(--border-color);
   border-radius: 6px;
   overflow: hidden;
-  margin-bottom: 10px;
 }
 
 .options-header {
