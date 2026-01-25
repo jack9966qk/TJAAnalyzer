@@ -77,7 +77,9 @@ npm run fetch-ese
 
 ## Project Structure
 
-- `src/`: TypeScript source code for the application logic.
+- `src/`: TypeScript source code for the main application (TJA Analyzer).
+- `renderer-package/`: Core chart rendering logic extracted as a standalone package.
+- `renderer-example/`: Minimal usage example for the renderer package.
 - `public/`: Static assets (such as HTML and chart database) served directly.
 - `tests/`: Playwright and unit test suites.
 - `dist/`: Build output for the web application (generated).
