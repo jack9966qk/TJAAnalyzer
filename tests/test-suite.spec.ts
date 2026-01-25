@@ -692,11 +692,11 @@ LEVEL:10
               if (href && (href.startsWith("data:image/png") || href.startsWith("blob:"))) {
                 const img = new Image();
                 img.onload = () => {
-                   resolve(img.width);
+                  resolve(img.width);
                 };
-                img.onerror = (e) => {
-                    resolve(-2);
-                }
+                img.onerror = (_e) => {
+                  resolve(-2);
+                };
                 img.src = href;
               }
             };
@@ -708,12 +708,12 @@ LEVEL:10
         if (host?.shadowRoot) {
           const btn = host.shadowRoot.querySelector("button");
           if (btn) {
-              (btn as HTMLElement).click();
+            (btn as HTMLElement).click();
           } else {
-              resolve(-1);
+            resolve(-1);
           }
         } else {
-            resolve(-1);
+          resolve(-1);
         }
       });
     });

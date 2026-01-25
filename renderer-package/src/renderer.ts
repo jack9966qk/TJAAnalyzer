@@ -1139,17 +1139,14 @@ function drawBarBackgroundWrapper(
   beatWidth: number,
 ) {
   const params = chart.barParams[info.originalIndex];
-  
+
   // Fallback if beatWidth is missing or 0
   let effectiveBeatWidth = beatWidth;
   if (!effectiveBeatWidth || effectiveBeatWidth <= 0) {
-     const measureRatio = params ? params.measureRatio : 1.0;
-     // frame.width = baseBarWidth * measureRatio
-     // baseBarWidth = frame.width / measureRatio
-     // beatWidth = baseBarWidth / 4
-     effectiveBeatWidth = (frame.width / measureRatio) / 4;
+    const measureRatio = params ? params.measureRatio : 1.0;
+    effectiveBeatWidth = frame.width / measureRatio / 4;
   }
-  
+
   const gogoTime = params ? params.gogoTime : false;
   const gogoChanges = params ? params.gogoChanges : undefined;
   const noteCount = info.bar ? info.bar.length : 0;
@@ -1745,7 +1742,6 @@ function drawBarBackground(
   beatWidth: number = 0,
 ): void {
   const { x, y, width, height } = frame;
-  const centerY = y + height / 2;
 
   let fillColor = PALETTE.branches.default;
   if (isBranched) {

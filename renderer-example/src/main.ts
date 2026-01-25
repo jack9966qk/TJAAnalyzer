@@ -518,8 +518,8 @@ SCOREDIFF:0
 const canvas = document.getElementById("chart-canvas") as HTMLCanvasElement;
 
 if (canvas) {
-    renderTJAString(TJA_CONTENT, canvas, {
-        course: "Edit",
-        beatsPerLine: 16,
-    });
+  renderTJAString(TJA_CONTENT, canvas, {
+    course: "Edit",
+    beatsPerLine: 16,
+  });
 }
