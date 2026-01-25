@@ -1,6 +1,5 @@
+import { type NoteType, parseTJA } from "../renderer-package/src/index.js";
 import { exampleTJA } from "../src/core/example-data.js";
-import type { NoteType } from "../src/core/primitives.js";
-import { parseTJA } from "../src/core/tja-parser.js";
 
 try {
   console.log("Testing TJA Parser...");

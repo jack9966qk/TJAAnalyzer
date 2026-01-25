@@ -1,7 +1,6 @@
+import { type HitInfo, LocationMap, parseTJA, type RenderTexts } from "../../renderer-package/src/index.js";
 import type { JudgementOptions } from "../components/judgement-options.js";
 import type { SelectOptions } from "../components/select-options.js";
-import { type HitInfo, LocationMap, type RenderTexts } from "../core/renderer.js";
-import { parseTJA } from "../core/tja-parser.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { courseBranchSelect, noteStatsDisplay, tjaChart } from "../view/ui-elements.js";

@@ -1,8 +1,14 @@
+import {
+  type HitInfo,
+  JudgementMap,
+  type JudgementValue,
+  LocationMap,
+  type ParsedChart,
+  type ViewOptions,
+} from "../../renderer-package/src/index.js";
 import { EseClient, type GitNode } from "../clients/ese-client.js";
 import { JudgementClient } from "../clients/judgement-client.js";
 import { exampleTJA } from "../core/example-data.js";
-import { type HitInfo, JudgementMap, type JudgementValue, LocationMap, type ViewOptions } from "../core/renderer.js";
-import type { ParsedChart } from "../core/tja-parser.js";
 
 interface AppState {
   parsedTJACharts: Record<string, ParsedChart> | null;

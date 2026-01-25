@@ -8,10 +8,10 @@ import {
   type JudgementValue,
   NoteType,
   PALETTE,
+  type ParsedChart,
   RENDERABLE_NOTES,
   type ViewOptions,
-} from "../core/renderer.js";
-import type { ParsedChart } from "../core/tja-parser.js";
+} from "../../renderer-package/src/index.js";
 import { i18n } from "../utils/i18n.js";
 
 export class NoteStatsDisplay extends HTMLElement {

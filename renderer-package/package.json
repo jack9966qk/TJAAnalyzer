@@ -1,0 +1,22 @@
+{
+  "name": "tja-renderer",
+  "version": "0.7.2",
+  "description": "A high-level TJA chart renderer for the web.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "tja",
+    "taiko",
+    "renderer",
+    "canvas"
+  ],
+  "author": "Jack",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

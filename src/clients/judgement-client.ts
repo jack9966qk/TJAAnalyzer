@@ -1,6 +1,5 @@
+import { JUDGEABLE_NOTES, type NoteType, parseTJA } from "../../renderer-package/src/index.js";
 import { exampleTJA } from "../core/example-data.js";
-import { JUDGEABLE_NOTES, type NoteType } from "../core/renderer.js";
-import { parseTJA } from "../core/tja-parser.js";
 
 export interface JudgementEvent {
   type: "judgement";

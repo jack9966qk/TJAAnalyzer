@@ -1,13 +1,13 @@
-import { NoteStatsDisplay } from "./components/note-stats.js";
 import {
   createJudgementKey,
   type HitInfo,
   JUDGEABLE_NOTES,
   JudgementMap,
   type JudgementValue,
+  type ParsedChart,
   type ViewOptions,
-} from "./core/renderer.js";
-import type { ParsedChart } from "./core/tja-parser.js";
+} from "../renderer-package/src/index.js";
+import { NoteStatsDisplay } from "./components/note-stats.js";
 
 // Ensure NoteStatsDisplay is registered
 console.log("NoteStatsDisplay module loaded", NoteStatsDisplay);

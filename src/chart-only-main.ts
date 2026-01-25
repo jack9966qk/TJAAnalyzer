@@ -1,13 +1,13 @@
-import { TJAChart } from "./components/tja-chart.js";
-import { exampleTJA } from "./core/example-data.js";
 import {
   createJudgementKey,
   JudgementMap,
   type JudgementValue,
   LocationMap,
+  parseTJA,
   type ViewOptions,
-} from "./core/renderer.js";
-import { parseTJA } from "./core/tja-parser.js";
+} from "../renderer-package/src/index.js";
+import { TJAChart } from "./components/tja-chart.js";
+import { exampleTJA } from "./core/example-data.js";
 
 // Ensure side-effects
 console.log("TJAChart module loaded", TJAChart);

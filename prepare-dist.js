@@ -51,6 +51,7 @@ const files = [
   { src: "public/ese_index.json", dest: "ese_index.json" },
   { src: "public/CNAME", dest: "CNAME" },
   { src: "ts_output/src", dest: "scripts" },
+  { src: "ts_output/renderer-package", dest: "renderer-package" },
   { src: "icon.png", dest: "icon.png" },
   { src: "node_modules/webjsx/dist", dest: "libs/webjsx" },
   { src: "node_modules/@neutralinojs/lib/dist/neutralino.js", dest: "neutralino.js" },

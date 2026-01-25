@@ -1,7 +1,5 @@
-import { NoteType } from "../src/core/primitives.js";
-import type { ViewOptions } from "../src/core/renderer.js";
+import { NoteType, parseTJA, type ViewOptions } from "../renderer-package/src/index.js";
 import { generateTJAFromSelection } from "../src/core/tja-exporter.js";
-import { parseTJA } from "../src/core/tja-parser.js";
 
 function runTest(name: string, fn: () => void) {
   try {

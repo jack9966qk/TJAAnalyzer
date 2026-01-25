@@ -1,8 +1,8 @@
 import * as webjsx from "webjsx";
-import { generateAutoAnnotations } from "../core/auto-annotation.js";
 import {
   type ChartLayout,
   createLayout,
+  generateAutoAnnotations,
   getNoteAt,
   getNotePosition,
   type HitInfo,
@@ -12,12 +12,12 @@ import {
   type JudgementValue,
   LocationMap,
   PALETTE,
+  type ParsedChart,
   type RenderTexts,
   renderChart,
   renderLayout,
   type ViewOptions,
-} from "../core/renderer.js";
-import type { ParsedChart } from "../core/tja-parser.js";
+} from "../../renderer-package/src/index.js";
 
 export interface ChartClickEventDetail {
   x: number;

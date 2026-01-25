@@ -14,6 +14,13 @@ import type { ViewOptions } from "./components/view-options.js";
 import "./components/view-options.js"; // Ensure side-effect
 import "./components/changelog-panel.js";
 import {
+  createJudgementKey,
+  type HitInfo,
+  type JudgementMap,
+  type JudgementValue,
+  type ViewOptions as RendererViewOptions,
+} from "../renderer-package/src/index.js";
+import {
   refreshChart,
   updateBranchSelectorState,
   updateCollapseLoopState,
@@ -22,13 +29,6 @@ import {
   updateStatsComponent,
 } from "./controllers/chart-controller.js";
 import { handleLayoutToggle, updateLayout } from "./controllers/layout-controller.js";
-import {
-  createJudgementKey,
-  type HitInfo,
-  type JudgementMap,
-  type JudgementValue,
-  type ViewOptions as RendererViewOptions,
-} from "./core/renderer.js";
 import { appState } from "./state/app-state.js";
 import { i18n } from "./utils/i18n.js";
 import {

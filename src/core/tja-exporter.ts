@@ -1,6 +1,6 @@
-import { NoteType } from "./primitives.js";
-import type { ViewOptions } from "./renderer.js";
-import type { ParsedChart } from "./tja-parser.js";
+import { NoteType } from "../../renderer-package/src/primitives.js";
+import type { ViewOptions } from "../../renderer-package/src/renderer.js";
+import type { ParsedChart } from "../../renderer-package/src/tja-parser.js";
 
 interface ChartContext {
   bpm: number;
