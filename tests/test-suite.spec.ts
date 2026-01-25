@@ -674,6 +674,11 @@ LEVEL:10
         navigator.canShare = () => false;
       } catch (_e) {}
 
+      try {
+        // biome-ignore lint/suspicious/noExplicitAny: Mocking global
+        (window as any).Neutralino = undefined;
+      } catch (_e) {}
+
       return new Promise<number>((resolve) => {
         const originalCreateElement = document.createElement;
 
@@ -686,7 +691,12 @@ LEVEL:10
               const href = el.href;
               if (href && (href.startsWith("data:image/png") || href.startsWith("blob:"))) {
                 const img = new Image();
-                img.onload = () => resolve(img.width);
+                img.onload = () => {
+                   resolve(img.width);
+                };
+                img.onerror = (e) => {
+                    resolve(-2);
+                }
                 img.src = href;
               }
             };
@@ -697,9 +707,14 @@ LEVEL:10
         const host = document.querySelector("#export-image-btn");
         if (host?.shadowRoot) {
           const btn = host.shadowRoot.querySelector("button");
-          if (btn) (btn as HTMLElement).click();
-          else resolve(-1);
-        } else resolve(-1);
+          if (btn) {
+              (btn as HTMLElement).click();
+          } else {
+              resolve(-1);
+          }
+        } else {
+            resolve(-1);
+        }
       });
     });
 
