@@ -13,7 +13,7 @@ import {
   NoteType,
   RENDERABLE_NOTES,
 } from "./primitives.js";
-import { parseTJA, type BarParams, type GogoChange, type LoopInfo, type ParsedChart } from "./tja-parser.js";
+import type { BarParams, GogoChange, LoopInfo, ParsedChart } from "./tja-parser.js";
 
 export {
   type NoteLocation,
@@ -270,58 +270,6 @@ export const DEFAULT_VIEW_OPTIONS: ViewOptions = {
   beatsPerLine: 16,
   selection: null,
 };
-
-/**
- * Parses and renders a TJA chart string to the provided canvas.
- * @param tjaContent The TJA file content as a string.
- * @param canvas The HTMLCanvasElement to render to.
- * @param options Optional overrides for view options.
- * @param course Optional course/difficulty to render (e.g., "Oni", "Hard"). Defaults to the most difficult one found (Edit > Oni > Hard > Normal > Easy).
- */
-export function renderTJAString(
-  tjaContent: string,
-  canvas: HTMLCanvasElement,
-  options?: Partial<ViewOptions>,
-  course?: string,
-): void {
-  const parsed = parseTJA(tjaContent);
-  const courses = Object.keys(parsed);
-
-  if (courses.length === 0) {
-    console.warn("No courses found in TJA content.");
-    return;
-  }
-
-  let selectedCourseKey = "";
-
-  if (course) {
-    const key = course.toLowerCase();
-    if (parsed[key]) {
-      selectedCourseKey = key;
-    }
-  }
-
-  if (!selectedCourseKey) {
-    // Priority: Edit > Oni > Hard > Normal > Easy
-    const priorities = ["edit", "oni", "hard", "normal", "easy"];
-    for (const p of priorities) {
-      const match = courses.find((c) => c.toLowerCase().includes(p));
-      if (match) {
-        selectedCourseKey = match;
-        break;
-      }
-    }
-    // Fallback to first if none matched
-    if (!selectedCourseKey) {
-      selectedCourseKey = courses[0];
-    }
-  }
-
-  const chart = parsed[selectedCourseKey];
-  const finalOptions: ViewOptions = { ...DEFAULT_VIEW_OPTIONS, ...options };
-  renderChart(chart, canvas, new JudgementMap(), finalOptions);
-}
-
 
 function isNoteSelected(barIdx: number, charIdx: number, selection: ViewOptions["selection"]): boolean {
   if (!selection) return false;

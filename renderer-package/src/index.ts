@@ -1,4 +1,5 @@
-export * from "./primitives.js";
-export * from "./tja-parser.js";
+export * from "./api.js";
 export * from "./auto-annotation.js";
+export * from "./primitives.js";
 export * from "./renderer.js";
+export * from "./tja-parser.js";
