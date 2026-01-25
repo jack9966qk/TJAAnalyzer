@@ -1781,7 +1781,7 @@ function drawBarBackground(
     const numBeats = width / beatWidth;
 
     canvasContext.strokeStyle = PALETTE.ui.gridLine; // Use Palette Color
-    canvasContext.lineWidth = Math.max(centerW * 1.5, 2);
+    canvasContext.lineWidth = borderW;
     canvasContext.beginPath();
     // Draw lines at integer beat intervals relative to bar start
     for (let i = 1; i < numBeats - 0.01; i++) {
