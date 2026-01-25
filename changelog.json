@@ -1,5 +1,50 @@
 [
   {
+    "hash": "db33a78",
+    "message": "Update version to 0.7.3.",
+    "date": "2026-01-25"
+  },
+  {
+    "hash": "e866164",
+    "message": "Add a script to generate song mapping into ESE paths.",
+    "date": "2026-01-25"
+  },
+  {
+    "hash": "5b729db",
+    "message": "Fix some formatting issues.",
+    "date": "2026-01-25"
+  },
+  {
+    "hash": "17a400a",
+    "message": "Fix a test case that never completes.",
+    "date": "2026-01-25"
+  },
+  {
+    "hash": "f5ceb71",
+    "message": "Remove the horizontal midline in rendered chart. Added vertical lines for every quarter beat.",
+    "date": "2026-01-25"
+  },
+  {
+    "hash": "5182d34",
+    "message": "Add minimal renderer usage example.",
+    "date": "2026-01-25"
+  },
+  {
+    "hash": "2ce2f9b",
+    "message": "Implement high-level API in renderer package",
+    "date": "2026-01-25"
+  },
+  {
+    "hash": "53cfca5",
+    "message": "Extract core renderer logic to renderer-package.",
+    "date": "2026-01-25"
+  },
+  {
+    "hash": "f34b3da",
+    "message": "Fix Neutralino native functionalities, especially chart export to directory.",
+    "date": "2026-01-25"
+  },
+  {
     "hash": "e5cd701",
     "message": "Attempt to address a flaky test case.",
     "date": "2026-01-25"
@@ -452,51 +497,6 @@
   {
     "hash": "56d983a",
     "message": "Add dark mode support.",
-    "date": "2025-12-29"
-  },
-  {
-    "hash": "a4cabc1",
-    "message": "Update version to 0.6.2.",
-    "date": "2025-12-29"
-  },
-  {
-    "hash": "3749905",
-    "message": "Add Japanese language support and improve font rendering.",
-    "date": "2025-12-29"
-  },
-  {
-    "hash": "4ad6217",
-    "message": "Update ESE chart list to show all items by default and indicate truncation. Add translations for search UI.",
-    "date": "2025-12-29"
-  },
-  {
-    "hash": "4bc1634",
-    "message": "Add a hover note style when note stats display is enabled.",
-    "date": "2025-12-29"
-  },
-  {
-    "hash": "ca6297e",
-    "message": "Keep the footer at the bottom in horizontal layout and if there is empty vertical space in the control column.",
-    "date": "2025-12-29"
-  },
-  {
-    "hash": "46bcb0c",
-    "message": "Refactor note stats display as a separate component. Add and fix some test cases.",
-    "date": "2025-12-29"
-  },
-  {
-    "hash": "57eca50",
-    "message": "Update version to 0.6.1.",
-    "date": "2025-12-29"
-  },
-  {
-    "hash": "f5d2187",
-    "message": "Update TJAChart placeholder/error messages to be rendered as a div element instead of using canvas.",
-    "date": "2025-12-29"
-  },
-  {
-    "hash": "3144f5e",
-    "message": "Merge remote and test stream tabs into a single 'Stream Input' tab.",
     "date": "2025-12-29"
   }
 ]

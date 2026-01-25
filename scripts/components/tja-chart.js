@@ -1,7 +1,6 @@
 import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "webjsx/jsx-runtime";
 import * as webjsx from "webjsx";
-import { generateAutoAnnotations } from "../core/auto-annotation.js";
-import { createLayout, getNoteAt, getNotePosition, JUDGEABLE_NOTES, JudgementMap, LocationMap, PALETTE, renderChart, renderLayout, } from "../core/renderer.js";
+import { createLayout, generateAutoAnnotations, getNoteAt, getNotePosition, JUDGEABLE_NOTES, JudgementMap, LocationMap, PALETTE, renderChart, renderLayout, } from "../../renderer-package/src/index.js";
 export class TJAChart extends HTMLElement {
     canvas;
     messageContainer;

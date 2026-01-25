@@ -1,7 +1,7 @@
+import { JudgementMap, LocationMap, } from "../../renderer-package/src/index.js";
 import { EseClient } from "../clients/ese-client.js";
 import { JudgementClient } from "../clients/judgement-client.js";
 import { exampleTJA } from "../core/example-data.js";
-import { JudgementMap, LocationMap } from "../core/renderer.js";
 export const appState = {
     parsedTJACharts: null,
     currentChart: null,

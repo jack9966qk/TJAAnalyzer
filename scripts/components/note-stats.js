@@ -1,6 +1,6 @@
 import { jsx as _jsx, jsxs as _jsxs } from "webjsx/jsx-runtime";
 import * as webjsx from "webjsx";
-import { getGradientColor, JUDGEABLE_NOTES, JudgementMap, JudgementType, NoteType, PALETTE, RENDERABLE_NOTES, } from "../core/renderer.js";
+import { getGradientColor, JUDGEABLE_NOTES, JudgementMap, JudgementType, NoteType, PALETTE, RENDERABLE_NOTES, } from "../../renderer-package/src/index.js";
 import { i18n } from "../utils/i18n.js";
 export class NoteStatsDisplay extends HTMLElement {
     _hit = null;

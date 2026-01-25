@@ -1,5 +1,5 @@
+import { createJudgementKey, JUDGEABLE_NOTES, JudgementMap, } from "../renderer-package/src/index.js";
 import { NoteStatsDisplay } from "./components/note-stats.js";
-import { createJudgementKey, JUDGEABLE_NOTES, JudgementMap, } from "./core/renderer.js";
 // Ensure NoteStatsDisplay is registered
 console.log("NoteStatsDisplay module loaded", NoteStatsDisplay);
 const noteStats = document.getElementById("note-stats");

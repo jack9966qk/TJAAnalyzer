@@ -1,6 +1,5 @@
+import { JUDGEABLE_NOTES, parseTJA } from "../../renderer-package/src/index.js";
 import { exampleTJA } from "../core/example-data.js";
-import { JUDGEABLE_NOTES } from "../core/renderer.js";
-import { parseTJA } from "../core/tja-parser.js";
 export class JudgementClient {
     eventSource = null;
     simulateInterval = null;

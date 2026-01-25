@@ -10,9 +10,9 @@ import "./components/course-branch-select.js"; // Ensure side-effect
 import { TJAChart } from "./components/tja-chart.js";
 import "./components/view-options.js"; // Ensure side-effect
 import "./components/changelog-panel.js";
+import { createJudgementKey, } from "../renderer-package/src/index.js";
 import { refreshChart, updateBranchSelectorState, updateCollapseLoopState, updateParsedCharts, updateSelectionUI, updateStatsComponent, } from "./controllers/chart-controller.js";
 import { handleLayoutToggle, updateLayout } from "./controllers/layout-controller.js";
-import { createJudgementKey, } from "./core/renderer.js";
 import { appState } from "./state/app-state.js";
 import { i18n } from "./utils/i18n.js";
 import { chartListPanel, chartModeStatus, courseBranchSelect, doPanes, doTabs, dsBody, dsCollapseBtn, dsPanes, dsTabs, languageSelector, layoutToggleBtn, optionsBody, optionsCollapseBtn, statusDisplay, tjaChart, } from "./view/ui-elements.js";
@@ -478,6 +478,17 @@ function initLoad() {
     initializePanelVisibility();
 }
 function init() {
+    if (typeof window.Neutralino !== "undefined") {
+        try {
+            window.Neutralino.init();
+        }
+        catch (e) {
+            console.warn("Neutralino init failed", e);
+        }
+    }
+    else {
+        console.log("Neutralino lib not found");
+    }
     initLayout();
     initEventListeners();
     initJudgementClient();

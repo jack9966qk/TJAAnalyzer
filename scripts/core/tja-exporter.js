@@ -1,4 +1,4 @@
-import { NoteType } from "./primitives.js";
+import { NoteType } from "../../renderer-package/src/primitives.js";
 // Helper to determine if a note is selected
 function getContextAt(chart, barIndex, charIndex) {
     const params = chart.barParams[barIndex];

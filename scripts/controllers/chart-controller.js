@@ -1,5 +1,4 @@
-import { LocationMap } from "../core/renderer.js";
-import { parseTJA } from "../core/tja-parser.js";
+import { LocationMap, parseTJA } from "../../renderer-package/src/index.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { courseBranchSelect, noteStatsDisplay, tjaChart } from "../view/ui-elements.js";

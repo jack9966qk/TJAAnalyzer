@@ -101,6 +101,11 @@ export class ExportButton extends HTMLElement {
             }
         }
         catch (e) {
+            if (e instanceof Error && e.message === "Cancelled by user") {
+                this.status = "idle";
+                this.render();
+                return;
+            }
             console.error("Export failed:", e);
             await this.transitionToResult(async () => "error");
         }
@@ -171,7 +176,7 @@ export class ExportButton extends HTMLElement {
             // Not found
         }
         if (exists) {
-            const button = await os.showMessageBox("Overwrite?", `Directory "${name}" already exists. Overwrite?`, window.Neutralino.MessageBoxChoice.YES_NO, window.Neutralino.Icon.QUESTION);
+            const button = await os.showMessageBox("Overwrite?", `Directory "${name}" already exists. Overwrite?`, "YES_NO");
             if (button !== "YES")
                 throw new Error("Cancelled by user");
         }
@@ -192,6 +197,13 @@ export class ExportButton extends HTMLElement {
             }
             catch (_e) {
                 // Ignore
+            }
+            // Check if directory exists now
+            try {
+                await fs.getStats(targetDir);
+            }
+            catch (_e) {
+                throw new Error(`Failed to create directory: ${targetDir}`);
             }
             // Write file
             await fs.writeFile(targetFile, content);

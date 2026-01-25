@@ -1,7 +1,6 @@
+import { createJudgementKey, JudgementMap, LocationMap, parseTJA, } from "../renderer-package/src/index.js";
 import { TJAChart } from "./components/tja-chart.js";
 import { exampleTJA } from "./core/example-data.js";
-import { createJudgementKey, JudgementMap, LocationMap, } from "./core/renderer.js";
-import { parseTJA } from "./core/tja-parser.js";
 // Ensure side-effects
 console.log("TJAChart module loaded", TJAChart);
 console.log("Chart Only Main Loaded");
