@@ -11,7 +11,8 @@
     "build:exe": "npm run build && neu update && neu build",
     "start:exe": "npm run build && neu update && neu run",
     "deploy": "npm run build && gh-pages -d dist",
-    "format": "biome check --write ."
+    "format": "biome check --write .",
+    "generate-mapping": "node --loader ts-node/esm generate-song-mapping.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.11",
@@ -24,6 +25,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@neutralinojs/lib": "^6.4.0",
     "webjsx": "^0.0.73"
   }
