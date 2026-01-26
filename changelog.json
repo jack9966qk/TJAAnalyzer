@@ -1,11 +1,11 @@
 [
   {
-    "hash": "4c2cad1",
+    "hash": "7535b47",
     "message": "Update version to 0.7.4.",
     "date": "2026-01-26"
   },
   {
-    "hash": "95e8d30",
+    "hash": "1a63ef1",
     "message": "Fix build errors in fresh clone: update package config and tsconfig.",
     "date": "2026-01-26"
   },
