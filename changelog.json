@@ -1,5 +1,30 @@
 [
   {
+    "hash": "4c2cad1",
+    "message": "Update version to 0.7.4.",
+    "date": "2026-01-26"
+  },
+  {
+    "hash": "95e8d30",
+    "message": "Fix build errors in fresh clone: update package config and tsconfig.",
+    "date": "2026-01-26"
+  },
+  {
+    "hash": "fb308cb",
+    "message": "Update README.",
+    "date": "2026-01-25"
+  },
+  {
+    "hash": "1eec8b4",
+    "message": "Update vertical beat divider line width to match bar border width.",
+    "date": "2026-01-25"
+  },
+  {
+    "hash": "ac26dfa",
+    "message": "Reduce bottom spacing of floating chart options tab in vertical layout.",
+    "date": "2026-01-25"
+  },
+  {
     "hash": "db33a78",
     "message": "Update version to 0.7.3.",
     "date": "2026-01-25"
@@ -473,30 +498,5 @@
     "hash": "bb199cf",
     "message": "Update version to 0.6.3.",
     "date": "2025-12-30"
-  },
-  {
-    "hash": "ccf9dd6",
-    "message": "Update font stack for better Japanese text rendering.",
-    "date": "2025-12-30"
-  },
-  {
-    "hash": "64e5870",
-    "message": "Fix note hovering for branching charts when the note is not in a branching part.",
-    "date": "2025-12-30"
-  },
-  {
-    "hash": "3d938c1",
-    "message": "Make sure all branch starting points are highlighted if there are multiple before a branch end.",
-    "date": "2025-12-30"
-  },
-  {
-    "hash": "ee5337f",
-    "message": "Fix note stats display and hovering when there are multiple branches.",
-    "date": "2025-12-30"
-  },
-  {
-    "hash": "56d983a",
-    "message": "Add dark mode support.",
-    "date": "2025-12-29"
   }
 ]

@@ -805,11 +805,11 @@ function drawBarBackgroundWrapper(canvasContext, frame, info, index, chart, opti
         if (isBranched) {
             const subHeight = BASE_LANE_HEIGHT;
             const normalFrame = { x: frame.x, y: frame.y, width: frame.width, height: subHeight };
-            drawBarBackground(canvasContext, normalFrame, constants.lineWidthBarBorder, constants.lineWidthCenter, true, "normal", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth, effectiveBeatWidth);
+            drawBarBackground(canvasContext, normalFrame, constants.lineWidthBarBorder, true, "normal", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth, effectiveBeatWidth);
             const expertFrame = { x: frame.x, y: frame.y + subHeight, width: frame.width, height: subHeight };
-            drawBarBackground(canvasContext, expertFrame, constants.lineWidthBarBorder, constants.lineWidthCenter, true, "expert", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth, effectiveBeatWidth);
+            drawBarBackground(canvasContext, expertFrame, constants.lineWidthBarBorder, true, "expert", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth, effectiveBeatWidth);
             const masterFrame = { x: frame.x, y: frame.y + 2 * subHeight, width: frame.width, height: subHeight };
-            drawBarBackground(canvasContext, masterFrame, constants.lineWidthBarBorder, constants.lineWidthCenter, true, "master", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth, effectiveBeatWidth);
+            drawBarBackground(canvasContext, masterFrame, constants.lineWidthBarBorder, true, "master", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth, effectiveBeatWidth);
             if (isBranchStart) {
                 canvasContext.beginPath();
                 canvasContext.strokeStyle = PALETTE.branches.startLine;
@@ -820,7 +820,7 @@ function drawBarBackgroundWrapper(canvasContext, frame, info, index, chart, opti
             }
         }
         else {
-            drawBarBackground(canvasContext, frame, constants.lineWidthBarBorder, constants.lineWidthCenter, false, "normal", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth, effectiveBeatWidth);
+            drawBarBackground(canvasContext, frame, constants.lineWidthBarBorder, false, "normal", !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth, effectiveBeatWidth);
         }
         if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
             const stripHeight = constants.barNumberFontSize + constants.barNumberOffsetY * 2;
@@ -839,7 +839,7 @@ function drawBarBackgroundWrapper(canvasContext, frame, info, index, chart, opti
         }
     }
     else {
-        drawBarBackground(canvasContext, frame, constants.lineWidthBarBorder, constants.lineWidthCenter, isBranched, chart.branchType, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth, effectiveBeatWidth);
+        drawBarBackground(canvasContext, frame, constants.lineWidthBarBorder, isBranched, chart.branchType, !hasLeftNeighbor, !hasRightNeighbor, overExtendWidth, effectiveBeatWidth);
         if (isBranchStart) {
             canvasContext.beginPath();
             canvasContext.strokeStyle = PALETTE.branches.startLine;
@@ -1114,7 +1114,7 @@ function drawGradientLine(canvasContext, x1, y1, x2, y2, color, lineWidth, direc
     canvasContext.lineTo(x2, y2);
     canvasContext.stroke();
 }
-function drawBarBackground(canvasContext, frame, borderW, centerW, isBranched, branchType = "normal", drawLeftExt = false, drawRightExt = false, overExtendWidth = 0, beatWidth = 0) {
+function drawBarBackground(canvasContext, frame, borderW, isBranched, branchType = "normal", drawLeftExt = false, drawRightExt = false, overExtendWidth = 0, beatWidth = 0) {
     const { x, y, width, height } = frame;
     let fillColor = PALETTE.branches.default;
     if (isBranched) {
@@ -1149,7 +1149,7 @@ function drawBarBackground(canvasContext, frame, borderW, centerW, isBranched, b
     if (beatWidth > 0) {
         const numBeats = width / beatWidth;
         canvasContext.strokeStyle = PALETTE.ui.gridLine; // Use Palette Color
-        canvasContext.lineWidth = Math.max(centerW * 1.5, 2);
+        canvasContext.lineWidth = borderW;
         canvasContext.beginPath();
         // Draw lines at integer beat intervals relative to bar start
         for (let i = 1; i < numBeats - 0.01; i++) {
