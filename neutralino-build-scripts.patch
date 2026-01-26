@@ -1,0 +1,248 @@
+diff --git a/build-linux.sh b/build-linux.sh
+index 0b6adeb..e4ebd6b 100755
+--- a/build-linux.sh
++++ b/build-linux.sh
+@@ -58,16 +58,22 @@ else
+   APP_ICON_PATH="/usr/share/${APP_NAME}"
+ fi
+ 
+-APP_SRC=./_app_scaffolds/linux/myapp.desktop
+-INSTALL_SCRIPT=./_app_scaffolds/linux/install.sh
++DIST_PATH=$(jq -r '.cli.distributionPath' ${CONF})
++if [ "$DIST_PATH" == "null" ]; then
++    DIST_PATH="dist"
++fi
++
++SCRIPT_DIR=$(dirname "$0")
++APP_SRC="${SCRIPT_DIR}/_app_scaffolds/linux/myapp.desktop"
++INSTALL_SCRIPT="${SCRIPT_DIR}/_app_scaffolds/linux/install.sh"
+ 
+-if [ ! -e "./${APP_SRC}" ]; then
++if [ ! -e "${APP_SRC}" ]; then
+     echo
+     echo -e "\033[31m\033[1mERROR: App scaffold not found: ${APP_SRC}\033[0m"
+     exit 1
+ fi
+ 
+-if [ ! -e "./${INSTALL_SCRIPT}" ]; then
++if [ ! -e "${INSTALL_SCRIPT}" ]; then
+     echo
+     echo -e "\033[31m\033[1mERROR: App install script not found: ${INSTALL_SCRIPT}\033[0m"
+     exit 1
+@@ -77,7 +83,7 @@ if [ "$1" != "--test" ]; then
+     echo
+     echo -e "\033[1mBuilding Neutralino Apps ...\033[0m"
+     echo
+-    rm -rf "./dist/${APP_BINARY}"
++    rm -rf "./${DIST_PATH}/${APP_BINARY}"
+     neu build
+     echo -e "\033[1mDone.\033[0m"
+ else
+@@ -87,19 +93,21 @@ fi
+ 
+ for APP_ARCH in "${APP_ARCH_LIST[@]}"; do
+ 
+-    APP_DST=./dist/linux_${APP_ARCH}/${APP_NAME}
++    APP_DST=./${DIST_PATH}/linux_${APP_ARCH}/${APP_NAME}
+ 
+     if [ -e "./preproc-linux.sh" ]; then
+-        echo "  Running pre-processor ..."
+-        . preproc-linux.sh
++        echo "  Running pre-processor (local) ..."
++        . ./preproc-linux.sh
++    elif [ -e "${SCRIPT_DIR}/preproc-linux.sh" ]; then
++        echo "  Running pre-processor (bundled) ..."
++        . "${SCRIPT_DIR}/preproc-linux.sh"
+     fi
+ 
+-    EXE=./dist/${APP_BINARY}/${APP_BINARY}-linux_${APP_ARCH}
+-    RES=./dist/${APP_BINARY}/resources.neu
+-    EXT=./dist/${APP_BINARY}/extensions
++    EXE=./${DIST_PATH}/${APP_BINARY}/${APP_BINARY}-linux_${APP_ARCH}
++    RES=./${DIST_PATH}/${APP_BINARY}/resources.neu
++    EXT=./${DIST_PATH}/${APP_BINARY}/extensions
+ 
+     APP_EXEC=${APP_PATH}/${APP_BINARY}-linux_${APP_ARCH}
+-    chmod +x "${APP_DST}"
+ 
+     echo
+     echo -e "\033[1mBuilding App Bundle (${APP_ARCH}):\033[0m"
+@@ -112,18 +120,19 @@ for APP_ARCH in "${APP_ARCH_LIST[@]}"; do
+     echo "  Target Folder:      ${APP_DST}"
+     echo
+ 
+-    if [ ! -e "./${EXE}" ]; then
++    if [ ! -e "${EXE}" ]; then
+         echo -e "\033[31m\033[1m  ERROR: File not found: ${EXE}\033[0m"
+         exit 1
+     fi
+ 
+-    if [ ! -e "./${RES}" ]; then
++    if [ ! -e "${RES}" ]; then
+         echo -e "\033[31m\033[1m  ERROR: Resource file not found: ${RES}\033[0m"
+         exit 1
+     fi
+ 
+     echo "  Cloning scaffold ..."
+     mkdir -p "${APP_DST}"
++    chmod +x "${APP_DST}"
+     cp "${APP_SRC}" "${APP_DST}/${APP_NAME}.desktop"
+     cp "${INSTALL_SCRIPT}" "${APP_DST}"
+ 
+@@ -174,8 +183,11 @@ for APP_ARCH in "${APP_ARCH_LIST[@]}"; do
+     fi
+ 
+     if [ -e "./postproc-linux.sh" ]; then
+-        echo "  Running post-processor ..."
+-        . postproc-linux.sh
++        echo "  Running post-processor (local) ..."
++        . ./postproc-linux.sh
++    elif [ -e "${SCRIPT_DIR}/postproc-linux.sh" ]; then
++        echo "  Running post-processor (bundled) ..."
++        . "${SCRIPT_DIR}/postproc-linux.sh"
+     fi
+ 
+     echo
+diff --git a/build-mac.sh b/build-mac.sh
+index ebd778c..c3edaa9 100755
+--- a/build-mac.sh
++++ b/build-mac.sh
+@@ -42,9 +42,15 @@ APP_ID=$(jq -r '.buildScript.mac.appIdentifier' ${CONF})
+ APP_BUNDLE=$(jq -r '.buildScript.mac.appBundleName' ${CONF})
+ APP_ICON=$(jq -r '.buildScript.mac.appIcon' ${CONF})
+ 
+-APP_SRC=./_app_scaffolds/mac/myapp.app
++DIST_PATH=$(jq -r '.cli.distributionPath' ${CONF})
++if [ "$DIST_PATH" == "null" ]; then
++    DIST_PATH="dist"
++fi
++
++SCRIPT_DIR=$(dirname "$0")
++APP_SRC="${SCRIPT_DIR}/_app_scaffolds/mac/myapp.app"
+ 
+-if [ ! -e "./${APP_SRC}" ]; then
++if [ ! -e "${APP_SRC}" ]; then
+     echo
+     echo -e "\033[31m\033[1mERROR: App scaffold not found: ${APP_SRC}\033[0m"
+     exit 1
+@@ -54,7 +60,7 @@ if [ "$1" != "--test" ]; then
+     echo
+     echo -e "\033[1mBuilding Neutralino Apps ...\033[0m"
+     echo
+-    rm -rf "./dist/${APP_BINARY}"
++    rm -rf "./${DIST_PATH}/${APP_BINARY}"
+     neu build
+     echo -e "\033[1mDone.\033[0m"
+ else
+@@ -64,18 +70,21 @@ fi
+ 
+ for APP_ARCH in "${APP_ARCH_LIST[@]}"; do
+ 
+-    APP_DST=./dist/mac_${APP_ARCH}/${APP_NAME}.app
++    APP_DST=./${DIST_PATH}/mac_${APP_ARCH}/${APP_NAME}.app
+     APP_MACOS=${APP_DST}/Contents/MacOS
+     APP_RESOURCES=${APP_DST}/Contents/Resources
+ 
+     if [ -e "./preproc-mac.sh" ]; then
+-        echo "  Running pre-processor ..."
+-        . preproc-mac.sh
++        echo "  Running pre-processor (local) ..."
++        . ./preproc-mac.sh
++    elif [ -e "${SCRIPT_DIR}/preproc-mac.sh" ]; then
++        echo "  Running pre-processor (bundled) ..."
++        . "${SCRIPT_DIR}/preproc-mac.sh"
+     fi
+ 
+-    EXE=./dist/${APP_BINARY}/${APP_BINARY}-mac_${APP_ARCH}
+-    RES=./dist/${APP_BINARY}/resources.neu
+-    EXT=./dist/${APP_BINARY}/extensions
++    EXE=./${DIST_PATH}/${APP_BINARY}/${APP_BINARY}-mac_${APP_ARCH}
++    RES=./${DIST_PATH}/${APP_BINARY}/resources.neu
++    EXT=./${DIST_PATH}/${APP_BINARY}/extensions
+ 
+     echo 
+     echo -e "\033[1mBuilding App Bundle (${APP_ARCH}):\033[0m"
+@@ -137,8 +146,11 @@ for APP_ARCH in "${APP_ARCH_LIST[@]}"; do
+     fi
+ 
+     if [ -e "./postproc-mac.sh" ]; then
+-        echo "  Running post-processor ..."
+-        . postproc-mac.sh
++        echo "  Running post-processor (local) ..."
++        . ./postproc-mac.sh
++    elif [ -e "${SCRIPT_DIR}/postproc-mac.sh" ]; then
++        echo "  Running post-processor (bundled) ..."
++        . "${SCRIPT_DIR}/postproc-mac.sh"
+     fi
+ 
+     if [ "$OS" == "Darwin" ]; then
+diff --git a/build-win.sh b/build-win.sh
+index d2de8c8..7215060 100755
+--- a/build-win.sh
++++ b/build-win.sh
+@@ -38,17 +38,23 @@ APP_BINARY=$(jq -r '.cli.binaryName' ${CONF})
+ APP_NAME=$(jq -r '.buildScript.win.appName' ${CONF})
+ APP_ICON=$(jq -r '.buildScript.win.appIcon' ${CONF})
+ 
++DIST_PATH=$(jq -r '.cli.distributionPath' ${CONF})
++if [ "$DIST_PATH" == "null" ]; then
++    DIST_PATH="dist"
++fi
++
+ if [[ $APP_NAME != *".exe"* ]]; then
+     APP_NAME=${APP_NAME}.exe
+ fi
+ 
+-APP_SRC=./_app_scaffolds/win
++SCRIPT_DIR=$(dirname "$0")
++APP_SRC="${SCRIPT_DIR}/_app_scaffolds/win"
+ 
+ if [ "$1" != "--test" ]; then
+     echo
+     echo -e "\033[1mBuilding Neutralino Apps ...\033[0m"
+     echo
+-    rm -rf "./dist/${APP_BINARY}"
++    rm -rf "./${DIST_PATH}/${APP_BINARY}"
+     neu build
+     echo -e "\033[1mDone.\033[0m"
+ else
+@@ -58,16 +64,19 @@ fi
+ 
+ for APP_ARCH in "${APP_ARCH_LIST[@]}"; do
+ 
+-    APP_DST=./dist/win_${APP_ARCH}
++    APP_DST=./${DIST_PATH}/win_${APP_ARCH}
+ 
+     if [ -e "./preproc-win.sh" ]; then
+-        echo "  Running pre-processor ..."
+-        . preproc-win.sh
++        echo "  Running pre-processor (local) ..."
++        . ./preproc-win.sh
++    elif [ -e "${SCRIPT_DIR}/preproc-win.sh" ]; then
++        echo "  Running pre-processor (bundled) ..."
++        . "${SCRIPT_DIR}/preproc-win.sh"
+     fi
+  
+-    EXE=./dist/${APP_BINARY}/${APP_BINARY}-win_${APP_ARCH}.exe
+-    RES=./dist/${APP_BINARY}/resources.neu
+-    EXT=./dist/${APP_BINARY}/extensions
++    EXE=./${DIST_PATH}/${APP_BINARY}/${APP_BINARY}-win_${APP_ARCH}.exe
++    RES=./${DIST_PATH}/${APP_BINARY}/resources.neu
++    EXT=./${DIST_PATH}/${APP_BINARY}/extensions
+ 
+     echo 
+     echo -e "\033[1mBuilding App Bundle (${APP_ARCH}):\033[0m"
+@@ -123,8 +132,11 @@ for APP_ARCH in "${APP_ARCH_LIST[@]}"; do
+     fi
+ 
+     if [ -e "./postproc-win.sh" ]; then
+-        echo "  Running post-processor ..."
+-        . postproc-win.sh
++        echo "  Running post-processor (local) ..."
++        . ./postproc-win.sh
++    elif [ -e "${SCRIPT_DIR}/postproc-win.sh" ]; then
++        echo "  Running post-processor (bundled) ..."
++        . "${SCRIPT_DIR}/postproc-win.sh"
+     fi
+ 
+     echo

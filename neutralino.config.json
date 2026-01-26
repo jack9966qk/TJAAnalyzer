@@ -33,5 +33,27 @@
     "distributionPath": "release",
     "binaryName": "TJAAnalyzer",
     "resourcesPath": "/dist"
+  },
+  "buildScript": {
+    "mac": {
+      "architecture": ["x64", "arm64", "universal"],
+      "minimumOS": "10.13.0",
+      "appName": "TJAAnalyzer",
+      "appBundleName": "TJAAnalyzer",
+      "appIdentifier": "js.neutralino.tjaanalyzer",
+      "appIcon": "icon.png"
+    },
+    "win": {
+      "architecture": ["x64"],
+      "appName": "TJAAnalyzer",
+      "appIcon": "icon.png"
+    },
+    "linux": {
+      "architecture": ["x64", "arm64", "armhf"],
+      "appName": "TJAAnalyzer",
+      "appIcon": "icon.png",
+      "appPath": "/usr/share/TJAAnalyzer",
+      "appIconPath": "/usr/share/TJAAnalyzer/icon.png"
+    }
   }
 }
