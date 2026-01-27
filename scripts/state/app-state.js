@@ -16,6 +16,7 @@ export const appState = {
         annotations: new LocationMap(),
         showTextInAnnotationMode: false,
         alwaysShowAnnotations: false,
+        autoZoom: false,
     },
     loadedTJAContent: exampleTJA,
     activeDataSourceMode: "list",

@@ -1,6 +1,7 @@
 import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "webjsx/jsx-runtime";
 import * as webjsx from "webjsx";
-import { createLayout, generateAutoAnnotations, getNoteAt, getNotePosition, JUDGEABLE_NOTES, JudgementMap, LocationMap, PALETTE, renderChart, renderLayout, } from "../../renderer-package/src/index.js";
+import { createLayout, generateAutoAnnotations, getNoteAt, getNotePosition, JUDGEABLE_NOTES, JudgementMap, LocationMap, PADDING, PALETTE, renderChart, renderLayout, calculateAutoZoomBeats, } from "../../renderer-package/src/index.js";
+import { appState } from "../state/app-state.js";
 export class TJAChart extends HTMLElement {
     canvas;
     messageContainer;
@@ -141,6 +142,20 @@ export class TJAChart extends HTMLElement {
             return null;
         return getNotePosition(this._chart, this.canvas, this._viewOptions, originalBarIndex, charIndex, this._layout || undefined);
     }
+    applyAutoZoom(viewOptions) {
+        if (!viewOptions.autoZoom)
+            return;
+        // Use logical width (CSS pixels) for calculation
+        const availableWidth = this.clientWidth - PADDING * 2;
+        const targetBeats = calculateAutoZoomBeats(availableWidth);
+        if (viewOptions.beatsPerLine === targetBeats)
+            return;
+        viewOptions.beatsPerLine = targetBeats;
+        appState.viewOptions.beatsPerLine = targetBeats;
+        this._layout = null; // Force layout recreation
+        this._pendingFullRender = true;
+        document.dispatchEvent(new Event("view-options-update"));
+    }
     render() {
         this._renderTask = null;
         if (!this.isConnected || !this.canvas)
@@ -176,6 +191,7 @@ export class TJAChart extends HTMLElement {
             ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             return;
         }
+        this.applyAutoZoom(this._viewOptions);
         const isFullRender = this._pendingFullRender || !this._layout;
         // We are doing a full render (either forced or because no incremental update needed/possible)
         // But we only need to recreate layout if pending full render or layout missing

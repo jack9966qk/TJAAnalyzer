@@ -18,6 +18,13 @@ export class ViewOptions extends HTMLElement {
         this.render();
         // Listen for language changes
         i18n.onLanguageChange(() => this.render());
+        document.addEventListener("view-options-update", this.handleViewOptionsUpdate.bind(this));
+    }
+    disconnectedCallback() {
+        document.removeEventListener("view-options-update", this.handleViewOptionsUpdate.bind(this));
+    }
+    handleViewOptionsUpdate() {
+        this.render();
     }
     initializeFromLayout() {
         // Default stats to off in vertical layout
@@ -36,6 +43,7 @@ export class ViewOptions extends HTMLElement {
         }
     }
     handleZoomOut() {
+        appState.viewOptions.autoZoom = false;
         if (appState.viewOptions.beatsPerLine < 32) {
             appState.viewOptions.beatsPerLine += 2;
             refreshChart();
@@ -43,6 +51,7 @@ export class ViewOptions extends HTMLElement {
         }
     }
     handleZoomIn() {
+        appState.viewOptions.autoZoom = false;
         if (appState.viewOptions.beatsPerLine > 4) {
             appState.viewOptions.beatsPerLine -= 2;
             refreshChart();
@@ -50,11 +59,20 @@ export class ViewOptions extends HTMLElement {
         }
     }
     handleZoomReset() {
+        appState.viewOptions.autoZoom = false;
         if (appState.viewOptions.beatsPerLine !== 16) {
             appState.viewOptions.beatsPerLine = 16;
             refreshChart();
             this.render();
         }
+    }
+    handleAutoZoom(e) {
+        const target = e.target;
+        appState.viewOptions.autoZoom = target.checked;
+        if (appState.viewOptions.autoZoom) {
+            refreshChart();
+        }
+        this.render();
     }
     handleStatsToggle(e) {
         this.statsVisible = e.target.checked;
@@ -81,7 +99,7 @@ export class ViewOptions extends HTMLElement {
         this.style.flexWrap = "wrap";
         this.style.width = "100%";
         this.classList.add("panel-pane");
-        const vdom = (_jsxs("div", { style: "display: contents;", children: [_jsx("div", { className: "option-section", children: _jsxs("div", { className: "section-main", children: [_jsx("span", { className: "sub-label", style: "min-width: auto; margin-right: 10px;", children: i18n.t("ui.zoom") }), _jsxs("div", { className: "zoom-controls", style: "display: flex; align-items: center; gap: 5px;", children: [_jsx("button", { type: "button", id: "zoom-out-btn", className: "tiny-btn", onclick: this.handleZoomOut.bind(this), children: "-" }), _jsxs("button", { type: "button", id: "zoom-reset-btn", className: "tiny-btn", style: "font-family: 'Consolas', monospace; min-width: 50px;", onclick: this.handleZoomReset.bind(this), children: [percent, "%"] }), _jsx("button", { type: "button", id: "zoom-in-btn", className: "tiny-btn", onclick: this.handleZoomIn.bind(this), children: "+" })] })] }) }), _jsx("div", { className: "option-section border-left", children: _jsx("div", { className: "section-main", children: _jsxs("label", { children: [_jsx("input", { type: "checkbox", id: "show-stats-checkbox", checked: this.statsVisible, onchange: this.handleStatsToggle.bind(this) }), _jsx("span", { children: i18n.t("ui.showStats") })] }) }) }), _jsx("div", { className: "option-section border-left", children: _jsx("div", { className: "section-main", children: _jsx("save-image-button", { id: "export-image-btn", children: i18n.t("ui.exportImage") }) }) })] }));
+        const vdom = (_jsxs("div", { style: "display: contents;", children: [_jsx("div", { className: "option-section", children: _jsxs("div", { className: "section-main", children: [_jsx("span", { className: "sub-label", style: "min-width: auto; margin-right: 10px;", children: i18n.t("ui.zoom") }), _jsxs("div", { className: "zoom-controls", style: "display: flex; align-items: center; gap: 5px;", children: [_jsx("button", { type: "button", id: "zoom-out-btn", className: "tiny-btn", onclick: this.handleZoomOut.bind(this), children: "-" }), _jsxs("button", { type: "button", id: "zoom-reset-btn", className: "tiny-btn", style: "font-family: 'Consolas', monospace; min-width: 50px;", onclick: this.handleZoomReset.bind(this), children: [percent, "%"] }), _jsx("button", { type: "button", id: "zoom-in-btn", className: "tiny-btn", onclick: this.handleZoomIn.bind(this), children: "+" }), _jsxs("label", { style: "margin-left: 5px; display: flex; align-items: center; cursor: pointer; user-select: none;", children: [_jsx("input", { type: "checkbox", id: "zoom-auto-checkbox", checked: !!appState.viewOptions.autoZoom, onchange: this.handleAutoZoom.bind(this) }), _jsx("span", { style: "margin-left: 4px;", children: i18n.t("ui.auto") })] })] })] }) }), _jsx("div", { className: "option-section border-left", children: _jsx("div", { className: "section-main", children: _jsxs("label", { children: [_jsx("input", { type: "checkbox", id: "show-stats-checkbox", checked: this.statsVisible, onchange: this.handleStatsToggle.bind(this) }), _jsx("span", { children: i18n.t("ui.showStats") })] }) }) }), _jsx("div", { className: "option-section border-left", children: _jsx("div", { className: "section-main", children: _jsx("save-image-button", { id: "export-image-btn", children: i18n.t("ui.exportImage") }) }) })] }));
         webjsx.applyDiff(this, vdom);
     }
 }

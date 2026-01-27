@@ -1,5 +1,25 @@
 [
   {
+    "hash": "47032a5",
+    "message": "Update version to 0.7.5.",
+    "date": "2026-01-28"
+  },
+  {
+    "hash": "b50a651",
+    "message": "Add release script to automate Neutralino builds and GitHub releases",
+    "date": "2026-01-28"
+  },
+  {
+    "hash": "9818580",
+    "message": "Add auto zooming functionality which adjusts zoom level based on canvas width.",
+    "date": "2026-01-27"
+  },
+  {
+    "hash": "bdac9b0",
+    "message": "Add portable builds using neutralino-build-scripts via setup script and patch.",
+    "date": "2026-01-26"
+  },
+  {
     "hash": "7535b47",
     "message": "Update version to 0.7.4.",
     "date": "2026-01-26"
@@ -478,25 +498,5 @@
     "hash": "5ced236",
     "message": "Move loop controls to Judgements tab and update tests.",
     "date": "2026-01-08"
-  },
-  {
-    "hash": "fb96ac9",
-    "message": "Refactor rendering to separate layout calculation from drawing, implement optimized incremental rendering for judgements, and cache layout for interaction events.",
-    "date": "2026-01-08"
-  },
-  {
-    "hash": "f0da522",
-    "message": "Implement incremental rendering and batched updates.",
-    "date": "2026-01-06"
-  },
-  {
-    "hash": "c1d2dca",
-    "message": "Update note stats tooltip snapshot.",
-    "date": "2026-01-08"
-  },
-  {
-    "hash": "bb199cf",
-    "message": "Update version to 0.6.3.",
-    "date": "2025-12-30"
   }
 ]
