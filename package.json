@@ -12,7 +12,8 @@
     "start:exe": "npm run build && neu update && neu run",
     "deploy": "npm run build && gh-pages -d dist",
     "format": "biome check --write .",
-    "generate-mapping": "node --loader ts-node/esm generate-song-mapping.ts"
+    "generate-mapping": "node --loader ts-node/esm generate-song-mapping.ts",
+    "release": "./release.sh"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.11",
