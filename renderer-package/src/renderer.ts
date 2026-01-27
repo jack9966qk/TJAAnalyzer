@@ -118,9 +118,9 @@ export const PALETTE = {
 };
 
 const FONT_STACK = "'Hiragino Kaku Gothic ProN', 'Meiryo', 'Yu Gothic', sans-serif";
-const PADDING: number = 20;
+export const PADDING: number = 20;
 
-const LAYOUT_RATIOS = {
+export const LAYOUT_RATIOS = {
   barHeight: 0.14,
   rowSpacing: 0.16,
   noteRadiusSmall: 0.035,
@@ -135,6 +135,22 @@ const LAYOUT_RATIOS = {
   barNumberOffsetY: 0.005,
   headerHeight: 0.35,
 };
+
+export function calculateAutoZoomBeats(availableWidth: number, minNoteDiameter: number = 18): number {
+  if (availableWidth <= 0) return 16;
+  
+  const BEATS_PER_BAR = 4;
+  // visualNoteWidthRatio = (2 * radius) + lineWidth
+  // Note: logic follows that in applyAutoZoom to ensure consistency
+  const visualNoteWidthRatio = LAYOUT_RATIOS.noteRadiusSmall * 2 + LAYOUT_RATIOS.lineWidthNoteOuter;
+  const maxBeats = (availableWidth * visualNoteWidthRatio * BEATS_PER_BAR) / minNoteDiameter;
+
+  // Ensure it is even and at least 4
+  let targetBeats = Math.floor(maxBeats / 2) * 2;
+  targetBeats = Math.max(4, targetBeats);
+  
+  return targetBeats;
+}
 
 // Helper types for renderer and hit testing
 export interface RenderBarInfo {

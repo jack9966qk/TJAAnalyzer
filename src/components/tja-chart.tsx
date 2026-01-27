@@ -10,14 +10,20 @@ import {
   type JudgementKey,
   JudgementMap,
   type JudgementValue,
+  LAYOUT_RATIOS,
   LocationMap,
+  PADDING,
   PALETTE,
   type ParsedChart,
   type RenderTexts,
   renderChart,
   renderLayout,
   type ViewOptions,
+  calculateAutoZoomBeats,
 } from "../../renderer-package/src/index.js";
+import { appState } from "../state/app-state.js";
+
+type AppViewOptions = ViewOptions & { autoZoom?: boolean };
 
 export interface ChartClickEventDetail {
   x: number;
@@ -206,6 +212,22 @@ export class TJAChart extends HTMLElement {
     );
   }
 
+  private applyAutoZoom(viewOptions: AppViewOptions) {
+    if (!viewOptions.autoZoom) return;
+    // Use logical width (CSS pixels) for calculation
+    const availableWidth = this.clientWidth - PADDING * 2;
+
+    const targetBeats = calculateAutoZoomBeats(availableWidth);
+    if (viewOptions.beatsPerLine === targetBeats) return;
+
+    viewOptions.beatsPerLine = targetBeats;
+    appState.viewOptions.beatsPerLine = targetBeats;
+    this._layout = null; // Force layout recreation
+    this._pendingFullRender = true;
+
+    document.dispatchEvent(new Event("view-options-update"));
+  }
+
   render() {
     this._renderTask = null;
     if (!this.isConnected || !this.canvas) return;
@@ -245,6 +267,8 @@ export class TJAChart extends HTMLElement {
       ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
       return;
     }
+
+    this.applyAutoZoom(this._viewOptions as AppViewOptions);
 
     const isFullRender = this._pendingFullRender || !this._layout;
 

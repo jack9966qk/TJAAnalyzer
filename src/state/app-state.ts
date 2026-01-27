@@ -13,7 +13,7 @@ import { exampleTJA } from "../core/example-data.js";
 interface AppState {
   parsedTJACharts: Record<string, ParsedChart> | null;
   currentChart: ParsedChart | null;
-  viewOptions: ViewOptions;
+  viewOptions: ViewOptions & { autoZoom?: boolean };
   loadedTJAContent: string;
   activeDataSourceMode: string;
   isSimulating: boolean;
@@ -44,6 +44,7 @@ export const appState: AppState = {
     annotations: new LocationMap(),
     showTextInAnnotationMode: false,
     alwaysShowAnnotations: false,
+    autoZoom: false,
   },
   loadedTJAContent: exampleTJA,
   activeDataSourceMode: "list",

@@ -13,16 +13,6 @@
     "jsx": "react-jsx",
     "jsxImportSource": "webjsx"
   },
-  "include": [
-    "src",
-    "tests",
-    "renderer-package/src"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "ts_output",
-    "renderer-example",
-    "renderer-package/dist"
-  ]
+  "include": ["src", "tests", "renderer-package/src"],
+  "exclude": ["node_modules", "dist", "ts_output", "renderer-example", "renderer-package/dist"]
 }

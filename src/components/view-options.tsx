@@ -21,6 +21,15 @@ export class ViewOptions extends HTMLElement {
     this.render();
     // Listen for language changes
     i18n.onLanguageChange(() => this.render());
+    document.addEventListener("view-options-update", this.handleViewOptionsUpdate.bind(this));
+  }
+
+  disconnectedCallback() {
+    document.removeEventListener("view-options-update", this.handleViewOptionsUpdate.bind(this));
+  }
+
+  private handleViewOptionsUpdate() {
+    this.render();
   }
 
   initializeFromLayout() {
@@ -39,6 +48,7 @@ export class ViewOptions extends HTMLElement {
   }
 
   private handleZoomOut() {
+    appState.viewOptions.autoZoom = false;
     if (appState.viewOptions.beatsPerLine < 32) {
       appState.viewOptions.beatsPerLine += 2;
       refreshChart();
@@ -47,6 +57,7 @@ export class ViewOptions extends HTMLElement {
   }
 
   private handleZoomIn() {
+    appState.viewOptions.autoZoom = false;
     if (appState.viewOptions.beatsPerLine > 4) {
       appState.viewOptions.beatsPerLine -= 2;
       refreshChart();
@@ -55,11 +66,21 @@ export class ViewOptions extends HTMLElement {
   }
 
   private handleZoomReset() {
+    appState.viewOptions.autoZoom = false;
     if (appState.viewOptions.beatsPerLine !== 16) {
       appState.viewOptions.beatsPerLine = 16;
       refreshChart();
       this.render();
     }
+  }
+
+  private handleAutoZoom(e: Event) {
+    const target = e.target as HTMLInputElement;
+    appState.viewOptions.autoZoom = target.checked;
+    if (appState.viewOptions.autoZoom) {
+      refreshChart();
+    }
+    this.render();
   }
 
   private handleStatsToggle(e: Event) {
@@ -116,6 +137,15 @@ export class ViewOptions extends HTMLElement {
               <button type="button" id="zoom-in-btn" className="tiny-btn" onclick={this.handleZoomIn.bind(this)}>
                 +
               </button>
+              <label style="margin-left: 5px; display: flex; align-items: center; cursor: pointer; user-select: none;">
+                <input
+                  type="checkbox"
+                  id="zoom-auto-checkbox"
+                  checked={!!appState.viewOptions.autoZoom}
+                  onchange={this.handleAutoZoom.bind(this)}
+                />
+                <span style="margin-left: 4px;">{i18n.t("ui.auto")}</span>
+              </label>
             </div>
           </div>
         </div>
