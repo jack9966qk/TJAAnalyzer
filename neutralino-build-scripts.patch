@@ -104,7 +104,7 @@ index 0b6adeb..e4ebd6b 100755
  
      echo
 diff --git a/build-mac.sh b/build-mac.sh
-index ebd778c..c3edaa9 100755
+index ebd778c..e3c1634 100755
 --- a/build-mac.sh
 +++ b/build-mac.sh
 @@ -42,9 +42,15 @@ APP_ID=$(jq -r '.buildScript.mac.appIdentifier' ${CONF})
@@ -162,7 +162,33 @@ index ebd778c..c3edaa9 100755
  
      echo 
      echo -e "\033[1mBuilding App Bundle (${APP_ARCH}):\033[0m"
-@@ -137,8 +146,11 @@ for APP_ARCH in "${APP_ARCH_LIST[@]}"; do
+@@ -117,7 +126,24 @@ for APP_ARCH in "${APP_ARCH_LIST[@]}"; do
+ 
+     if [ -e "./${APP_ICON}" ]; then
+         echo "    - Icon"
+-        cp -r "${APP_ICON}" "${APP_RESOURCES}/"
++        if [[ "${APP_ICON}" == *.png ]]; then
++            echo "      Converting PNG to ICNS..."
++            mkdir -p "${APP_DST}/tmp_icon.iconset"
++            sips -z 16 16     "${APP_ICON}" --out "${APP_DST}/tmp_icon.iconset/icon_16x16.png" > /dev/null
++            sips -z 32 32     "${APP_ICON}" --out "${APP_DST}/tmp_icon.iconset/icon_16x16@2x.png" > /dev/null
++            sips -z 32 32     "${APP_ICON}" --out "${APP_DST}/tmp_icon.iconset/icon_32x32.png" > /dev/null
++            sips -z 64 64     "${APP_ICON}" --out "${APP_DST}/tmp_icon.iconset/icon_32x32@2x.png" > /dev/null
++            sips -z 128 128   "${APP_ICON}" --out "${APP_DST}/tmp_icon.iconset/icon_128x128.png" > /dev/null
++            sips -z 256 256   "${APP_ICON}" --out "${APP_DST}/tmp_icon.iconset/icon_128x128@2x.png" > /dev/null
++            sips -z 256 256   "${APP_ICON}" --out "${APP_DST}/tmp_icon.iconset/icon_256x256.png" > /dev/null
++            sips -z 512 512   "${APP_ICON}" --out "${APP_DST}/tmp_icon.iconset/icon_512x512.png" > /dev/null
++            sips -z 512 512   "${APP_ICON}" --out "${APP_DST}/tmp_icon.iconset/icon_512x512@2x.png" > /dev/null
++            sips -z 1024 1024 "${APP_ICON}" --out "${APP_DST}/tmp_icon.iconset/icon_512x512@2x.png" > /dev/null
++            iconutil -c icns "${APP_DST}/tmp_icon.iconset" -o "${APP_RESOURCES}/icon.icns"
++            rm -rf "${APP_DST}/tmp_icon.iconset"
++        else
++            cp -r "${APP_ICON}" "${APP_RESOURCES}/"
++        fi
+     fi
+ 
+     echo "  Processing Info.plist ..."
+@@ -137,8 +163,11 @@ for APP_ARCH in "${APP_ARCH_LIST[@]}"; do
      fi
  
      if [ -e "./postproc-mac.sh" ]; then
