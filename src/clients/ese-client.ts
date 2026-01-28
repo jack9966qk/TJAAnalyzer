@@ -26,9 +26,17 @@ export class EseClient {
         }
         throw new Error(`Failed to fetch ESE index: ${response.status} ${response.statusText}`);
       }
-      const data: GitNode[] = await response.json();
-      this.treeCache = data;
-      return this.treeCache;
+      let result: GitNode[];
+      const data: any = await response.json();
+      if (Array.isArray(data)) {
+        result = data;
+      } else if (data && Array.isArray(data.files)) {
+        result = data.files;
+      } else {
+        result = [];
+      }
+      this.treeCache = result;
+      return result;
     } catch (e) {
       console.error("Error fetching ESE index:", e);
       throw new Error("Failed to load song list.");

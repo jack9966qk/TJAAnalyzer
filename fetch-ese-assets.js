@@ -77,13 +77,29 @@ async function main() {
 
     console.log(`Found ${tjaNodes.length} TJA files.`);
 
+    // Fetch commit info
+    console.log("Fetching commit info...");
+    let commitInfo = { sha: null, date: null };
+    try {
+      const branchData = await fetchJson(`${API_BASE}/repos/ESE/ESE/branches/master`);
+      commitInfo = {
+        sha: branchData.commit.id,
+        date: branchData.commit.timestamp,
+      };
+      console.log(`Latest commit: ${commitInfo.sha} (${commitInfo.date})`);
+    } catch (e) {
+      console.warn("Failed to fetch commit info:", e.message);
+    }
+
     // Load existing index to check for SHAs
     const existingIndex = {};
     if (fs.existsSync(INDEX_FILE)) {
       try {
         const raw = fs.readFileSync(INDEX_FILE, "utf8");
         const json = JSON.parse(raw);
-        for (const item of json) {
+        // Handle both old (array) and new (object) formats
+        const files = Array.isArray(json) ? json : json.files || [];
+        for (const item of files) {
           if (item.path && item.sha) {
             existingIndex[item.path] = item;
           }
@@ -197,7 +213,11 @@ async function main() {
     //  A full cleanup might need bottom-up traversal. Skipping for simplicity unless requested.)
 
     console.log("Writing index...");
-    fs.writeFileSync(INDEX_FILE, JSON.stringify(newIndex, null, 2));
+    const output = {
+      commit: commitInfo,
+      files: newIndex,
+    };
+    fs.writeFileSync(INDEX_FILE, JSON.stringify(output, null, 2));
 
     console.log("ESE assets update complete.");
   } catch (e) {
