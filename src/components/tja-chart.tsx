@@ -1,6 +1,7 @@
 import * as webjsx from "webjsx";
 import {
   type ChartLayout,
+  calculateAutoZoomBeats,
   createLayout,
   generateAutoAnnotations,
   getNoteAt,
@@ -10,7 +11,6 @@ import {
   type JudgementKey,
   JudgementMap,
   type JudgementValue,
-  LAYOUT_RATIOS,
   LocationMap,
   PADDING,
   PALETTE,
@@ -19,7 +19,6 @@ import {
   renderChart,
   renderLayout,
   type ViewOptions,
-  calculateAutoZoomBeats,
 } from "../../renderer-package/src/index.js";
 import { appState } from "../state/app-state.js";
 

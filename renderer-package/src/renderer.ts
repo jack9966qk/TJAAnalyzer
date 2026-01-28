@@ -138,7 +138,7 @@ export const LAYOUT_RATIOS = {
 
 export function calculateAutoZoomBeats(availableWidth: number, minNoteDiameter: number = 18): number {
   if (availableWidth <= 0) return 16;
-  
+
   const BEATS_PER_BAR = 4;
   // visualNoteWidthRatio = (2 * radius) + lineWidth
   // Note: logic follows that in applyAutoZoom to ensure consistency
@@ -148,7 +148,7 @@ export function calculateAutoZoomBeats(availableWidth: number, minNoteDiameter: 
   // Ensure it is even and at least 4
   let targetBeats = Math.floor(maxBeats / 2) * 2;
   targetBeats = Math.max(4, targetBeats);
-  
+
   return targetBeats;
 }
 

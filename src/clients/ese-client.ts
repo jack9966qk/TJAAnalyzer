@@ -27,11 +27,16 @@ export class EseClient {
         throw new Error(`Failed to fetch ESE index: ${response.status} ${response.statusText}`);
       }
       let result: GitNode[];
-      const data: any = await response.json();
+      const data: unknown = await response.json();
       if (Array.isArray(data)) {
-        result = data;
-      } else if (data && Array.isArray(data.files)) {
-        result = data.files;
+        result = data as GitNode[];
+      } else if (
+        typeof data === "object" &&
+        data !== null &&
+        "files" in data &&
+        Array.isArray((data as { files: unknown }).files)
+      ) {
+        result = (data as { files: GitNode[] }).files;
       } else {
         result = [];
       }
