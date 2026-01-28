@@ -25,7 +25,7 @@ export class ChartListPanel extends HTMLElement {
     activate() {
         if (!appState.eseTree) {
             this.dispatchStatus("status.loadingEse");
-            this.renderLoading(); // Re-render to show loading state if needed
+            this.renderLoading();
             appState.eseClient
                 .getTjaFiles()
                 .then((tree) => {
@@ -49,12 +49,10 @@ export class ChartListPanel extends HTMLElement {
             });
         }
         else {
-            // Tree already loaded
             if (this._pendingEseLoad) {
                 this.loadEseFromUrl(this._pendingEseLoad.path, this._pendingEseLoad.diff);
                 this._pendingEseLoad = null;
             }
-            // Just ensure render is up to date
             this.render();
         }
     }
@@ -71,11 +69,10 @@ export class ChartListPanel extends HTMLElement {
             const content = await appState.eseClient.getFileContent(path);
             appState.loadedTJAContent = content;
             appState.currentEsePath = path;
-            this.searchQuery = path; // Update search input visual
-            this.render(); // Enable share button
+            this.searchQuery = path;
+            this.render();
             updateParsedCharts(content);
             if (appState.parsedTJACharts) {
-                // Fallback if requested diff not found
                 const targetDiff = appState.parsedTJACharts[diff] ? diff : Object.keys(appState.parsedTJACharts)[0];
                 if (appState.parsedTJACharts[targetDiff]) {
                     // This assumes courseBranchSelect is globally available or we need to manage it.
@@ -108,7 +105,6 @@ export class ChartListPanel extends HTMLElement {
     handleLoadExample() {
         appState.loadedTJAContent = exampleTJA;
         this._isExampleLoaded = true;
-        // Clear ESE state
         appState.currentEsePath = null;
         this._searchQuery = ""; // Clear search
         this.filterResults();
@@ -139,9 +135,7 @@ export class ChartListPanel extends HTMLElement {
                     node.titleJp?.toLowerCase().includes(query));
             })
             : eseTree;
-        // Slice for performance
         this._displayResults = allResults.slice(0, 100);
-        // Add truncation indicator if needed
         if (allResults.length > 100) {
             this._displayResults.push({ __truncated: true });
         }
@@ -172,7 +166,7 @@ export class ChartListPanel extends HTMLElement {
             const content = await appState.eseClient.getFileContent(node.path);
             appState.loadedTJAContent = content;
             appState.currentEsePath = node.path;
-            this.render(); // Updates selection highlight and share button
+            this.render();
             updateParsedCharts(content);
             this.dispatchStatus("status.chartLoaded");
             this.resetExampleButton();
@@ -192,12 +186,10 @@ export class ChartListPanel extends HTMLElement {
         }));
     }
     renderLoading() {
-        // Could render a specific loading state
         const vdom = (_jsx("div", { className: "panel-pane", style: "display: block;", children: _jsx("div", { style: "padding:10px;", children: "Loading song list..." }) }));
         webjsx.applyDiff(this, vdom);
     }
     render() {
-        // Style host
         this.style.display = "block";
         this.classList.add("panel-pane");
         const { eseTree } = appState;

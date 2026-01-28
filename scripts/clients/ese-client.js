@@ -16,9 +16,22 @@ export class EseClient {
                 }
                 throw new Error(`Failed to fetch ESE index: ${response.status} ${response.statusText}`);
             }
+            let result;
             const data = await response.json();
-            this.treeCache = data;
-            return this.treeCache;
+            if (Array.isArray(data)) {
+                result = data;
+            }
+            else if (typeof data === "object" &&
+                data !== null &&
+                "files" in data &&
+                Array.isArray(data.files)) {
+                result = data.files;
+            }
+            else {
+                result = [];
+            }
+            this.treeCache = result;
+            return result;
         }
         catch (e) {
             console.error("Error fetching ESE index:", e);

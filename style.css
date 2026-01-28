@@ -94,8 +94,7 @@
 
 body {
   font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN",
-    "Hiragino Sans", Meiryo, sans-serif;
+    -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   margin: 0;
   padding: 0;
   background: var(--bg-body);
@@ -178,16 +177,23 @@ a:visited {
   border-radius: 4px;
 }
 
-#ds-collapse-btn {
-  padding: 4px 10px;
-  font-size: 0.8em;
-  background-color: var(--bg-panel-tabs);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
+.collapse-icon {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  /* Default to dark gray for light mode */
+  filter: invert(20%);
 }
 
-#ds-collapse-btn:hover {
+.panel-header:hover, .options-header:hover {
   background-color: var(--bg-hover);
+}
+
+@media (prefers-color-scheme: dark) {
+  .collapse-icon {
+    /* Invert for dark mode (white-ish) */
+    filter: invert(90%);
+  }
 }
 
 .panel-body {
@@ -315,18 +321,6 @@ button:disabled {
   margin: 0;
   font-size: 1em;
   color: var(--text-primary);
-}
-
-#options-collapse-btn {
-  padding: 4px 10px;
-  font-size: 0.8em;
-  background-color: var(--bg-panel-tabs);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-}
-
-#options-collapse-btn:hover {
-  background-color: var(--bg-hover);
 }
 
 #options-body.collapsed {

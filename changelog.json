@@ -1,5 +1,45 @@
 [
   {
+    "hash": "dc8b9cf",
+    "message": "Update version to 0.7.6.",
+    "date": "2026-01-29"
+  },
+  {
+    "hash": "8a2a128",
+    "message": "Replace collapse/expand buttons with heroicons and clickable panel headers.",
+    "date": "2026-01-29"
+  },
+  {
+    "hash": "bdaf28c",
+    "message": "Fix blocked font request warnings by removing explicit font names.",
+    "date": "2026-01-29"
+  },
+  {
+    "hash": "60e9e3e",
+    "message": "Clean up some redundant comments.",
+    "date": "2026-01-29"
+  },
+  {
+    "hash": "2df99e6",
+    "message": "Update the changelog panel to also display ESE version and a link to file issues.",
+    "date": "2026-01-29"
+  },
+  {
+    "hash": "4f439a5",
+    "message": "Run formatter.",
+    "date": "2026-01-28"
+  },
+  {
+    "hash": "af0d3c9",
+    "message": "Get commit hash and date when fetching from ESE.",
+    "date": "2026-01-28"
+  },
+  {
+    "hash": "a87e325",
+    "message": "Fix macOS portable app icon issue by converting PNG to ICNS in build script.",
+    "date": "2026-01-28"
+  },
+  {
     "hash": "47032a5",
     "message": "Update version to 0.7.5.",
     "date": "2026-01-28"
@@ -458,45 +498,5 @@
     "hash": "3a5d4f6",
     "message": "Allow customization of gap length in chart exporting. Update outdated snapshots.",
     "date": "2026-01-12"
-  },
-  {
-    "hash": "2aa6113",
-    "message": "Update version to 0.6.5.",
-    "date": "2026-01-08"
-  },
-  {
-    "hash": "a0ad67b",
-    "message": "Hide note stats by default in vertical layout mode.",
-    "date": "2026-01-08"
-  },
-  {
-    "hash": "584fcb7",
-    "message": "Improve chart list visuals.",
-    "date": "2026-01-08"
-  },
-  {
-    "hash": "eaa4d83",
-    "message": "Add functionality to specify the name of the exported selection chart.",
-    "date": "2026-01-08"
-  },
-  {
-    "hash": "f5ef101",
-    "message": "Fix incorrect gogo time configuration in chart exporting.",
-    "date": "2026-01-08"
-  },
-  {
-    "hash": "c30d50c",
-    "message": "Update version to 0.6.4.",
-    "date": "2026-01-08"
-  },
-  {
-    "hash": "ea790aa",
-    "message": "Update default judgement display to underline. Display a grey underline for misses.",
-    "date": "2026-01-08"
-  },
-  {
-    "hash": "5ced236",
-    "message": "Move loop controls to Judgements tab and update tests.",
-    "date": "2026-01-08"
   }
 ]

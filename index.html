@@ -28,12 +28,12 @@
         </div>
 
         <div id="data-source-panel">
-          <div class="panel-header">
+          <div class="panel-header" id="ds-panel-header">
             <div class="panel-header-left">
               <h2 data-i18n="ui.dataSource">Data Source</h2>
               <span id="status-display" data-i18n="status.initializing">Initializing...</span>
             </div>
-            <button id="ds-collapse-btn" data-i18n="ui.expand">Expand</button>
+            <img id="ds-collapse-icon" class="collapse-icon" src="assets/heroicons/optimized/24/outline/chevron-down.svg" alt="Expand" />
           </div>
 
           <div id="ds-body" class="panel-body collapsed">
@@ -63,7 +63,7 @@
 
         <div id="sticky-header">
           <div id="chart-options-panel" class="options-panel">
-            <div class="panel-header">
+            <div class="panel-header" id="options-panel-header">
               <div class="panel-header-left">
                 <h3 data-i18n="ui.chartOptions">Chart Options</h3>
                 <span
@@ -71,7 +71,7 @@
                   style="margin-left: 15px; font-weight: normal; color: #666; font-size: 0.9em;"
                 ></span>
               </div>
-              <button id="options-collapse-btn" data-i18n="ui.expand">Expand</button>
+              <img id="options-collapse-icon" class="collapse-icon" src="assets/heroicons/optimized/24/outline/chevron-down.svg" alt="Expand" />
             </div>
             <div id="options-body" class="panel-body collapsed">
               <div class="panel-tabs">

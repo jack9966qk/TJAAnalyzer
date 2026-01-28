@@ -1,6 +1,6 @@
 import { jsx as _jsx, Fragment as _Fragment, jsxs as _jsxs } from "webjsx/jsx-runtime";
 import * as webjsx from "webjsx";
-import { createLayout, generateAutoAnnotations, getNoteAt, getNotePosition, JUDGEABLE_NOTES, JudgementMap, LocationMap, PADDING, PALETTE, renderChart, renderLayout, calculateAutoZoomBeats, } from "../../renderer-package/src/index.js";
+import { calculateAutoZoomBeats, createLayout, generateAutoAnnotations, getNoteAt, getNotePosition, JUDGEABLE_NOTES, JudgementMap, LocationMap, PADDING, PALETTE, renderChart, renderLayout, } from "../../renderer-package/src/index.js";
 import { appState } from "../state/app-state.js";
 export class TJAChart extends HTMLElement {
     canvas;
