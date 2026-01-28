@@ -101,6 +101,18 @@ test.describe("Web Components Visual Regression", () => {
       });
     });
 
+    // Mock ese_index.json
+    await page.route("**/ese_index.json", (route) => {
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          commit: { sha: "ese123456", date: "2023-10-27T10:00:00Z" },
+          files: [],
+        }),
+      });
+    });
+
     await page.goto("/component-test.html?component=changelog-panel&width=300");
     const component = page.locator("changelog-panel");
     await expect(component).toBeVisible();
@@ -111,8 +123,10 @@ test.describe("Web Components Visual Regression", () => {
       await btn.click();
       const modal = page.locator(".modal-content");
       await expect(modal).toBeVisible();
-      // Wait for content to load (it should be instant with mock, but ensuring render)
+      // Wait for content to load
       await expect(modal).toContainText("Initial commit");
+      await expect(modal).toContainText("ESE Database");
+      await expect(modal).toContainText("ese1234");
       await expect(modal).toHaveScreenshot("changelog-panel-open.png");
     }
   });

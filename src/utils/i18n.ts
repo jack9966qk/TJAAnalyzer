@@ -136,6 +136,15 @@ const resources: Resources = {
     "renderer.judge.perfect": "GOOD",
     "renderer.judge.good": "OK",
     "renderer.judge.poor": "BAD",
+
+    "ui.about": "About",
+    "ui.feedback": "Submit Feedback / Report Issue",
+    "ui.eseDb": "ESE Database",
+    "ui.commit": "Commit",
+    "ui.update": "Update",
+    "ui.changelog": "Changelog",
+    "ui.loading": "Loading...",
+    "ui.noChangelog": "No changelog available (or failed to load).",
   },
   zh: {
     "ui.dataSource": "数据源",
@@ -265,6 +274,15 @@ const resources: Resources = {
     "renderer.judge.perfect": "良",
     "renderer.judge.good": "可",
     "renderer.judge.poor": "不可",
+
+    "ui.about": "关于",
+    "ui.feedback": "提交反馈 / 报告问题",
+    "ui.eseDb": "ESE 数据库",
+    "ui.commit": "提交",
+    "ui.update": "更新时间",
+    "ui.changelog": "变更日志",
+    "ui.loading": "加载中...",
+    "ui.noChangelog": "暂无变更日志（或加载失败）。",
   },
   ja: {
     "ui.dataSource": "データソース",
@@ -394,6 +412,15 @@ const resources: Resources = {
     "renderer.judge.perfect": "良",
     "renderer.judge.good": "可",
     "renderer.judge.poor": "不可",
+
+    "ui.about": "アプリについて",
+    "ui.feedback": "フィードバック / 問題を報告",
+    "ui.eseDb": "ESE データベース",
+    "ui.commit": "コミット",
+    "ui.update": "更新日時",
+    "ui.changelog": "更新履歴",
+    "ui.loading": "読み込み中...",
+    "ui.noChangelog": "更新履歴はありません（または読み込みに失敗しました）。",
   },
 };
 
