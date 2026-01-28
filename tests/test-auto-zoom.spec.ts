@@ -11,7 +11,7 @@ test.describe("Auto Zoom Feature", () => {
     if ((await optionsBody.count()) > 0) {
       const classes = await optionsBody.getAttribute("class");
       if (classes?.includes("collapsed")) {
-        await page.click("#options-collapse-btn");
+        await page.click("#options-panel-header");
         await page.waitForTimeout(500);
       }
     }

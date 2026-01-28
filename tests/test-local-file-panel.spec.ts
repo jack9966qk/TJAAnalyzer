@@ -9,7 +9,7 @@ test.describe("Local File Panel Component", () => {
     if ((await dsBody.count()) > 0) {
       const classes = await dsBody.getAttribute("class");
       if (classes?.includes("collapsed")) {
-        await page.click("#ds-collapse-btn");
+        await page.click("#ds-panel-header");
         await page.waitForTimeout(500);
       }
     }

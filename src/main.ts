@@ -38,13 +38,15 @@ import {
   doPanes,
   doTabs,
   dsBody,
-  dsCollapseBtn,
+  dsCollapseIcon,
+  dsPanelHeader,
   dsPanes,
   dsTabs,
   languageSelector,
   layoutToggleBtn,
   optionsBody,
-  optionsCollapseBtn,
+  optionsCollapseIcon,
+  optionsPanelHeader,
   statusDisplay,
   tjaChart,
 } from "./view/ui-elements.js";
@@ -167,13 +169,15 @@ function updateUIText() {
   }
 
   // Update collapsible buttons text based on state
-  if (dsCollapseBtn && dsBody) {
-    dsCollapseBtn.innerText = dsBody.classList.contains("collapsed") ? i18n.t("ui.expand") : i18n.t("ui.collapse");
+  if (dsCollapseIcon && dsBody) {
+    const isCollapsed = dsBody.classList.contains("collapsed");
+    dsCollapseIcon.src = isCollapsed ? "assets/heroicons/optimized/24/outline/chevron-down.svg" : "assets/heroicons/optimized/24/outline/chevron-up.svg";
+    dsCollapseIcon.alt = isCollapsed ? i18n.t("ui.expand") : i18n.t("ui.collapse");
   }
-  if (optionsCollapseBtn && optionsBody) {
-    optionsCollapseBtn.innerText = optionsBody.classList.contains("collapsed")
-      ? i18n.t("ui.expand")
-      : i18n.t("ui.collapse");
+  if (optionsCollapseIcon && optionsBody) {
+    const isCollapsed = optionsBody.classList.contains("collapsed");
+    optionsCollapseIcon.src = isCollapsed ? "assets/heroicons/optimized/24/outline/chevron-down.svg" : "assets/heroicons/optimized/24/outline/chevron-up.svg";
+    optionsCollapseIcon.alt = isCollapsed ? i18n.t("ui.expand") : i18n.t("ui.collapse");
   }
 
   // Refresh chart (redraws text on canvas) and stats
@@ -267,31 +271,37 @@ function initEventListeners() {
 
   // Setup Collapse Button
 
-  if (dsCollapseBtn && dsBody) {
-    dsCollapseBtn.addEventListener("click", () => {
+  if (dsPanelHeader && dsBody && dsCollapseIcon) {
+    dsPanelHeader.style.cursor = "pointer";
+    dsPanelHeader.addEventListener("click", () => {
       if (dsBody.classList.contains("collapsed")) {
         dsBody.classList.remove("collapsed");
 
-        dsCollapseBtn.innerText = i18n.t("ui.collapse");
+        dsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-up.svg";
+        dsCollapseIcon.alt = i18n.t("ui.collapse");
       } else {
         dsBody.classList.add("collapsed");
 
-        dsCollapseBtn.innerText = i18n.t("ui.expand");
+        dsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-down.svg";
+        dsCollapseIcon.alt = i18n.t("ui.expand");
       }
     });
   }
 
   // Setup Display Options Collapse Button
-  if (optionsCollapseBtn && optionsBody) {
-    optionsCollapseBtn.addEventListener("click", () => {
+  if (optionsPanelHeader && optionsBody && optionsCollapseIcon) {
+    optionsPanelHeader.style.cursor = "pointer";
+    optionsPanelHeader.addEventListener("click", () => {
       if (optionsBody.classList.contains("collapsed")) {
         optionsBody.classList.remove("collapsed");
 
-        optionsCollapseBtn.innerText = i18n.t("ui.collapse");
+        optionsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-up.svg";
+        optionsCollapseIcon.alt = i18n.t("ui.collapse");
       } else {
         optionsBody.classList.add("collapsed");
 
-        optionsCollapseBtn.innerText = i18n.t("ui.expand");
+        optionsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-down.svg";
+        optionsCollapseIcon.alt = i18n.t("ui.expand");
       }
     });
   }
@@ -590,14 +600,26 @@ function initializePanelVisibility() {
     // Expand
     dsBody.classList.remove("collapsed");
     optionsBody.classList.remove("collapsed");
-    if (dsCollapseBtn) dsCollapseBtn.innerText = i18n.t("ui.collapse");
-    if (optionsCollapseBtn) optionsCollapseBtn.innerText = i18n.t("ui.collapse");
+    if (dsCollapseIcon) {
+        dsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-up.svg";
+        dsCollapseIcon.alt = i18n.t("ui.collapse");
+    }
+    if (optionsCollapseIcon) {
+        optionsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-up.svg";
+        optionsCollapseIcon.alt = i18n.t("ui.collapse");
+    }
   } else {
     // Collapse
     dsBody.classList.add("collapsed");
     optionsBody.classList.add("collapsed");
-    if (dsCollapseBtn) dsCollapseBtn.innerText = i18n.t("ui.expand");
-    if (optionsCollapseBtn) optionsCollapseBtn.innerText = i18n.t("ui.expand");
+    if (dsCollapseIcon) {
+        dsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-down.svg";
+        dsCollapseIcon.alt = i18n.t("ui.expand");
+    }
+    if (optionsCollapseIcon) {
+        optionsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-down.svg";
+        optionsCollapseIcon.alt = i18n.t("ui.expand");
+    }
   }
 }
 

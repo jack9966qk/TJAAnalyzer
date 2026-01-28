@@ -24,11 +24,11 @@ test.describe("Layout Tests", () => {
     // Collapse everything to make content short
     const dsBody = page.locator("#ds-body");
     if ((await dsBody.count()) > 0 && !(await dsBody.getAttribute("class"))?.includes("collapsed")) {
-      await page.click("#ds-collapse-btn");
+      await page.click("#ds-panel-header");
     }
     const optionsBody = page.locator("#options-body");
     if ((await optionsBody.count()) > 0 && !(await optionsBody.getAttribute("class"))?.includes("collapsed")) {
-      await page.click("#options-collapse-btn");
+      await page.click("#options-panel-header");
     }
     await page.waitForTimeout(500);
 
@@ -45,10 +45,10 @@ test.describe("Layout Tests", () => {
     // Case 2: Tall content (Should scroll)
     // Expand everything
     if ((await dsBody.count()) > 0 && (await dsBody.getAttribute("class"))?.includes("collapsed")) {
-      await page.click("#ds-collapse-btn");
+      await page.click("#ds-panel-header");
     }
     if ((await optionsBody.count()) > 0 && (await optionsBody.getAttribute("class"))?.includes("collapsed")) {
-      await page.click("#options-collapse-btn");
+      await page.click("#options-panel-header");
     }
     // Switch to List tab (it has results list which can be long)
     await page.click('button[data-mode="list"]');

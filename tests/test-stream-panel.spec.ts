@@ -8,7 +8,7 @@ test.describe("Stream Panel Component", () => {
     const dsBody = page.locator("#ds-body");
     const isCollapsed = await dsBody.getAttribute("class").then((c) => c?.includes("collapsed"));
     if (isCollapsed) {
-      await page.click("#ds-collapse-btn");
+      await page.click("#ds-panel-header");
     }
 
     // Switch to Stream tab

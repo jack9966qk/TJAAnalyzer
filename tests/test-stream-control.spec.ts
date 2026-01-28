@@ -8,7 +8,7 @@ test.describe("Stream Control Interaction", () => {
     const dsBody = page.locator("#ds-body");
     const isCollapsed = await dsBody.getAttribute("class").then((c) => c?.includes("collapsed"));
     if (isCollapsed) {
-      await page.click("#ds-collapse-btn");
+      await page.click("#ds-panel-header");
     }
 
     // Switch to Stream tab
@@ -37,7 +37,7 @@ test.describe("Stream Control Interaction", () => {
     const dsBody = page.locator("#ds-body");
     const isCollapsed = await dsBody.getAttribute("class").then((c) => c?.includes("collapsed"));
     if (isCollapsed) {
-      await page.click("#ds-collapse-btn");
+      await page.click("#ds-panel-header");
     }
     await page.click('[data-mode="stream"]');
 
