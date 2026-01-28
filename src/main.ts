@@ -96,13 +96,11 @@ function switchDataSourceMode(mode: string) {
   appState.activeDataSourceMode = mode;
   console.log(`Switching data source mode to: ${mode}`);
 
-  // Update Tabs
   dsTabs.forEach((t) => {
     if (t.getAttribute("data-mode") === mode) t.classList.add("active");
     else t.classList.remove("active");
   });
 
-  // Update Panes
   dsPanes.forEach((p) => {
     if (p.id === `tab-${mode}`) {
       (p as HTMLElement).style.display = "block";
@@ -162,8 +160,6 @@ function updateUIText() {
   // Dynamic Elements
   updateStatus(appState.currentStatusKey, appState.currentStatusParams);
 
-  // Difficulty selector updates itself
-
   // Update Mode Status
   const activeTab = document.querySelector("#chart-options-panel .panel-tab.active");
   if (activeTab) {
@@ -209,10 +205,6 @@ function updateDisplayState() {
   } else {
     appState.viewOptions.viewMode = "original";
   }
-
-  // Determine Coloring Mode - Handled by component
-
-  // Determine Judgement Visibility - Handled by component
 
   refreshChart();
 }
@@ -542,11 +534,9 @@ function initJudgementClient() {
 }
 
 function initLoad() {
-  // Initial Load
   updateStatus("status.ready");
   updateUIText(); // Initialize text
 
-  // Check URL Params
   const urlParams = new URLSearchParams(window.location.search);
   const eseParam = urlParams.get("ese");
   const diffParam = urlParams.get("diff");

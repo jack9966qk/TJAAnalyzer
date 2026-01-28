@@ -199,18 +199,13 @@ async function main() {
       const currentFiles = getAllFiles(TARGET_DIR);
       for (const file of currentFiles) {
         if (!validPaths.has(file)) {
-          // Only delete if it looks like a TJA file we manage (optional safety)
-          // But for now, we manage the whole 'ese' folder, so safe to delete.
+          // Delete any file that is not in the valid list
           fs.unlinkSync(file);
           removedCount++;
         }
       }
     }
     console.log(`Removed ${removedCount} orphaned files.`);
-
-    // Clean empty directories
-    // (Simple implementation: attempt to rmdir empty parents.
-    //  A full cleanup might need bottom-up traversal. Skipping for simplicity unless requested.)
 
     console.log("Writing index...");
     const output = {

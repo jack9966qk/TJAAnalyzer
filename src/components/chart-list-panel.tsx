@@ -32,7 +32,7 @@ export class ChartListPanel extends HTMLElement {
   activate() {
     if (!appState.eseTree) {
       this.dispatchStatus("status.loadingEse");
-      this.renderLoading(); // Re-render to show loading state if needed
+      this.renderLoading();
 
       appState.eseClient
         .getTjaFiles()
@@ -57,12 +57,10 @@ export class ChartListPanel extends HTMLElement {
           }
         });
     } else {
-      // Tree already loaded
       if (this._pendingEseLoad) {
         this.loadEseFromUrl(this._pendingEseLoad.path, this._pendingEseLoad.diff);
         this._pendingEseLoad = null;
       }
-      // Just ensure render is up to date
       this.render();
     }
   }
@@ -84,13 +82,12 @@ export class ChartListPanel extends HTMLElement {
       appState.loadedTJAContent = content;
       appState.currentEsePath = path;
 
-      this.searchQuery = path; // Update search input visual
-      this.render(); // Enable share button
+      this.searchQuery = path;
+      this.render();
 
       updateParsedCharts(content);
 
       if (appState.parsedTJACharts) {
-        // Fallback if requested diff not found
         const targetDiff = appState.parsedTJACharts[diff] ? diff : Object.keys(appState.parsedTJACharts)[0];
 
         if (appState.parsedTJACharts[targetDiff]) {
@@ -127,7 +124,6 @@ export class ChartListPanel extends HTMLElement {
     appState.loadedTJAContent = exampleTJA;
     this._isExampleLoaded = true;
 
-    // Clear ESE state
     appState.currentEsePath = null;
     this._searchQuery = ""; // Clear search
     this.filterResults();
@@ -163,9 +159,7 @@ export class ChartListPanel extends HTMLElement {
         })
       : eseTree;
 
-    // Slice for performance
     this._displayResults = allResults.slice(0, 100);
-    // Add truncation indicator if needed
     if (allResults.length > 100) {
       this._displayResults.push({ __truncated: true });
     }
@@ -201,7 +195,7 @@ export class ChartListPanel extends HTMLElement {
       appState.loadedTJAContent = content;
       appState.currentEsePath = node.path;
 
-      this.render(); // Updates selection highlight and share button
+      this.render();
 
       updateParsedCharts(content);
       this.dispatchStatus("status.chartLoaded");
@@ -225,7 +219,6 @@ export class ChartListPanel extends HTMLElement {
   }
 
   renderLoading() {
-    // Could render a specific loading state
     const vdom = (
       <div className="panel-pane" style="display: block;">
         <div style="padding:10px;">Loading song list...</div>
@@ -235,7 +228,6 @@ export class ChartListPanel extends HTMLElement {
   }
 
   render() {
-    // Style host
     this.style.display = "block";
     this.classList.add("panel-pane");
 
