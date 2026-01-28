@@ -117,7 +117,8 @@ export const PALETTE = {
   gogo: "#f8a33cff",
 };
 
-const FONT_STACK = "'Hiragino Kaku Gothic ProN', 'Meiryo', 'Yu Gothic', sans-serif";
+const FONT_STACK =
+  "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
 export const PADDING: number = 20;
 
 export const LAYOUT_RATIOS = {
