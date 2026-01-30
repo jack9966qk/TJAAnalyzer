@@ -808,14 +808,29 @@ body.horizontal-layout.controls-collapsed #layout-toggle-btn {
 }
 
 /* Apply safe area padding globally as viewport-fit=cover is set */
+#safe-area-cover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top);
+  background-color: var(--bg-app);
+  z-index: 200; /* Above everything including sticky header */
+  pointer-events: none; /* Let clicks pass through if height is 0 */
+}
+
 h1 {
-  padding-top: max(20px, env(safe-area-inset-top));
+  /* Ensure text starts below the cover + original 20px spacing */
+  padding-top: calc(env(safe-area-inset-top) + 20px);
   padding-left: max(20px, env(safe-area-inset-left));
   padding-right: max(20px, env(safe-area-inset-right));
 }
 
 #sticky-header {
-  padding-top: max(10px, env(safe-area-inset-top));
+  /* Stick BELOW the safe area cover */
+  top: env(safe-area-inset-top);
+  /* Revert to standard padding */
+  padding-top: 10px;
   padding-left: max(20px, env(safe-area-inset-left));
   padding-right: max(20px, env(safe-area-inset-right));
 }
