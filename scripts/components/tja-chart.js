@@ -40,6 +40,10 @@ export class TJAChart extends HTMLElement {
                 width: 100%;
                 overflow: hidden;
             }
+            :host(:fullscreen) {
+                overflow-y: auto;
+                background-color: var(--canvas-container-bg, #fafafa);
+            }
             canvas {
                 display: block;
                 width: 100%;
@@ -147,7 +151,17 @@ export class TJAChart extends HTMLElement {
             return;
         // Use logical width (CSS pixels) for calculation
         const availableWidth = this.clientWidth - PADDING * 2;
-        const targetBeats = calculateAutoZoomBeats(availableWidth);
+        // Calculate longest bar to satisfy Priority 2 (fit longest bar on one line)
+        const barLengths = new Map();
+        if (this._chart?.barParams) {
+            for (const param of this._chart.barParams) {
+                const len = param.measureRatio * 4;
+                barLengths.set(len, (barLengths.get(len) || 0) + 1);
+            }
+        }
+        if (barLengths.size === 0)
+            barLengths.set(4, 1);
+        const targetBeats = calculateAutoZoomBeats(availableWidth, barLengths);
         if (viewOptions.beatsPerLine === targetBeats)
             return;
         viewOptions.beatsPerLine = targetBeats;

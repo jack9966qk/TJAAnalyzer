@@ -136,12 +136,16 @@ function updateUIText() {
     // Update collapsible buttons text based on state
     if (dsCollapseIcon && dsBody) {
         const isCollapsed = dsBody.classList.contains("collapsed");
-        dsCollapseIcon.src = isCollapsed ? "assets/heroicons/optimized/24/outline/chevron-down.svg" : "assets/heroicons/optimized/24/outline/chevron-up.svg";
+        dsCollapseIcon.src = isCollapsed
+            ? "assets/heroicons/optimized/24/outline/chevron-down.svg"
+            : "assets/heroicons/optimized/24/outline/chevron-up.svg";
         dsCollapseIcon.alt = isCollapsed ? i18n.t("ui.expand") : i18n.t("ui.collapse");
     }
     if (optionsCollapseIcon && optionsBody) {
         const isCollapsed = optionsBody.classList.contains("collapsed");
-        optionsCollapseIcon.src = isCollapsed ? "assets/heroicons/optimized/24/outline/chevron-down.svg" : "assets/heroicons/optimized/24/outline/chevron-up.svg";
+        optionsCollapseIcon.src = isCollapsed
+            ? "assets/heroicons/optimized/24/outline/chevron-down.svg"
+            : "assets/heroicons/optimized/24/outline/chevron-up.svg";
         optionsCollapseIcon.alt = isCollapsed ? i18n.t("ui.expand") : i18n.t("ui.collapse");
     }
     // Refresh chart (redraws text on canvas) and stats

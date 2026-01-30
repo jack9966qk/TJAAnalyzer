@@ -1,5 +1,30 @@
 [
   {
+    "hash": "249fdc5",
+    "message": "Update version to 0.7.7.",
+    "date": "2026-01-30"
+  },
+  {
+    "hash": "6536d47",
+    "message": "Add basic chart fullscreen support.",
+    "date": "2026-01-30"
+  },
+  {
+    "hash": "ab1c378",
+    "message": "Minor style fixes for hover color and status panel.",
+    "date": "2026-01-30"
+  },
+  {
+    "hash": "77e12ed",
+    "message": "Update formatter config and run formatter.",
+    "date": "2026-01-30"
+  },
+  {
+    "hash": "c41e89d",
+    "message": "Polish auto-zoom logic: use weighted efficiency score for varied bar lengths.",
+    "date": "2026-01-30"
+  },
+  {
     "hash": "dc8b9cf",
     "message": "Update version to 0.7.6.",
     "date": "2026-01-29"
@@ -473,30 +498,5 @@
     "hash": "973e6cc",
     "message": "Add Biome formatter and npm command for formatting.",
     "date": "2026-01-14"
-  },
-  {
-    "hash": "0774d82",
-    "message": "Update version to 0.6.6.",
-    "date": "2026-01-14"
-  },
-  {
-    "hash": "9dbe399",
-    "message": "Update the test stream start button as a stop button when the stream is active.",
-    "date": "2026-01-14"
-  },
-  {
-    "hash": "53e2006",
-    "message": "Fix the issue where gogo time status may be incorrect at the beginning of chart.",
-    "date": "2026-01-13"
-  },
-  {
-    "hash": "5c47d9b",
-    "message": "Clear judgements when switching charts.",
-    "date": "2026-01-13"
-  },
-  {
-    "hash": "3a5d4f6",
-    "message": "Allow customization of gap length in chart exporting. Update outdated snapshots.",
-    "date": "2026-01-12"
   }
 ]

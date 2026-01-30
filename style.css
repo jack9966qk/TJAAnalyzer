@@ -93,8 +93,7 @@
 }
 
 body {
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   margin: 0;
   padding: 0;
   background: var(--bg-body);
@@ -153,6 +152,7 @@ a:visited {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid var(--border-light);
+  gap: 8px;
 }
 
 .panel-header-left {
@@ -185,8 +185,11 @@ a:visited {
   filter: invert(20%);
 }
 
-.panel-header:hover, .options-header:hover {
-  background-color: var(--bg-hover);
+@media (hover: hover) {
+  .panel-header:hover,
+  .options-header:hover {
+    background-color: var(--bg-hover);
+  }
 }
 
 @media (prefers-color-scheme: dark) {
