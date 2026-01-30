@@ -39,10 +39,15 @@ export class TJAChart extends HTMLElement {
                 display: block;
                 width: 100%;
                 overflow: hidden;
+                box-sizing: border-box;
             }
             :host(:fullscreen), :host(.pseudo-fullscreen) {
                 overflow-y: auto;
                 background-color: var(--canvas-container-bg, #fafafa);
+                padding-top: env(safe-area-inset-top);
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+                padding-bottom: env(safe-area-inset-bottom);
             }
             :host(.pseudo-fullscreen) {
                 position: fixed;
