@@ -78,6 +78,10 @@ export class TJAChart extends HTMLElement {
                 width: 100%;
                 overflow: hidden;
             }
+            :host(:fullscreen) {
+                overflow-y: auto;
+                background-color: var(--canvas-container-bg, #fafafa);
+            }
             canvas {
                 display: block;
                 width: 100%;

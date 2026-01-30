@@ -67,6 +67,10 @@ const files = [
     src: "assets/heroicons/optimized/24/outline/chevron-down.svg",
     dest: "assets/heroicons/optimized/24/outline/chevron-down.svg",
   },
+  {
+    src: "assets/heroicons/optimized/24/outline/arrows-pointing-out.svg",
+    dest: "assets/heroicons/optimized/24/outline/arrows-pointing-out.svg",
+  },
 ];
 
 files.forEach((file) => {

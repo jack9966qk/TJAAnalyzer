@@ -171,10 +171,42 @@ export class ViewOptions extends HTMLElement {
             <save-image-button id="export-image-btn">{i18n.t("ui.exportImage")}</save-image-button>
           </div>
         </div>
+
+        {/* Fullscreen Section */}
+        <div className="option-section border-left">
+          <div className="section-main">
+            <button
+              type="button"
+              className="control-btn"
+              onclick={this.handleFullscreen.bind(this)}
+              title={i18n.t("ui.fullscreen")}
+              style="display: flex; align-items: center; justify-content: center; padding: 8px;"
+            >
+              <img
+                src="assets/heroicons/optimized/24/outline/arrows-pointing-out.svg"
+                alt="Fullscreen"
+                style="width: 20px; height: 20px; filter: brightness(0) invert(1);"
+              />
+            </button>
+          </div>
+        </div>
       </div>
     );
 
     webjsx.applyDiff(this, vdom);
+  }
+
+  private handleFullscreen() {
+    const chart = document.getElementById("chart-component");
+    if (chart) {
+      if (!document.fullscreenElement) {
+        chart.requestFullscreen().catch((err) => {
+          console.error(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
   }
 }
 
