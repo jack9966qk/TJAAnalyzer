@@ -8,7 +8,7 @@
     "build": "tsc && node prepare-dist.js",
     "test": "npm run build && node --loader ts-node/esm tests/test-parser.ts && node --loader ts-node/esm tests/test-exporter.ts && playwright test",
     "start": "npm run build && http-server dist -c-1",
-    "build:exe": "npm run build && neu update && ./setup-neutralino-build.sh && ./neutralino-build-scripts/build-mac.sh && ./neutralino-build-scripts/build-win.sh && ./neutralino-build-scripts/build-linux.sh",
+    "build:exe": "npm run build && node build-exe.js",
     "start:exe": "npm run build && neu update && neu run",
     "deploy": "npm run build && gh-pages -d dist",
     "format": "biome check --write .",
