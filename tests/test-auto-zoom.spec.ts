@@ -31,17 +31,23 @@ test.describe("Auto Zoom Feature", () => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.waitForTimeout(1000);
 
-    await expect(zoomResetBtn).not.toHaveText("100%");
+    // New logic caps at 32 beats per line -> 50% zoom (16/32)
+    await expect(zoomResetBtn).toHaveText("50%");
     const text1 = await zoomResetBtn.textContent();
 
-    await page.setViewportSize({ width: 1600, height: 900 });
+    await page.setViewportSize({ width: 1400, height: 900 });
     await page.waitForTimeout(1000); // Wait for debouncing/resize observer
     const text2 = await zoomResetBtn.textContent();
     expect(text1).not.toEqual(text2);
+    // Width ~970. MaxBeats ~22. Limit 22. 20 beats (multiple of 4) is best.
+    // 16 / 20 = 80%
+    await expect(zoomResetBtn).toHaveText("80%");
 
-    await page.setViewportSize({ width: 800, height: 600 });
+    await page.setViewportSize({ width: 600, height: 600 });
     await page.waitForTimeout(1000);
-    await expect(zoomResetBtn).toHaveText("114%");
+    // Width ~480. MaxBeats ~11. Best multiple of 4 is 8.
+    // 16 / 8 = 200%
+    await expect(zoomResetBtn).toHaveText("200%");
 
     // Verify Auto is still active
     await expect(zoomAutoCheckbox).toBeChecked();

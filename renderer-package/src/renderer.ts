@@ -117,8 +117,7 @@ export const PALETTE = {
   gogo: "#f8a33cff",
 };
 
-const FONT_STACK =
-  "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
+const FONT_STACK = "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
 export const PADDING: number = 20;
 
 export const LAYOUT_RATIOS = {
@@ -137,20 +136,69 @@ export const LAYOUT_RATIOS = {
   headerHeight: 0.35,
 };
 
-export function calculateAutoZoomBeats(availableWidth: number, minNoteDiameter: number = 18): number {
+export function calculateAutoZoomBeats(
+  availableWidth: number,
+  barLengths: Map<number, number> = new Map([[4, 1]]),
+  minNoteDiameter: number = 16,
+): number {
   if (availableWidth <= 0) return 16;
+  if (barLengths.size === 0) barLengths.set(4, 1);
 
   const BEATS_PER_BAR = 4;
-  // visualNoteWidthRatio = (2 * radius) + lineWidth
-  // Note: logic follows that in applyAutoZoom to ensure consistency
   const visualNoteWidthRatio = LAYOUT_RATIOS.noteRadiusSmall * 2 + LAYOUT_RATIOS.lineWidthNoteOuter;
-  const maxBeats = (availableWidth * visualNoteWidthRatio * BEATS_PER_BAR) / minNoteDiameter;
 
-  // Ensure it is even and at least 4
-  let targetBeats = Math.floor(maxBeats / 2) * 2;
-  targetBeats = Math.max(4, targetBeats);
+  // Priority 3: Max beats allowed by minNoteDiameter
+  const maxBeatsByDiameter = (availableWidth * visualNoteWidthRatio * BEATS_PER_BAR) / minNoteDiameter;
 
-  return targetBeats;
+  // Priority 1: Hard max limit 32
+  const maxBeatsStrict = 32;
+
+  // Upper bound for target beats based on P1 and P3
+  const upperLimit = Math.min(maxBeatsStrict, Math.floor(maxBeatsByDiameter));
+
+  // Priority 2: Must fit the longest bar
+  const longestBar = Math.max(...barLengths.keys());
+  // Priority 1: Hard min limit 4
+  const lowerLimit = Math.max(4, Math.ceil(longestBar));
+
+  // If constraints conflict (Longest Bar > Diameter Limit), Longest Bar wins (Constraint 2 > 3)
+  if (lowerLimit >= upperLimit) {
+    return lowerLimit;
+  }
+
+  // Optimization: Find target in [lowerLimit, upperLimit] that minimizes wasted space
+  // We prioritize higher zoom levels (more beats per line) -> Iterate downwards from upperLimit
+  let bestTarget = lowerLimit;
+  let bestScore = -1;
+
+  let totalBars = 0;
+  for (const count of barLengths.values()) totalBars += count;
+
+  for (let t = upperLimit; t >= lowerLimit; t--) {
+    // Score based on weighted efficiency: Average % of line used across all bars
+    let totalWeightedUsage = 0;
+
+    for (const [len, count] of barLengths) {
+      if (len <= 0) continue;
+      // How many full bars of length 'len' fit in line 't'?
+      const fitCount = Math.floor(t / len);
+      if (fitCount > 0) {
+        const used = fitCount * len;
+        const ratio = used / t;
+        totalWeightedUsage += ratio * count;
+      }
+    }
+
+    const score = totalWeightedUsage / totalBars;
+
+    // Keep track of the best score
+    if (score > bestScore) {
+      bestScore = score;
+      bestTarget = t;
+    }
+  }
+
+  return bestTarget;
 }
 
 // Helper types for renderer and hit testing
