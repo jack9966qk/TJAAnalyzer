@@ -22,6 +22,17 @@ import {
 } from "../../renderer-package/src/index.js";
 import { appState } from "../state/app-state.js";
 
+interface VendorDocument extends Document {
+  fullscreenElement: Element | null;
+  webkitFullscreenElement?: Element;
+  mozFullScreenElement?: Element;
+  msFullscreenElement?: Element;
+  exitFullscreen(): Promise<void>;
+  webkitExitFullscreen?(): Promise<void>;
+  mozCancelFullScreen?(): Promise<void>;
+  msExitFullscreen?(): Promise<void>;
+}
+
 type AppViewOptions = ViewOptions & { autoZoom?: boolean };
 
 export interface ChartClickEventDetail {
@@ -78,9 +89,43 @@ export class TJAChart extends HTMLElement {
                 width: 100%;
                 overflow: hidden;
             }
-            :host(:fullscreen) {
+            :host(:fullscreen), :host(.pseudo-fullscreen) {
                 overflow-y: auto;
                 background-color: var(--canvas-container-bg, #fafafa);
+            }
+            :host(.pseudo-fullscreen) {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                z-index: 9999;
+            }
+            #exit-fullscreen-btn {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 10000;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: rgba(0,0,0,0.5);
+                color: white;
+                border: none;
+                cursor: pointer;
+                display: none;
+                justify-content: center;
+                align-items: center;
+                padding: 8px;
+            }
+            :host(:fullscreen) #exit-fullscreen-btn,
+            :host(.pseudo-fullscreen) #exit-fullscreen-btn {
+                display: flex;
+            }
+            #exit-fullscreen-btn img {
+                width: 100%;
+                height: 100%;
+                filter: brightness(0) invert(1);
             }
             canvas {
                 display: block;
@@ -101,6 +146,9 @@ export class TJAChart extends HTMLElement {
                 display: none !important;
             }
         `}</style>
+        <button type="button" id="exit-fullscreen-btn" onclick={this.exitFullscreen.bind(this)}>
+          <img src="assets/heroicons/optimized/24/outline/x-mark.svg" alt="Exit Fullscreen" />
+        </button>
         <div
           id="message-container"
           className="hidden"
@@ -124,6 +172,17 @@ export class TJAChart extends HTMLElement {
     if (this.shadowRoot) {
       webjsx.applyDiff(this.shadowRoot, vdom);
     }
+  }
+
+  exitFullscreen() {
+    const doc = document as VendorDocument;
+    if (doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement) {
+      if (doc.exitFullscreen) doc.exitFullscreen().catch(() => {});
+      else if (doc.webkitExitFullscreen) doc.webkitExitFullscreen();
+      else if (doc.mozCancelFullScreen) doc.mozCancelFullScreen();
+      else if (doc.msExitFullscreen) doc.msExitFullscreen();
+    }
+    this.classList.remove("pseudo-fullscreen");
   }
 
   private upgradeProperty(prop: string) {
