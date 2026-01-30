@@ -59,8 +59,8 @@ export class TJAChart extends HTMLElement {
             }
             #exit-fullscreen-btn {
                 position: fixed;
-                top: 20px;
-                right: 20px;
+                top: max(20px, env(safe-area-inset-top) + 10px);
+                right: max(20px, env(safe-area-inset-right) + 10px);
                 z-index: 10000;
                 width: 40px;
                 height: 40px;

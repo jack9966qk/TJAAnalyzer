@@ -819,13 +819,6 @@ body.horizontal-layout.controls-collapsed #layout-toggle-btn {
   pointer-events: none; /* Let clicks pass through if height is 0 */
 }
 
-h1 {
-  /* Ensure text starts below the cover + original 20px spacing */
-  padding-top: calc(env(safe-area-inset-top) + 20px);
-  padding-left: max(20px, env(safe-area-inset-left));
-  padding-right: max(20px, env(safe-area-inset-right));
-}
-
 #sticky-header {
   /* Stick BELOW the safe area cover */
   top: env(safe-area-inset-top);
@@ -858,8 +851,26 @@ body.horizontal-layout .canvas-container {
 }
 
 .app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding-right: max(20px, env(safe-area-inset-right));
   padding-left: env(safe-area-inset-left); /* Ensure header title doesn't hit notch if left aligned */
+  padding-top: max(20px, env(safe-area-inset-top)); /* Clear status bar/safe area */
+}
+
+h1 {
+  /* Reset padding as container handles safe area now, keep horizontal padding for alignment */
+  text-align: center;
+  color: var(--text-primary);
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 1.8em;
+  padding: 0 20px;
+}
+
+#language-selector {
+  margin-top: 0;
 }
 
 @media all and (display-mode: standalone) {
