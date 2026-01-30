@@ -807,6 +807,15 @@ body.horizontal-layout.controls-collapsed #layout-toggle-btn {
   border-left: 1px solid var(--border-color);
 }
 
+/* Apply safe area padding globally as viewport-fit=cover is set */
+h1 {
+  padding-top: max(20px, env(safe-area-inset-top));
+}
+
+#sticky-header {
+  padding-top: max(10px, env(safe-area-inset-top));
+}
+
 @media all and (display-mode: standalone) {
   body {
     background-color: var(--bg-app); /* Match app bg to avoid gaps */
@@ -818,14 +827,6 @@ body.horizontal-layout.controls-collapsed #layout-toggle-btn {
     border-radius: 0;
     box-shadow: none;
     min-height: 100vh;
-  }
-
-  h1 {
-    padding-top: max(20px, env(safe-area-inset-top));
-  }
-
-  #sticky-header {
-    padding-top: max(10px, env(safe-area-inset-top));
   }
 }
 
