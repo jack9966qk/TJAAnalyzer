@@ -344,17 +344,24 @@ export class TJAChart extends HTMLElement {
 
     const isFullRender = this._pendingFullRender || !this._layout;
 
-    // We are doing a full render (either forced or because no incremental update needed/possible)
-    // But we only need to recreate layout if pending full render or layout missing
-    if (isFullRender) {
-      this._layout = createLayout(this._chart, this.canvas, this._viewOptions, this._judgements);
-      this._pendingFullRender = false;
-    }
-
     const texts = this._texts || {
       loopPattern: "Loop x{n}",
       judgement: { perfect: "良", good: "可", poor: "不可" },
     };
+
+    // We are doing a full render (either forced or because no incremental update needed/possible)
+    // But we only need to recreate layout if pending full render or layout missing
+    if (isFullRender) {
+      this._layout = createLayout(
+        this._chart,
+        this.canvas,
+        this._viewOptions,
+        this._judgements,
+        undefined,
+        texts,
+      );
+      this._pendingFullRender = false;
+    }
 
     let dirtyRowY: Set<number> | undefined;
 
