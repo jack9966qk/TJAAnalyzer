@@ -171,12 +171,16 @@ function updateUIText() {
   // Update collapsible buttons text based on state
   if (dsCollapseIcon && dsBody) {
     const isCollapsed = dsBody.classList.contains("collapsed");
-    dsCollapseIcon.src = isCollapsed ? "assets/heroicons/optimized/24/outline/chevron-down.svg" : "assets/heroicons/optimized/24/outline/chevron-up.svg";
+    dsCollapseIcon.src = isCollapsed
+      ? "assets/heroicons/optimized/24/outline/chevron-down.svg"
+      : "assets/heroicons/optimized/24/outline/chevron-up.svg";
     dsCollapseIcon.alt = isCollapsed ? i18n.t("ui.expand") : i18n.t("ui.collapse");
   }
   if (optionsCollapseIcon && optionsBody) {
     const isCollapsed = optionsBody.classList.contains("collapsed");
-    optionsCollapseIcon.src = isCollapsed ? "assets/heroicons/optimized/24/outline/chevron-down.svg" : "assets/heroicons/optimized/24/outline/chevron-up.svg";
+    optionsCollapseIcon.src = isCollapsed
+      ? "assets/heroicons/optimized/24/outline/chevron-down.svg"
+      : "assets/heroicons/optimized/24/outline/chevron-up.svg";
     optionsCollapseIcon.alt = isCollapsed ? i18n.t("ui.expand") : i18n.t("ui.collapse");
   }
 
@@ -601,24 +605,24 @@ function initializePanelVisibility() {
     dsBody.classList.remove("collapsed");
     optionsBody.classList.remove("collapsed");
     if (dsCollapseIcon) {
-        dsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-up.svg";
-        dsCollapseIcon.alt = i18n.t("ui.collapse");
+      dsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-up.svg";
+      dsCollapseIcon.alt = i18n.t("ui.collapse");
     }
     if (optionsCollapseIcon) {
-        optionsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-up.svg";
-        optionsCollapseIcon.alt = i18n.t("ui.collapse");
+      optionsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-up.svg";
+      optionsCollapseIcon.alt = i18n.t("ui.collapse");
     }
   } else {
     // Collapse
     dsBody.classList.add("collapsed");
     optionsBody.classList.add("collapsed");
     if (dsCollapseIcon) {
-        dsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-down.svg";
-        dsCollapseIcon.alt = i18n.t("ui.expand");
+      dsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-down.svg";
+      dsCollapseIcon.alt = i18n.t("ui.expand");
     }
     if (optionsCollapseIcon) {
-        optionsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-down.svg";
-        optionsCollapseIcon.alt = i18n.t("ui.expand");
+      optionsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-down.svg";
+      optionsCollapseIcon.alt = i18n.t("ui.expand");
     }
   }
 }

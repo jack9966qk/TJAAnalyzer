@@ -59,8 +59,14 @@ const files = [
   { src: "icon.png", dest: "icon.png" },
   { src: "node_modules/webjsx/dist", dest: "libs/webjsx" },
   { src: "node_modules/@neutralinojs/lib/dist/neutralino.js", dest: "neutralino.js" },
-  { src: "assets/heroicons/optimized/24/outline/chevron-up.svg", dest: "assets/heroicons/optimized/24/outline/chevron-up.svg" },
-  { src: "assets/heroicons/optimized/24/outline/chevron-down.svg", dest: "assets/heroicons/optimized/24/outline/chevron-down.svg" },
+  {
+    src: "assets/heroicons/optimized/24/outline/chevron-up.svg",
+    dest: "assets/heroicons/optimized/24/outline/chevron-up.svg",
+  },
+  {
+    src: "assets/heroicons/optimized/24/outline/chevron-down.svg",
+    dest: "assets/heroicons/optimized/24/outline/chevron-down.svg",
+  },
 ];
 
 files.forEach((file) => {

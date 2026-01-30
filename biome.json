@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!!**/release", "!!**/dist", "!!**/ts_output"]
+    "includes": ["**", "!!**/release", "!!**/dist", "!!**/ts_output", "!!**/assets/heroicons"]
   },
   "formatter": {
     "enabled": true,

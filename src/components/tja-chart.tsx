@@ -218,7 +218,7 @@ export class TJAChart extends HTMLElement {
 
     // Calculate longest bar to satisfy Priority 2 (fit longest bar on one line)
     const barLengths = new Map<number, number>();
-    if (this._chart && this._chart.barParams) {
+    if (this._chart?.barParams) {
       for (const param of this._chart.barParams) {
         const len = param.measureRatio * 4;
         barLengths.set(len, (barLengths.get(len) || 0) + 1);

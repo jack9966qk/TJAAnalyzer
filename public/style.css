@@ -93,8 +93,7 @@
 }
 
 body {
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
   margin: 0;
   padding: 0;
   background: var(--bg-body);
@@ -185,7 +184,8 @@ a:visited {
   filter: invert(20%);
 }
 
-.panel-header:hover, .options-header:hover {
+.panel-header:hover,
+.options-header:hover {
   background-color: var(--bg-hover);
 }
 
