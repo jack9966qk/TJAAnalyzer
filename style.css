@@ -807,6 +807,28 @@ body.horizontal-layout.controls-collapsed #layout-toggle-btn {
   border-left: 1px solid var(--border-color);
 }
 
+@media all and (display-mode: standalone) {
+  body {
+    background-color: var(--bg-app); /* Match app bg to avoid gaps */
+  }
+
+  #app {
+    margin: 0;
+    max-width: none;
+    border-radius: 0;
+    box-shadow: none;
+    min-height: 100vh;
+  }
+
+  h1 {
+    padding-top: max(20px, env(safe-area-inset-top));
+  }
+
+  #sticky-header {
+    padding-top: max(10px, env(safe-area-inset-top));
+  }
+}
+
 .status-message {
   width: 100%;
   text-align: center;
