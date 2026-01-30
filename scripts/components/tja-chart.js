@@ -40,9 +40,43 @@ export class TJAChart extends HTMLElement {
                 width: 100%;
                 overflow: hidden;
             }
-            :host(:fullscreen) {
+            :host(:fullscreen), :host(.pseudo-fullscreen) {
                 overflow-y: auto;
                 background-color: var(--canvas-container-bg, #fafafa);
+            }
+            :host(.pseudo-fullscreen) {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                z-index: 9999;
+            }
+            #exit-fullscreen-btn {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 10000;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: rgba(0,0,0,0.5);
+                color: white;
+                border: none;
+                cursor: pointer;
+                display: none;
+                justify-content: center;
+                align-items: center;
+                padding: 8px;
+            }
+            :host(:fullscreen) #exit-fullscreen-btn,
+            :host(.pseudo-fullscreen) #exit-fullscreen-btn {
+                display: flex;
+            }
+            #exit-fullscreen-btn img {
+                width: 100%;
+                height: 100%;
+                filter: brightness(0) invert(1);
             }
             canvas {
                 display: block;
@@ -62,7 +96,7 @@ export class TJAChart extends HTMLElement {
             .hidden {
                 display: none !important;
             }
-        ` }), _jsx("div", { id: "message-container", className: "hidden", ref: (el) => {
+        ` }), _jsx("button", { type: "button", id: "exit-fullscreen-btn", onclick: this.exitFullscreen.bind(this), children: _jsx("img", { src: "assets/heroicons/optimized/24/outline/x-mark.svg", alt: "Exit Fullscreen" }) }), _jsx("div", { id: "message-container", className: "hidden", ref: (el) => {
                         this.messageContainer = el;
                     } }), _jsx("canvas", { ref: (el) => {
                         if (el) {
@@ -75,6 +109,20 @@ export class TJAChart extends HTMLElement {
         if (this.shadowRoot) {
             webjsx.applyDiff(this.shadowRoot, vdom);
         }
+    }
+    exitFullscreen() {
+        const doc = document;
+        if (doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement) {
+            if (doc.exitFullscreen)
+                doc.exitFullscreen().catch(() => { });
+            else if (doc.webkitExitFullscreen)
+                doc.webkitExitFullscreen();
+            else if (doc.mozCancelFullScreen)
+                doc.mozCancelFullScreen();
+            else if (doc.msExitFullscreen)
+                doc.msExitFullscreen();
+        }
+        this.classList.remove("pseudo-fullscreen");
     }
     upgradeProperty(prop) {
         if (Object.hasOwn(this, prop)) {
@@ -207,16 +255,16 @@ export class TJAChart extends HTMLElement {
         }
         this.applyAutoZoom(this._viewOptions);
         const isFullRender = this._pendingFullRender || !this._layout;
-        // We are doing a full render (either forced or because no incremental update needed/possible)
-        // But we only need to recreate layout if pending full render or layout missing
-        if (isFullRender) {
-            this._layout = createLayout(this._chart, this.canvas, this._viewOptions, this._judgements);
-            this._pendingFullRender = false;
-        }
         const texts = this._texts || {
             loopPattern: "Loop x{n}",
             judgement: { perfect: "良", good: "可", poor: "不可" },
         };
+        // We are doing a full render (either forced or because no incremental update needed/possible)
+        // But we only need to recreate layout if pending full render or layout missing
+        if (isFullRender) {
+            this._layout = createLayout(this._chart, this.canvas, this._viewOptions, this._judgements, undefined, texts);
+            this._pendingFullRender = false;
+        }
         let dirtyRowY;
         if (!isFullRender && this._layout) {
             // Differential Rendering

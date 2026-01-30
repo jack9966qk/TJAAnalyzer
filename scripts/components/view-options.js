@@ -105,13 +105,49 @@ export class ViewOptions extends HTMLElement {
     handleFullscreen() {
         const chart = document.getElementById("chart-component");
         if (chart) {
-            if (!document.fullscreenElement) {
-                chart.requestFullscreen().catch((err) => {
-                    console.error(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
-                });
+            const doc = document;
+            const el = chart;
+            const isFullscreen = doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement;
+            const isPseudoFullscreen = chart.classList.contains("pseudo-fullscreen");
+            if (!isFullscreen && !isPseudoFullscreen) {
+                let requestPromise;
+                if (el.requestFullscreen) {
+                    requestPromise = el.requestFullscreen();
+                }
+                else if (el.webkitRequestFullscreen) {
+                    requestPromise = el.webkitRequestFullscreen();
+                }
+                else if (el.mozRequestFullScreen) {
+                    requestPromise = el.mozRequestFullScreen();
+                }
+                else if (el.msRequestFullscreen) {
+                    requestPromise = el.msRequestFullscreen();
+                }
+                if (requestPromise) {
+                    requestPromise.catch((_err) => {
+                        // Fallback to pseudo fullscreen if native fails (common on mobile)
+                        chart.classList.add("pseudo-fullscreen");
+                    });
+                }
+                else {
+                    // Fallback immediately if API not present
+                    chart.classList.add("pseudo-fullscreen");
+                }
             }
             else {
-                document.exitFullscreen();
+                if (doc.exitFullscreen) {
+                    doc.exitFullscreen().catch(() => { });
+                }
+                else if (doc.webkitExitFullscreen) {
+                    doc.webkitExitFullscreen();
+                }
+                else if (doc.mozCancelFullScreen) {
+                    doc.mozCancelFullScreen();
+                }
+                else if (doc.msExitFullscreen) {
+                    doc.msExitFullscreen();
+                }
+                chart.classList.remove("pseudo-fullscreen");
             }
         }
     }

@@ -1,5 +1,35 @@
 [
   {
+    "hash": "6e93727",
+    "message": "Update version to 0.7.8.",
+    "date": "2026-01-31"
+  },
+  {
+    "hash": "4d55ac2",
+    "message": "Wrap chart difficulty and BPM headers if title or subtitle is too long.",
+    "date": "2026-01-31"
+  },
+  {
+    "hash": "74c5451",
+    "message": "Avoid text input auto zooming and autocoreect on iOS.",
+    "date": "2026-01-30"
+  },
+  {
+    "hash": "abe6dae",
+    "message": "Remove .tmp files.",
+    "date": "2026-01-30"
+  },
+  {
+    "hash": "31e71e5",
+    "message": "Replace shell build scripts with cross-platform Node.js script.",
+    "date": "2026-01-30"
+  },
+  {
+    "hash": "e52c131",
+    "message": "Support fullscreen mode in more browsers. Add a floating close button in fullscreen mode.",
+    "date": "2026-01-30"
+  },
+  {
     "hash": "249fdc5",
     "message": "Update version to 0.7.7.",
     "date": "2026-01-30"
@@ -467,36 +497,6 @@
   {
     "hash": "6e1dd20",
     "message": "Enable Biome noUnusedImports and address reported issues.",
-    "date": "2026-01-14"
-  },
-  {
-    "hash": "1155b90",
-    "message": "Enable Biome noUnusedVariables and address reported issues.",
-    "date": "2026-01-14"
-  },
-  {
-    "hash": "3ae5ccb",
-    "message": "Fix more Biome linting issues and fix a regression on branch selector display.",
-    "date": "2026-01-14"
-  },
-  {
-    "hash": "497cfee",
-    "message": "Fix more Biome linting issues.",
-    "date": "2026-01-14"
-  },
-  {
-    "hash": "ab1abe3",
-    "message": "Address some Biome linting suggestions.",
-    "date": "2026-01-14"
-  },
-  {
-    "hash": "1c53d2b",
-    "message": "Apply automatic formatting with the Biome formatter.",
-    "date": "2026-01-14"
-  },
-  {
-    "hash": "973e6cc",
-    "message": "Add Biome formatter and npm command for formatting.",
     "date": "2026-01-14"
   }
 ]

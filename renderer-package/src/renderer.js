@@ -669,7 +669,64 @@ function calculateLongNoteSegments(virtualBars, barFrames, constants) {
     }
     return segments;
 }
-export function createLayout(chart, canvas, options, judgements, customDpr) {
+function measureHeaderHeight(ctx, chart, width, baseHeight, texts) {
+    const { title = "Untitled", subtitle = "", level = 0, course = "Oni", bpm = 120 } = chart;
+    const titleFontSize = baseHeight * 0.4;
+    const subtitleFontSize = baseHeight * 0.25;
+    const metaFontSize = baseHeight * 0.25;
+    ctx.save();
+    ctx.font = `bold ${titleFontSize}px ${FONT_STACK}`;
+    const titleWidth = ctx.measureText(title).width;
+    ctx.font = `${subtitleFontSize}px ${FONT_STACK}`;
+    const subtitleWidth = subtitle ? ctx.measureText(subtitle).width : 0;
+    // Course
+    const courseKey = course.toLowerCase();
+    let courseName = course.charAt(0).toUpperCase() + course.slice(1);
+    if (texts?.course?.[courseKey]) {
+        courseName = texts.course[courseKey];
+    }
+    let courseText = courseName;
+    if (level > 0)
+        courseText += ` ★${level}`;
+    ctx.font = `bold ${metaFontSize}px ${FONT_STACK}`;
+    const courseWidth = ctx.measureText(courseText).width;
+    // BPM
+    let minBpm = bpm;
+    let maxBpm = bpm;
+    if (chart.barParams) {
+        for (const param of chart.barParams) {
+            if (param.bpm < minBpm)
+                minBpm = param.bpm;
+            if (param.bpm > maxBpm)
+                maxBpm = param.bpm;
+            if (param.bpmChanges) {
+                for (const change of param.bpmChanges) {
+                    if (change.bpm < minBpm)
+                        minBpm = change.bpm;
+                    if (change.bpm > maxBpm)
+                        maxBpm = change.bpm;
+                }
+            }
+        }
+    }
+    const bpmText = minBpm === maxBpm ? `BPM: ${minBpm}` : `BPM: ${minBpm}-${maxBpm}`;
+    ctx.font = `${metaFontSize}px ${FONT_STACK}`;
+    const bpmWidth = ctx.measureText(bpmText).width;
+    ctx.restore();
+    const GAP = 20;
+    const titleOverlap = titleWidth + GAP + courseWidth > width;
+    const subtitleOverlap = subtitleWidth + GAP + bpmWidth > width;
+    if (titleOverlap || subtitleOverlap) {
+        let h = titleFontSize + 5;
+        if (subtitle)
+            h += subtitleFontSize + 5;
+        h += metaFontSize + 5; // Course
+        h += metaFontSize; // BPM
+        return h;
+    }
+    return baseHeight;
+}
+export function createLayout(chart, canvas, options, judgements, customDpr, texts) {
     // Reset width to 100% to allow measuring the container's available width
     canvas.style.width = "100%";
     let logicalCanvasWidth = canvas.clientWidth;
@@ -679,8 +736,17 @@ export function createLayout(chart, canvas, options, judgements, customDpr) {
     // Calculate Header Dimensions
     const availableWidth = logicalCanvasWidth - PADDING * 2;
     const baseBarWidth = availableWidth / (options.beatsPerLine / 4);
-    const headerHeight = baseBarWidth * LAYOUT_RATIOS.headerHeight;
-    const offsetY = PADDING + headerHeight + PADDING; // Padding above and below header
+    const baseHeaderHeight = baseBarWidth * LAYOUT_RATIOS.headerHeight;
+    let headerHeight = baseHeaderHeight;
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+        headerHeight = measureHeaderHeight(ctx, chart, availableWidth, baseHeaderHeight, texts);
+    }
+    const statusFontSize = baseBarWidth * LAYOUT_RATIOS.statusFontSize;
+    const barNumberOffsetY = baseBarWidth * LAYOUT_RATIOS.barNumberOffsetY;
+    const annotationHeight = barNumberOffsetY + 3 * statusFontSize;
+    const gap = Math.max(PADDING, annotationHeight);
+    const offsetY = PADDING + headerHeight + gap;
     const { bars } = chart;
     const globalBarStartIndices = calculateGlobalBarStartIndices(bars);
     const balloonIndices = calculateBalloonIndices(bars);
@@ -720,6 +786,7 @@ export function createLayout(chart, canvas, options, judgements, customDpr) {
         logicalCanvasWidth,
         dpr,
         headerHeight,
+        baseHeaderHeight,
         offsetY,
         baseBarWidth,
         locToJudgementKey,
@@ -728,7 +795,7 @@ export function createLayout(chart, canvas, options, judgements, customDpr) {
     };
 }
 export function renderLayout(canvasContext, layout, chart, judgements, options, texts, dirtyRowY) {
-    const { logicalCanvasWidth, dpr, totalHeight, barFrames, constants, virtualBars, balloonIndices, inferredHands, headerHeight, locToJudgementKey, } = layout;
+    const { logicalCanvasWidth, dpr, totalHeight, barFrames, constants, virtualBars, balloonIndices, inferredHands, headerHeight, baseHeaderHeight, locToJudgementKey, } = layout;
     // Safety check for canvas limits
     const MAX_CANVAS_DIMENSION = 32000;
     let effectiveDpr = dpr;
@@ -792,7 +859,7 @@ export function renderLayout(canvasContext, layout, chart, judgements, options, 
     if (!dirtyRowY) {
         const availableWidth = logicalCanvasWidth - PADDING * 2;
         const headerFrame = { x: PADDING, y: PADDING, width: availableWidth, height: headerHeight };
-        drawChartHeader(canvasContext, chart, headerFrame, texts);
+        drawChartHeader(canvasContext, chart, headerFrame, texts, baseHeaderHeight);
     }
     const isAllBranches = !!options.showAllBranches && !!chart.branches;
     const BASE_LANE_HEIGHT = constants.barHeight;
@@ -975,10 +1042,10 @@ export function renderChart(chart, canvas, judgements = new JudgementMap(), opti
     }
     // Use the new createLayout function
     // Note: This recreates the layout on every call, maintaining existing behavior for now
-    const layout = createLayout(chart, canvas, options, judgements, customDpr);
+    const layout = createLayout(chart, canvas, options, judgements, customDpr, texts);
     // For now, unpack layout to keep using the existing rendering logic in this function
     // This is an intermediate step. Later we will replace this with renderLayout()
-    const { virtualBars, barFrames, constants, totalHeight, balloonIndices, inferredHands, logicalCanvasWidth, dpr, headerHeight, locToJudgementKey, baseBarWidth, } = layout;
+    const { virtualBars, barFrames, constants, totalHeight, balloonIndices, inferredHands, logicalCanvasWidth, dpr, headerHeight, baseHeaderHeight, locToJudgementKey, baseBarWidth, } = layout;
     // Safety check for canvas limits
     const MAX_CANVAS_DIMENSION = 32000;
     if (totalHeight * dpr > MAX_CANVAS_DIMENSION) {
@@ -1015,7 +1082,7 @@ export function renderChart(chart, canvas, judgements = new JudgementMap(), opti
     // Layer 0: Header
     const availableWidth = logicalCanvasWidth - PADDING * 2;
     const headerFrame = { x: PADDING, y: PADDING, width: availableWidth, height: headerHeight };
-    drawChartHeader(canvasContext, chart, headerFrame, texts);
+    drawChartHeader(canvasContext, chart, headerFrame, texts, baseHeaderHeight);
     const isAllBranches = !!options.showAllBranches && !!chart.branches;
     const BASE_LANE_HEIGHT = constants.barHeight;
     // Layer 1: Backgrounds
@@ -1038,7 +1105,7 @@ export function renderChart(chart, canvas, judgements = new JudgementMap(), opti
         }
     }
 }
-function drawChartHeader(canvasContext, chart, frame, texts) {
+function drawChartHeader(canvasContext, chart, frame, texts, baseHeight) {
     const { x, y, width, height } = frame;
     const title = chart.title || "Untitled";
     const subtitle = chart.subtitle || "";
@@ -1065,25 +1132,10 @@ function drawChartHeader(canvasContext, chart, frame, texts) {
         }
     }
     const bpmText = minBpm === maxBpm ? `BPM: ${minBpm}` : `BPM: ${minBpm}-${maxBpm}`;
-    const titleFontSize = height * 0.4;
-    const subtitleFontSize = height * 0.25;
-    const metaFontSize = height * 0.25;
-    canvasContext.save();
-    // Draw Title
-    canvasContext.fillStyle = PALETTE.text.primary;
-    canvasContext.font = `bold ${titleFontSize}px ${FONT_STACK}`;
-    canvasContext.textAlign = "left";
-    canvasContext.textBaseline = "top";
-    canvasContext.fillText(title, x, y);
-    // Draw Subtitle (below title)
-    if (subtitle) {
-        canvasContext.font = `${subtitleFontSize}px ${FONT_STACK}`;
-        canvasContext.fillStyle = PALETTE.text.secondary;
-        canvasContext.fillText(subtitle, x, y + titleFontSize + 5);
-    }
-    // Draw Metadata (Right aligned)
-    const metaY = y;
-    canvasContext.textAlign = "right";
+    const refHeight = baseHeight || height;
+    const titleFontSize = refHeight * 0.4;
+    const subtitleFontSize = refHeight * 0.25;
+    const metaFontSize = refHeight * 0.25;
     // Course & Level
     const courseKey = course.toLowerCase();
     let courseName = course.charAt(0).toUpperCase() + course.slice(1);
@@ -1112,13 +1164,71 @@ function drawChartHeader(canvasContext, chart, frame, texts) {
     else if (c.includes("easy")) {
         courseColor = PALETTE.courses.easy; // Orange
     }
-    canvasContext.fillStyle = courseColor;
+    canvasContext.save();
+    // Measure widths to check for overlap
+    canvasContext.font = `bold ${titleFontSize}px ${FONT_STACK}`;
+    const titleWidth = canvasContext.measureText(title).width;
+    canvasContext.font = `${subtitleFontSize}px ${FONT_STACK}`;
+    const subtitleWidth = subtitle ? canvasContext.measureText(subtitle).width : 0;
     canvasContext.font = `bold ${metaFontSize}px ${FONT_STACK}`;
-    canvasContext.fillText(courseText, x + width, metaY);
-    // BPM
-    canvasContext.fillStyle = PALETTE.text.primary;
+    const courseWidth = canvasContext.measureText(courseText).width;
     canvasContext.font = `${metaFontSize}px ${FONT_STACK}`;
-    canvasContext.fillText(bpmText, x + width, metaY + metaFontSize + 5);
+    const bpmWidth = canvasContext.measureText(bpmText).width;
+    const GAP = 20;
+    const titleOverlap = titleWidth + GAP + courseWidth > width;
+    const subtitleOverlap = subtitleWidth + GAP + bpmWidth > width;
+    if (titleOverlap || subtitleOverlap) {
+        // Stacked Layout (Left Aligned)
+        let currentY = y;
+        // Title
+        canvasContext.fillStyle = PALETTE.text.primary;
+        canvasContext.font = `bold ${titleFontSize}px ${FONT_STACK}`;
+        canvasContext.textAlign = "left";
+        canvasContext.textBaseline = "top";
+        canvasContext.fillText(title, x, currentY);
+        currentY += titleFontSize + 5;
+        // Subtitle
+        if (subtitle) {
+            canvasContext.font = `${subtitleFontSize}px ${FONT_STACK}`;
+            canvasContext.fillStyle = PALETTE.text.secondary;
+            canvasContext.fillText(subtitle, x, currentY);
+            currentY += subtitleFontSize + 5;
+        }
+        // Course
+        canvasContext.fillStyle = courseColor;
+        canvasContext.font = `bold ${metaFontSize}px ${FONT_STACK}`;
+        canvasContext.fillText(courseText, x, currentY);
+        currentY += metaFontSize + 5;
+        // BPM
+        canvasContext.fillStyle = PALETTE.text.primary;
+        canvasContext.font = `${metaFontSize}px ${FONT_STACK}`;
+        canvasContext.fillText(bpmText, x, currentY);
+    }
+    else {
+        // Standard Layout
+        // Draw Title
+        canvasContext.fillStyle = PALETTE.text.primary;
+        canvasContext.font = `bold ${titleFontSize}px ${FONT_STACK}`;
+        canvasContext.textAlign = "left";
+        canvasContext.textBaseline = "top";
+        canvasContext.fillText(title, x, y);
+        // Draw Subtitle (below title)
+        if (subtitle) {
+            canvasContext.font = `${subtitleFontSize}px ${FONT_STACK}`;
+            canvasContext.fillStyle = PALETTE.text.secondary;
+            canvasContext.fillText(subtitle, x, y + titleFontSize + 5);
+        }
+        // Draw Metadata (Right aligned)
+        const metaY = y;
+        canvasContext.textAlign = "right";
+        canvasContext.fillStyle = courseColor;
+        canvasContext.font = `bold ${metaFontSize}px ${FONT_STACK}`;
+        canvasContext.fillText(courseText, x + width, metaY);
+        // BPM
+        canvasContext.fillStyle = PALETTE.text.primary;
+        canvasContext.font = `${metaFontSize}px ${FONT_STACK}`;
+        canvasContext.fillText(bpmText, x + width, metaY + metaFontSize + 5);
+    }
     canvasContext.restore();
 }
 function drawGradientRect(canvasContext, x, y, width, height, color, direction) {
