@@ -140,9 +140,14 @@ export class ChangelogPanel extends HTMLElement {
         <div className="modal-content">
           <div className="modal-header">
             <h2>{i18n.t("ui.about")}</h2>
-            <span className="close-btn" onclick={this.handleClose.bind(this)}>
-              &times;
-            </span>
+            <button
+              type="button"
+              className="close-btn"
+              onclick={this.handleClose.bind(this)}
+              aria-label={i18n.t("ui.close")}
+            >
+              <div className="modal-close-icon" />
+            </button>
           </div>
           <div className="about-content" style="padding: 20px 20px 10px 20px;">
             <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">

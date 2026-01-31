@@ -692,18 +692,36 @@ canvas {
 }
 
 .close-btn {
-  color: var(--text-secondary);
-  font-size: 28px;
-  font-weight: bold;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
   cursor: pointer;
-  line-height: 1;
+  transition: background-color 0.2s;
+  background: none;
+  border: none;
+  padding: 0;
 }
 
 .close-btn:hover,
 .close-btn:focus {
-  color: var(--text-primary);
-  text-decoration: none;
-  cursor: pointer;
+  background-color: var(--bg-hover);
+}
+
+.modal-close-icon {
+  width: 24px;
+  height: 24px;
+  background-color: var(--text-secondary);
+  -webkit-mask: url("/assets/heroicons/optimized/24/outline/x-mark.svg") no-repeat center;
+  mask: url("/assets/heroicons/optimized/24/outline/x-mark.svg") no-repeat center;
+  transition: background-color 0.2s;
+}
+
+.close-btn:hover .modal-close-icon,
+.close-btn:focus .modal-close-icon {
+  background-color: var(--text-primary);
 }
 
 #changelog-list {
