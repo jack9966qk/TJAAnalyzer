@@ -1,4 +1,9 @@
 :root {
+  /* Animation Durations */
+  --anim-duration-fast: 0.1s;
+  --anim-duration-normal: 0.2s;
+  --anim-duration-slow: 0.35s;
+
   /* Light Mode (Default) */
   --bg-body: #e0e0e0;
   --bg-app: #fff;
@@ -200,11 +205,23 @@ a:visited {
 }
 
 .panel-body {
-  transition: max-height 0.3s ease-out;
+  display: grid;
+  grid-template-rows: 1fr;
+  transition:
+    grid-template-rows var(--anim-duration-fast) ease-out,
+    opacity var(--anim-duration-fast) ease-out;
+  opacity: 1;
 }
 
 .panel-body.collapsed {
-  display: none;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  border-bottom: none; /* Hide border if any */
+}
+
+.panel-inner {
+  min-height: 0;
+  overflow: hidden;
 }
 
 .panel-tabs {
@@ -326,10 +343,6 @@ button:disabled {
   color: var(--text-primary);
 }
 
-#options-body.collapsed {
-  display: none;
-}
-
 .options-content {
   padding: 10px 15px;
   background-color: var(--bg-app);
@@ -442,6 +455,20 @@ button:disabled {
 
 #note-stats-display {
   margin-top: 10px;
+  transition:
+    opacity var(--anim-duration-fast) ease-out,
+    max-height var(--anim-duration-fast) ease-out;
+  opacity: 1;
+  max-height: 500px;
+  overflow: hidden;
+}
+
+#note-stats-display.collapsed {
+  opacity: 0;
+  max-height: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  pointer-events: none;
 }
 
 .stat-box {
@@ -499,6 +526,21 @@ canvas {
   width: 100%;
   background: var(--canvas-bg);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.canvas-fade-in {
+  animation: canvasFadeIn var(--anim-duration-normal) ease-out;
+}
+
+@keyframes canvasFadeIn {
+  from {
+    opacity: 0.5;
+    transform: scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .error {
@@ -594,7 +636,8 @@ canvas {
 
 /* Modal */
 .modal {
-  display: none; /* Hidden by default */
+  visibility: hidden;
+  opacity: 0;
   position: fixed;
   z-index: 1000;
   left: 0;
@@ -603,6 +646,14 @@ canvas {
   height: 100%;
   overflow: auto;
   background-color: var(--modal-overlay);
+  transition:
+    opacity var(--anim-duration-normal) ease,
+    visibility var(--anim-duration-normal) ease;
+}
+
+.modal.open {
+  visibility: visible;
+  opacity: 1;
 }
 
 .modal-content {
@@ -615,6 +666,12 @@ canvas {
   border-radius: 8px;
   box-shadow: 0 4px 8px var(--shadow-color);
   color: var(--text-primary);
+  transform: scale(0.95);
+  transition: transform var(--anim-duration-normal) ease;
+}
+
+.modal.open .modal-content {
+  transform: scale(1);
 }
 
 .modal-header {
@@ -759,7 +816,7 @@ body.horizontal-layout #controls-container {
 body.horizontal-layout #sticky-header {
   position: static;
   border-bottom: none;
-  padding-bottom: 0;
+  padding-bottom: 20px;
 }
 
 body.horizontal-layout #controls-container > * {

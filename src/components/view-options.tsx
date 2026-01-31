@@ -55,7 +55,7 @@ export class ViewOptions extends HTMLElement {
     } else {
       // Ensure UI matches state if re-connected (e.g. if kept in DOM or re-appended)
       if (noteStatsDisplay) {
-        this.statsVisible = noteStatsDisplay.style.display !== "none";
+        this.statsVisible = !noteStatsDisplay.classList.contains("collapsed");
       } else {
         this.render();
       }
@@ -105,7 +105,13 @@ export class ViewOptions extends HTMLElement {
 
   private handleStatsChange() {
     if (noteStatsDisplay) {
-      noteStatsDisplay.style.display = this.statsVisible ? "" : "none";
+      // Clear inline display style in case it was set previously
+      noteStatsDisplay.style.display = "";
+      if (this.statsVisible) {
+        noteStatsDisplay.classList.remove("collapsed");
+      } else {
+        noteStatsDisplay.classList.add("collapsed");
+      }
     }
 
     // Clear hover effect if hidden

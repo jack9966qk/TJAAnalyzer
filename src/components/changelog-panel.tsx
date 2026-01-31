@@ -132,8 +132,7 @@ export class ChangelogPanel extends HTMLElement {
     const modalVdom = (
       <div
         id="changelog-modal"
-        className="modal"
-        style={`display: ${this.isModalOpen ? "block" : "none"}`}
+        className={`modal ${this.isModalOpen ? "open" : ""}`}
         onclick={(e: MouseEvent) => {
           if (e.target === e.currentTarget) this.handleClose();
         }}

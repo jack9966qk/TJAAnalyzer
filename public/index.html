@@ -40,26 +40,28 @@
           </div>
 
           <div id="ds-body" class="panel-body collapsed">
-            <div class="panel-tabs">
-              <button class="panel-tab" data-mode="list" data-i18n="ui.tab.list">Chart List</button>
-              <button class="panel-tab" data-mode="file" data-i18n="ui.tab.file">Local File</button>
-              <button class="panel-tab" data-mode="stream" data-i18n="ui.tab.stream">Stream Input</button>
-            </div>
-
-            <div class="panel-content">
-              <!-- Chart List Mode (Merged Example + ESE) -->
-              <div id="tab-list" class="panel-pane">
-                <chart-list-panel id="chart-list-panel"></chart-list-panel>
+            <div class="panel-inner">
+              <div class="panel-tabs">
+                <button class="panel-tab" data-mode="list" data-i18n="ui.tab.list">Chart List</button>
+                <button class="panel-tab" data-mode="file" data-i18n="ui.tab.file">Local File</button>
+                <button class="panel-tab" data-mode="stream" data-i18n="ui.tab.stream">Stream Input</button>
               </div>
 
-              <!-- File Mode -->
-              <local-file-panel id="tab-file" class="panel-pane" style="display:none;"></local-file-panel>
+              <div class="panel-content">
+                <!-- Chart List Mode (Merged Example + ESE) -->
+                <div id="tab-list" class="panel-pane">
+                  <chart-list-panel id="chart-list-panel"></chart-list-panel>
+                </div>
 
-              <!-- Stream Mode (Merged) -->
-              <stream-panel id="tab-stream" class="panel-pane" style="display:none;"></stream-panel>
+                <!-- File Mode -->
+                <local-file-panel id="tab-file" class="panel-pane" style="display:none;"></local-file-panel>
 
-              <!-- Shared Course & Branch Selector -->
-              <course-branch-select id="course-branch-select"></course-branch-select>
+                <!-- Stream Mode (Merged) -->
+                <stream-panel id="tab-stream" class="panel-pane" style="display:none;"></stream-panel>
+
+                <!-- Shared Course & Branch Selector -->
+                <course-branch-select id="course-branch-select"></course-branch-select>
+              </div>
             </div>
           </div>
         </div>
@@ -82,34 +84,36 @@
               >
             </div>
             <div id="options-body" class="panel-body collapsed">
-              <div class="panel-tabs">
-                <button class="panel-tab active" data-do-tab="view" data-i18n="ui.tab.view">View</button>
-                <button class="panel-tab" data-do-tab="judgements" data-i18n="ui.tab.judgements">Judgements</button>
-                <button class="panel-tab" data-do-tab="selection" data-i18n="ui.tab.select">Select</button>
-                <button class="panel-tab" data-do-tab="annotation" data-i18n="ui.tab.annotate">Annotate</button>
+              <div class="panel-inner">
+                <div class="panel-tabs">
+                  <button class="panel-tab active" data-do-tab="view" data-i18n="ui.tab.view">View</button>
+                  <button class="panel-tab" data-do-tab="judgements" data-i18n="ui.tab.judgements">Judgements</button>
+                  <button class="panel-tab" data-do-tab="selection" data-i18n="ui.tab.select">Select</button>
+                  <button class="panel-tab" data-do-tab="annotation" data-i18n="ui.tab.annotate">Annotate</button>
+                </div>
+
+                <div class="panel-content">
+                  <!-- View Options Pane -->
+                  <div id="do-tab-view" class="panel-pane" style="display:flex;">
+                    <view-options></view-options>
+                  </div>
+
+                  <!-- Judgements Pane -->
+                  <div id="do-tab-judgements" class="panel-pane" style="display:none;">
+                    <judgement-options></judgement-options>
+                  </div>
+
+                  <!-- Note Selection Pane -->
+                  <div id="do-tab-selection" class="panel-pane" style="display:none;">
+                    <select-options></select-options>
+                  </div>
+
+                  <!-- Annotation Pane -->
+                  <div id="do-tab-annotation" class="panel-pane" style="display:none;">
+                    <annotate-options></annotate-options>
+                  </div>
+                </div><!-- End panel-content -->
               </div>
-
-              <div class="panel-content">
-                <!-- View Options Pane -->
-                <div id="do-tab-view" class="panel-pane" style="display:flex;">
-                  <view-options></view-options>
-                </div>
-
-                <!-- Judgements Pane -->
-                <div id="do-tab-judgements" class="panel-pane" style="display:none;">
-                  <judgement-options></judgement-options>
-                </div>
-
-                <!-- Note Selection Pane -->
-                <div id="do-tab-selection" class="panel-pane" style="display:none;">
-                  <select-options></select-options>
-                </div>
-
-                <!-- Annotation Pane -->
-                <div id="do-tab-annotation" class="panel-pane" style="display:none;">
-                  <annotate-options></annotate-options>
-                </div>
-              </div><!-- End panel-content -->
             </div><!-- End options-body -->
           </div><!-- End chart-options-panel -->
           <note-stats id="note-stats-display"></note-stats>

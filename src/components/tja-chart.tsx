@@ -55,6 +55,7 @@ export class TJAChart extends HTMLElement {
   // Rendering Optimization State
   private _renderTask: number | null = null;
   private _pendingFullRender: boolean = true;
+  private _chartChanged: boolean = false;
   private _layout: ChartLayout | null = null;
   private _renderedJudgements: JudgementMap<JudgementValue> = new JudgementMap();
 
@@ -97,6 +98,7 @@ export class TJAChart extends HTMLElement {
                 padding-left: env(safe-area-inset-left);
                 padding-right: env(safe-area-inset-right);
                 padding-bottom: env(safe-area-inset-bottom);
+                transition: padding var(--anim-duration-normal) ease, background-color var(--anim-duration-normal) ease;
             }
             :host(.pseudo-fullscreen) {
                 position: fixed;
@@ -105,6 +107,11 @@ export class TJAChart extends HTMLElement {
                 width: 100vw;
                 height: 100vh;
                 z-index: 9999;
+                animation: fullscreenEnter var(--anim-duration-normal) ease;
+            }
+            @keyframes fullscreenEnter {
+                from { opacity: 0; transform: scale(0.98); }
+                to { opacity: 1; transform: scale(1); }
             }
             #exit-fullscreen-btn {
                 position: fixed;
@@ -122,7 +129,10 @@ export class TJAChart extends HTMLElement {
                 justify-content: center;
                 align-items: center;
                 padding: 8px;
+                transition: opacity var(--anim-duration-normal) ease;
+                animation: fadeIn var(--anim-duration-normal) ease;
             }
+            @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
             :host(:fullscreen) #exit-fullscreen-btn,
             :host(.pseudo-fullscreen) #exit-fullscreen-btn {
                 display: flex;
@@ -135,6 +145,13 @@ export class TJAChart extends HTMLElement {
             canvas {
                 display: block;
                 width: 100%;
+            }
+            .canvas-fade-in {
+                animation: canvasFadeIn var(--anim-duration-normal) ease-out;
+            }
+            @keyframes canvasFadeIn {
+                from { transform: scale(0.995); }
+                to { transform: scale(1); }
             }
             #message-container {
                 width: 100%;
@@ -220,6 +237,9 @@ export class TJAChart extends HTMLElement {
   }
 
   set chart(value: ParsedChart | null) {
+    if (this._chart !== value) {
+      this._chartChanged = true;
+    }
     this._chart = value;
     this._pendingFullRender = true;
     this.scheduleRender();
@@ -331,6 +351,14 @@ export class TJAChart extends HTMLElement {
     // Hide message
     this.messageContainer.classList.add("hidden");
     this.canvas.classList.remove("hidden");
+
+    if (this._chartChanged) {
+      this.canvas.classList.remove("canvas-fade-in");
+      // Trigger reflow
+      void this.canvas.offsetWidth;
+      this.canvas.classList.add("canvas-fade-in");
+      this._chartChanged = false;
+    }
 
     const ctx = this.canvas.getContext("2d");
     if (!ctx) return;
