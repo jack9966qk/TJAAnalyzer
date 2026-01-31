@@ -9,7 +9,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const ESE_DIR = path.join(__dirname, "public", "ese");
-const OUTPUT_FILE = path.join(__dirname, "song_mapping.json");
+const OUTPUT_FILE = path.join(__dirname, "data", "song_mapping.json");
 const ENV_FILE = path.join(__dirname, ".env");
 
 const TAIKO_RATING_ANALYZER_URL =
@@ -20,6 +20,8 @@ const TAIKO_WIKI_DB_URL =
 // CLI args
 const args = process.argv.slice(2);
 const USE_LLM = args.includes("--resolve-llm");
+const FORCE_REGEN = args.includes("--force");
+
 const LLM_CONCURRENCY = 5;
 
 interface TaikoRatingAnalyzerSong {
@@ -229,6 +231,18 @@ function extractMetadata(filePath: string): TjaFile {
 
 async function main() {
   console.log(`Args: ${args.join(" ")}`);
+
+  // Load existing mapping if available and not forced
+  let existingMapping: Record<number, SongMappingEntry> = {};
+  if (!FORCE_REGEN && fs.existsSync(OUTPUT_FILE)) {
+    try {
+      console.log(`Loading existing mapping from ${OUTPUT_FILE}...`);
+      existingMapping = JSON.parse(fs.readFileSync(OUTPUT_FILE, "utf8"));
+    } catch (_e) {
+      console.warn("Failed to load existing mapping, starting fresh.");
+    }
+  }
+
   console.log("Step 1: Running fetch-ese...");
   try {
     execSync("npm run fetch-ese", { stdio: "inherit" });
@@ -240,6 +254,7 @@ async function main() {
   console.log(`Step 2: Retrieving song data...`);
   let taikoRatingAnalyzerSongs: TaikoRatingAnalyzerSong[] = [];
   let taikoWikiSongs: TaikoWikiSong[] = [];
+
   try {
     console.log(`Fetching songs from ${TAIKO_RATING_ANALYZER_URL}...`);
     const songsResp = await fetch(TAIKO_RATING_ANALYZER_URL);
@@ -295,8 +310,8 @@ async function main() {
 
   console.log("Step 4: identifying candidates for songs...");
 
-  // Phase 1: Identify Candidates
-  const processingItems: ProcessingItem[] = [];
+  // Phase 1: Identify Candidates and separate existing vs new
+  const itemsForResolution: ProcessingItem[] = [];
 
   for (const song of mergedSongs) {
     const targetTitle = song.title;
@@ -338,29 +353,47 @@ async function main() {
       }
     }
 
-    processingItems.push({
-      song,
-      candidates,
-      matchType,
-    });
+    const candidatesList = candidates.map((c) => c.file.relativePath);
+
+    // Check if already exists in mapping
+    const existing = existingMapping[song.id];
+
+    if (existing) {
+      // Incrementally update: Keep resolution, update metadata and candidates
+      mapping[song.id] = {
+        ...existing,
+        title: song.title,
+        titlecn: song.title_cn || existing.titlecn,
+        titleko: song.title_ko || existing.titleko,
+        artist: song.artist || existing.artist,
+        candidates: candidatesList,
+      };
+      // We do NOT add this to itemsForResolution
+    } else {
+      // New song, needs resolution
+      itemsForResolution.push({
+        song,
+        candidates,
+        matchType,
+      });
+    }
   }
 
   // Phase 2: Parallel LLM Resolution
   if (USE_LLM && genAI) {
-    const itemsToResolve = processingItems.filter((item) => item.candidates.length > 1);
+    const itemsToLLM = itemsForResolution.filter((item) => item.candidates.length > 1);
     console.log(
-      `\nStarting Parallel LLM Resolution for ${itemsToResolve.length} items with ${LLM_CONCURRENCY} workers...`,
+      `\nStarting Parallel LLM Resolution for ${itemsToLLM.length} new items with ${LLM_CONCURRENCY} workers...`,
     );
 
     let processedCount = 0;
     let currentIndex = 0;
 
     const worker = async (_workerId: number) => {
-      while (currentIndex < itemsToResolve.length) {
+      while (currentIndex < itemsToLLM.length) {
         const index = currentIndex++; // Atomic in JS single thread event loop
-        const item = itemsToResolve[index];
+        const item = itemsToLLM[index];
 
-        // console.log(`[Worker ${workerId}] Resolving "${item.song.title}"...`);
         const choice = await resolveWithGemini(
           item.song.title,
           item.candidates.map((c) => c.file),
@@ -368,8 +401,8 @@ async function main() {
         item.llmChoiceIndex = choice;
 
         processedCount++;
-        if (processedCount % 5 === 0 || processedCount === itemsToResolve.length) {
-          process.stdout.write(`\rResolved ${processedCount}/${itemsToResolve.length}`);
+        if (processedCount % 5 === 0 || processedCount === itemsToLLM.length) {
+          process.stdout.write(`\rResolved ${processedCount}/${itemsToLLM.length}`);
         }
       }
     };
@@ -381,13 +414,17 @@ async function main() {
     console.log("\nLLM Resolution complete.");
   }
 
-  // Phase 3: Finalize and Manual Fallback
-  console.log("\nStep 5: Finalizing mappings...");
+  // Phase 3: Finalize and Manual Fallback for NEW items
+  console.log("\nStep 5: Finalizing mappings for new items...");
 
-  for (const item of processingItems) {
+  if (itemsForResolution.length === 0) {
+    console.log("No new items to resolve.");
+  }
+
+  for (const item of itemsForResolution) {
     const { song, candidates, matchType, llmChoiceIndex } = item;
     const targetTitle = song.title;
-    console.log(`\nProcessing Song ID ${song.id}: "${targetTitle}"`);
+    console.log(`\nProcessing New Song ID ${song.id}: "${targetTitle}"`);
 
     let selectedPath: string | null = null;
     let finalMatchType: "exact" | "fuzzy" | "fuzzy + manual" | "fuzzy + llm" | undefined;
@@ -420,6 +457,7 @@ async function main() {
       if (llmChoiceIndex !== undefined && llmChoiceIndex !== -1) {
         console.log(`  Gemini previously selected: ${llmChoiceIndex}`);
         idx = llmChoiceIndex;
+        // If LLM selected it, we consider it LLM match unless user overrides?
         if (idx > 0) {
           finalMatchType = "fuzzy + llm";
         }
@@ -466,6 +504,10 @@ async function main() {
   }
 
   console.log("\nStep 6: Writing output...");
+  // Ensure directory exists
+  if (!fs.existsSync(path.dirname(OUTPUT_FILE))) {
+    fs.mkdirSync(path.dirname(OUTPUT_FILE), { recursive: true });
+  }
   fs.writeFileSync(OUTPUT_FILE, JSON.stringify(mapping, null, 2));
   console.log(`Done. Saved to ${OUTPUT_FILE}`);
   rl.close();
