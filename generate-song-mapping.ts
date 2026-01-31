@@ -12,26 +12,37 @@ const ESE_DIR = path.join(__dirname, "public", "ese");
 const OUTPUT_FILE = path.join(__dirname, "song_mapping.json");
 const ENV_FILE = path.join(__dirname, ".env");
 
+const TAIKO_RATING_ANALYZER_URL =
+  "https://raw.githubusercontent.com/KirisameVanilla/taiko-rating-analyzer/refs/heads/main/public/songs.json";
+const TAIKO_WIKI_DB_URL =
+  "https://raw.githubusercontent.com/taikowiki/taiko-song-database/refs/heads/main/database.json";
+
 // CLI args
 const args = process.argv.slice(2);
 const USE_LLM = args.includes("--resolve-llm");
-// Filter out flags to get positional args
-const positionalArgs = args.filter((arg) => !arg.startsWith("--"));
-
-if (positionalArgs.length === 0) {
-  console.error("Error: Please provide the path to songs.json as an argument.");
-  console.error("Usage: npm run generate-mapping <path/to/songs.json> [--resolve-llm]");
-  process.exit(1);
-}
-
-const SONGS_JSON_PATH = path.resolve(process.cwd(), positionalArgs[0]);
 const LLM_CONCURRENCY = 5;
 
-interface Song {
+interface TaikoRatingAnalyzerSong {
   id: number;
   title: string;
   title_cn?: string;
   [key: string]: unknown;
+}
+
+interface TaikoWikiSong {
+  songNo: string;
+  title: string;
+  titleKo?: string | null;
+  artists?: string[];
+  [key: string]: unknown;
+}
+
+interface MergedSong {
+  id: number;
+  title: string;
+  title_cn?: string;
+  title_ko?: string;
+  artist?: string;
 }
 
 interface TjaFile {
@@ -46,13 +57,16 @@ interface SongMappingEntry {
   esePath: string;
   title: string;
   titlecn?: string;
+  titleko?: string;
+  artist?: string;
   candidates?: string[];
+  matchType?: "exact" | "fuzzy" | "fuzzy + manual" | "fuzzy + llm";
 }
 
 interface ProcessingItem {
-  song: Song;
+  song: MergedSong;
   candidates: { file: TjaFile; dist?: number }[];
-  matchType: "exact" | "fuzzy" | "none";
+  matchType: "exact" | "fuzzy" | "fuzzy + manual" | "fuzzy + llm" | "none";
   llmChoiceIndex?: number;
 }
 
@@ -106,8 +120,10 @@ Here are the candidates:
 ${optionsText}
 
 Select the best match. 
-1. Choose original version over Nijisanji version if both exists.
-2. Choose AC16 version over other versions if both exists.
+1. Choose original version over Nijisanji version if multiple items exist, unless if the title strongly suggests the latter.
+2. Choose AC16 version over other versions if multiple items exist.
+3. Choose game version over other versions if multiple items exist.
+4. Choose "new audio" version over other versions if multiple items exist.
 
 Return ONLY the number of the choice (1-based index). If none of the candidates are a good match, return 0.
 Only output the number, nothing else.`;
@@ -221,15 +237,50 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`Step 2: Reading songs.json from ${SONGS_JSON_PATH}...`);
-  let songs: Song[] = [];
+  console.log(`Step 2: Retrieving song data...`);
+  let taikoRatingAnalyzerSongs: TaikoRatingAnalyzerSong[] = [];
+  let taikoWikiSongs: TaikoWikiSong[] = [];
   try {
-    const songsContent = fs.readFileSync(SONGS_JSON_PATH, "utf8");
-    songs = JSON.parse(songsContent);
+    console.log(`Fetching songs from ${TAIKO_RATING_ANALYZER_URL}...`);
+    const songsResp = await fetch(TAIKO_RATING_ANALYZER_URL);
+    if (!songsResp.ok) throw new Error(`Failed to fetch songs: ${songsResp.statusText}`);
+    taikoRatingAnalyzerSongs = (await songsResp.json()) as TaikoRatingAnalyzerSong[];
+
+    console.log(`Fetching database from ${TAIKO_WIKI_DB_URL}...`);
+    const dbResp = await fetch(TAIKO_WIKI_DB_URL);
+    if (!dbResp.ok) throw new Error(`Failed to fetch database: ${dbResp.statusText}`);
+    taikoWikiSongs = (await dbResp.json()) as TaikoWikiSong[];
   } catch (e) {
-    console.error("Error reading songs.json:", e);
+    console.error("Error fetching song data:", e);
     process.exit(1);
   }
+
+  // Create map for DB songs
+  const taikoWikiMap = new Map<string, TaikoWikiSong>();
+  for (const dbSong of taikoWikiSongs) {
+    taikoWikiMap.set(dbSong.songNo, dbSong);
+  }
+
+  // Join
+  const mergedSongs: MergedSong[] = taikoRatingAnalyzerSongs.map((src) => {
+    const idStr = String(src.id);
+    const dbSong = taikoWikiMap.get(idStr);
+
+    // Prefer DB title if exists
+    const title = dbSong?.title || src.title;
+    const artist = dbSong?.artists?.join(", ");
+    const title_ko = dbSong?.titleKo || undefined;
+
+    return {
+      id: src.id,
+      title,
+      title_cn: src.title_cn,
+      title_ko,
+      artist,
+    };
+  });
+
+  console.log(`Merged ${mergedSongs.length} songs.`);
 
   console.log("Step 3: Scanning TJA files in public/ese...");
   const tjaFilePaths = getAllFiles(ESE_DIR);
@@ -247,10 +298,10 @@ async function main() {
   // Phase 1: Identify Candidates
   const processingItems: ProcessingItem[] = [];
 
-  for (const song of songs) {
+  for (const song of mergedSongs) {
     const targetTitle = song.title;
     let candidates: { file: TjaFile; dist?: number }[] = [];
-    let matchType: "exact" | "fuzzy" | "none" = "none";
+    let matchType: ProcessingItem["matchType"] = "none";
 
     // Exact match on TITLEJA
     let matches = tjaFiles.filter((t) => t.titleJa === targetTitle);
@@ -339,6 +390,7 @@ async function main() {
     console.log(`\nProcessing Song ID ${song.id}: "${targetTitle}"`);
 
     let selectedPath: string | null = null;
+    let finalMatchType: "exact" | "fuzzy" | "fuzzy + manual" | "fuzzy + llm" | undefined;
     const candidatesList: string[] = candidates.map((c) => c.file.relativePath);
 
     if (matchType === "none") {
@@ -346,6 +398,7 @@ async function main() {
     } else if (candidates.length === 1) {
       console.log(`  Found exact/unique match: ${candidates[0].file.relativePath}`);
       selectedPath = candidates[0].file.relativePath;
+      finalMatchType = matchType; // exact or fuzzy (if unique fuzzy)
     } else {
       // Multiple candidates
       if (matchType === "exact") {
@@ -367,6 +420,9 @@ async function main() {
       if (llmChoiceIndex !== undefined && llmChoiceIndex !== -1) {
         console.log(`  Gemini previously selected: ${llmChoiceIndex}`);
         idx = llmChoiceIndex;
+        if (idx > 0) {
+          finalMatchType = "fuzzy + llm";
+        }
       }
 
       if (idx === -1) {
@@ -374,6 +430,9 @@ async function main() {
           const answer = await askQuestion(`  Enter choice (0-${candidates.length}): `);
           idx = parseInt(answer, 10);
           if (!Number.isNaN(idx) && idx >= 0 && idx <= candidates.length) break;
+        }
+        if (idx > 0) {
+          finalMatchType = "fuzzy + manual";
         }
       }
 
@@ -387,12 +446,20 @@ async function main() {
         esePath: selectedPath,
         title: song.title,
         candidates: candidatesList,
+        matchType: finalMatchType,
       };
       if (song.title_cn) {
         entry.titlecn = song.title_cn;
       }
+      if (song.title_ko) {
+        entry.titleko = song.title_ko;
+      }
+      if (song.artist) {
+        entry.artist = song.artist;
+      }
+
       mapping[song.id] = entry;
-      console.log(`  Mapped ${song.id} -> ${selectedPath}`);
+      console.log(`  Mapped ${song.id} -> ${selectedPath} (${finalMatchType})`);
     } else {
       console.log(`  Skipped Song ID ${song.id}.`);
     }
