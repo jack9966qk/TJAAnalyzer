@@ -1,5 +1,10 @@
 [
   {
+    "hash": "85429c5",
+    "message": "Migrate build process to vite.",
+    "date": "2026-01-31"
+  },
+  {
     "hash": "62b144b",
     "message": "Add spacing between header and chart when the header wraps.",
     "date": "2026-01-31"
@@ -492,11 +497,6 @@
   {
     "hash": "750d12d",
     "message": "Fix snapshot from version update.",
-    "date": "2026-01-14"
-  },
-  {
-    "hash": "cdf347e",
-    "message": "Update version to 0.6.7.",
     "date": "2026-01-14"
   }
 ]
