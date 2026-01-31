@@ -50,6 +50,7 @@ const files = [
   { src: "public/component-test.html", dest: "component-test.html" },
   { src: "public/note-stats-test.html", dest: "note-stats-test.html" },
   { src: "public/style.css", dest: "style.css" },
+  { src: "public/manifest.json", dest: "manifest.json" },
   { src: "public/icon_simple.png", dest: "icon_simple.png" },
   { src: "public/ese", dest: "ese" },
   { src: "public/ese_index.json", dest: "ese_index.json" },

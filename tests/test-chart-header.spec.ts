@@ -4,9 +4,9 @@ test.describe("Chart Header Layout", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/chart-only.html");
     await page.waitForFunction(() => {
-        const chart = document.querySelector("tja-chart");
-        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-        return chart && (chart as any).chart; 
+      const chart = document.querySelector("tja-chart");
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing internal chart property for test readiness check
+      return chart && (chart as any).chart;
     });
   });
 
@@ -22,12 +22,12 @@ LEVEL:8
 #END
     `;
     await page.evaluate((tjaContent) => {
-        window.loadChart(tjaContent, "oni");
+      window.loadChart(tjaContent, "oni");
     }, tja);
-    
+
     // Wait for render
     await page.waitForTimeout(100);
-    
+
     await expect(page.locator("tja-chart")).toHaveScreenshot("header-standard.png");
   });
 
@@ -43,12 +43,12 @@ LEVEL:10
 #END
     `;
     await page.evaluate((tjaContent) => {
-        window.loadChart(tjaContent, "oni");
+      window.loadChart(tjaContent, "oni");
     }, tja);
-    
+
     // Wait for render
     await page.waitForTimeout(100);
-    
+
     await expect(page.locator("tja-chart")).toHaveScreenshot("header-stacked.png");
   });
 });

@@ -807,6 +807,87 @@ body.horizontal-layout.controls-collapsed #layout-toggle-btn {
   border-left: 1px solid var(--border-color);
 }
 
+/* Apply safe area padding globally as viewport-fit=cover is set */
+#safe-area-cover {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top);
+  background-color: var(--bg-app);
+  z-index: 200; /* Above everything including sticky header */
+  pointer-events: none; /* Let clicks pass through if height is 0 */
+}
+
+#sticky-header {
+  /* Stick BELOW the safe area cover */
+  top: env(safe-area-inset-top);
+  /* Revert to standard padding */
+  padding-top: 10px;
+  padding-left: max(20px, env(safe-area-inset-left));
+  padding-right: max(20px, env(safe-area-inset-right));
+}
+
+#data-source-panel {
+  margin-left: max(20px, env(safe-area-inset-left));
+  margin-right: max(20px, env(safe-area-inset-right));
+}
+
+.canvas-container {
+  padding-left: max(20px, env(safe-area-inset-left));
+  padding-right: max(20px, env(safe-area-inset-right));
+}
+
+.app-footer {
+  padding-left: max(20px, env(safe-area-inset-left));
+  padding-right: max(20px, env(safe-area-inset-right));
+  padding-bottom: max(10px, env(safe-area-inset-bottom)); /* Add bottom safe area too */
+}
+
+/* Horizontal layout adjustments */
+body.horizontal-layout .canvas-container {
+  padding-left: max(35px, env(safe-area-inset-left)); /* Keep 35px offset but respect safe area */
+  padding-right: max(20px, env(safe-area-inset-right));
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: max(20px, env(safe-area-inset-right));
+  padding-left: env(safe-area-inset-left); /* Ensure header title doesn't hit notch if left aligned */
+  padding-top: max(20px, env(safe-area-inset-top)); /* Clear status bar/safe area */
+  padding-bottom: 20px; /* Restore spacing below header */
+}
+
+h1 {
+  /* Reset padding as container handles safe area now, keep horizontal padding for alignment */
+  text-align: center;
+  color: var(--text-primary);
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 1.8em;
+  padding: 0 20px;
+}
+
+#language-selector {
+  margin-top: 0;
+}
+
+@media all and (display-mode: standalone) {
+  body {
+    background-color: var(--bg-app); /* Match app bg to avoid gaps */
+  }
+
+  #app {
+    margin: 0;
+    max-width: none;
+    border-radius: 0;
+    box-shadow: none;
+    min-height: 100vh;
+  }
+}
+
 .status-message {
   width: 100%;
   text-align: center;

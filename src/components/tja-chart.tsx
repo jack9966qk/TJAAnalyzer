@@ -88,10 +88,15 @@ export class TJAChart extends HTMLElement {
                 display: block;
                 width: 100%;
                 overflow: hidden;
+                box-sizing: border-box;
             }
             :host(:fullscreen), :host(.pseudo-fullscreen) {
                 overflow-y: auto;
                 background-color: var(--canvas-container-bg, #fafafa);
+                padding-top: env(safe-area-inset-top);
+                padding-left: env(safe-area-inset-left);
+                padding-right: env(safe-area-inset-right);
+                padding-bottom: env(safe-area-inset-bottom);
             }
             :host(.pseudo-fullscreen) {
                 position: fixed;
@@ -103,8 +108,8 @@ export class TJAChart extends HTMLElement {
             }
             #exit-fullscreen-btn {
                 position: fixed;
-                top: 20px;
-                right: 20px;
+                top: max(20px, env(safe-area-inset-top) + 10px);
+                right: max(20px, env(safe-area-inset-right) + 10px);
                 z-index: 10000;
                 width: 40px;
                 height: 40px;
@@ -352,14 +357,7 @@ export class TJAChart extends HTMLElement {
     // We are doing a full render (either forced or because no incremental update needed/possible)
     // But we only need to recreate layout if pending full render or layout missing
     if (isFullRender) {
-      this._layout = createLayout(
-        this._chart,
-        this.canvas,
-        this._viewOptions,
-        this._judgements,
-        undefined,
-        texts,
-      );
+      this._layout = createLayout(this._chart, this.canvas, this._viewOptions, this._judgements, undefined, texts);
       this._pendingFullRender = false;
     }
 

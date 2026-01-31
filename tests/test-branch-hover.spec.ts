@@ -86,12 +86,12 @@ LEVEL:10
       // RATIOS.BAR_HEIGHT = 0.14
       const BASE_LANE_HEIGHT = baseBarWidth * 0.14;
       const headerHeight = baseBarWidth * 0.35;
-      
+
       const statusFontSize = baseBarWidth * 0.045;
       const barNumberOffsetY = baseBarWidth * 0.005;
       const annotationHeight = barNumberOffsetY + 3 * statusFontSize;
       const gap = Math.max(PADDING, annotationHeight);
-      
+
       const offsetY = PADDING + headerHeight + gap;
 
       // Bar 0 layout
