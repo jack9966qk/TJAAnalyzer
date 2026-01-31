@@ -114,19 +114,19 @@ export default defineConfig({
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/ese\.tjadataba\.se\/ese\/ese/,
-            handler: 'NetworkFirst',
+            handler: "NetworkFirst",
             options: {
-              cacheName: 'ese-cache',
+              cacheName: "ese-cache",
               expiration: {
                 maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 7 // 1 week
+                maxAgeSeconds: 60 * 60 * 24 * 7, // 1 week
               },
               cacheableResponse: {
-                statuses: [0, 200]
-              }
-            }
-          }
-        ]
+                statuses: [0, 200],
+              },
+            },
+          },
+        ],
       },
     }),
   ],

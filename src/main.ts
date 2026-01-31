@@ -1,5 +1,5 @@
-import * as Neutralino from "@neutralinojs/lib";
 import { registerSW } from "virtual:pwa-register";
+import * as Neutralino from "@neutralinojs/lib";
 import type { ServerEvent } from "./clients/judgement-client.js";
 import "./style.css";
 

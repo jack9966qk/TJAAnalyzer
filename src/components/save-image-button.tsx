@@ -1,6 +1,6 @@
 import * as webjsx from "webjsx";
 import { appState } from "../state/app-state.js";
-// @ts-ignore
+// @ts-expect-error
 import styleUrl from "../style.css?url";
 import { shareFile } from "../utils/file-share.js";
 import { i18n } from "../utils/i18n.js";

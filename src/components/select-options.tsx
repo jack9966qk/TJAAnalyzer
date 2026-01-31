@@ -46,7 +46,8 @@ export class SelectOptions extends HTMLElement {
 
   render() {
     const hasSelection = !!appState.viewOptions.selection;
-    const hasNeutralino = !!window.Neutralino;
+    // biome-ignore lint/suspicious/noExplicitAny: Check for Neutralino token to ensure we are in the app
+    const hasNeutralino = !!window.Neutralino && typeof (window as any).NL_TOKEN !== "undefined";
     const hasWebFS = !!window.showDirectoryPicker;
     const canSelectDir = hasNeutralino || hasWebFS;
 
@@ -110,7 +111,7 @@ export class SelectOptions extends HTMLElement {
           style="width: 100%; display: block;"
         ></export-button>
 
-        {canSelectDir && (
+        {canSelectDir ? (
           <export-button
             export-type="directory"
             chart-name={this.exportChartName}
@@ -119,7 +120,7 @@ export class SelectOptions extends HTMLElement {
             disabled={!hasSelection}
             style="width: 100%; display: block;"
           ></export-button>
-        )}
+        ) : null}
       </div>
     );
 

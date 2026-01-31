@@ -2,7 +2,7 @@ import type { MessageBoxChoice } from "@neutralinojs/lib";
 import * as webjsx from "webjsx";
 import { generateTJAFromSelection } from "../core/tja-exporter.js";
 import { appState } from "../state/app-state.js";
-// @ts-ignore
+// @ts-expect-error
 import styleUrl from "../style.css?url";
 import { shareFile } from "../utils/file-share.js";
 import { i18n } from "../utils/i18n.js";
@@ -157,7 +157,8 @@ export class ExportButton extends HTMLElement {
 
   private async pickDirectory(): Promise<string | FileSystemDirectoryHandle> {
     // 1. Neutralino
-    if (window.Neutralino) {
+    // biome-ignore lint/suspicious/noExplicitAny: Check for Neutralino token
+    if (window.Neutralino && typeof (window as any).NL_TOKEN !== "undefined") {
       const entry = await window.Neutralino.os.showFolderDialog(
         i18n.t("ui.export.selectDir") || "Select Export Directory",
         {},
