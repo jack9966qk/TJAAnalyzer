@@ -2,6 +2,7 @@ import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { defineConfig } from "vite";
+import { VitePWA } from "vite-plugin-pwa";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
 const generateMetaFiles = () => {
@@ -78,12 +79,55 @@ export default defineConfig({
         { src: "ese", dest: "." },
         { src: "ese_index.json", dest: "." },
         { src: "CNAME", dest: "." },
-        { src: "manifest.json", dest: "." },
         { src: "icon_simple.png", dest: "." },
         { src: "../icon.png", dest: "." },
         { src: "../node_modules/@neutralinojs/lib/dist/neutralino.js", dest: "." },
         { src: "../assets/heroicons/optimized/24/outline/*.svg", dest: "assets/heroicons/optimized/24/outline" },
       ],
+    }),
+    VitePWA({
+      registerType: "autoUpdate",
+      includeAssets: ["icon_simple.png", "assets/heroicons/optimized/24/outline/*.svg"],
+      manifestFilename: "manifest.json",
+      manifest: {
+        name: "TJA Analyzer",
+        short_name: "TJA Analyzer",
+        start_url: ".",
+        display: "standalone",
+        background_color: "#ffffff",
+        theme_color: "#ffffff",
+        icons: [
+          {
+            src: "./icon_simple.png",
+            sizes: "192x192",
+            type: "image/png",
+          },
+          {
+            src: "./icon_simple.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+        ],
+      },
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/ese\.tjadataba\.se\/ese\/ese/,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'ese-cache',
+              expiration: {
+                maxEntries: 50,
+                maxAgeSeconds: 60 * 60 * 24 * 7 // 1 week
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          }
+        ]
+      },
     }),
   ],
 });

@@ -1,4 +1,5 @@
 import * as Neutralino from "@neutralinojs/lib";
+import { registerSW } from "virtual:pwa-register";
 import type { ServerEvent } from "./clients/judgement-client.js";
 import "./style.css";
 
@@ -59,6 +60,18 @@ import {
 console.log("TJAChart module loaded", TJAChart);
 // Ensure NoteStatsDisplay is imported for side-effects
 console.log("NoteStatsDisplay module loaded", NoteStatsDisplay);
+
+function initPWA() {
+  const updateSW = registerSW({
+    onNeedRefresh() {
+      console.log("New content available, reloading...");
+      updateSW(true);
+    },
+    onOfflineReady() {
+      console.log("App ready to work offline");
+    },
+  });
+}
 
 function updateStatus(key: string, params?: Record<string, string | number>) {
   appState.currentStatusKey = key;
@@ -587,6 +600,8 @@ function init() {
   initEventListeners();
 
   initJudgementClient();
+
+  initPWA();
 
   initLoad();
 }
