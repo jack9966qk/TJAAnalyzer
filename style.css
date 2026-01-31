@@ -857,6 +857,7 @@ body.horizontal-layout .canvas-container {
   padding-right: max(20px, env(safe-area-inset-right));
   padding-left: env(safe-area-inset-left); /* Ensure header title doesn't hit notch if left aligned */
   padding-top: max(20px, env(safe-area-inset-top)); /* Clear status bar/safe area */
+  padding-bottom: 20px; /* Restore spacing below header */
 }
 
 h1 {
