@@ -1,4 +1,8 @@
+import * as Neutralino from "@neutralinojs/lib";
 import type { ServerEvent } from "./clients/judgement-client.js";
+import "./style.css";
+
+window.Neutralino = Neutralino;
 import "./components/chart-list-panel.js"; // Ensure side-effect
 import "./components/local-file-panel.js"; // Ensure side-effect
 import "./components/stream-panel.js"; // Ensure side-effect

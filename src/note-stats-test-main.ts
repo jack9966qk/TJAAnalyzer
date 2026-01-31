@@ -8,6 +8,7 @@ import {
   type ViewOptions,
 } from "../renderer-package/src/index.js";
 import { NoteStatsDisplay } from "./components/note-stats.js";
+import "./style.css";
 
 // Ensure NoteStatsDisplay is registered
 console.log("NoteStatsDisplay module loaded", NoteStatsDisplay);

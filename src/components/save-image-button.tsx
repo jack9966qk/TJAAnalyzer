@@ -1,5 +1,7 @@
 import * as webjsx from "webjsx";
 import { appState } from "../state/app-state.js";
+// @ts-ignore
+import styleUrl from "../style.css?url";
 import { shareFile } from "../utils/file-share.js";
 import { i18n } from "../utils/i18n.js";
 import { statusDisplay, tjaChart } from "../view/ui-elements.js";
@@ -53,10 +55,10 @@ export class SaveImageButton extends HTMLElement {
   }
 
   render() {
-    // We use a link to style.css to inherit global styles for the button
+    // We use a link to the hashed style.css to inherit global styles for the button
     const vdom = (
       <div>
-        <link rel="stylesheet" href="style.css" />
+        <link rel="stylesheet" href={styleUrl} />
         <button type="button" className="control-btn" onclick={this.handleClick.bind(this)}>
           <slot>{i18n.t("ui.exportImage")}</slot>
         </button>

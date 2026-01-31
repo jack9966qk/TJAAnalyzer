@@ -1,3 +1,4 @@
+import "./style.css";
 import "./components/annotate-options.js";
 import "./components/changelog-panel.js";
 import "./components/chart-list-panel.js";

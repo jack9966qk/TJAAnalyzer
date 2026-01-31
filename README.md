@@ -33,16 +33,23 @@ npm install
 
 ### Running
 
-**Web Mode:**
+**Development Mode (Hot Reload):**
+```bash
+npm run dev
+```
+*Access at the URL shown in your terminal (usually `http://localhost:5173`). Use this for active development.*
+
+**Production Preview:**
 ```bash
 npm start
 ```
-*Access at `http://localhost:8080` (or the port shown).*
+*Access at `http://localhost:8080`. This serves the built assets from `dist/` to simulate a production deployment. Requires `npm run build` first.*
 
 **Desktop Mode (Neutralinojs):**
 ```bash
 npm run start:exe
 ```
+*Starts the application as a standalone desktop executable.*
 
 ### Building
 
@@ -77,11 +84,10 @@ npm run fetch-ese
 
 ## Project Structure
 
-- `src/`: TypeScript source code for the main application (TJA Analyzer).
+- `src/`: Source code (TypeScript, CSS, Components) for the main application (TJA Analyzer).
 - `renderer-package/`: Core chart rendering logic extracted as a standalone package.
 - `renderer-example/`: Minimal usage example for the renderer package.
 - `public/`: Static assets (such as HTML and chart database) served directly.
 - `tests/`: Playwright and unit test suites.
 - `dist/`: Build output for the web application (generated).
 - `release/`: Build output for standalone executables (generated).
-- `ts_output/`: Intermediate compiled JavaScript files (generated).
