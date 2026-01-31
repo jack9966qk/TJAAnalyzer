@@ -1,5 +1,15 @@
 [
   {
+    "hash": "62b144b",
+    "message": "Add spacing between header and chart when the header wraps.",
+    "date": "2026-01-31"
+  },
+  {
+    "hash": "7ad210a",
+    "message": "Add basic PWA support, making the web app installable and removing browser UI.",
+    "date": "2026-01-31"
+  },
+  {
     "hash": "6e93727",
     "message": "Update version to 0.7.8.",
     "date": "2026-01-31"
@@ -487,16 +497,6 @@
   {
     "hash": "cdf347e",
     "message": "Update version to 0.6.7.",
-    "date": "2026-01-14"
-  },
-  {
-    "hash": "d2c60c0",
-    "message": "Update README.",
-    "date": "2026-01-14"
-  },
-  {
-    "hash": "6e1dd20",
-    "message": "Enable Biome noUnusedImports and address reported issues.",
     "date": "2026-01-14"
   }
 ]
