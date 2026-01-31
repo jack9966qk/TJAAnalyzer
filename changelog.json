@@ -1,5 +1,35 @@
 [
   {
+    "hash": "926af0a",
+    "message": "Update version to 0.8.0.",
+    "date": "2026-02-01"
+  },
+  {
+    "hash": "b1dc16d",
+    "message": "Update song mapping generator to support incremental updates. Check in the mapping file.",
+    "date": "2026-02-01"
+  },
+  {
+    "hash": "90e689b",
+    "message": "Minor formatting fixes.",
+    "date": "2026-02-01"
+  },
+  {
+    "hash": "2296fc5",
+    "message": "Update song mapping generator to make use of TaikoWiki database. Refine LLM prompt and output format.",
+    "date": "2026-02-01"
+  },
+  {
+    "hash": "8dcff1d",
+    "message": "Fix directory export button visibility and functionality.",
+    "date": "2026-02-01"
+  },
+  {
+    "hash": "95a852d",
+    "message": "Add basic offline and auto update support to the PWA (not including ESE).",
+    "date": "2026-01-31"
+  },
+  {
     "hash": "85429c5",
     "message": "Migrate build process to vite.",
     "date": "2026-01-31"
@@ -468,35 +498,5 @@
     "hash": "d498fb4",
     "message": "Rearramge top level directories and add descriptions to README.",
     "date": "2026-01-15"
-  },
-  {
-    "hash": "0578989",
-    "message": "Move tests to tests directory.",
-    "date": "2026-01-15"
-  },
-  {
-    "hash": "01e66d2",
-    "message": "Update version to 0.6.8.",
-    "date": "2026-01-15"
-  },
-  {
-    "hash": "6204ceb",
-    "message": "Apply formatting and clean up.",
-    "date": "2026-01-15"
-  },
-  {
-    "hash": "b0a2cfe",
-    "message": "Move logic from main to separate components by pruning unused symbols from main and its copies.",
-    "date": "2026-01-15"
-  },
-  {
-    "hash": "ba7e11a",
-    "message": "Create copies of main.ts to preserve git history for refactoring.",
-    "date": "2026-01-15"
-  },
-  {
-    "hash": "750d12d",
-    "message": "Fix snapshot from version update.",
-    "date": "2026-01-14"
   }
 ]

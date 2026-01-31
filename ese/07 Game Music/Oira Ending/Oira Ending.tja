@@ -1,0 +1,91 @@
+//TJADB Project
+TITLE:"Oira" Ending
+TITLEJA:オイラ エンディング
+SUBTITLE:--Granblue Fantasy
+SUBTITLEJA:
+BPM:128
+OFFSET:-0.102
+WAVE:Oira Ending.ogg
+DEMOSTART:61.614
+
+//No Fumen Wiki page for this so...
+//Difficulty Probably not shown in game...?
+//(Suspected datamine marked this chart as EXTREME(Oni) but setting it here as Easy chart instead)
+//Score Cap: 390000
+
+COURSE:Easy
+LEVEL:1
+BALLOON:10,12,26,32,50
+SCOREINIT:4353
+SCOREDIFF:1376
+
+#START
+0,
+0,
+0,
+0,
+0,
+
+1,
+1,
+1,
+1, //9
+
+1,
+1,
+1,
+1,
+
+2,
+2,
+1,
+1, //17
+
+2,
+2,
+1,
+2,
+
+2,
+2,
+1,
+2, //25
+
+2,
+2,
+1,
+2,
+
+2,
+2,
+1,
+2, //33
+
+#GOGOSTART
+3,
+4,
+1,
+1,
+
+3,
+1,
+4,
+1, //41
+
+3,
+4,
+3,
+3,
+
+7008,
+7008,
+7,
+08, //49
+
+7,
+08,
+7,
+0,
+#BARLINEOFF
+8, //54
+#END
