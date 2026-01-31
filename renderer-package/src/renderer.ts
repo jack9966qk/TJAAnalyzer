@@ -1012,7 +1012,12 @@ function measureHeaderHeight(
     if (subtitle) h += subtitleFontSize + 5;
     h += metaFontSize + 5; // Course
     h += metaFontSize; // BPM
-    return h;
+
+    // Add padding to match the spacing in standard layout (between subtitle and bottom of header area)
+    const standardContentHeight = titleFontSize + 5 + subtitleFontSize;
+    const extraPadding = Math.max(0, baseHeight - standardContentHeight);
+
+    return h + extraPadding;
   }
 
   return baseHeight;
