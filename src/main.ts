@@ -7,6 +7,7 @@ window.Neutralino = Neutralino;
 import "./components/chart-list-panel.js"; // Ensure side-effect
 import "./components/local-file-panel.js"; // Ensure side-effect
 import "./components/stream-panel.js"; // Ensure side-effect
+import type { TesterPanel } from "./components/tester-panel.js";
 import "./components/tester-panel.js"; // Ensure side-effect
 import { NoteStatsDisplay } from "./components/note-stats.js";
 import "./components/save-image-button.js";
@@ -280,7 +281,7 @@ function initEventListeners() {
       updateStatus(detail.key, detail.params);
 
       if (detail.key === "status.chartLoaded") {
-        const testerPanel = document.querySelector("tester-panel") as any;
+        const testerPanel = document.querySelector("tester-panel") as TesterPanel;
         if (testerPanel && typeof testerPanel.resetExampleButton === "function") {
           testerPanel.resetExampleButton();
         }
@@ -361,7 +362,7 @@ function initEventListeners() {
 
     localFilePanel.addEventListener("chart-loaded", () => {
       // chartListPanel reset example button is no longer relevant as button is gone
-      const testerPanel = document.querySelector("tester-panel") as any;
+      const testerPanel = document.querySelector("tester-panel") as TesterPanel;
       if (testerPanel && typeof testerPanel.resetExampleButton === "function") {
         testerPanel.resetExampleButton();
       }
@@ -532,7 +533,7 @@ function initJudgementClient() {
 
       refreshChart();
 
-      const testerPanel = document.querySelector("tester-panel") as any;
+      const testerPanel = document.querySelector("tester-panel") as TesterPanel;
       if (testerPanel && typeof testerPanel.resetExampleButton === "function") {
         testerPanel.resetExampleButton();
       }
@@ -611,7 +612,9 @@ function initLoad() {
   }
 
   updateTesterModeVisibility();
-  initializePanelVisibility();
+  setTimeout(() => {
+    initializePanelVisibility();
+  }, 0);
 }
 
 function init() {
@@ -642,8 +645,8 @@ function initializePanelVisibility() {
   dsBody.classList.remove("collapsed");
   optionsBody.classList.remove("collapsed");
 
-  const dsHeight = dsBody.offsetHeight;
-  const optionsHeight = optionsBody.offsetHeight;
+  const dsHeight = (dsBody.firstElementChild as HTMLElement)?.scrollHeight || dsBody.scrollHeight;
+  const optionsHeight = (optionsBody.firstElementChild as HTMLElement)?.scrollHeight || optionsBody.scrollHeight;
   const viewportHeight = window.innerHeight;
 
   const totalExpandedHeight = dsHeight + optionsHeight;

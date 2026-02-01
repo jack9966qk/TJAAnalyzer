@@ -1,4 +1,5 @@
 import * as webjsx from "webjsx";
+import { LAYOUT_RATIOS, PADDING } from "../../renderer-package/src/index.js";
 import { refreshChart } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
@@ -37,13 +38,27 @@ export class ViewOptions extends HTMLElement {
     // Listen for language changes
     i18n.onLanguageChange(() => this.render());
     document.addEventListener("view-options-update", this.handleViewOptionsUpdate.bind(this));
+    window.addEventListener("resize", this.handleResize.bind(this));
+    window.addEventListener("dev-mode-change", this.handleDevModeChange.bind(this));
   }
 
   disconnectedCallback() {
     document.removeEventListener("view-options-update", this.handleViewOptionsUpdate.bind(this));
+    window.removeEventListener("resize", this.handleResize.bind(this));
+    window.removeEventListener("dev-mode-change", this.handleDevModeChange.bind(this));
   }
 
   private handleViewOptionsUpdate() {
+    this.render();
+  }
+
+  private handleResize() {
+    if (appState.isTesterMode) {
+      this.render();
+    }
+  }
+
+  private handleDevModeChange() {
     this.render();
   }
 
@@ -134,6 +149,28 @@ export class ViewOptions extends HTMLElement {
     this.style.width = "100%";
     this.classList.add("panel-pane");
 
+    let testerStats = null;
+    if (appState.isTesterMode) {
+      const chartEl = document.getElementById("chart-component");
+      const width = chartEl ? chartEl.clientWidth : 800;
+      const availableWidth = width - PADDING * 2;
+      const beatsPerLine = appState.viewOptions.beatsPerLine;
+      const barsPerRow = beatsPerLine / 4;
+      const baseBarWidth = availableWidth / barsPerRow;
+      const noteDiameter = baseBarWidth * LAYOUT_RATIOS.noteRadiusSmall * 2;
+
+      testerStats = (
+        <div className="option-section border-left">
+          <div className="section-main" style="flex-direction: column; align-items: flex-start; gap: 2px;">
+            <div style="font-weight: bold; font-size: 0.8em; color: #666;">{i18n.t("ui.tab.tester")}</div>
+            <div style="font-size: 0.8em; font-family: monospace;">W: {width}px</div>
+            <div style="font-size: 0.8em; font-family: monospace;">Bars: {barsPerRow.toFixed(2)}</div>
+            <div style="font-size: 0.8em; font-family: monospace;">Note Ø: {noteDiameter.toFixed(1)}px</div>
+          </div>
+        </div>
+      );
+    }
+
     const vdom = (
       <div style="display: contents;">
         {/* Zoom Section */}
@@ -211,6 +248,8 @@ export class ViewOptions extends HTMLElement {
             </button>
           </div>
         </div>
+
+        {testerStats}
       </div>
     );
 

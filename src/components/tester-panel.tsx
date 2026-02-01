@@ -74,7 +74,7 @@ export class TesterPanel extends HTMLElement {
   render() {
     const isSimulating = appState.isSimulating;
     const testBtnText = isSimulating ? i18n.t("ui.test.stop") : i18n.t("ui.test.start");
-    
+
     // We disable test stream if actual stream is connected (but not simulating)
     const disableTest = appState.isStreamConnected && !isSimulating;
 

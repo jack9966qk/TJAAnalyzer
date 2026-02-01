@@ -54,6 +54,15 @@ test.describe("Visual Regression", () => {
   });
 
   test("BPM Change Tooltip", async ({ page }) => {
+    // Mock version to ensure stable snapshot
+    await page.route("**/version.json", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ version: "0.0.0" }),
+      }),
+    );
+
     await page.goto("/");
     await page.waitForTimeout(500);
     // Ensure options panel is expanded
@@ -88,6 +97,15 @@ test.describe("Visual Regression", () => {
   });
 
   test("Note Stats Tooltip", async ({ page }) => {
+    // Mock version to ensure stable snapshot
+    await page.route("**/version.json", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ version: "0.0.0" }),
+      }),
+    );
+
     await page.goto("/");
     await page.waitForTimeout(500);
     // Ensure options panel is collapsed

@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("Chart List Panel Component", () => {
-  test("Load Example Chart functionality", async ({ page }) => {
+  test("List Functionality", async ({ page }) => {
     const mockData = [
       { path: "cat1/song1.tja", title: "Song One", titleJp: "曲１", url: "ese/cat1/song1.tja", type: "blob" },
     ];
@@ -36,27 +36,16 @@ test.describe("Chart List Panel Component", () => {
     await listTab.click();
 
     const loadExampleBtn = page.locator("#load-example-btn");
-
-    await expect(loadExampleBtn).toBeVisible();
-    await expect(loadExampleBtn).toBeDisabled();
-    await expect(loadExampleBtn).toHaveText(/Example Data Loaded/i);
+    await expect(loadExampleBtn).not.toBeVisible();
 
     const statusDisplay = page.locator("#status-display");
 
     const firstResult = page.locator(".ese-result-item").first();
     await firstResult.click();
 
-    await expect(loadExampleBtn).not.toBeDisabled();
-    await expect(loadExampleBtn).toHaveText(/Load Example Data/i);
     await expect(statusDisplay).toContainText(/Chart loaded from ESE/i);
 
-    await loadExampleBtn.click();
-
-    await expect(loadExampleBtn).toBeDisabled();
-    await expect(loadExampleBtn).toHaveText(/Example Data Loaded/i);
-    await expect(statusDisplay).toContainText(/Example chart loaded/i);
-
     const shareBtn = page.locator("#ese-share-btn");
-    await expect(shareBtn).toBeDisabled();
+    await expect(shareBtn).not.toBeDisabled();
   });
 });

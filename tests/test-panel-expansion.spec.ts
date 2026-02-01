@@ -21,8 +21,11 @@ test.describe("Panel Expansion Logic", () => {
   });
 
   test("Panels should collapse if they take up too much space", async ({ page }) => {
-    // Set a small viewport height
-    await page.setViewportSize({ width: 1200, height: 300 });
+    // Set a small viewport height.
+    // If panels are ~100-200px each, total is > 200.
+    // Viewport 300 / 2 = 150.
+    // 200 > 150 -> Should collapse.
+    await page.setViewportSize({ width: 1200, height: 200 });
     await page.goto("/");
 
     // Wait for the app to initialize

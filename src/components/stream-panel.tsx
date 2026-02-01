@@ -61,8 +61,8 @@ export class StreamPanel extends HTMLElement {
             {i18n.t("ui.stream.remote")}
           </h4>
           <p data-i18n="ui.stream.desc" style="margin-bottom: 10px;">
-             {/* Use HTML string injection safely if possible, but webjsx supports children */}
-             Connect to an external program that broadcasts currently played chart and judgement events. For{" "}
+            {/* Use HTML string injection safely if possible, but webjsx supports children */}
+            Connect to an external program that broadcasts currently played chart and judgement events. For{" "}
             <a href="https://github.com/0auBSQ/OpenTaiko/releases/tag/0.6.0.95" target="_blank" rel="noopener">
               OpenTaiko v0.6.0.95
             </a>{" "}

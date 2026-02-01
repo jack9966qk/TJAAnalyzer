@@ -137,11 +137,19 @@ export class ChangelogPanel extends HTMLElement {
     ) : null;
 
     const devModeToggle = (
-      <div className="about-item" style="padding: 12px; background: var(--bg-panel-header); border-radius: 6px; border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;">
-           <label style="display: flex; align-items: center; width: 100%; cursor: pointer;">
-              <input type="checkbox" checked={appState.isTesterMode} onchange={this.handleDevModeToggle.bind(this)} style="margin-right: 10px;" />
-              {i18n.t("ui.devMode")}
-           </label>
+      <div
+        className="about-item"
+        style="padding: 12px; background: var(--bg-panel-header); border-radius: 6px; border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;"
+      >
+        <label style="display: flex; align-items: center; width: 100%; cursor: pointer;">
+          <input
+            type="checkbox"
+            checked={appState.isTesterMode}
+            onchange={this.handleDevModeToggle.bind(this)}
+            style="margin-right: 10px;"
+          />
+          {i18n.t("ui.devMode")}
+        </label>
       </div>
     );
 

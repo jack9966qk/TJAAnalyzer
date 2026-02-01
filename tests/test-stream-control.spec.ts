@@ -4,6 +4,11 @@ test.describe("Stream Control Interaction", () => {
   test("Start/Stop Test Stream Button Toggle", async ({ page }) => {
     await page.goto("/");
 
+    // Enable Tester Mode
+    await page.click("#changelog-btn");
+    await page.click("text=Developer Mode");
+    await page.click(".close-btn");
+
     // Open Data Source Panel if collapsed
     const dsBody = page.locator("#ds-body");
     const isCollapsed = await dsBody.getAttribute("class").then((c) => c?.includes("collapsed"));
@@ -11,8 +16,8 @@ test.describe("Stream Control Interaction", () => {
       await page.click("#ds-panel-header");
     }
 
-    // Switch to Stream tab
-    await page.click('[data-mode="stream"]');
+    // Switch to Tester tab
+    await page.click('[data-mode="tester"]');
 
     const btn = page.locator("#test-stream-btn");
     await expect(btn).toBeVisible();
@@ -34,12 +39,18 @@ test.describe("Stream Control Interaction", () => {
 
   test("Switching Tabs Stops Stream", async ({ page }) => {
     await page.goto("/");
+
+    // Enable Tester Mode
+    await page.click("#changelog-btn");
+    await page.click("text=Developer Mode");
+    await page.click(".close-btn");
+
     const dsBody = page.locator("#ds-body");
     const isCollapsed = await dsBody.getAttribute("class").then((c) => c?.includes("collapsed"));
     if (isCollapsed) {
       await page.click("#ds-panel-header");
     }
-    await page.click('[data-mode="stream"]');
+    await page.click('[data-mode="tester"]');
 
     const btn = page.locator("#test-stream-btn");
     await btn.click();
@@ -52,8 +63,8 @@ test.describe("Stream Control Interaction", () => {
     const status = page.locator("#status-display");
     await expect(status).toContainText("Simulation Stopped");
 
-    // Switch back to Stream tab
-    await page.click('[data-mode="stream"]');
+    // Switch back to Tester tab
+    await page.click('[data-mode="tester"]');
     await expect(btn).toHaveText("Start Test Stream");
   });
 });

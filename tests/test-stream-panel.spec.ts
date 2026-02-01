@@ -4,6 +4,11 @@ test.describe("Stream Panel Component", () => {
   test("Connect Button State Interaction", async ({ page }) => {
     await page.goto("/");
 
+    // Enable Tester Mode
+    await page.click("#changelog-btn");
+    await page.click("text=Developer Mode");
+    await page.click(".close-btn");
+
     // Open Data Source Panel if collapsed
     const dsBody = page.locator("#ds-body");
     const isCollapsed = await dsBody.getAttribute("class").then((c) => c?.includes("collapsed"));
@@ -18,35 +23,29 @@ test.describe("Stream Panel Component", () => {
     await expect(connectBtn).toBeVisible();
     await expect(connectBtn).toHaveText("Connect");
 
-    // We can't easily mock EventSource in Playwright without some work,
-    // but we can verify that clicking it disables it momentarily or changes state if we could mock.
-
-    // Instead, let's test the interactions with the inputs
+    // Fill inputs
     const hostInput = page.locator("#host-input");
     const portInput = page.locator("#port-input");
-
     await hostInput.fill("localhost");
     await portInput.fill("12345");
 
-    // We rely on the existing "Test Stream" tests for functional verification of state changes,
-    // as "Test Stream" simulates a successful connection (simulation mode).
-
-    // Let's verify that "Test Stream" disables "Connect" button?
-    // Based on logic: if isSimulating, disableConnect = true?
-    // In code: disableConnect = isConnectingState || isSimulating;
-
+    // Switch to Tester tab to start simulation
+    await page.click('[data-mode="tester"]');
     const testBtn = page.locator("#test-stream-btn");
     await testBtn.click();
 
-    // Now simulating. Connect button should be disabled?
-    // Let's check my implementation of StreamPanel.tsx
-    // const disableConnect = isConnectingState || isSimulating;
-    // Yes.
+    // Switch back to Stream tab
+    await page.click('[data-mode="stream"]');
 
+    // Connect button should be disabled because simulation is running
     await expect(connectBtn).toBeDisabled();
 
-    // Stop simulation
-    await testBtn.click();
+    // Stop simulation by switching to File tab (or back to Tester and stop)
+    // Switching to File tab disconnects
+    await page.click('[data-mode="file"]');
+
+    // Switch back to Stream tab
+    await page.click('[data-mode="stream"]');
     await expect(connectBtn).not.toBeDisabled();
   });
 });

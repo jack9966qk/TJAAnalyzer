@@ -104,7 +104,7 @@ export class ChartListPanel extends HTMLElement {
     }
   }
 
-  // kept for compatibility but does nothing or we remove it? 
+  // kept for compatibility but does nothing or we remove it?
   // removed loadExample() as it's no longer used or supported via this panel
 
   private filterResults() {
