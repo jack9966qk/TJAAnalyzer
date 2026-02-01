@@ -1,5 +1,40 @@
 [
   {
+    "hash": "98355e7",
+    "message": "Update version to 0.8.1.",
+    "date": "2026-02-01"
+  },
+  {
+    "hash": "5483a93",
+    "message": "Add a dev mode toggle and move some UI to a tester tab. Add a zoom stats debug label.",
+    "date": "2026-02-01"
+  },
+  {
+    "hash": "2b77bbf",
+    "message": "Fix Tester Panel example button state management.",
+    "date": "2026-02-01"
+  },
+  {
+    "hash": "9c6d7ae",
+    "message": "Add custom style for language selector.",
+    "date": "2026-02-01"
+  },
+  {
+    "hash": "0059b0b",
+    "message": "Use heroicon for modal close button.",
+    "date": "2026-02-01"
+  },
+  {
+    "hash": "6eaf62f",
+    "message": "Apply formatter to song_mapping JSON.",
+    "date": "2026-02-01"
+  },
+  {
+    "hash": "c7de8cd",
+    "message": "Add quick, simple animations to panels, chart and modal.",
+    "date": "2026-02-01"
+  },
+  {
     "hash": "926af0a",
     "message": "Update version to 0.8.0.",
     "date": "2026-02-01"
@@ -463,40 +498,5 @@
     "hash": "61b38b7",
     "message": "Opt into Biome HTML formatting.",
     "date": "2026-01-17"
-  },
-  {
-    "hash": "292ba9b",
-    "message": "Refactor Judgements tab to Web Component.",
-    "date": "2026-01-17"
-  },
-  {
-    "hash": "e51d9b1",
-    "message": "Refactor the changelog button and panel as a web component.",
-    "date": "2026-01-16"
-  },
-  {
-    "hash": "ee33261",
-    "message": "Refactor 'view' tab options into a Web Component.",
-    "date": "2026-01-16"
-  },
-  {
-    "hash": "bad458b",
-    "message": "Refactor 'Save Image' button into a Web Component.",
-    "date": "2026-01-16"
-  },
-  {
-    "hash": "a9c467c",
-    "message": "Minor formatting fix.",
-    "date": "2026-01-15"
-  },
-  {
-    "hash": "cda4a96",
-    "message": "Separate some functions from the init function under main.ts.",
-    "date": "2026-01-15"
-  },
-  {
-    "hash": "d498fb4",
-    "message": "Rearramge top level directories and add descriptions to README.",
-    "date": "2026-01-15"
   }
 ]
