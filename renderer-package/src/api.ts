@@ -18,9 +18,17 @@ export interface RenderOptions {
 
   /**
    * Whether to display all branches (Normal/Expert/Master) stacked vertically.
+   * If false or omitted, only the currently active branch (usually Normal) is displayed.
    * Default: false
    */
   showAllBranches?: boolean;
+
+  /**
+   * Device Pixel Ratio (DPR) for rendering.
+   * Higher values result in sharper rendering on high-DPI screens.
+   * Defaults to window.devicePixelRatio or 1.
+   */
+  dpr?: number;
 }
 
 /**
@@ -73,5 +81,5 @@ export function renderTJAString(tjaContent: string, canvas: HTMLCanvasElement, o
     showAllBranches: options.showAllBranches ?? false,
   };
 
-  renderChart(chart, canvas, new JudgementMap(), viewOptions);
+  renderChart(chart, canvas, new JudgementMap(), viewOptions, undefined, options.dpr);
 }
