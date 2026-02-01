@@ -139,16 +139,36 @@ export const LAYOUT_RATIOS = {
 export function calculateAutoZoomBeats(
   availableWidth: number,
   barLengths: Map<number, number> = new Map([[4, 1]]),
-  minNoteDiameter: number = 16,
 ): number {
   if (availableWidth <= 0) return 16;
   if (barLengths.size === 0) barLengths.set(4, 1);
+
+  // Dynamic minNoteDiameter calculation
+  // Start at 10 at width=350, scale linearly until 16 at width=800
+  // availableWidth is logicalCanvasWidth - PADDING * 2
+  const logicalWidth = availableWidth + PADDING * 2;
+  const minD = 10;
+  const maxD = 16;
+  const minW = 350;
+  const maxW = 800;
+
+  let dynamicDiameter = minD;
+  if (logicalWidth >= maxW) {
+    dynamicDiameter = maxD;
+  } else if (logicalWidth <= minW) {
+    dynamicDiameter = minD;
+  } else {
+    dynamicDiameter = minD + ((logicalWidth - minW) * (maxD - minD)) / (maxW - minW);
+  }
+
+  // Use the calculated diameter as the effective minimum
+  const effectiveMinDiameter = dynamicDiameter;
 
   const BEATS_PER_BAR = 4;
   const visualNoteWidthRatio = LAYOUT_RATIOS.noteRadiusSmall * 2 + LAYOUT_RATIOS.lineWidthNoteOuter;
 
   // Priority 3: Max beats allowed by minNoteDiameter
-  const maxBeatsByDiameter = (availableWidth * visualNoteWidthRatio * BEATS_PER_BAR) / minNoteDiameter;
+  const maxBeatsByDiameter = (availableWidth * visualNoteWidthRatio * BEATS_PER_BAR) / effectiveMinDiameter;
 
   // Priority 1: Hard max limit 32
   const maxBeatsStrict = 32;

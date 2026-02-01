@@ -47,7 +47,8 @@ test.describe("Auto Zoom Feature", () => {
     await page.waitForTimeout(1000);
     // Width ~480. MaxBeats ~11. Best multiple of 4 is 8.
     // 16 / 8 = 200%
-    await expect(zoomResetBtn).toHaveText("200%");
+    // Fits 12 beats -> 16/12 = 133%
+    await expect(zoomResetBtn).toHaveText("133%");
 
     // Verify Auto is still active
     await expect(zoomAutoCheckbox).toBeChecked();
