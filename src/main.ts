@@ -618,14 +618,15 @@ function initLoad() {
 }
 
 function init() {
-  if (typeof window.Neutralino !== "undefined") {
+  // biome-ignore lint/suspicious/noExplicitAny: Check for Neutralino token
+  if (typeof window.Neutralino !== "undefined" && typeof (window as any).NL_TOKEN !== "undefined") {
     try {
       window.Neutralino.init();
     } catch (e) {
       console.warn("Neutralino init failed", e);
     }
   } else {
-    console.log("Neutralino lib not found");
+    console.log("Neutralino lib not found or not running in Neutralino mode");
   }
   initLayout();
 
