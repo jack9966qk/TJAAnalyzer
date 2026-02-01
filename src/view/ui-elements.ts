@@ -7,7 +7,7 @@ import type { TJAChart } from "../components/tja-chart.js";
 export const tjaChart = document.getElementById("chart-component") as TJAChart;
 export const statusDisplay = document.getElementById("status-display") as HTMLElement;
 export const noteStatsDisplay = document.getElementById("note-stats-display") as NoteStatsDisplay;
-export const languageSelector = document.getElementById("language-selector") as HTMLSelectElement;
+export const languageSelector = document.getElementById("language-selector") as HTMLElement;
 export const courseBranchSelect = document.getElementById("course-branch-select") as CourseBranchSelect;
 export const optionsCollapseIcon = document.getElementById("options-collapse-icon") as HTMLImageElement;
 export const optionsPanelHeader = document.getElementById("options-panel-header") as HTMLDivElement;

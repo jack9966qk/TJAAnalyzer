@@ -20,7 +20,7 @@ test.describe("Language Switch Visibility", () => {
     await expect(streamTab).toBeHidden();
 
     // Change language
-    const langSelect = page.locator("#language-selector");
+    const langSelect = page.locator("#language-selector select");
     await langSelect.selectOption("zh");
 
     // Check if tabs remain hidden
