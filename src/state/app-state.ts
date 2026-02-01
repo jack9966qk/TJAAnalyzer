@@ -28,6 +28,7 @@ interface AppState {
   currentEsePath: string | null;
   currentStatusKey: string;
   currentStatusParams: Record<string, string | number> | undefined;
+  isTesterMode: boolean;
 }
 
 export const appState: AppState = {
@@ -60,4 +61,5 @@ export const appState: AppState = {
   currentEsePath: null,
   currentStatusKey: "status.initializing",
   currentStatusParams: undefined,
+  isTesterMode: false,
 };

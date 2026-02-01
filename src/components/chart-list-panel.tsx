@@ -1,7 +1,6 @@
 import * as webjsx from "webjsx";
 import type { GitNode } from "../clients/ese-client.js";
 import { refreshChart, updateParsedCharts } from "../controllers/chart-controller.js";
-import { exampleTJA } from "../core/example-data.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
@@ -11,7 +10,6 @@ type DisplayResult = GitNode | { __truncated: true; path?: never; title?: never;
 export class ChartListPanel extends HTMLElement {
   private _searchQuery = "";
   private _displayResults: DisplayResult[] = [];
-  private _isExampleLoaded = false;
   private _pendingEseLoad: { path: string; diff: string } | null = null;
 
   connectedCallback() {
@@ -69,11 +67,6 @@ export class ChartListPanel extends HTMLElement {
     this._pendingEseLoad = { path, diff };
   }
 
-  resetExampleButton() {
-    this._isExampleLoaded = false;
-    this.render();
-  }
-
   async loadEseFromUrl(path: string, diff: string) {
     try {
       this.dispatchStatus("status.loadingChart");
@@ -99,15 +92,10 @@ export class ChartListPanel extends HTMLElement {
           }
           appState.currentChart = appState.parsedTJACharts[targetDiff];
           refreshChart();
-          // Loop state is updated by updateBranchSelectorState usually, but here we just loaded chart.
-          // updateParsedCharts calls updateStatsComponent(null).
-          // We might need to call updateCollapseLoopState() but it is not imported.
-          // Since updateParsedCharts does most setup, let's rely on refreshChart() for now.
         }
       }
 
       this.dispatchStatus("status.chartLoaded");
-      this.resetExampleButton();
     } catch (e) {
       console.error("Error in loadEseFromUrl", e);
       const errMsg = e instanceof Error ? e.message : String(e);
@@ -116,30 +104,8 @@ export class ChartListPanel extends HTMLElement {
     }
   }
 
-  public loadExample() {
-    this.handleLoadExample();
-  }
-
-  private handleLoadExample() {
-    appState.loadedTJAContent = exampleTJA;
-    this._isExampleLoaded = true;
-
-    appState.currentEsePath = null;
-    this._searchQuery = ""; // Clear search
-    this.filterResults();
-
-    try {
-      updateParsedCharts(appState.loadedTJAContent);
-      this.dispatchStatus("status.exampleLoaded");
-    } catch (e) {
-      console.error("Error loading example:", e);
-      const msg = i18n.t("status.parseError", { error: (e as Error).message });
-      alert(msg);
-      this.dispatchStatus("status.parseError", { error: (e as Error).message });
-      this._isExampleLoaded = false;
-    }
-    this.render();
-  }
+  // kept for compatibility but does nothing or we remove it? 
+  // removed loadExample() as it's no longer used or supported via this panel
 
   private filterResults() {
     const { eseTree } = appState;
@@ -199,7 +165,6 @@ export class ChartListPanel extends HTMLElement {
 
       updateParsedCharts(content);
       this.dispatchStatus("status.chartLoaded");
-      this.resetExampleButton();
     } catch (e) {
       console.error(e);
       const errMsg = e instanceof Error ? e.message : String(e);
@@ -237,21 +202,6 @@ export class ChartListPanel extends HTMLElement {
 
     const vdom = (
       <div style="display: contents;">
-        <div
-          className="control-group"
-          style="margin-bottom: 10px; border-bottom: 1px solid #eee; padding-bottom: 10px;"
-        >
-          <button
-            type="button"
-            id="load-example-btn"
-            style="width: 100%;"
-            className={this._isExampleLoaded ? "disabled" : ""}
-            disabled={this._isExampleLoaded}
-            onclick={this.handleLoadExample.bind(this)}
-          >
-            {this._isExampleLoaded ? i18n.t("ui.example.loaded") : i18n.t("ui.example.load")}
-          </button>
-        </div>
         <div className="control-group">
           <input
             type="text"

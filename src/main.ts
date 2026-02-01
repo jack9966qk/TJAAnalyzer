@@ -7,6 +7,7 @@ window.Neutralino = Neutralino;
 import "./components/chart-list-panel.js"; // Ensure side-effect
 import "./components/local-file-panel.js"; // Ensure side-effect
 import "./components/stream-panel.js"; // Ensure side-effect
+import "./components/tester-panel.js"; // Ensure side-effect
 import { NoteStatsDisplay } from "./components/note-stats.js";
 import "./components/save-image-button.js";
 import type { JudgementOptions } from "./components/judgement-options.js";
@@ -35,6 +36,7 @@ import {
   updateStatsComponent,
 } from "./controllers/chart-controller.js";
 import { handleLayoutToggle, updateLayout } from "./controllers/layout-controller.js";
+import { exampleTJA } from "./core/example-data.js";
 import { appState } from "./state/app-state.js";
 import { i18n } from "./utils/i18n.js";
 import {
@@ -234,6 +236,17 @@ function updateDisplayState() {
   refreshChart();
 }
 
+function updateTesterModeVisibility() {
+  const testerTab = document.querySelector('.panel-tab[data-mode="tester"]');
+  if (testerTab) {
+    (testerTab as HTMLElement).style.display = appState.isTesterMode ? "inline-block" : "none";
+  }
+
+  if (!appState.isTesterMode && appState.activeDataSourceMode === "tester") {
+    switchDataSourceMode("list");
+  }
+}
+
 function initLayout() {
   // Layout Init
   if (layoutToggleBtn) {
@@ -265,8 +278,19 @@ function initEventListeners() {
     chartListPanel.addEventListener("status-change", (e: Event) => {
       const detail = (e as CustomEvent).detail;
       updateStatus(detail.key, detail.params);
+
+      if (detail.key === "status.chartLoaded") {
+        const testerPanel = document.querySelector("tester-panel") as any;
+        if (testerPanel && typeof testerPanel.resetExampleButton === "function") {
+          testerPanel.resetExampleButton();
+        }
+      }
     });
   }
+
+  window.addEventListener("dev-mode-change", () => {
+    updateTesterModeVisibility();
+  });
 
   // Listeners for new checkboxes - Moved to judgement-options.ts
 
@@ -336,7 +360,11 @@ function initEventListeners() {
     });
 
     localFilePanel.addEventListener("chart-loaded", () => {
-      if (chartListPanel) chartListPanel.resetExampleButton();
+      // chartListPanel reset example button is no longer relevant as button is gone
+      const testerPanel = document.querySelector("tester-panel") as any;
+      if (testerPanel && typeof testerPanel.resetExampleButton === "function") {
+        testerPanel.resetExampleButton();
+      }
     });
   }
 
@@ -504,7 +532,12 @@ function initJudgementClient() {
 
       refreshChart();
 
-      if (chartListPanel) chartListPanel.resetExampleButton();
+      const testerPanel = document.querySelector("tester-panel") as any;
+      if (testerPanel && typeof testerPanel.resetExampleButton === "function") {
+        testerPanel.resetExampleButton();
+      }
+
+      // chartListPanel.resetExampleButton(); // Removed
     } else if (event.type === "judgement") {
       const key = createJudgementKey(event.noteChar, event.noteOrdinalByChar);
       appState.judgements.set(key, {
@@ -571,9 +604,13 @@ function initLoad() {
     switchDataSourceMode("list");
   } else {
     switchDataSourceMode("list");
-    if (chartListPanel) chartListPanel.loadExample();
+    // Load Example Data Directly
+    appState.loadedTJAContent = exampleTJA;
+    updateParsedCharts(exampleTJA);
+    updateStatus("status.exampleLoaded");
   }
 
+  updateTesterModeVisibility();
   initializePanelVisibility();
 }
 
