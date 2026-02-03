@@ -1177,6 +1177,49 @@ export function createLayout(
   };
 }
 
+/**
+ * Calculates the effective Device Pixel Ratio (DPR) to ensure the canvas stays within
+ * browser memory and dimension limits.
+ *
+ * NOTE: The limits used here (16MP area, 32k dimension) are safe estimations based on
+ * iOS Safari's strict canvas limits (approx 4096x4096) and common 16-bit integer limits
+ * (32767) in other browsers. This prevents crashes or blank rendering on mobile devices.
+ *
+ * References:
+ * - https://jhildenbiddle.github.io/canvas-size/#/?id=test-results
+ * - https://stackoverflow.com/questions/6081483/maximum-size-of-a-canvas-element
+ */
+export function calculateEffectiveDpr(
+  targetDpr: number,
+  logicalWidth: number,
+  totalHeight: number,
+): { effectiveDpr: number; finalCanvasHeight: number; finalStyleHeight: number } {
+  // 32,000 is chosen to stay safely under the 32,767 (2^15 - 1) limit common in many browsers.
+  const MAX_CANVAS_DIMENSION = 32000;
+  // 16,777,216 (16MP) is the maximum safe area for iOS Safari (4096 * 4096).
+  const MAX_CANVAS_AREA = 16777216;
+
+  let effectiveDpr = targetDpr;
+  if (totalHeight * effectiveDpr > MAX_CANVAS_DIMENSION) {
+    effectiveDpr = MAX_CANVAS_DIMENSION / totalHeight;
+  }
+  const currentArea = logicalWidth * effectiveDpr * (totalHeight * effectiveDpr);
+  if (currentArea > MAX_CANVAS_AREA) {
+    effectiveDpr = Math.sqrt(MAX_CANVAS_AREA / (logicalWidth * totalHeight));
+  }
+  if (effectiveDpr > targetDpr) effectiveDpr = targetDpr;
+
+  let finalCanvasHeight = totalHeight * effectiveDpr;
+  let finalStyleHeight = totalHeight;
+
+  if (finalCanvasHeight > MAX_CANVAS_DIMENSION) {
+    finalCanvasHeight = MAX_CANVAS_DIMENSION;
+    finalStyleHeight = MAX_CANVAS_DIMENSION / effectiveDpr;
+  }
+
+  return { effectiveDpr, finalCanvasHeight, finalStyleHeight };
+}
+
 export function renderLayout(
   canvasContext: CanvasRenderingContext2D,
   layout: ChartLayout,
@@ -1201,20 +1244,11 @@ export function renderLayout(
     insets,
   } = layout;
 
-  // Safety check for canvas limits
-  const MAX_CANVAS_DIMENSION = 32000;
-  let effectiveDpr = dpr;
-  if (totalHeight * effectiveDpr > MAX_CANVAS_DIMENSION) {
-    effectiveDpr = 1;
-  }
-
-  let finalCanvasHeight = totalHeight * effectiveDpr;
-  let finalStyleHeight = totalHeight;
-
-  if (finalCanvasHeight > MAX_CANVAS_DIMENSION) {
-    finalCanvasHeight = MAX_CANVAS_DIMENSION;
-    finalStyleHeight = MAX_CANVAS_DIMENSION / effectiveDpr;
-  }
+  const { effectiveDpr, finalCanvasHeight, finalStyleHeight } = calculateEffectiveDpr(
+    dpr,
+    logicalCanvasWidth,
+    totalHeight,
+  );
 
   const canvas = canvasContext.canvas;
   // Resize only if full render (dirtyRowY undefined) or if dimensions mismatch
@@ -1682,25 +1716,14 @@ export function renderChart(
     insets,
   } = layout;
 
-  // Safety check for canvas limits
-  const MAX_CANVAS_DIMENSION = 32000;
+  const { effectiveDpr, finalCanvasHeight, finalStyleHeight } = calculateEffectiveDpr(
+    dpr,
+    logicalCanvasWidth,
+    totalHeight,
+  );
 
-  if (totalHeight * dpr > MAX_CANVAS_DIMENSION) {
-    console.warn(`Chart height (${totalHeight * dpr}px) exceeds canvas limit. Reducing DPR to 1.`);
-  }
-
-  let effectiveDpr = dpr;
-  if (totalHeight * effectiveDpr > MAX_CANVAS_DIMENSION) {
-    effectiveDpr = 1;
-  }
-
-  let finalCanvasHeight = totalHeight * effectiveDpr;
-  let finalStyleHeight = totalHeight;
-
-  if (finalCanvasHeight > MAX_CANVAS_DIMENSION) {
-    console.warn(`Chart height (${finalCanvasHeight}px) still exceeds canvas limit. Clamping height.`);
-    finalCanvasHeight = MAX_CANVAS_DIMENSION;
-    finalStyleHeight = MAX_CANVAS_DIMENSION / effectiveDpr;
+  if (effectiveDpr < dpr) {
+    console.warn(`Chart dimensions exceed canvas limits. Reducing DPR from ${dpr} to ${effectiveDpr.toFixed(2)}.`);
   }
 
   canvas.width = logicalCanvasWidth * effectiveDpr;
