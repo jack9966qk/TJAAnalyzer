@@ -1,5 +1,35 @@
 [
   {
+    "hash": "de18f2f",
+    "message": "Update version to 0.8.2.",
+    "date": "2026-02-03"
+  },
+  {
+    "hash": "e659548",
+    "message": "Update chart rendering with more consistent and configurable insets/paddings.",
+    "date": "2026-02-03"
+  },
+  {
+    "hash": "d9cc431",
+    "message": "Run formatter.",
+    "date": "2026-02-01"
+  },
+  {
+    "hash": "ad6c7c7",
+    "message": "Dynamically change minimum note diameter during auto zoom calculation.",
+    "date": "2026-02-01"
+  },
+  {
+    "hash": "53eabd2",
+    "message": "Add DPR parameter in renderer package API, and clarify the showAllBranches behavior.",
+    "date": "2026-02-01"
+  },
+  {
+    "hash": "fc537be",
+    "message": "Fix blank screen on load by preventing unnecessary Neutralino init, add offline UI test.",
+    "date": "2026-02-01"
+  },
+  {
     "hash": "98355e7",
     "message": "Update version to 0.8.1.",
     "date": "2026-02-01"
@@ -467,36 +497,6 @@
   {
     "hash": "81202b7",
     "message": "Update snapshot due to version change.",
-    "date": "2026-01-17"
-  },
-  {
-    "hash": "c4160d6",
-    "message": "Update LICENSE",
-    "date": "2026-01-17"
-  },
-  {
-    "hash": "0632c1d",
-    "message": "Update version to 0.6.9.",
-    "date": "2026-01-17"
-  },
-  {
-    "hash": "f404f15",
-    "message": "Add \"neu update\" to Neutralino build scripts.",
-    "date": "2026-01-17"
-  },
-  {
-    "hash": "266bdcd",
-    "message": "Refactor annotate tab content as a web component.",
-    "date": "2026-01-17"
-  },
-  {
-    "hash": "3844281",
-    "message": "Refactor select tab content as a web component.",
-    "date": "2026-01-17"
-  },
-  {
-    "hash": "61b38b7",
-    "message": "Opt into Biome HTML formatting.",
     "date": "2026-01-17"
   }
 ]
