@@ -55,30 +55,30 @@ LEVEL:10
     const dimensions = await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element shadow root
       const chart = document.getElementById("chart-component") as any;
-      const canvas = chart.shadowRoot.querySelector("canvas");
-      if (!canvas) throw new Error("Canvas not found");
-      const PADDING = 20;
-      const BARS_PER_ROW = 4;
-      const availableWidth = canvas.clientWidth - PADDING * 2;
-      const barWidth = availableWidth / BARS_PER_ROW;
-      const headerHeight = barWidth * 0.35;
-      const y = PADDING + headerHeight + PADDING + (barWidth * 0.14) / 2;
-      return { barWidth, y };
+      const layout = chart._layout;
+      if (!layout) throw new Error("Layout not available");
+
+      const { insets, baseBarWidth, offsetY, constants } = layout;
+      const barWidth = baseBarWidth;
+      const y = offsetY + constants.barHeight / 2;
+      const startX = insets.left;
+
+      return { barWidth, y, startX };
     });
 
-    const { barWidth, y } = dimensions;
+    const { barWidth, y, startX } = dimensions;
 
     // Note 0 (Bar 0, Start)
     // Note 1 (Bar 1, Start)
 
     // 1. Annotate Note 0 as 'L'. (Click once -> L).
     // Default inference is R. User L -> Mismatch (Red).
-    await chartElement.click({ position: { x: 20 + 10, y: y } });
+    await chartElement.click({ position: { x: startX + 10, y: y } });
 
     // 2. Annotate Note 1 as 'L'. (Click once -> L).
     // Previous (User) was L. Next Inferred is R.
     // User L -> Mismatch (Red).
-    await chartElement.click({ position: { x: 20 + barWidth + 10, y: y } });
+    await chartElement.click({ position: { x: startX + barWidth + 10, y: y } });
 
     await expect(chartElement).toHaveScreenshot("inference-mismatch-red.png");
   });
@@ -90,28 +90,28 @@ LEVEL:10
     const dimensions = await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element shadow root
       const chart = document.getElementById("chart-component") as any;
-      const canvas = chart.shadowRoot.querySelector("canvas");
-      if (!canvas) throw new Error("Canvas not found");
-      const PADDING = 20;
-      const BARS_PER_ROW = 4;
-      const availableWidth = canvas.clientWidth - PADDING * 2;
-      const barWidth = availableWidth / BARS_PER_ROW;
-      const headerHeight = barWidth * 0.35;
-      const y = PADDING + headerHeight + PADDING + (barWidth * 0.14) / 2;
-      return { barWidth, y };
+      const layout = chart._layout;
+      if (!layout) throw new Error("Layout not available");
+
+      const { insets, baseBarWidth, offsetY, constants } = layout;
+      const barWidth = baseBarWidth;
+      const y = offsetY + constants.barHeight / 2;
+      const startX = insets.left;
+
+      return { barWidth, y, startX };
     });
 
-    const { barWidth, y } = dimensions;
+    const { barWidth, y, startX } = dimensions;
 
     // 1. Annotate Note 0 as 'R'. (Click twice -> L -> R).
     // Default inference is R. User R -> Match (Black).
-    await chartElement.click({ position: { x: 20 + 10, y: y } });
-    await chartElement.click({ position: { x: 20 + 10, y: y } });
+    await chartElement.click({ position: { x: startX + 10, y: y } });
+    await chartElement.click({ position: { x: startX + 10, y: y } });
 
     // 2. Annotate Note 1 as 'L'. (Click once -> L).
     // Previous (User) was R. Next Inferred is L.
     // User L -> Match (Black).
-    await chartElement.click({ position: { x: 20 + barWidth + 10, y: y } });
+    await chartElement.click({ position: { x: startX + barWidth + 10, y: y } });
 
     await expect(chartElement).toHaveScreenshot("inference-match-black.png");
   });

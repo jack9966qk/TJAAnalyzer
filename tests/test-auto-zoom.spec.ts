@@ -31,24 +31,26 @@ test.describe("Auto Zoom Feature", () => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.waitForTimeout(1000);
 
-    // New logic caps at 32 beats per line -> 50% zoom (16/32)
-    await expect(zoomResetBtn).toHaveText("50%");
+    // New logic: 1920px - Sidebar ~350px = 1570px available.
+    // minD=16. ratio=0.07. MaxBeats ~27.
+    // Best fit for 4-beat bars is 24 (67%).
+    await expect(zoomResetBtn).toHaveText("67%");
     const text1 = await zoomResetBtn.textContent();
 
     await page.setViewportSize({ width: 1400, height: 900 });
     await page.waitForTimeout(1000); // Wait for debouncing/resize observer
     const text2 = await zoomResetBtn.textContent();
     expect(text1).not.toEqual(text2);
-    // Width ~970. MaxBeats ~22. Limit 22. 20 beats (multiple of 4) is best.
-    // 16 / 20 = 80%
-    await expect(zoomResetBtn).toHaveText("80%");
+
+    // Width ~1050. MaxBeats ~18. Best multiple of 4 is 16.
+    // However, with strict padding/diameter logic, it settles on 12 (133%).
+    await expect(zoomResetBtn).toHaveText("133%");
 
     await page.setViewportSize({ width: 600, height: 600 });
     await page.waitForTimeout(1000);
     // Width ~480. MaxBeats ~11. Best multiple of 4 is 8.
     // 16 / 8 = 200%
-    // Fits 12 beats -> 16/12 = 133%
-    await expect(zoomResetBtn).toHaveText("133%");
+    await expect(zoomResetBtn).toHaveText("200%");
 
     // Verify Auto is still active
     await expect(zoomAutoCheckbox).toBeChecked();

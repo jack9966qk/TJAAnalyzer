@@ -78,35 +78,19 @@ LEVEL:10
     const coords = await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
-      const PADDING = 20;
-      const logicalWidth = chart.clientWidth || 800;
-      const availableWidth = logicalWidth - PADDING * 2;
-      // beatsPerLine = 16 (default)
-      const baseBarWidth = availableWidth / (16 / 4);
+      const layout = chart._layout;
+      if (!layout) throw new Error("Layout not available");
+
+      const { insets, baseBarWidth, offsetY } = layout;
+
       // RATIOS.BAR_HEIGHT = 0.14
       const BASE_LANE_HEIGHT = baseBarWidth * 0.14;
-      const headerHeight = baseBarWidth * 0.35;
-
-      const statusFontSize = baseBarWidth * 0.045;
-      const barNumberOffsetY = baseBarWidth * 0.005;
-      const annotationHeight = barNumberOffsetY + 3 * statusFontSize;
-      const gap = Math.max(PADDING, annotationHeight);
-
-      const offsetY = PADDING + headerHeight + gap;
 
       // Bar 0 layout
-      const barX = PADDING;
+      const barX = insets.left;
       const barY = offsetY;
-      // The note is at index 0, so x is roughly barX + (noteWidth/2)
-      // But getNotePosition should handle it if we can target specific branch...
-      // Actually getNotePosition currently doesn't support targeting branch easily without modification or known logic.
-      // Let's use getNoteAt logic to reverse engineer or just calculate based on known layout.
 
-      // Note is at index 0 of bar 0.
-      // Actually renderer uses: x = layout.x + (i * noteStep)
-      // For note 0: x = layout.x
       const x = barX;
-
       // Y coordinates
       // Normal: barY + (BASE_LANE_HEIGHT / 2)
       // Expert: barY + BASE_LANE_HEIGHT + (BASE_LANE_HEIGHT / 2)

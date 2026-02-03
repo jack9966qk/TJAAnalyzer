@@ -1,5 +1,5 @@
 import * as webjsx from "webjsx";
-import { LAYOUT_RATIOS, PADDING } from "../../renderer-package/src/index.js";
+import { INSETS, LAYOUT_RATIOS } from "../../renderer-package/src/index.js";
 import { refreshChart } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
@@ -153,11 +153,15 @@ export class ViewOptions extends HTMLElement {
     if (appState.isTesterMode) {
       const chartEl = document.getElementById("chart-component");
       const width = chartEl ? chartEl.clientWidth : 800;
-      const availableWidth = width - PADDING * 2;
+      const availableWidth = width - (INSETS.left + INSETS.right);
       const beatsPerLine = appState.viewOptions.beatsPerLine;
       const barsPerRow = beatsPerLine / 4;
       const baseBarWidth = availableWidth / barsPerRow;
       const noteDiameter = baseBarWidth * LAYOUT_RATIOS.noteRadiusSmall * 2;
+      const baseHeaderHeight = baseBarWidth * LAYOUT_RATIOS.headerHeight;
+      const titleFontSize = baseHeaderHeight * 0.4;
+      const subtitleFontSize = baseHeaderHeight * 0.25;
+      const metaFontSize = baseHeaderHeight * 0.25;
 
       testerStats = (
         <div className="option-section border-left">
@@ -166,6 +170,9 @@ export class ViewOptions extends HTMLElement {
             <div style="font-size: 0.8em; font-family: monospace;">W: {width}px</div>
             <div style="font-size: 0.8em; font-family: monospace;">Bars: {barsPerRow.toFixed(2)}</div>
             <div style="font-size: 0.8em; font-family: monospace;">Note Ø: {noteDiameter.toFixed(1)}px</div>
+            <div style="font-size: 0.8em; font-family: monospace;">Title: {titleFontSize.toFixed(1)}px</div>
+            <div style="font-size: 0.8em; font-family: monospace;">Sub: {subtitleFontSize.toFixed(1)}px</div>
+            <div style="font-size: 0.8em; font-family: monospace;">Meta: {metaFontSize.toFixed(1)}px</div>
           </div>
         </div>
       );

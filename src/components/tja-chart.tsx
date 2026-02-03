@@ -7,12 +7,12 @@ import {
   getNoteAt,
   getNotePosition,
   type HitInfo,
+  INSETS,
   JUDGEABLE_NOTES,
   type JudgementKey,
   JudgementMap,
   type JudgementValue,
   LocationMap,
-  PADDING,
   PALETTE,
   type ParsedChart,
   type RenderTexts,
@@ -302,7 +302,7 @@ export class TJAChart extends HTMLElement {
   private applyAutoZoom(viewOptions: AppViewOptions) {
     if (!viewOptions.autoZoom) return;
     // Use logical width (CSS pixels) for calculation
-    const availableWidth = this.clientWidth - PADDING * 2;
+    const availableWidth = this.clientWidth - (INSETS.left + INSETS.right);
 
     // Calculate longest bar to satisfy Priority 2 (fit longest bar on one line)
     const barLengths = new Map<number, number>();

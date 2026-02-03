@@ -118,7 +118,15 @@ export const PALETTE = {
 };
 
 const FONT_STACK = "-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif";
-export const PADDING: number = 20;
+
+export interface Insets {
+  top: number;
+  bottom: number;
+  left: number;
+  right: number;
+}
+
+export const INSETS: Insets = { top: 20, bottom: 20, left: 10, right: 10 };
 
 export const LAYOUT_RATIOS = {
   barHeight: 0.14,
@@ -145,8 +153,8 @@ export function calculateAutoZoomBeats(
 
   // Dynamic minNoteDiameter calculation
   // Start at 10 at width=350, scale linearly until 16 at width=800
-  // availableWidth is logicalCanvasWidth - PADDING * 2
-  const logicalWidth = availableWidth + PADDING * 2;
+  // availableWidth is logicalCanvasWidth - (INSETS.left + INSETS.right)
+  const logicalWidth = availableWidth + (INSETS.left + INSETS.right);
   const minD = 10;
   const maxD = 16;
   const minW = 350;
@@ -164,11 +172,19 @@ export function calculateAutoZoomBeats(
   // Use the calculated diameter as the effective minimum
   const effectiveMinDiameter = dynamicDiameter;
 
-  const BEATS_PER_BAR = 4;
-  const visualNoteWidthRatio = LAYOUT_RATIOS.noteRadiusSmall * 2 + LAYOUT_RATIOS.lineWidthNoteOuter;
+  // Bleed Ratio (Bar Extension)
+  const ratioBleed = LAYOUT_RATIOS.noteRadiusSmall * 2;
+  // Note Inner Ratio (for minD check)
+  const ratioInner = LAYOUT_RATIOS.noteRadiusSmall * 2;
 
-  // Priority 3: Max beats allowed by minNoteDiameter
-  const maxBeatsByDiameter = (availableWidth * visualNoteWidthRatio * BEATS_PER_BAR) / effectiveMinDiameter;
+  // We need to satisfy: NoteInnerDiameter >= effectiveMinDiameter
+  // NoteInnerDiameter = BaseBarWidth * ratioInner
+  // BaseBarWidth = availableWidth / (Beats/4 + 2 * ratioBleed)
+  // (availableWidth * ratioInner) / (Beats/4 + 2 * ratioBleed) >= minD
+  // availableWidth * ratioInner / minD >= Beats/4 + 2 * ratioBleed
+  // 4 * (availableWidth * ratioInner / minD - 2 * ratioBleed) >= Beats
+
+  const maxBeatsByDiameter = 4 * ((availableWidth * ratioInner) / effectiveMinDiameter - 2 * ratioBleed);
 
   // Priority 1: Hard max limit 32
   const maxBeatsStrict = 32;
@@ -282,6 +298,7 @@ export interface ChartLayout {
   locToJudgementKey: LocationMap<JudgementKey>;
   noteOrdinalToGrid: JudgementMap<{ virtualBarIdx: number; charIdx: number }[]>;
   longNoteSegments: LongNoteSegment[];
+  insets: Insets;
 }
 
 export interface JudgementVisibility {
@@ -502,11 +519,11 @@ function calculateLayout(
   chart: ParsedChart,
   logicalCanvasWidth: number,
   options: ViewOptions,
-  offsetY: number = PADDING,
+  insets: Insets,
 ): { barFrames: Frame[]; constants: RenderConstants; totalHeight: number; baseBarWidth: number } {
   // 1. Determine Base Dimensions
   // The full canvas width (minus padding) represents 'beatsPerLine' beats.
-  const availableWidth = logicalCanvasWidth - PADDING * 2;
+  const availableWidth = logicalCanvasWidth - (insets.left + insets.right);
   // Base width is width of one 4/4 bar (4 beats).
   // Number of base bars per row = beatsPerLine / 4
   const baseBarWidth: number = availableWidth / (options.beatsPerLine / 4);
@@ -530,7 +547,7 @@ function calculateLayout(
 
   // 2. Calculate Layout Positions
   const barFrames: Frame[] = [];
-  let currentY = offsetY;
+  let currentY = insets.top;
   let currentRowX = 0;
   let currentRowMaxHeight = 0;
   let previousIsBranched: boolean | null = null;
@@ -567,7 +584,7 @@ function calculateLayout(
     }
 
     barFrames.push({
-      x: PADDING + currentRowX,
+      x: insets.left + currentRowX,
       y: currentY,
       width: actualBarWidth,
       height: thisBarHeight,
@@ -579,7 +596,8 @@ function calculateLayout(
     isRowEmpty = false;
   }
 
-  const totalHeight = barFrames.length > 0 ? currentY + currentRowMaxHeight + PADDING : offsetY + PADDING;
+  const totalHeight =
+    barFrames.length > 0 ? currentY + currentRowMaxHeight + insets.bottom : insets.top + insets.bottom;
 
   return { barFrames, constants, totalHeight, baseBarWidth };
 }
@@ -1050,6 +1068,7 @@ export function createLayout(
   judgements: JudgementMap<JudgementValue>,
   customDpr?: number,
   texts?: RenderTexts,
+  baseInsets: Insets = INSETS,
 ): ChartLayout {
   // Reset width to 100% to allow measuring the container's available width
   canvas.style.width = "100%";
@@ -1058,9 +1077,25 @@ export function createLayout(
     logicalCanvasWidth = canvas.width || 800;
   }
 
-  // Calculate Header Dimensions
-  const availableWidth = logicalCanvasWidth - PADDING * 2;
-  const baseBarWidth: number = availableWidth / (options.beatsPerLine / 4);
+  // Layout Logic: Safe Area + Bleed
+  const safeWidth = logicalCanvasWidth - (baseInsets.left + baseInsets.right);
+  const beatsPerLine = options.beatsPerLine || 16;
+  // For available width calculation, assume all bars have 4 beats
+  const barsPerLine = beatsPerLine / 4;
+
+  const ratioBleed = LAYOUT_RATIOS.noteRadiusSmall * 2;
+  const baseBarWidth = safeWidth / (barsPerLine + 2 * ratioBleed);
+  const bleedPixels = baseBarWidth * ratioBleed;
+
+  const effectiveInsets: Insets = {
+    left: baseInsets.left + bleedPixels,
+    right: baseInsets.right + bleedPixels,
+    top: baseInsets.top,
+    bottom: baseInsets.bottom,
+  };
+
+  const availableWidth = baseBarWidth * barsPerLine;
+
   const baseHeaderHeight = baseBarWidth * LAYOUT_RATIOS.headerHeight;
 
   let headerHeight = baseHeaderHeight;
@@ -1073,8 +1108,8 @@ export function createLayout(
   const barNumberOffsetY = baseBarWidth * LAYOUT_RATIOS.barNumberOffsetY;
   const annotationHeight = barNumberOffsetY + 3 * statusFontSize;
 
-  const gap = Math.max(PADDING, annotationHeight);
-  const offsetY = PADDING + headerHeight + gap;
+  const gap = Math.max(effectiveInsets.top, annotationHeight);
+  const offsetY = effectiveInsets.top + headerHeight + gap;
 
   const { bars } = chart;
   const globalBarStartIndices = calculateGlobalBarStartIndices(bars);
@@ -1082,12 +1117,17 @@ export function createLayout(
   const { locToJudgementKey } = calculateNoteMaps(bars);
   const virtualBars = getVirtualBars(chart, options, judgements, locToJudgementKey);
 
+  const barLayoutInsets: Insets = {
+    ...effectiveInsets,
+    top: offsetY,
+  };
+
   const { barFrames, constants, totalHeight } = calculateLayout(
     virtualBars,
     chart,
     logicalCanvasWidth,
     options,
-    offsetY,
+    barLayoutInsets,
   );
 
   const longNoteSegments = calculateLongNoteSegments(virtualBars, barFrames, constants);
@@ -1133,6 +1173,7 @@ export function createLayout(
     locToJudgementKey,
     noteOrdinalToGrid,
     longNoteSegments,
+    insets: effectiveInsets,
   };
 }
 
@@ -1157,6 +1198,7 @@ export function renderLayout(
     headerHeight,
     baseHeaderHeight,
     locToJudgementKey,
+    insets,
   } = layout;
 
   // Safety check for canvas limits
@@ -1228,8 +1270,15 @@ export function renderLayout(
 
   // Layer 0: Header
   if (!dirtyRowY) {
-    const availableWidth = logicalCanvasWidth - PADDING * 2;
-    const headerFrame: Frame = { x: PADDING, y: PADDING, width: availableWidth, height: headerHeight };
+    const effectivePaddingX = insets?.left ?? INSETS.left;
+    const effectivePaddingY = insets?.top ?? INSETS.top;
+    const availableWidth = logicalCanvasWidth - effectivePaddingX * 2;
+    const headerFrame: Frame = {
+      x: effectivePaddingX,
+      y: effectivePaddingY,
+      width: availableWidth,
+      height: headerHeight,
+    };
     drawChartHeader(canvasContext, chart, headerFrame, texts, baseHeaderHeight);
   }
 
@@ -1630,6 +1679,7 @@ export function renderChart(
     baseHeaderHeight,
     locToJudgementKey,
     baseBarWidth,
+    insets,
   } = layout;
 
   // Safety check for canvas limits
@@ -1676,8 +1726,15 @@ export function renderChart(
   };
 
   // Layer 0: Header
-  const availableWidth = logicalCanvasWidth - PADDING * 2;
-  const headerFrame: Frame = { x: PADDING, y: PADDING, width: availableWidth, height: headerHeight };
+  const effectivePaddingX = insets?.left ?? INSETS.left;
+  const effectivePaddingY = insets?.top ?? INSETS.top;
+  const availableWidth = logicalCanvasWidth - effectivePaddingX * 2;
+  const headerFrame: Frame = {
+    x: effectivePaddingX,
+    y: effectivePaddingY,
+    width: availableWidth,
+    height: headerHeight,
+  };
   drawChartHeader(canvasContext, chart, headerFrame, texts, baseHeaderHeight);
 
   const isAllBranches = !!options.showAllBranches && !!chart.branches;
