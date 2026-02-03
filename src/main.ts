@@ -614,6 +614,13 @@ function initLoad() {
   updateTesterModeVisibility();
   setTimeout(() => {
     initializePanelVisibility();
+    const loadingScreen = document.getElementById("loading-screen");
+    if (loadingScreen) {
+      loadingScreen.style.opacity = "0";
+      setTimeout(() => {
+        loadingScreen.remove();
+      }, 300);
+    }
   }, 0);
 }
 
