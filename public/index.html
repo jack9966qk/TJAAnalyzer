@@ -12,28 +12,28 @@
     <link rel="apple-touch-icon" href="icon_simple.png">
     <link rel="icon" type="image/png" href="icon_simple.png">
     <style>
+    #loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s ease;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 1.5em;
+      color: #333333;
+    }
+    @media (prefers-color-scheme: dark) {
       #loading-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: #ffffff;
-        z-index: 9999;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 0.3s ease;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        font-size: 1.5em;
-        color: #333333;
+        background-color: #1e1e1e;
+        color: #eeeeee;
       }
-      @media (prefers-color-scheme: dark) {
-        #loading-screen {
-          background-color: #1e1e1e;
-          color: #eeeeee;
-        }
-      }
+    }
     </style>
   </head>
   <body>
