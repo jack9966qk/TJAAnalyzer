@@ -1,5 +1,25 @@
 [
   {
+    "hash": "221fa8f",
+    "message": "Update version to 0.8.3.",
+    "date": "2026-02-04"
+  },
+  {
+    "hash": "865d648",
+    "message": "Update icon for the \"exit fullscreen\" button.",
+    "date": "2026-02-04"
+  },
+  {
+    "hash": "8d03cc5",
+    "message": "Attempt to fix occasional unresponsive scrolling of fullscreen chart.",
+    "date": "2026-02-04"
+  },
+  {
+    "hash": "fdb3dd3",
+    "message": "Improve chart rendering DPR fallback for large render sizes.",
+    "date": "2026-02-04"
+  },
+  {
     "hash": "de18f2f",
     "message": "Update version to 0.8.2.",
     "date": "2026-02-03"
@@ -477,26 +497,6 @@
   {
     "hash": "7265250",
     "message": "Migrate note stats component to use JSX.",
-    "date": "2026-01-17"
-  },
-  {
-    "hash": "f03269c",
-    "message": "Migrate web components to JSX (WebJSX) and fix panel expansion regression.",
-    "date": "2026-01-17"
-  },
-  {
-    "hash": "857eb7f",
-    "message": "Fix panel auto-expansion logic and add regression test.",
-    "date": "2026-01-17"
-  },
-  {
-    "hash": "b79adb6",
-    "message": "Refactor difficulty and branch selection UI as a web component.",
-    "date": "2026-01-17"
-  },
-  {
-    "hash": "81202b7",
-    "message": "Update snapshot due to version change.",
     "date": "2026-01-17"
   }
 ]
