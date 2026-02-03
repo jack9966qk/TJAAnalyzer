@@ -172,7 +172,7 @@ export class TJAChart extends HTMLElement {
             }
         `}</style>
         <button type="button" id="exit-fullscreen-btn" onclick={this.exitFullscreen.bind(this)}>
-          <img src="assets/heroicons/optimized/24/outline/x-mark.svg" alt="Exit Fullscreen" />
+          <img src="assets/heroicons/optimized/24/outline/arrows-pointing-in.svg" alt="Exit Fullscreen" />
         </button>
         <div
           id="message-container"
