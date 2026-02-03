@@ -93,11 +93,13 @@ export class TJAChart extends HTMLElement {
             }
             :host(:fullscreen), :host(.pseudo-fullscreen) {
                 overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
                 background-color: var(--canvas-container-bg, #fafafa);
                 padding-top: env(safe-area-inset-top);
                 padding-left: env(safe-area-inset-left);
                 padding-right: env(safe-area-inset-right);
-                padding-bottom: env(safe-area-inset-bottom);
+                padding-bottom: max(20px, env(safe-area-inset-bottom));
                 transition: padding var(--anim-duration-normal) ease, background-color var(--anim-duration-normal) ease;
             }
             :host(.pseudo-fullscreen) {
@@ -106,6 +108,7 @@ export class TJAChart extends HTMLElement {
                 left: 0;
                 width: 100vw;
                 height: 100vh;
+                height: 100dvh;
                 z-index: 9999;
                 animation: fullscreenEnter var(--anim-duration-normal) ease;
             }
