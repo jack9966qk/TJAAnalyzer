@@ -16,6 +16,8 @@ export class SelectOptions extends HTMLElement {
     this.render();
     // Listen for language changes
     i18n.onLanguageChange(() => this.render());
+    // Listen for Neutralino ready
+    window.addEventListener("neutralino-ready", () => this.render());
   }
 
   public refreshStatus() {
@@ -46,8 +48,7 @@ export class SelectOptions extends HTMLElement {
 
   render() {
     const hasSelection = !!appState.viewOptions.selection;
-    // biome-ignore lint/suspicious/noExplicitAny: Check for Neutralino token to ensure we are in the app
-    const hasNeutralino = !!window.Neutralino && typeof (window as any).NL_TOKEN !== "undefined";
+    const hasNeutralino = appState.isNeutralinoConnected;
     const hasWebFS = !!window.showDirectoryPicker;
     const canSelectDir = hasNeutralino || hasWebFS;
 

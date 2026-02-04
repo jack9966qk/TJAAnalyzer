@@ -624,26 +624,38 @@ function initLoad() {
   }, 0);
 }
 
-function init() {
-  // biome-ignore lint/suspicious/noExplicitAny: Check for Neutralino token
-  if (typeof window.Neutralino !== "undefined" && typeof (window as any).NL_TOKEN !== "undefined") {
+async function init() {
+  try {
+    initLayout();
+    initEventListeners();
+    initJudgementClient();
+    initPWA();
+    initLoad();
+  } catch (e) {
+    console.error("Error during app initialization:", e);
+  }
+
+  // biome-ignore lint/suspicious/noExplicitAny: Check for Neutralino globals
+  const win = window as any;
+  const hasGlobals =
+    typeof win.NL_TOKEN !== "undefined" ||
+    typeof win.NL_PORT !== "undefined" ||
+    typeof win.NL_ARGS !== "undefined" ||
+    typeof win.NL_CVERSION !== "undefined";
+
+  if (typeof window.Neutralino !== "undefined" && hasGlobals) {
     try {
       window.Neutralino.init();
+      window.Neutralino.events.on("ready", () => {
+        appState.isNeutralinoConnected = true;
+        window.dispatchEvent(new CustomEvent("neutralino-ready"));
+      });
     } catch (e) {
       console.warn("Neutralino init failed", e);
     }
   } else {
     console.log("Neutralino lib not found or not running in Neutralino mode");
   }
-  initLayout();
-
-  initEventListeners();
-
-  initJudgementClient();
-
-  initPWA();
-
-  initLoad();
 }
 
 function initializePanelVisibility() {

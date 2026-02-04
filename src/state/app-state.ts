@@ -29,6 +29,7 @@ interface AppState {
   currentStatusKey: string;
   currentStatusParams: Record<string, string | number> | undefined;
   isTesterMode: boolean;
+  isNeutralinoConnected: boolean;
 }
 
 export const appState: AppState = {
@@ -62,4 +63,5 @@ export const appState: AppState = {
   currentStatusKey: "status.initializing",
   currentStatusParams: undefined,
   isTesterMode: false,
+  isNeutralinoConnected: false,
 };

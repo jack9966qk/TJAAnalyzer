@@ -14,8 +14,7 @@ interface EseCommit {
 }
 
 function getPlatform(): string {
-  // biome-ignore lint/suspicious/noExplicitAny: Neutralino global
-  if (typeof window.Neutralino !== "undefined" && typeof (window as any).NL_TOKEN !== "undefined") {
+  if (appState.isNeutralinoConnected) {
     return "Neutralino";
   }
   if (window.matchMedia("(display-mode: standalone)").matches) {
@@ -46,6 +45,13 @@ export class ChangelogPanel extends HTMLElement {
       this.render();
       this.renderModal();
     });
+
+    // Listen for Neutralino ready event to update platform label
+    if (window.Neutralino) {
+      window.Neutralino.events.on("ready", () => {
+        this.renderModal();
+      });
+    }
   }
 
   disconnectedCallback() {

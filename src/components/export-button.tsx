@@ -156,8 +156,7 @@ export class ExportButton extends HTMLElement {
 
   private async pickDirectory(): Promise<string | FileSystemDirectoryHandle> {
     // 1. Neutralino
-    // biome-ignore lint/suspicious/noExplicitAny: Check for Neutralino token
-    if (window.Neutralino && typeof (window as any).NL_TOKEN !== "undefined") {
+    if (appState.isNeutralinoConnected && window.Neutralino) {
       const entry = await window.Neutralino.os.showFolderDialog(
         i18n.t("ui.export.selectDir") || "Select Export Directory",
         {},
