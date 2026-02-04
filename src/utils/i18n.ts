@@ -141,6 +141,7 @@ const resources: Resources = {
     "renderer.judge.poor": "BAD",
 
     "ui.about": "About",
+    "ui.version": "Version",
     "ui.feedback": "Submit Feedback / Report Issue",
     "ui.eseDb": "ESE Database",
     "ui.commit": "Commit",
@@ -282,6 +283,7 @@ const resources: Resources = {
     "renderer.judge.poor": "不可",
 
     "ui.about": "关于",
+    "ui.version": "版本",
     "ui.feedback": "提交反馈 / 报告问题",
     "ui.eseDb": "ESE 数据库",
     "ui.commit": "提交",
@@ -423,6 +425,7 @@ const resources: Resources = {
     "renderer.judge.poor": "不可",
 
     "ui.about": "アプリについて",
+    "ui.version": "バージョン",
     "ui.feedback": "フィードバック / 問題を報告",
     "ui.eseDb": "ESE データベース",
     "ui.commit": "コミット",

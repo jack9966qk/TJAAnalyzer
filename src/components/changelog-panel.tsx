@@ -13,12 +13,24 @@ interface EseCommit {
   date: string;
 }
 
+function getPlatform(): string {
+  // biome-ignore lint/suspicious/noExplicitAny: Neutralino global
+  if (typeof window.Neutralino !== "undefined" && typeof (window as any).NL_TOKEN !== "undefined") {
+    return "Neutralino";
+  }
+  if (window.matchMedia("(display-mode: standalone)").matches) {
+    return "PWA";
+  }
+  return "Browser";
+}
+
 export class ChangelogPanel extends HTMLElement {
   private hasLoaded = false;
   private isModalOpen = false;
   private changelogData: ChangelogItem[] = [];
   private eseCommit: EseCommit | null = null;
   private modalContainer: HTMLDivElement;
+  private appVersion: string | null = null;
 
   constructor() {
     super();
@@ -63,6 +75,19 @@ export class ChangelogPanel extends HTMLElement {
 
   private async loadData() {
     try {
+      // Load Version
+      try {
+        const resVer = await fetch("version.json");
+        if (resVer.ok) {
+          const dataVer = await resVer.json();
+          if (dataVer?.version) {
+            this.appVersion = dataVer.version;
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load version:", e);
+      }
+
       // Load Changelog
       const res = await fetch("changelog.json");
       if (res.ok) {
@@ -118,6 +143,18 @@ export class ChangelogPanel extends HTMLElement {
         </div>
       ))
     );
+
+    const versionInfo = this.appVersion ? (
+      <div
+        className="about-item"
+        style="padding: 12px; background: var(--bg-panel-header); border-radius: 6px; border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;"
+      >
+        <div style="font-weight: bold;">{i18n.t("ui.version") || "Version"}</div>
+        <div style="font-family: monospace;">
+          {this.appVersion} ({getPlatform()})
+        </div>
+      </div>
+    ) : null;
 
     const eseInfo = this.eseCommit ? (
       <div
@@ -191,6 +228,7 @@ export class ChangelogPanel extends HTMLElement {
                 <div style="font-weight: bold;">{i18n.t("ui.feedback")}</div>
                 <div style="font-size: 0.85em; color: var(--text-secondary); margin-top: 4px;">GitHub Issues</div>
               </a>
+              {versionInfo}
               {eseInfo}
               {devModeToggle}
             </div>
