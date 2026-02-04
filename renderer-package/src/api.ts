@@ -29,6 +29,12 @@ export interface RenderOptions {
    * Defaults to window.devicePixelRatio or 1.
    */
   dpr?: number;
+
+  /**
+   * Whether to display the renderer software attribution text at the bottom.
+   * Default: true
+   */
+  showAttribution?: boolean;
 }
 
 /**
@@ -79,6 +85,7 @@ export function renderTJAString(tjaContent: string, canvas: HTMLCanvasElement, o
     ...DEFAULT_VIEW_OPTIONS,
     beatsPerLine: options.beatsPerLine ?? DEFAULT_VIEW_OPTIONS.beatsPerLine,
     showAllBranches: options.showAllBranches ?? false,
+    showAttribution: options.showAttribution ?? true,
   };
 
   renderChart(chart, canvas, new JudgementMap(), viewOptions, undefined, options.dpr);

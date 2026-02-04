@@ -51,6 +51,7 @@ export class TJAChart extends HTMLElement {
   private _texts: RenderTexts | undefined;
   private _message: { text: string; type: "warning" | "info" } | null = null;
   private resizeObserver: ResizeObserver;
+  private mutationObserver: MutationObserver;
 
   // Rendering Optimization State
   private _renderTask: number | null = null;
@@ -67,6 +68,15 @@ export class TJAChart extends HTMLElement {
       this._pendingFullRender = true;
       this.scheduleRender();
     });
+
+    this.mutationObserver = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.type === "attributes" && mutation.attributeName === "class") {
+          this._pendingFullRender = true;
+          this.scheduleRender();
+        }
+      }
+    });
   }
 
   connectedCallback() {
@@ -78,8 +88,16 @@ export class TJAChart extends HTMLElement {
     this.upgradeProperty("texts");
 
     this.resizeObserver.observe(this);
+    this.mutationObserver.observe(this, { attributes: true });
+    document.addEventListener("fullscreenchange", this.handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", this.handleFullscreenChange);
     this.scheduleRender();
   }
+
+  private handleFullscreenChange = () => {
+    this._pendingFullRender = true;
+    this.scheduleRender();
+  };
 
   private renderDOM() {
     const vdom = (
@@ -223,6 +241,10 @@ export class TJAChart extends HTMLElement {
 
   disconnectedCallback() {
     this.resizeObserver.disconnect();
+    this.mutationObserver.disconnect();
+    document.removeEventListener("fullscreenchange", this.handleFullscreenChange);
+    document.removeEventListener("webkitfullscreenchange", this.handleFullscreenChange);
+
     if (this._renderTask !== null) {
       cancelAnimationFrame(this._renderTask);
       this._renderTask = null;
@@ -302,6 +324,17 @@ export class TJAChart extends HTMLElement {
     );
   }
 
+  private get isFullscreen(): boolean {
+    const doc = document as VendorDocument;
+    const isNativeFullscreen = !!(
+      doc.fullscreenElement ||
+      doc.webkitFullscreenElement ||
+      doc.mozFullScreenElement ||
+      doc.msFullscreenElement
+    );
+    return isNativeFullscreen || this.classList.contains("pseudo-fullscreen");
+  }
+
   private applyAutoZoom(viewOptions: AppViewOptions) {
     if (!viewOptions.autoZoom) return;
     // Use logical width (CSS pixels) for calculation
@@ -376,7 +409,13 @@ export class TJAChart extends HTMLElement {
       return;
     }
 
-    this.applyAutoZoom(this._viewOptions as AppViewOptions);
+    // Clone options to avoid mutating the original prop, and apply attribution logic
+    const effectiveViewOptions: AppViewOptions = {
+      ...this._viewOptions,
+      showAttribution: this.isFullscreen,
+    };
+
+    this.applyAutoZoom(effectiveViewOptions);
 
     const isFullRender = this._pendingFullRender || !this._layout;
 
@@ -388,7 +427,7 @@ export class TJAChart extends HTMLElement {
     // We are doing a full render (either forced or because no incremental update needed/possible)
     // But we only need to recreate layout if pending full render or layout missing
     if (isFullRender) {
-      this._layout = createLayout(this._chart, this.canvas, this._viewOptions, this._judgements, undefined, texts);
+      this._layout = createLayout(this._chart, this.canvas, effectiveViewOptions, this._judgements, undefined, texts);
       this._pendingFullRender = false;
     }
 
@@ -436,7 +475,7 @@ export class TJAChart extends HTMLElement {
     }
 
     if (this._layout) {
-      renderLayout(ctx, this._layout, this._chart, this._judgements, this._viewOptions, texts, dirtyRowY);
+      renderLayout(ctx, this._layout, this._chart, this._judgements, effectiveViewOptions, texts, dirtyRowY);
 
       // Update cache
       if (!dirtyRowY) {
@@ -557,7 +596,11 @@ export class TJAChart extends HTMLElement {
       throw new Error("Chart not loaded");
     }
 
-    const options = { ...this._viewOptions, ...overrideOptions };
+    const options: ViewOptions = {
+      ...this._viewOptions,
+      showAttribution: true,
+      ...overrideOptions,
+    };
 
     const canvas = document.createElement("canvas");
     const TARGET_WIDTH = 1024;

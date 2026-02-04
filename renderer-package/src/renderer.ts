@@ -324,6 +324,7 @@ export interface ViewOptions {
   isAnnotationMode?: boolean;
   showTextInAnnotationMode?: boolean;
   alwaysShowAnnotations?: boolean;
+  showAttribution?: boolean;
 }
 
 export interface RenderTexts {
@@ -373,6 +374,7 @@ export const DEFAULT_VIEW_OPTIONS: ViewOptions = {
   collapsedLoop: false,
   beatsPerLine: 16,
   selection: null,
+  showAttribution: true,
 };
 
 function isNoteSelected(barIdx: number, charIdx: number, selection: ViewOptions["selection"]): boolean {
@@ -1122,13 +1124,16 @@ export function createLayout(
     top: offsetY,
   };
 
-  const { barFrames, constants, totalHeight } = calculateLayout(
-    virtualBars,
-    chart,
-    logicalCanvasWidth,
-    options,
-    barLayoutInsets,
-  );
+  const {
+    barFrames,
+    constants,
+    totalHeight: layoutHeight,
+  } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options, barLayoutInsets);
+
+  let totalHeight = layoutHeight;
+  if (options.showAttribution) {
+    totalHeight += constants.statusFontSize * 1.5; // Add some space for attribution
+  }
 
   const longNoteSegments = calculateLongNoteSegments(virtualBars, barFrames, constants);
 
@@ -1374,6 +1379,22 @@ export function renderLayout(
         info.effectiveBarIndex,
       );
     }
+  }
+
+  if (options.showAttribution && !dirtyRowY) {
+    canvasContext.save();
+    canvasContext.fillStyle = PALETTE.text.secondary;
+    const fontSize = constants.statusFontSize;
+    canvasContext.font = `italic ${fontSize}px ${FONT_STACK}`;
+    canvasContext.textAlign = "right";
+    canvasContext.textBaseline = "bottom";
+    const effectivePaddingX = insets?.left ?? INSETS.left;
+    canvasContext.fillText(
+      "TJA renderer by Jack",
+      logicalCanvasWidth - effectivePaddingX,
+      totalHeight - fontSize * 0.8,
+    );
+    canvasContext.restore();
   }
 
   if (dirtyRowY) {
