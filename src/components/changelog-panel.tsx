@@ -179,6 +179,41 @@ export class ChangelogPanel extends HTMLElement {
       </div>
     ) : null;
 
+    const pwaDebugInfo =
+      appState.isTesterMode ? (
+        <div
+          className="about-item"
+          style="padding: 12px; background: var(--bg-panel-header); border-radius: 6px; border: 1px solid var(--border-light);"
+        >
+          <div style="font-weight: bold; margin-bottom: 4px;">PWA Debug Info</div>
+          <div style="font-size: 0.9em; display: flex; flex-direction: column; gap: 2px;">
+            <div>
+              Controller: <span style="font-family:monospace">{navigator.serviceWorker?.controller ? "Active" : "None"}</span>
+            </div>
+            <div>
+               State: <span style="font-family:monospace">{navigator.serviceWorker?.controller?.state || "N/A"}</span>
+            </div>
+            <div>
+              Scope:{" "}
+              <span style="font-family:monospace">
+                {navigator.serviceWorker?.controller?.scriptURL ? new URL(navigator.serviceWorker.controller.scriptURL).pathname : "N/A"}
+              </span>
+            </div>
+             <div>
+              Online: <span style="font-family:monospace">{navigator.onLine ? "Yes" : "No"}</span>
+            </div>
+            <div>
+              Secure Context: <span style="font-family:monospace">{window.isSecureContext ? "Yes" : "No"}</span>
+            </div>
+            {appState.swRegistrationError && (
+              <div style="color: red; word-break: break-all;">
+                SW Error: <span style="font-family:monospace">{appState.swRegistrationError}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null;
+
     const devModeToggle = (
       <div
         className="about-item"
@@ -236,6 +271,7 @@ export class ChangelogPanel extends HTMLElement {
               </a>
               {versionInfo}
               {eseInfo}
+              {pwaDebugInfo}
               {devModeToggle}
             </div>
 

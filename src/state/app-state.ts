@@ -30,6 +30,7 @@ interface AppState {
   currentStatusParams: Record<string, string | number> | undefined;
   isTesterMode: boolean;
   isNeutralinoConnected: boolean;
+  swRegistrationError: string | null;
 }
 
 export const appState: AppState = {
@@ -64,4 +65,5 @@ export const appState: AppState = {
   currentStatusParams: undefined,
   isTesterMode: false,
   isNeutralinoConnected: false,
+  swRegistrationError: null,
 };

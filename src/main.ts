@@ -65,15 +65,25 @@ console.log("TJAChart module loaded", TJAChart);
 console.log("NoteStatsDisplay module loaded", NoteStatsDisplay);
 
 function initPWA() {
-  const updateSW = registerSW({
-    onNeedRefresh() {
-      console.log("New content available, reloading...");
-      updateSW(true);
-    },
-    onOfflineReady() {
-      console.log("App ready to work offline");
-    },
-  });
+  if ("serviceWorker" in navigator) {
+    const updateSW = registerSW({
+      onNeedRefresh() {
+        console.log("New content available, reloading...");
+        updateSW(true);
+      },
+      onOfflineReady() {
+        console.log("App ready to work offline");
+      },
+      onRegisterError(error) {
+        console.error("SW registration failed", error);
+        appState.swRegistrationError = error instanceof Error ? error.message : String(error);
+      },
+    });
+
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      console.log("Controller changed");
+    });
+  }
 }
 
 function updateStatus(key: string, params?: Record<string, string | number>) {

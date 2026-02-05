@@ -1,7 +1,7 @@
 {
   "name": "TJA Analyzer",
   "short_name": "TJA Analyzer",
-  "start_url": ".",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",

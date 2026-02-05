@@ -42,7 +42,7 @@ const generateMetaFiles = () => {
 
 export default defineConfig({
   root: "public",
-  base: "",
+  base: "/",
   publicDir: false,
   resolve: {
     alias: {
@@ -54,6 +54,9 @@ export default defineConfig({
   },
   server: {
     port: 8080,
+  },
+  preview: {
+    allowedHosts: ["air-ja.ckq.me"]
   },
   build: {
     outDir: "../dist",
@@ -87,7 +90,6 @@ export default defineConfig({
     }),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["icon_simple.png", "assets/heroicons/optimized/24/outline/*.svg"],
       manifestFilename: "manifest.json",
       manifest: {
         name: "TJA Analyzer",
@@ -110,6 +112,10 @@ export default defineConfig({
         ],
       },
       workbox: {
+        inlineWorkboxRuntime: true,
+        cleanupOutdatedCaches: true,
+        clientsClaim: true,
+        navigateFallback: "/index.html",
         globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
         runtimeCaching: [
           {
