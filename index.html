@@ -9,16 +9,43 @@
     <meta name="apple-mobile-web-app-title" content="TJA Analyzer">
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
     <meta name="theme-color" content="#1e1e1e" media="(prefers-color-scheme: dark)">
-    <link rel="apple-touch-icon" href="./assets/icon_simple-BOyTaIRg.png">
-    <link rel="icon" type="image/png" href="./assets/icon_simple-BOyTaIRg.png">
-    <script type="module" crossorigin src="./assets/main-D6fXdotQ.js"></script>
-    <link rel="modulepreload" crossorigin href="./assets/renderer-CiiLB4PM.js">
-    <link rel="modulepreload" crossorigin href="./assets/note-stats-GKTXVJWG.js">
-    <link rel="modulepreload" crossorigin href="./assets/tja-chart-CLVc44kT.js">
-    <link rel="modulepreload" crossorigin href="./assets/changelog-panel-BoJRop_f.js">
-    <link rel="stylesheet" crossorigin href="./assets/style-M61hx1al.css">
-  <link rel="manifest" href="./manifest.json"></head>
+    <link rel="apple-touch-icon" href="/assets/icon_simple-BOyTaIRg.png">
+    <link rel="icon" type="image/png" href="/assets/icon_simple-BOyTaIRg.png">
+    <style>
+    #loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s ease;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 1.5em;
+      color: #333333;
+    }
+    @media (prefers-color-scheme: dark) {
+      #loading-screen {
+        background-color: #1e1e1e;
+        color: #eeeeee;
+      }
+    }
+    </style>
+    <script type="module" crossorigin src="/assets/main-Da0yUo4X.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/renderer-QIF23EvA.js">
+    <link rel="modulepreload" crossorigin href="/assets/note-stats-Cm1l2d9x.js">
+    <link rel="modulepreload" crossorigin href="/assets/tja-chart-DMLVscHd.js">
+    <link rel="modulepreload" crossorigin href="/assets/changelog-panel-9Xs99OFw.js">
+    <link rel="stylesheet" crossorigin href="/assets/style-7kPJUk6O.css">
+  <link rel="manifest" href="/manifest.json"></head>
   <body>
+    <div id="loading-screen">
+      <div>Loading...</div>
+    </div>
     <div id="safe-area-cover"></div>
     <div id="app">
       <div id="controls-container">
@@ -145,5 +172,6 @@
       </div>
     </div>
 
+    <script src="__neutralino_globals.js"></script>
   </body>
 </html>
