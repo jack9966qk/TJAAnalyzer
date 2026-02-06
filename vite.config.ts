@@ -56,7 +56,7 @@ export default defineConfig({
     port: 8080,
   },
   preview: {
-    allowedHosts: ["air-ja.ckq.me"]
+    allowedHosts: ["tjaanalyzer-dev-ja.ckq.me"],
   },
   build: {
     outDir: "../dist",
