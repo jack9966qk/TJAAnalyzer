@@ -145,28 +145,29 @@ export const LAYOUT_RATIOS = {
 };
 
 export function calculateAutoZoomBeats(
-  availableWidth: number,
+  canvasWidth: number,
   barLengths: Map<number, number> = new Map([[4, 1]]),
+  insets: Insets = INSETS,
 ): number {
-  if (availableWidth <= 0) return 16;
+  if (canvasWidth <= 0) return 16;
   if (barLengths.size === 0) barLengths.set(4, 1);
 
   // Dynamic minNoteDiameter calculation
   // Start at 10 at width=350, scale linearly until 16 at width=800
-  // availableWidth is logicalCanvasWidth - (INSETS.left + INSETS.right)
-  const logicalWidth = availableWidth + (INSETS.left + INSETS.right);
+  const contentWidth = canvasWidth - (insets.left + insets.right);
+
   const minD = 10;
   const maxD = 16;
   const minW = 350;
   const maxW = 800;
 
   let dynamicDiameter = minD;
-  if (logicalWidth >= maxW) {
+  if (canvasWidth >= maxW) {
     dynamicDiameter = maxD;
-  } else if (logicalWidth <= minW) {
+  } else if (canvasWidth <= minW) {
     dynamicDiameter = minD;
   } else {
-    dynamicDiameter = minD + ((logicalWidth - minW) * (maxD - minD)) / (maxW - minW);
+    dynamicDiameter = minD + ((canvasWidth - minW) * (maxD - minD)) / (maxW - minW);
   }
 
   // Use the calculated diameter as the effective minimum
@@ -179,12 +180,11 @@ export function calculateAutoZoomBeats(
 
   // We need to satisfy: NoteInnerDiameter >= effectiveMinDiameter
   // NoteInnerDiameter = BaseBarWidth * ratioInner
-  // BaseBarWidth = availableWidth / (Beats/4 + 2 * ratioBleed)
-  // (availableWidth * ratioInner) / (Beats/4 + 2 * ratioBleed) >= minD
-  // availableWidth * ratioInner / minD >= Beats/4 + 2 * ratioBleed
-  // 4 * (availableWidth * ratioInner / minD - 2 * ratioBleed) >= Beats
-
-  const maxBeatsByDiameter = 4 * ((availableWidth * ratioInner) / effectiveMinDiameter - 2 * ratioBleed);
+  // BaseBarWidth = contentWidth / (Beats/4 + 2 * ratioBleed)
+  // (contentWidth * ratioInner) / (Beats/4 + 2 * ratioBleed) >= minD
+  // contentWidth * ratioInner / minD >= Beats/4 + 2 * ratioBleed
+  // 4 * (contentWidth * ratioInner / minD - 2 * ratioBleed) >= Beats
+  const maxBeatsByDiameter = 4 * ((contentWidth * ratioInner) / effectiveMinDiameter - 2 * ratioBleed);
 
   // Priority 1: Hard max limit 32
   const maxBeatsStrict = 32;
@@ -1362,11 +1362,12 @@ export function renderLayout(
 
   // Layer 0: Header
   if (!dirtyRowY) {
-    const effectivePaddingX = insets?.left ?? INSETS.left;
+    const effectivePaddingLeft = insets?.left ?? INSETS.left;
+    const effectivePaddingRight = insets?.right ?? INSETS.right;
     const effectivePaddingY = insets?.top ?? INSETS.top;
-    const availableWidth = logicalCanvasWidth - effectivePaddingX * 2;
+    const availableWidth = logicalCanvasWidth - (effectivePaddingLeft + effectivePaddingRight);
     const headerFrame: Frame = {
-      x: effectivePaddingX,
+      x: effectivePaddingLeft,
       y: effectivePaddingY,
       width: availableWidth,
       height: headerHeight,
@@ -1823,11 +1824,12 @@ export function renderChart(
   };
 
   // Layer 0: Header
-  const effectivePaddingX = insets?.left ?? INSETS.left;
+  const effectivePaddingLeft = insets?.left ?? INSETS.left;
+  const effectivePaddingRight = insets?.right ?? INSETS.right;
   const effectivePaddingY = insets?.top ?? INSETS.top;
-  const availableWidth = logicalCanvasWidth - effectivePaddingX * 2;
+  const availableWidth = logicalCanvasWidth - (effectivePaddingLeft + effectivePaddingRight);
   const headerFrame: Frame = {
-    x: effectivePaddingX,
+    x: effectivePaddingLeft,
     y: effectivePaddingY,
     width: availableWidth,
     height: headerHeight,

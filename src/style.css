@@ -516,7 +516,7 @@ button:disabled {
 .canvas-container {
   width: 100%;
   overflow-x: hidden;
-  padding: 20px;
+  padding: 0;
   box-sizing: border-box;
   background-color: var(--canvas-container-bg);
 }
@@ -855,7 +855,8 @@ body.horizontal-layout #chart-container {
 
 body.horizontal-layout .canvas-container {
   flex-grow: 1;
-  padding: 20px 20px 20px 35px;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
   background: var(--canvas-container-bg);
 }
 
@@ -910,8 +911,8 @@ body.horizontal-layout.controls-collapsed #layout-toggle-btn {
 }
 
 .canvas-container {
-  padding-left: max(20px, env(safe-area-inset-left));
-  padding-right: max(20px, env(safe-area-inset-right));
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 .app-footer {
@@ -922,8 +923,8 @@ body.horizontal-layout.controls-collapsed #layout-toggle-btn {
 
 /* Horizontal layout adjustments */
 body.horizontal-layout .canvas-container {
-  padding-left: max(35px, env(safe-area-inset-left)); /* Keep 35px offset but respect safe area */
-  padding-right: max(20px, env(safe-area-inset-right));
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
 .app-header {

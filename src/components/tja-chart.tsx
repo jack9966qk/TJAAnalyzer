@@ -8,6 +8,7 @@ import {
   getNotePosition,
   type HitInfo,
   INSETS,
+  type Insets,
   JUDGEABLE_NOTES,
   type JudgementKey,
   JudgementMap,
@@ -335,10 +336,10 @@ export class TJAChart extends HTMLElement {
     return isNativeFullscreen || this.classList.contains("pseudo-fullscreen");
   }
 
-  private applyAutoZoom(viewOptions: AppViewOptions) {
+  private applyAutoZoom(viewOptions: AppViewOptions, insets: Insets = INSETS) {
     if (!viewOptions.autoZoom) return;
     // Use logical width (CSS pixels) for calculation
-    const availableWidth = this.clientWidth - (INSETS.left + INSETS.right);
+    const canvasWidth = this.clientWidth;
 
     // Calculate longest bar to satisfy Priority 2 (fit longest bar on one line)
     const barLengths = new Map<number, number>();
@@ -350,7 +351,7 @@ export class TJAChart extends HTMLElement {
     }
     if (barLengths.size === 0) barLengths.set(4, 1);
 
-    const targetBeats = calculateAutoZoomBeats(availableWidth, barLengths);
+    const targetBeats = calculateAutoZoomBeats(canvasWidth, barLengths, insets);
     if (viewOptions.beatsPerLine === targetBeats) return;
 
     viewOptions.beatsPerLine = targetBeats;
@@ -415,7 +416,18 @@ export class TJAChart extends HTMLElement {
       showAttribution: this.isFullscreen,
     };
 
-    this.applyAutoZoom(effectiveViewOptions);
+    const isHorizontal = document.body.classList.contains("horizontal-layout");
+    // Standard padding we want to enforce within the canvas now
+    let baseInsets: Insets = { top: 20, bottom: 20, left: 20, right: 20 };
+    if (isHorizontal) {
+      baseInsets.left = 35;
+    }
+
+    if (this.isFullscreen) {
+      baseInsets = { ...INSETS };
+    }
+
+    this.applyAutoZoom(effectiveViewOptions, baseInsets);
 
     const isFullRender = this._pendingFullRender || !this._layout;
 
@@ -427,7 +439,15 @@ export class TJAChart extends HTMLElement {
     // We are doing a full render (either forced or because no incremental update needed/possible)
     // But we only need to recreate layout if pending full render or layout missing
     if (isFullRender) {
-      this._layout = createLayout(this._chart, this.canvas, effectiveViewOptions, this._judgements, undefined, texts);
+      this._layout = createLayout(
+        this._chart,
+        this.canvas,
+        effectiveViewOptions,
+        this._judgements,
+        undefined,
+        texts,
+        baseInsets,
+      );
       this._pendingFullRender = false;
     }
 
