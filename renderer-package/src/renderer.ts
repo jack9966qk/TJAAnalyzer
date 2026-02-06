@@ -1838,6 +1838,32 @@ export function renderChart(
   }
 }
 
+function drawTextWithCompression(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  minScale: number = 0.7,
+) {
+  const width = ctx.measureText(text).width;
+  let scale = 1.0;
+  if (width > maxWidth) {
+    scale = maxWidth / width;
+    if (scale < minScale) scale = minScale;
+  }
+
+  if (scale < 1.0) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(scale, 1.0);
+    ctx.fillText(text, 0, 0);
+    ctx.restore();
+  } else {
+    ctx.fillText(text, x, y);
+  }
+}
+
 function drawChartHeader(
   canvasContext: CanvasRenderingContext2D,
   chart: ParsedChart,
@@ -1934,14 +1960,14 @@ function drawChartHeader(
     canvasContext.font = `bold ${titleFontSize}px ${FONT_STACK}`;
     canvasContext.textAlign = "left";
     canvasContext.textBaseline = "top";
-    canvasContext.fillText(title, x, currentY);
+    drawTextWithCompression(canvasContext, title, x, currentY, width);
     currentY += titleFontSize + 5;
 
     // Subtitle
     if (subtitle) {
       canvasContext.font = `${subtitleFontSize}px ${FONT_STACK}`;
       canvasContext.fillStyle = PALETTE.text.secondary;
-      canvasContext.fillText(subtitle, x, currentY);
+      drawTextWithCompression(canvasContext, subtitle, x, currentY, width);
       currentY += subtitleFontSize + 5;
     }
 
