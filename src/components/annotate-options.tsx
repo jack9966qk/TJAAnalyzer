@@ -4,7 +4,6 @@ import { refreshChart } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { tjaChart } from "../view/ui-elements.js";
-import "./save-image-button.js";
 
 export class AnnotateOptions extends HTMLElement {
   connectedCallback() {
@@ -82,7 +81,6 @@ export class AnnotateOptions extends HTMLElement {
                 <span style="margin-left: 5px;">{i18n.t("ui.alwaysShowAnnotations")}</span>
               </label>
             </div>
-            <save-image-button></save-image-button>
           </div>
         </div>
         <p style="font-size: 0.9em; color: #666; margin-top: 5px; margin-bottom: 0;">{i18n.t("ui.annotation.desc")}</p>

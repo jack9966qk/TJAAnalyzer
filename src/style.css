@@ -219,6 +219,10 @@ a:visited {
   border-bottom: none; /* Hide border if any */
 }
 
+.panel-body.collapsed .chart-options-footer {
+  display: none;
+}
+
 .panel-inner {
   min-height: 0;
   overflow: hidden;
@@ -633,6 +637,20 @@ canvas {
 .text-btn:hover {
   color: var(--primary-hover);
   background: none;
+}
+
+/* Chart Options Footer */
+.chart-options-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding-top: 10px;
+  margin-top: 15px;
+  margin-bottom: -5px;
+  border-top: 1px solid var(--border-lighter);
 }
 
 /* Modal */

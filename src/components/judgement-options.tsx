@@ -2,7 +2,6 @@ import * as webjsx from "webjsx";
 import { refreshChart, updateStatsComponent } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
-import "./save-image-button.js";
 
 export class JudgementOptions extends HTMLElement {
   // Local state for rendering
@@ -320,16 +319,6 @@ export class JudgementOptions extends HTMLElement {
                 <span>{i18n.t("judgement.poor")}</span>
               </label>
             </div>
-          </div>
-        </div>
-
-        <div
-          className="option-section border-left"
-          id="save-image-container"
-          style={`opacity: ${isStreamActive ? "1" : "0.5"}; pointer-events: ${isStreamActive ? "auto" : "none"};`}
-        >
-          <div className="section-main">
-            <save-image-button id="save-image-judgements"></save-image-button>
           </div>
         </div>
       </div>

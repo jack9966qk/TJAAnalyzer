@@ -19,6 +19,7 @@ import "./components/course-branch-select.js"; // Ensure side-effect
 import { TJAChart } from "./components/tja-chart.js";
 import type { ViewOptions } from "./components/view-options.js";
 import "./components/view-options.js"; // Ensure side-effect
+import "./components/chart-options-footer.js"; // Ensure side-effect
 import "./components/changelog-panel.js";
 import "./components/language-selector.js";
 import {
