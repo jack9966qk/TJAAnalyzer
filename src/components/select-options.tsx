@@ -46,11 +46,19 @@ export class SelectOptions extends HTMLElement {
     this.render();
   }
 
+  private handleDisplayOnlySelectedChange(e: Event) {
+    const target = e.target as HTMLInputElement;
+    appState.displayOnlySelected = target.checked;
+    refreshChart();
+    this.render();
+  }
+
   render() {
     const hasSelection = !!appState.viewOptions.selection;
     const hasNeutralino = appState.isNeutralinoConnected;
     const hasWebFS = !!window.showDirectoryPicker;
     const canSelectDir = hasNeutralino || hasWebFS;
+    const hasBranching = !!appState.currentChart?.branches;
 
     const vdom = (
       <div className="control-group" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
@@ -65,6 +73,18 @@ export class SelectOptions extends HTMLElement {
             {i18n.t("ui.clearSelection")}
           </button>
         </div>
+
+        {!hasBranching ? (
+          <label style="display: flex; align-items: center; gap: 5px; width: 100%;">
+            <input
+              type="checkbox"
+              checked={appState.displayOnlySelected}
+              disabled={!hasSelection}
+              onchange={this.handleDisplayOnlySelectedChange.bind(this)}
+            />
+            <span style="font-size: 0.9em;">{i18n.t("ui.displayOnlySelected")}</span>
+          </label>
+        ) : null}
 
         <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 15px;">
           <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">

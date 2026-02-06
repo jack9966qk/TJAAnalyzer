@@ -325,6 +325,10 @@ export interface ViewOptions {
   showTextInAnnotationMode?: boolean;
   alwaysShowAnnotations?: boolean;
   showAttribution?: boolean;
+  range?: {
+    start: NoteLocation;
+    end: NoteLocation;
+  };
 }
 
 export interface RenderTexts {
@@ -497,6 +501,55 @@ function getVirtualBars(
     // Standard View
     virtualBars = bars.map((b, i) => ({ bar: b, originalIndex: i, effectiveBarIndex: i }));
   }
+
+  // Handle Partial Rendering (Range)
+  if (options.range && (!options.showAllBranches || !chart.branches)) {
+    let { start, end } = options.range;
+
+    // Normalize start/end order
+    if (start.barIndex > end.barIndex || (start.barIndex === end.barIndex && start.charIndex > end.charIndex)) {
+      const temp = start;
+      start = end;
+      end = temp;
+    }
+
+    // Filter bars outside the range
+    virtualBars = virtualBars.filter((vb) => vb.originalIndex >= start.barIndex && vb.originalIndex <= end.barIndex);
+
+    // Modify start and end bars to clear notes outside the range
+    virtualBars = virtualBars.map((vb) => {
+      let modifiedBar = vb.bar;
+      let isModified = false;
+
+      // Check Start
+      if (vb.originalIndex === start.barIndex) {
+        if (!isModified) {
+          modifiedBar = [...(vb.bar || [])];
+          isModified = true;
+        }
+        for (let i = 0; i < Math.min(start.charIndex, modifiedBar.length); i++) {
+          modifiedBar[i] = NoteType.None;
+        }
+      }
+
+      // Check End
+      if (vb.originalIndex === end.barIndex) {
+        if (!isModified) {
+          modifiedBar = [...(vb.bar || [])];
+          isModified = true;
+        }
+        for (let i = end.charIndex + 1; i < modifiedBar.length; i++) {
+          modifiedBar[i] = NoteType.None;
+        }
+      }
+
+      if (isModified) {
+        return { ...vb, bar: modifiedBar };
+      }
+      return vb;
+    });
+  }
+
   return virtualBars;
 }
 

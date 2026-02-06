@@ -188,8 +188,20 @@ export function refreshChart() {
     appState.viewOptions.annotations = appState.annotations;
     appState.viewOptions.isAnnotationMode = mode === "annotation";
 
+    let finalViewOptions = appState.viewOptions;
+    if (appState.displayOnlySelected && appState.viewOptions.selection && !hasBranching) {
+      finalViewOptions = {
+        ...appState.viewOptions,
+        range: {
+          start: appState.viewOptions.selection.start,
+          end: appState.viewOptions.selection.end || appState.viewOptions.selection.start,
+        },
+        selection: null,
+      };
+    }
+
     tjaChart.chart = appState.currentChart;
-    tjaChart.viewOptions = appState.viewOptions;
+    tjaChart.viewOptions = finalViewOptions;
     tjaChart.judgements = appState.judgements;
     tjaChart.texts = texts;
 

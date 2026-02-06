@@ -31,6 +31,7 @@ interface AppState {
   isTesterMode: boolean;
   isNeutralinoConnected: boolean;
   swRegistrationError: string | null;
+  displayOnlySelected: boolean;
 }
 
 export const appState: AppState = {
@@ -66,4 +67,5 @@ export const appState: AppState = {
   isTesterMode: false,
   isNeutralinoConnected: false,
   swRegistrationError: null,
+  displayOnlySelected: false,
 };

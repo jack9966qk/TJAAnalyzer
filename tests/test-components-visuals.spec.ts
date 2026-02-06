@@ -73,6 +73,35 @@ test.describe("Web Components Visual Regression", () => {
     await expect(component).toHaveScreenshot("select-options.png");
   });
 
+  test("Select Options (Branched)", async ({ page }) => {
+    await page.goto("/component-test.html?component=select-options&width=400");
+    const component = page.locator("select-options");
+
+    await page.evaluate(() => {
+      // Mock branched chart
+      // biome-ignore lint/suspicious/noExplicitAny: Mocking global objects
+      (window as any).appState.currentChart = {
+        branches: {
+          normal: {},
+          expert: {},
+          master: {},
+        },
+      };
+
+      // Trigger render
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
+      const el = document.querySelector("select-options") as any;
+      if (el) el.render();
+    });
+
+    await expect(component).toBeVisible();
+    // The toggle should not be rendered
+    await expect(
+      component.locator('input[type="checkbox"] + span', { hasText: "Display only selected" }),
+    ).not.toBeVisible();
+    await expect(component).toHaveScreenshot("select-options-branched.png");
+  });
+
   test("Annotate Options", async ({ page }) => {
     await page.goto("/component-test.html?component=annotate-options&width=400");
     const component = page.locator("annotate-options");

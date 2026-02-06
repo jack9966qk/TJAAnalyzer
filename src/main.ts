@@ -459,6 +459,8 @@ function initEventListeners() {
 
     if (mode !== "selection") return;
 
+    if (appState.displayOnlySelected) return;
+
     // Selection Logic (same as before)
     if (hit) {
       if (!appState.viewOptions.selection) {
