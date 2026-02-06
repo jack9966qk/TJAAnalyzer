@@ -65,6 +65,18 @@ console.log("TJAChart module loaded", TJAChart);
 console.log("NoteStatsDisplay module loaded", NoteStatsDisplay);
 
 function initPWA() {
+  if (import.meta.env.DEV) {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then((registrations) => {
+        for (const registration of registrations) {
+          console.log("Dev mode detected: Unregistering Service Worker", registration);
+          registration.unregister();
+        }
+      });
+    }
+    return;
+  }
+
   if ("serviceWorker" in navigator) {
     const updateSW = registerSW({
       onNeedRefresh() {
