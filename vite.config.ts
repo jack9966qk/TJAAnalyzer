@@ -8,7 +8,8 @@ import { viteStaticCopy } from "vite-plugin-static-copy";
 const generateMetaFiles = () => {
   return {
     name: "generate-meta-files",
-    buildStart() {
+    // biome-ignore lint/suspicious/noExplicitAny: Context type is complex
+    buildStart(this: any) {
       try {
         const packageJson = JSON.parse(fs.readFileSync("package.json", "utf-8"));
         this.emitFile({
@@ -53,7 +54,7 @@ export default defineConfig({
     },
   },
   server: {
-    port: 8080,
+    port: 8082,
   },
   preview: {
     allowedHosts: ["tjaanalyzer-dev-ja.ckq.me"],

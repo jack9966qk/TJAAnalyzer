@@ -43,7 +43,7 @@ npm run dev
 ```bash
 npm start
 ```
-*Access at `http://localhost:8080`. This serves the built assets from `dist/` to simulate a production deployment. Requires `npm run build` first.*
+*This serves the built assets from `dist/` to simulate a production deployment. Requires `npm run build` first.*
 
 **Desktop Mode (Neutralinojs):**
 ```bash
