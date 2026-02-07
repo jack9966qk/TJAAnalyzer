@@ -37,7 +37,7 @@ npm install
 ```bash
 npm run dev
 ```
-*Access at the URL shown in your terminal (usually `http://localhost:5173`). Use this for active development.*
+*Access at the URL shown in your terminal. Use this for active development.*
 
 **Production Preview:**
 ```bash
