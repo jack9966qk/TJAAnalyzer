@@ -315,6 +315,17 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* Secondary Button Variant */
+.btn-secondary {
+  background-color: var(--bg-panel-tabs);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-hover);
+}
+
 /* Sticky Header & Stats */
 #sticky-header {
   position: sticky;
