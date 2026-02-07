@@ -1046,6 +1046,33 @@ h1 {
   mask: url("/assets/heroicons/optimized/24/outline/chevron-down.svg") no-repeat center;
 }
 
+.icon-chevron-left {
+  width: 16px;
+  height: 16px;
+  background-color: var(--text-secondary);
+  -webkit-mask: url("/assets/heroicons/optimized/24/outline/chevron-left.svg") no-repeat center;
+  mask: url("/assets/heroicons/optimized/24/outline/chevron-left.svg") no-repeat center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  transition: background-color 0.2s;
+}
+
+.icon-chevron-right {
+  width: 16px;
+  height: 16px;
+  background-color: var(--text-secondary);
+  -webkit-mask: url("/assets/heroicons/optimized/24/outline/chevron-right.svg") no-repeat center;
+  mask: url("/assets/heroicons/optimized/24/outline/chevron-right.svg") no-repeat center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  transition: background-color 0.2s;
+}
+
+#layout-toggle-btn:hover .icon-chevron-left,
+#layout-toggle-btn:hover .icon-chevron-right {
+  background-color: var(--text-primary);
+}
+
 .lang-dropdown {
   position: absolute;
   top: 0;

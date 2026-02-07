@@ -22,12 +22,12 @@ export function updateLayout() {
     if (!document.body.classList.contains("controls-collapsed")) {
       controlsContainer.style.width = `${CONTROLS_WIDTH}px`;
       layoutToggleBtn.style.left = `${CONTROLS_WIDTH}px`;
-      layoutToggleBtn.innerHTML = '<span class="icon">&lt;</span>';
+      layoutToggleBtn.innerHTML = '<div class="icon-chevron-left"></div>';
       layoutToggleBtn.title = i18n.t("ui.collapse");
     } else {
       controlsContainer.style.width = "0px";
       layoutToggleBtn.style.left = "0px";
-      layoutToggleBtn.innerHTML = '<span class="icon">&gt;</span>';
+      layoutToggleBtn.innerHTML = '<div class="icon-chevron-right"></div>';
       layoutToggleBtn.title = i18n.t("ui.expand");
     }
   } else {
@@ -53,12 +53,12 @@ export function handleLayoutToggle(refreshChartCallback: () => void) {
   if (isCollapsed) {
     controlsContainer.style.width = "0px";
     layoutToggleBtn.style.left = "0px";
-    layoutToggleBtn.innerHTML = '<span class="icon">&gt;</span>';
+    layoutToggleBtn.innerHTML = '<div class="icon-chevron-right"></div>';
     layoutToggleBtn.title = i18n.t("ui.expand");
   } else {
     controlsContainer.style.width = `${CONTROLS_WIDTH}px`;
     layoutToggleBtn.style.left = `${CONTROLS_WIDTH}px`;
-    layoutToggleBtn.innerHTML = '<span class="icon">&lt;</span>';
+    layoutToggleBtn.innerHTML = '<div class="icon-chevron-left"></div>';
     layoutToggleBtn.title = i18n.t("ui.collapse");
   }
 
