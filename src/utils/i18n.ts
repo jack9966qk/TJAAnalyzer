@@ -179,6 +179,10 @@ const resources: Resources = {
     "ui.playdata.cleared": "Playdata cleared.",
     "ui.playdata.pasteInstructions": "Please paste the copied HTML content from fumen-database.",
     "ui.playdata.importReady": "Playdata copied from fumen-database. Click below to import.",
+    "ui.playdata.export": "Export for taiko-rating-analyzer",
+    "ui.playdata.exporting": "Exporting...",
+    "ui.playdata.exportSuccess": "Exported {exported} entries ({skipped} skipped).",
+    "ui.playdata.exportFailed": "Failed to export playdata.",
   },
   zh: {
     "ui.dataSource": "数据源",
@@ -351,6 +355,10 @@ const resources: Resources = {
     "ui.playdata.cleared": "成绩数据已清除。",
     "ui.playdata.pasteInstructions": "请粘贴从 fumen-database 复制的 HTML 内容。",
     "ui.playdata.importReady": "已从 fumen-database 复制成绩数据。点击下方按钮导入。",
+    "ui.playdata.export": "导出为 taiko-rating-analyzer 格式",
+    "ui.playdata.exporting": "导出中...",
+    "ui.playdata.exportSuccess": "已导出 {exported} 条记录（{skipped} 条跳过）。",
+    "ui.playdata.exportFailed": "导出成绩失败。",
   },
   ja: {
     "ui.dataSource": "データソース",
@@ -523,6 +531,10 @@ const resources: Resources = {
     "ui.playdata.cleared": "プレイデータを削除しました。",
     "ui.playdata.pasteInstructions": "fumen-database からコピーした HTML を貼り付けてください。",
     "ui.playdata.importReady": "fumen-database からプレイデータをコピーしました。下のボタンをクリックしてインポート。",
+    "ui.playdata.export": "taiko-rating-analyzer 形式でエクスポート",
+    "ui.playdata.exporting": "エクスポート中...",
+    "ui.playdata.exportSuccess": "{exported} 件をエクスポートしました（{skipped} 件スキップ）。",
+    "ui.playdata.exportFailed": "エクスポートに失敗しました。",
   },
 };
 

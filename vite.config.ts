@@ -87,6 +87,7 @@ export default defineConfig({
         { src: "../icon.png", dest: "." },
         { src: "../node_modules/@neutralinojs/lib/dist/neutralino.js", dest: "." },
         { src: "../assets/heroicons/optimized/24/outline/*.svg", dest: "assets/heroicons/optimized/24/outline" },
+        { src: "../data/song_mapping.json", dest: "data" },
       ],
     }),
     VitePWA({

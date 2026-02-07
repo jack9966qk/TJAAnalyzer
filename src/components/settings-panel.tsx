@@ -1,7 +1,13 @@
 import * as webjsx from "webjsx";
 import { appState } from "../state/app-state.js";
+import { shareFile } from "../utils/file-share.js";
 import { i18n } from "../utils/i18n.js";
-import { getPlaydataStats, type Playdata, parseFumenDatabaseHtml } from "../utils/playdata-parser.js";
+import {
+  convertToTaikoRatingAnalyzerFormat,
+  getPlaydataStats,
+  type Playdata,
+  parseFumenDatabaseHtml,
+} from "../utils/playdata-parser.js";
 import { clearPlaydata, loadUserProfile, saveUserProfile } from "../utils/user-profile.js";
 
 export class SettingsPanel extends HTMLElement {
@@ -11,6 +17,7 @@ export class SettingsPanel extends HTMLElement {
   private importStatus: { type: "success" | "error" | "none"; message: string } = { type: "none", message: "" };
   private playdata: Playdata | null = null;
   private isImportMode = false;
+  private isExporting = false;
 
   constructor() {
     super();
@@ -178,6 +185,48 @@ export class SettingsPanel extends HTMLElement {
     this.renderModal();
   }
 
+  private async handleExportPlaydata() {
+    if (!this.playdata || this.isExporting) {
+      return;
+    }
+
+    this.isExporting = true;
+    this.importStatus = { type: "none", message: "" };
+    this.renderModal();
+
+    try {
+      const result = await convertToTaikoRatingAnalyzerFormat(this.playdata);
+      if (result.exportedCount === 0) {
+        this.importStatus = {
+          type: "error",
+          message: i18n.t("ui.playdata.exportFailed"),
+        };
+        this.isExporting = false;
+        this.renderModal();
+        return;
+      }
+
+      const jsonContent = JSON.stringify(result.data);
+      await shareFile("playdata.json", jsonContent, "application/json", i18n.t("ui.playdata.export"));
+      this.importStatus = {
+        type: "success",
+        message: i18n.t("ui.playdata.exportSuccess", {
+          exported: result.exportedCount,
+          skipped: result.skippedCount,
+        }),
+      };
+    } catch (err) {
+      console.error("Failed to export playdata:", err);
+      this.importStatus = {
+        type: "error",
+        message: i18n.t("ui.playdata.exportFailed"),
+      };
+    } finally {
+      this.isExporting = false;
+      this.renderModal();
+    }
+  }
+
   render() {
     const vdom = (
       <button
@@ -233,14 +282,24 @@ export class SettingsPanel extends HTMLElement {
             ))}
           </div>
         </div>
-        <button
-          type="button"
-          className="btn-secondary"
-          style="margin-top: 12px; font-size: 13px;"
-          onclick={this.handleClearPlaydata.bind(this)}
-        >
-          {i18n.t("ui.playdata.clearData")}
-        </button>
+        <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+          <button
+            type="button"
+            onclick={this.handleExportPlaydata.bind(this)}
+            disabled={this.isExporting}
+            style="font-size: 13px;"
+          >
+            {this.isExporting ? i18n.t("ui.playdata.exporting") : i18n.t("ui.playdata.export")}
+          </button>
+          <button
+            type="button"
+            className="btn-secondary"
+            style="font-size: 13px;"
+            onclick={this.handleClearPlaydata.bind(this)}
+          >
+            {i18n.t("ui.playdata.clearData")}
+          </button>
+        </div>
       </div>
     ) : (
       <div style="margin-top: 12px; padding: 12px; background: var(--bg-panel); border-radius: 6px; border: 1px solid var(--border-light); color: var(--text-secondary);">
@@ -317,7 +376,7 @@ export class SettingsPanel extends HTMLElement {
           if (e.target === e.currentTarget) this.handleClose();
         }}
       >
-        <div className="modal-content" style="max-width: 500px;">
+        <div className="modal-content" style="max-width: 600px;">
           <div className="modal-header">
             <h2>{this.isImportMode ? i18n.t("ui.playdata.title") : i18n.t("ui.settings")}</h2>
             <button

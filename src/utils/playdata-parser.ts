@@ -169,3 +169,131 @@ export function getPlaydataStats(playdata: Playdata | null): {
     byDifficulty,
   };
 }
+
+/**
+ * Song mapping entry from song_mapping.json
+ */
+interface SongMappingEntry {
+  esePath: string;
+  title: string;
+  candidates: string[];
+  matchType: string;
+  titlecn?: string;
+  titleko?: string;
+  artist?: string;
+}
+
+type SongMapping = Record<string, SongMappingEntry>;
+
+/**
+ * Normalize title for comparison (handles unicode variations)
+ */
+function normalizeTitleForComparison(title: string): string {
+  return title
+    .replace(/\u2010/g, "-") // HYPHEN -> HYPHEN-MINUS
+    .replace(/\uff01/g, "!") // FULLWIDTH EXCLAMATION MARK -> EXCLAMATION MARK
+    .toLowerCase()
+    .trim();
+}
+
+/**
+ * Build a reverse lookup from title to song ID
+ */
+function buildTitleToIdMap(songMapping: SongMapping): Map<string, string> {
+  const titleToId = new Map<string, string>();
+
+  for (const [songId, entry] of Object.entries(songMapping)) {
+    // Add main title
+    if (entry.title) {
+      titleToId.set(normalizeTitleForComparison(entry.title), songId);
+    }
+    // Add CN title if exists
+    if (entry.titlecn) {
+      titleToId.set(normalizeTitleForComparison(entry.titlecn), songId);
+    }
+    // Add KO title if exists
+    if (entry.titleko) {
+      titleToId.set(normalizeTitleForComparison(entry.titleko), songId);
+    }
+  }
+
+  return titleToId;
+}
+
+/**
+ * Taiko-rating-analyzer format:
+ * [id, level, score, scoreRank, great, good, bad, drumroll, combo, playCount, clearCount, fullcomboCount, perfectCount, updatedAt]
+ */
+export type TaikoRatingAnalyzerEntry = [
+  number, // id (songno)
+  number, // level (difficulty)
+  number, // score
+  number, // scoreRank (always 0)
+  number, // great
+  number, // good
+  number, // bad
+  number, // drumroll
+  number, // combo
+  number, // playCount (always 0)
+  number, // clearCount (always 0)
+  number, // fullcomboCount (always 0)
+  number, // perfectCount (always 0)
+  string, // updatedAt
+];
+
+export interface ExportResult {
+  data: TaikoRatingAnalyzerEntry[];
+  exportedCount: number;
+  skippedCount: number;
+}
+
+/**
+ * Convert playdata to taiko-rating-analyzer format
+ */
+export async function convertToTaikoRatingAnalyzerFormat(playdata: Playdata): Promise<ExportResult> {
+  // Load song mapping
+  const response = await fetch("./data/song_mapping.json");
+  if (!response.ok) {
+    throw new Error("Failed to load song mapping");
+  }
+  const songMapping: SongMapping = await response.json();
+
+  const titleToId = buildTitleToIdMap(songMapping);
+
+  const result: TaikoRatingAnalyzerEntry[] = [];
+  let skippedCount = 0;
+
+  for (const entry of playdata.entries) {
+    const normalizedTitle = normalizeTitleForComparison(entry.title);
+    const songId = titleToId.get(normalizedTitle);
+
+    if (!songId) {
+      console.warn(`Song ID not found for title: "${entry.title}"`);
+      skippedCount++;
+      continue;
+    }
+
+    result.push([
+      Number.parseInt(songId, 10), // id
+      entry.difficulty, // level
+      entry.score, // score
+      0, // scoreRank (always 0)
+      entry.great, // great
+      entry.good, // good
+      entry.bad, // bad
+      entry.drumroll, // drumroll
+      entry.combo, // combo
+      0, // playCount
+      0, // clearCount
+      0, // fullcomboCount
+      0, // perfectCount
+      playdata.updatedAt, // updatedAt
+    ]);
+  }
+
+  return {
+    data: result,
+    exportedCount: result.length,
+    skippedCount,
+  };
+}
