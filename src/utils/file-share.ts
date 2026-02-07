@@ -1,3 +1,5 @@
+import { appState } from "../state/app-state.js";
+
 /**
  * Shared logic for saving/sharing files.
  * Supports:
@@ -38,7 +40,7 @@ export async function shareFile(
 
   // 3. Neutralino (Desktop App)
   const N = window.Neutralino;
-  if (N?.os?.showSaveDialog) {
+  if (appState.isNeutralinoConnected && N?.os?.showSaveDialog) {
     try {
       const extension = fileName.includes(".") ? fileName.split(".").pop() : undefined;
       const entry = await N.os.showSaveDialog(dialogTitle, {
