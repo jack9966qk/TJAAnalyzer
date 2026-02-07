@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("fullscreen exit button has correct icon", async ({ page }) => {
-  await page.goto("http://localhost:8080"); // Assuming dev server is running or I can just load the file
+  await page.goto("/"); // Assuming dev server is running or I can just load the file
 
   // Wait for the tja-chart component to be defined and present
   await page.waitForSelector("tja-chart");
