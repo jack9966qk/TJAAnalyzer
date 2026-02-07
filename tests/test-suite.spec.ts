@@ -722,7 +722,7 @@ LEVEL:10
           return el;
         };
 
-        const host = document.querySelector("#export-image-btn");
+        const host = document.querySelector("#export-image-footer-btn");
         if (host?.shadowRoot) {
           const btn = host.shadowRoot.querySelector("button");
           if (btn) {
@@ -1044,19 +1044,15 @@ test.describe("Selection Interaction", () => {
     // Switch to Selection Tab
     await page.click('button[data-do-tab="selection"]');
 
-    const dimensions = await page.evaluate(() => {
-      const canvas = document.getElementById("chart-component") as HTMLElement;
-      const PADDING = 20;
-      const BARS_PER_ROW = 4;
-      const availableWidth = canvas.clientWidth - PADDING * 2;
-      const barWidth = availableWidth / BARS_PER_ROW;
-      const headerHeight = barWidth * 0.35;
-      const y = PADDING + headerHeight + PADDING + (barWidth * 0.14) / 2;
-      return { y };
+    // Use internal helper to get first note coordinates
+    const notePos = await page.evaluate(() => {
+      const chart = document.getElementById("chart-component") as HTMLElement & {
+        getNoteCoordinates: (b: number, c: number) => { x: number; y: number } | null;
+      };
+      return chart.getNoteCoordinates(0, 0); // Bar 0, Note 0
     });
 
-    // Position of the first note
-    const notePos = { x: 20, y: dimensions.y };
+    if (!notePos) throw new Error("Could not find first note coordinates");
 
     // 1. Click on first note
     await canvas.click({ position: { x: notePos.x, y: notePos.y } });

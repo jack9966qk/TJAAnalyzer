@@ -42,9 +42,9 @@ test.describe("Auto Zoom Feature", () => {
     const text2 = await zoomResetBtn.textContent();
     expect(text1).not.toEqual(text2);
 
-    // Width ~1050. MaxBeats ~18. Best multiple of 4 is 16.
-    // However, with strict padding/diameter logic, it settles on 12 (133%).
-    await expect(zoomResetBtn).toHaveText("133%");
+    // Width ~1010 (1400 - sidebar 390). MaxBeatsByDiameter ~16.1.
+    // It fits 16 beats exactly (100%).
+    await expect(zoomResetBtn).toHaveText("100%");
 
     await page.setViewportSize({ width: 600, height: 600 });
     await page.waitForTimeout(1000);
