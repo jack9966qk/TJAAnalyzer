@@ -132,6 +132,13 @@ const resources: Resources = {
     "stats.delta": "Delta",
     "stats.avgDelta": "Avg Delta",
 
+    "stats.branch.type": "Condition",
+    "stats.branch.expert": "Expert",
+    "stats.branch.master": "Master",
+    "stats.branch.type.p": "Accuracy (%)",
+    "stats.branch.type.r": "Roll (count)",
+    "stats.branch.type.s": "Score",
+
     "judgement.perfect": "GOOD",
     "judgement.good": "OK",
     "judgement.poor": "BAD",
@@ -275,6 +282,13 @@ const resources: Resources = {
     "stats.delta": "偏差",
     "stats.avgDelta": "平均偏差",
 
+    "stats.branch.type": "条件",
+    "stats.branch.expert": "玄人",
+    "stats.branch.master": "达人",
+    "stats.branch.type.p": "精度 (%)",
+    "stats.branch.type.r": "连打 (次数)",
+    "stats.branch.type.s": "分数",
+
     "judgement.perfect": "良",
     "judgement.good": "可",
     "judgement.poor": "不可",
@@ -417,6 +431,13 @@ const resources: Resources = {
     "stats.seenBpm": "見かけBPM",
     "stats.delta": "誤差",
     "stats.avgDelta": "平均誤差",
+
+    "stats.branch.type": "条件",
+    "stats.branch.expert": "玄人",
+    "stats.branch.master": "達人",
+    "stats.branch.type.p": "精度 (%)",
+    "stats.branch.type.r": "連打 (回数)",
+    "stats.branch.type.s": "スコア",
 
     "judgement.perfect": "良",
     "judgement.good": "可",

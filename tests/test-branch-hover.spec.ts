@@ -27,13 +27,16 @@ test.describe("Branch Hover Interaction", () => {
     // Wait for view-options to be upgraded and render
     await page.waitForSelector("view-options #show-stats-checkbox", { state: "attached" });
 
-    await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Test script
-      const vo = document.querySelector("view-options") as any;
-      if (vo && typeof vo.setShowStats === "function") {
-        vo.setShowStats(true);
-      }
+    await page.waitForSelector("#show-stats-checkbox");
+    const checkbox = page.locator("#show-stats-checkbox");
+    if (!(await checkbox.isChecked())) {
+      await checkbox.click({ force: true });
+    }
+    await page.waitForFunction(() => {
+      const ns = document.getElementById("note-stats-display");
+      return ns && !ns.classList.contains("collapsed");
     });
+    await page.waitForTimeout(500);
   });
 
   test("Hovering on different branches displays correct stats", async ({ page }) => {
@@ -103,11 +106,17 @@ LEVEL:10
       return { x, normalY, expertY, masterY };
     });
 
-    const stats = page.locator("note-stats");
+    const stats = page.locator("#note-stats-display");
     const internalCanvas = canvas.locator("canvas");
 
     // 1. Hover Normal (Should be '1' -> don)
     await internalCanvas.hover({ position: { x: coords.x, y: coords.normalY }, force: true });
+    await page.waitForTimeout(200);
+
+    // Debug: log shadow DOM content
+    const shadowText = await stats.evaluate((node) => node.shadowRoot?.textContent);
+    console.log("Note Stats Shadow Text:", shadowText);
+
     await expect(stats.locator(".stat-value", { hasText: /don/i })).toBeVisible();
 
     // 2. Hover Expert (Should be '2' -> ka)

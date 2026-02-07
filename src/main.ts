@@ -428,8 +428,8 @@ function initEventListeners() {
     const hit = detail.hit as HitInfo | null;
 
     // Render stats
-    const statsHit = appState.selectedNoteHitInfo || hit;
-    updateStatsComponent(statsHit);
+    // Note: updateStatsComponent logic handles separating note hits and branch hits
+    updateStatsComponent(hit);
 
     // Update Hover Style
     const viewOptionsEl = document.querySelector("view-options") as ViewOptions;
@@ -474,8 +474,9 @@ function initEventListeners() {
 
     if (appState.displayOnlySelected) return;
 
-    // Selection Logic (same as before)
-    if (hit) {
+    // Selection Logic
+    // Only allow selecting notes (charIndex !== -1)
+    if (hit && hit.charIndex !== -1) {
       if (!appState.viewOptions.selection) {
         appState.viewOptions.selection = {
           start: { barIndex: hit.originalBarIndex, charIndex: hit.charIndex },
@@ -500,13 +501,27 @@ function initEventListeners() {
         };
         appState.selectedNoteHitInfo = hit;
       }
-    } else {
+    } else if (!hit) {
+      // Clear selection only if clicking on empty space (not a hit)
       appState.viewOptions.selection = null;
       appState.selectedNoteHitInfo = null;
+      appState.selectedBranchHitInfo = null;
+    } else if (hit && hit.charIndex === -1) {
+      // Branch line selection
+      appState.selectedBranchHitInfo = hit;
     }
+
     refreshChart();
     updateSelectionUI();
-    updateStatsComponent(appState.selectedNoteHitInfo);
+    updateStatsComponent(hit); // hit passed here will update hover states if logic allows, but updateStatsComponent uses appState.selected... as overrides/fallbacks.
+    // Wait, updateStatsComponent uses:
+    // const noteHit = appState.selectedNoteHitInfo || (hit && hit.charIndex !== -1 ? hit : null);
+    // const branchHit = appState.selectedBranchHitInfo || (hit && hit.charIndex === -1 ? hit : null);
+    // So if I click, 'hit' is passed.
+    // If I click branch line, hit has charIndex -1.
+    // selectedBranchHitInfo is set.
+    // branchHit becomes selectedBranchHitInfo (which is same as hit).
+    // If I click empty space, hit is null. selected is null. branchHit is null.
   });
 
   courseBranchSelect.addEventListener("difficulty-change", () => {

@@ -665,6 +665,87 @@ export interface HitInfo {
   scroll: number;
   branch?: "normal" | "expert" | "master";
   ordinal?: number;
+  branchStartParams?: BarParams["branchStartParams"];
+}
+
+export function getChartElementAt(
+  x: number,
+  y: number,
+  chart: ParsedChart,
+  canvas: HTMLCanvasElement,
+  judgements: JudgementMap<JudgementValue>,
+  options: ViewOptions,
+  layout?: ChartLayout,
+): HitInfo | null {
+  const noteHit = getNoteAt(x, y, chart, canvas, judgements, options, layout);
+  if (noteHit) return noteHit;
+
+  const branchHit = getBranchLineAt(x, y, chart, canvas, options, layout);
+  if (branchHit) return branchHit;
+
+  return null;
+}
+
+export function getBranchLineAt(
+  x: number,
+  y: number,
+  chart: ParsedChart,
+  canvas: HTMLCanvasElement,
+  options: ViewOptions,
+  layout?: ChartLayout,
+): HitInfo | null {
+  let activeLayout: ChartLayout;
+
+  if (layout) {
+    activeLayout = layout;
+  } else {
+    activeLayout = createLayout(chart, canvas, options, new JudgementMap());
+  }
+
+  const { barFrames, constants, virtualBars } = activeLayout;
+  const { noteRadiusBig: NOTE_RADIUS_BIG } = constants;
+  const maxRadius = NOTE_RADIUS_BIG;
+
+  const showText =
+    options.isAnnotationMode || options.alwaysShowAnnotations ? !!options.showTextInAnnotationMode : true;
+  const extensionHeight = showText ? constants.barNumberOffsetY + 3 * constants.statusFontSize : 0;
+
+  // Check Branch Start Lines (Lowest priority)
+  for (let index = virtualBars.length - 1; index >= 0; index--) {
+    const info = virtualBars[index];
+    const frame = barFrames[index];
+    const params = chart.barParams[info.originalIndex];
+
+    // Quick bounding box check
+    if (
+      x < frame.x - maxRadius ||
+      x > frame.x + frame.width + maxRadius ||
+      y < frame.y - extensionHeight - maxRadius ||
+      y > frame.y + frame.height + maxRadius
+    ) {
+      continue;
+    }
+
+    if (params?.isBranchStart) {
+      const lineX = frame.x;
+      const hitWidth = 20;
+      const topY = showText ? frame.y - constants.barNumberOffsetY - 3 * constants.statusFontSize : frame.y;
+
+      if (Math.abs(x - lineX) <= hitWidth / 2 && y >= topY - maxRadius && y <= frame.y + frame.height + maxRadius) {
+        return {
+          originalBarIndex: info.originalIndex,
+          charIndex: -1,
+          type: NoteType.None,
+          bpm: params.bpm,
+          scroll: params.scroll,
+          branch: chart.branchType, // Best effort
+          branchStartParams: params.branchStartParams,
+        };
+      }
+    }
+  }
+
+  return null;
 }
 
 export function getNoteAt(
@@ -1508,6 +1589,22 @@ function drawBarBackgroundWrapper(
   const overExtendWidth = 2 * constants.noteRadiusSmall;
   const isBranchStart = params ? !!params.isBranchStart : false;
 
+  if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
+    const stripHeight = constants.barNumberFontSize + constants.barNumberOffsetY * 2;
+    const stripY = frame.y - stripHeight - constants.lineWidthBarBorder / 2;
+    const gogoFrame: Frame = { x: frame.x, y: stripY, width: frame.width, height: stripHeight };
+    drawGogoIndicator(
+      canvasContext,
+      gogoFrame,
+      gogoTime,
+      gogoChanges,
+      noteCount,
+      !hasLeftNeighbor,
+      !hasRightNeighbor,
+      overExtendWidth,
+    );
+  }
+
   if (isAllBranches && chart.branches && isBranched) {
     const subHeight = BASE_LANE_HEIGHT;
     const normalFrame: Frame = { x: frame.x, y: frame.y, width: frame.width, height: subHeight };
@@ -1570,33 +1667,38 @@ function drawBarBackgroundWrapper(
     );
   }
 
+  const showText =
+    options.isAnnotationMode || options.alwaysShowAnnotations ? !!options.showTextInAnnotationMode : true;
+
+  const isHovered =
+    !!options.hoveredNote &&
+    options.hoveredNote.barIndex === info.originalIndex &&
+    options.hoveredNote.charIndex === -1;
+
   if (isBranchStart) {
+    const topY = showText ? frame.y - constants.barNumberOffsetY - 3 * constants.statusFontSize : frame.y;
+    // Hover highlight: Black outline
+    if (isHovered) {
+      canvasContext.save();
+      canvasContext.beginPath();
+      canvasContext.lineCap = "square";
+      canvasContext.strokeStyle = PALETTE.ui.selectionBorder;
+      canvasContext.lineWidth = constants.lineWidthBarBorder * 3;
+      // Draw single continuous highlight from top of extension to bottom of lane
+      canvasContext.moveTo(frame.x, topY);
+      canvasContext.lineTo(frame.x, frame.y + frame.height);
+      canvasContext.stroke();
+      canvasContext.restore();
+    }
+
+    // Draw single continuous yellow line
     canvasContext.beginPath();
     canvasContext.strokeStyle = PALETTE.branches.startLine;
     canvasContext.lineWidth = constants.lineWidthBarBorder;
-    canvasContext.moveTo(frame.x, frame.y);
+    canvasContext.moveTo(frame.x, topY);
     canvasContext.lineTo(frame.x, frame.y + frame.height);
     canvasContext.stroke();
   }
-
-  if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
-    const stripHeight = constants.barNumberFontSize + constants.barNumberOffsetY * 2;
-    const stripY = frame.y - stripHeight - constants.lineWidthBarBorder / 2;
-    const gogoFrame: Frame = { x: frame.x, y: stripY, width: frame.width, height: stripHeight };
-    drawGogoIndicator(
-      canvasContext,
-      gogoFrame,
-      gogoTime,
-      gogoChanges,
-      noteCount,
-      !hasLeftNeighbor,
-      !hasRightNeighbor,
-      overExtendWidth,
-    );
-  }
-
-  const showText =
-    options.isAnnotationMode || options.alwaysShowAnnotations ? !!options.showTextInAnnotationMode : true;
 
   drawBarLabels(
     canvasContext,
@@ -3004,11 +3106,13 @@ function drawBarLabels(
     canvasContext.lineWidth = barBorderWidth;
 
     // Left Extension
-    canvasContext.beginPath();
-    canvasContext.strokeStyle = isBranchStart ? PALETTE.branches.startLine : PALETTE.ui.barVerticalLine;
-    canvasContext.moveTo(x, y);
-    canvasContext.lineTo(x, topY);
-    canvasContext.stroke();
+    if (!isBranchStart) {
+      canvasContext.beginPath();
+      canvasContext.strokeStyle = PALETTE.ui.barVerticalLine;
+      canvasContext.moveTo(x, y);
+      canvasContext.lineTo(x, topY);
+      canvasContext.stroke();
+    }
 
     // Right Extension
     canvasContext.beginPath();

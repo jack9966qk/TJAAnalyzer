@@ -28,6 +28,11 @@ export interface BarParams {
   gogoTime: boolean;
   isBranched: boolean;
   isBranchStart?: boolean;
+  branchStartParams?: {
+    type: string;
+    p1: number;
+    p2: number;
+  };
   bpmChanges?: BPMChange[];
   scrollChanges?: ScrollChange[];
   gogoChanges?: GogoChange[];
@@ -174,6 +179,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
         state: ParserState,
         isBranched: boolean,
         markFirstAsBranchStart: boolean = false,
+        branchStartParams?: BarParams["branchStartParams"],
       ) => {
         let barStartBpm = state.bpm;
         let barStartScroll = state.scroll;
@@ -260,6 +266,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                 gogoTime: barStartGogoTime,
                 isBranched: isBranched,
                 isBranchStart: isBranched && markFirstAsBranchStart && isFirstBar,
+                branchStartParams: isBranched && markFirstAsBranchStart && isFirstBar ? branchStartParams : undefined,
                 bpmChanges: state.currentBarBpmChanges.length > 0 ? [...state.currentBarBpmChanges] : undefined,
                 scrollChanges:
                   state.currentBarScrollChanges.length > 0 ? [...state.currentBarScrollChanges] : undefined,
@@ -290,6 +297,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
       let inBranch = false;
       let currentBranchTarget: "n" | "e" | "m" = "n";
       let hasSeenBranchStart = false; // To track if we should even create branch objects
+      let lastBranchStartParams: BarParams["branchStartParams"];
 
       // Process line by line
       for (const line of courseData) {
@@ -297,6 +305,19 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
 
         if (upper.startsWith("#BRANCHSTART")) {
           hasSeenBranchStart = true;
+
+          // Parse params: #BRANCHSTART p, 65, 80
+          const parts = line.split(/[, \s]+/);
+          if (parts.length >= 4) {
+            lastBranchStartParams = {
+              type: parts[1].toLowerCase(),
+              p1: parseFloat(parts[2]),
+              p2: parseFloat(parts[3]),
+            };
+          } else {
+            lastBranchStartParams = undefined;
+          }
+
           // Flush Common to all
           if (bufferCommon.length > 0) {
             parseLines(bufferCommon, normalBars, normalParams, stateN, false);
@@ -311,9 +332,9 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
             const srcE = bufferE.length > 0 ? bufferE : srcN; // Fallback N
             const srcM = bufferM.length > 0 ? bufferM : srcE; // Fallback E
 
-            parseLines(srcN, normalBars, normalParams, stateN, true, true);
-            parseLines(srcE, expertBars, expertParams, stateE, true, true);
-            parseLines(srcM, masterBars, masterParams, stateM, true, true);
+            parseLines(srcN, normalBars, normalParams, stateN, true, true, lastBranchStartParams);
+            parseLines(srcE, expertBars, expertParams, stateE, true, true, lastBranchStartParams);
+            parseLines(srcM, masterBars, masterParams, stateM, true, true, lastBranchStartParams);
           }
 
           inBranch = true;
@@ -327,9 +348,9 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
           const srcE = bufferE.length > 0 ? bufferE : srcN; // Fallback N
           const srcM = bufferM.length > 0 ? bufferM : srcE; // Fallback E
 
-          parseLines(srcN, normalBars, normalParams, stateN, true, true);
-          parseLines(srcE, expertBars, expertParams, stateE, true, true);
-          parseLines(srcM, masterBars, masterParams, stateM, true, true);
+          parseLines(srcN, normalBars, normalParams, stateN, true, true, lastBranchStartParams);
+          parseLines(srcE, expertBars, expertParams, stateE, true, true, lastBranchStartParams);
+          parseLines(srcM, masterBars, masterParams, stateM, true, true, lastBranchStartParams);
 
           inBranch = false;
           bufferN = [];
@@ -358,9 +379,9 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
         const srcN = bufferN;
         const srcE = bufferE.length > 0 ? bufferE : srcN;
         const srcM = bufferM.length > 0 ? bufferM : srcE;
-        parseLines(srcN, normalBars, normalParams, stateN, true, true);
-        parseLines(srcE, expertBars, expertParams, stateE, true, true);
-        parseLines(srcM, masterBars, masterParams, stateM, true, true);
+        parseLines(srcN, normalBars, normalParams, stateN, true, true, lastBranchStartParams);
+        parseLines(srcE, expertBars, expertParams, stateE, true, true, lastBranchStartParams);
+        parseLines(srcM, masterBars, masterParams, stateM, true, true, lastBranchStartParams);
       } else if (bufferCommon.length > 0) {
         parseLines(bufferCommon, normalBars, normalParams, stateN, false);
         parseLines(bufferCommon, expertBars, expertParams, stateE, false);

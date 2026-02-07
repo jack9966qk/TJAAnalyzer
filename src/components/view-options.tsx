@@ -14,11 +14,13 @@ export class ViewOptions extends HTMLElement {
 
   set statsVisible(val: boolean) {
     this._statsVisible = val;
+    this.handleStatsChange();
     this.render();
   }
 
   connectedCallback() {
     this.render();
+    this.upgradeProperty("statsVisible");
     // Listen for language changes
     i18n.onLanguageChange(() => this.render());
     document.addEventListener("view-options-update", this.handleViewOptionsUpdate.bind(this));
@@ -44,6 +46,17 @@ export class ViewOptions extends HTMLElement {
 
   private handleDevModeChange() {
     this.render();
+  }
+
+  private upgradeProperty(prop: string) {
+    if (Object.hasOwn(this, prop)) {
+      // biome-ignore lint/suspicious/noExplicitAny: Required for Web Component property upgrade pattern
+      const value = (this as any)[prop];
+      // biome-ignore lint/suspicious/noExplicitAny: Required for Web Component property upgrade pattern
+      delete (this as any)[prop];
+      // biome-ignore lint/suspicious/noExplicitAny: Required for Web Component property upgrade pattern
+      (this as any)[prop] = value;
+    }
   }
 
   initializeFromLayout() {
@@ -103,13 +116,22 @@ export class ViewOptions extends HTMLElement {
   }
 
   private handleStatsChange() {
-    if (noteStatsDisplay) {
-      // Clear inline display style in case it was set previously
-      noteStatsDisplay.style.display = "";
+    const ns = document.getElementById("note-stats-display");
+    const bs = document.getElementById("branch-stats-display");
+
+    if (ns) {
       if (this.statsVisible) {
-        noteStatsDisplay.classList.remove("collapsed");
+        ns.classList.remove("collapsed");
       } else {
-        noteStatsDisplay.classList.add("collapsed");
+        ns.classList.add("collapsed");
+      }
+    }
+
+    if (bs) {
+      if (this.statsVisible) {
+        bs.classList.remove("collapsed");
+      } else {
+        bs.classList.add("collapsed");
       }
     }
 

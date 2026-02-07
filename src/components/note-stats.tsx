@@ -16,6 +16,7 @@ import { i18n } from "../utils/i18n.js";
 
 export class NoteStatsDisplay extends HTMLElement {
   private _hit: HitInfo | null = null;
+  private _branchHit: HitInfo | null = null;
   private _chart: ParsedChart | null = null;
   private _viewOptions: ViewOptions | null = null;
   private _judgements: JudgementMap<JudgementValue> = new JudgementMap();
@@ -27,10 +28,16 @@ export class NoteStatsDisplay extends HTMLElement {
 
   connectedCallback() {
     this.render();
+    i18n.onLanguageChange(() => this.render());
   }
 
   set hit(value: HitInfo | null) {
     this._hit = value;
+    this.render();
+  }
+
+  set branchHit(value: HitInfo | null) {
+    this._branchHit = value;
     this.render();
   }
 
@@ -138,6 +145,7 @@ export class NoteStatsDisplay extends HTMLElement {
   render() {
     const def = "-";
     const hit = this._hit;
+    const branchHit = this._branchHit;
     const chart = this._chart;
     const options = this._viewOptions;
     const judgements = this._judgements;
@@ -370,6 +378,34 @@ export class NoteStatsDisplay extends HTMLElement {
       if (g) gap = g;
     }
 
+    // Branch Stats Logic
+    let branchStats: JSX.Element | null = null;
+    const hasBranches = !!chart?.branches || (chart?.barParams?.some((p) => !!p.branchStartParams) ?? false);
+
+    if (branchHit || hasBranches) {
+      const params = branchHit?.branchStartParams;
+      const typeLabel = params ? i18n.t(`stats.branch.type.${params.type}`) : def;
+      const expertVal = params ? params.p1.toString() : def;
+      const masterVal = params ? params.p2.toString() : def;
+
+      branchStats = (
+        <div className="branch-info-panel">
+          <div className="branch-row">
+            <span className="label">{i18n.t("stats.branch.type")}:</span>
+            <span className="val">{typeLabel}</span>
+          </div>
+          <div className="branch-row">
+            <span className="label">{i18n.t("stats.branch.expert")}:</span>
+            <span className="val">{expertVal}</span>
+          </div>
+          <div className="branch-row">
+            <span className="label">{i18n.t("stats.branch.master")}:</span>
+            <span className="val">{masterVal}</span>
+          </div>
+        </div>
+      );
+    }
+
     const vdom = (
       <div style="display: contents;">
         <style>{`
@@ -430,8 +466,35 @@ export class NoteStatsDisplay extends HTMLElement {
                 height: 4.5em;
                 overflow-y: auto;
             }
-            .hidden {
-                display: none !important;
+            .branch-info-panel {
+                flex-basis: calc(90px * 2 + 10px);
+                min-width: calc(90px * 2 + 10px);
+                background-color: var(--stat-box-bg, #37474f);
+                color: var(--stat-box-text, #eceff1);
+                padding: 10px 15px;
+                border-radius: 6px;
+                font-family: 'Consolas', monospace;
+                font-size: 0.9em;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                min-height: 4.5em; 
+            }
+            .branch-row {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 4px;
+            }
+            .branch-row:last-child {
+                margin-bottom: 0;
+            }
+            .label {
+                color: var(--stat-label, #b0bec5);
+                margin-right: 8px;
+            }
+            .val {
+                font-weight: bold;
             }
             `}</style>
         <div id="container">
@@ -449,6 +512,8 @@ export class NoteStatsDisplay extends HTMLElement {
           ) : (
             StatBox(i18n.t("stats.delta"), deltaVal)
           )}
+
+          {branchStats}
         </div>
       </div>
     );

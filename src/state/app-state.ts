@@ -20,6 +20,7 @@ interface AppState {
   isStreamConnected: boolean;
   hasReceivedGameStart: boolean;
   selectedNoteHitInfo: HitInfo | null;
+  selectedBranchHitInfo: HitInfo | null;
   annotations: LocationMap<string>;
   eseClient: EseClient;
   eseTree: GitNode[] | null;
@@ -56,6 +57,7 @@ export const appState: AppState = {
   isStreamConnected: false,
   hasReceivedGameStart: false,
   selectedNoteHitInfo: null,
+  selectedBranchHitInfo: null,
   annotations: new LocationMap(),
   eseClient: new EseClient(),
   eseTree: null,

@@ -4,7 +4,7 @@ import {
   calculateAutoZoomBeats,
   createLayout,
   generateAutoAnnotations,
-  getNoteAt,
+  getChartElementAt,
   getNotePosition,
   type HitInfo,
   INSETS,
@@ -524,7 +524,7 @@ export class TJAChart extends HTMLElement {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    const hit = getNoteAt(
+    const hit = getChartElementAt(
       x,
       y,
       this._chart,
@@ -553,7 +553,7 @@ export class TJAChart extends HTMLElement {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
 
-    const hit = getNoteAt(
+    const hit = getChartElementAt(
       x,
       y,
       this._chart,

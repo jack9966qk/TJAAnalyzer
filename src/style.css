@@ -457,7 +457,8 @@ button:disabled {
   text-align: center;
 }
 
-#note-stats-display {
+#note-stats-display,
+#branch-stats-display {
   margin-top: 10px;
   transition:
     opacity var(--anim-duration-fast) ease-out,
@@ -467,7 +468,8 @@ button:disabled {
   overflow: hidden;
 }
 
-#note-stats-display.collapsed {
+#note-stats-display.collapsed,
+#branch-stats-display.collapsed {
   opacity: 0;
   max-height: 0;
   margin-top: 0;
