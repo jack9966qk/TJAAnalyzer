@@ -28,6 +28,10 @@
       font-size: 1.5em;
       color: #333333;
     }
+    #loading-screen > div {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
     @media (prefers-color-scheme: dark) {
       #loading-screen {
         background-color: #1e1e1e;
@@ -35,17 +39,23 @@
       }
     }
     </style>
-    <script type="module" crossorigin src="/assets/main-DwAN-FHz.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/renderer-DOMYVGNR.js">
-    <link rel="modulepreload" crossorigin href="/assets/note-stats-Ds9SkXyH.js">
-    <link rel="modulepreload" crossorigin href="/assets/tja-chart-CNYFduXr.js">
-    <link rel="modulepreload" crossorigin href="/assets/changelog-panel-WUnY_F3V.js">
-    <link rel="stylesheet" crossorigin href="/assets/style-CaowmHy5.css">
+    <script type="module" crossorigin src="/assets/main-BUo6BEdr.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/renderer-BNN-Vw3U.js">
+    <link rel="modulepreload" crossorigin href="/assets/note-stats-IVWlqOgR.js">
+    <link rel="modulepreload" crossorigin href="/assets/tja-chart-Dl538Joy.js">
+    <link rel="modulepreload" crossorigin href="/assets/changelog-panel-DQamEJjr.js">
+    <link rel="stylesheet" crossorigin href="/assets/style-BI9_lx53.css">
   <link rel="manifest" href="/manifest.json"></head>
   <body>
     <div id="loading-screen">
       <div>Loading...</div>
     </div>
+    <script>
+    setTimeout(() => {
+      var el = document.querySelector("#loading-screen > div");
+      if (el) el.style.opacity = "1";
+    }, 1000);
+    </script>
     <div id="safe-area-cover"></div>
     <div id="app">
       <div id="controls-container">
@@ -156,7 +166,9 @@
           <note-stats id="note-stats-display"></note-stats>
         </div><!-- End sticky-header -->
       </div><!-- End controls-container -->
-      <button id="layout-toggle-btn">&lt;</button>
+      <button id="layout-toggle-btn" title="Collapse">
+        <div class="icon-chevron-left"></div>
+      </button>
 
       <div id="chart-container">
         <div class="canvas-container">

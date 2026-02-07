@@ -1,5 +1,50 @@
 [
   {
+    "hash": "12bc59b",
+    "message": "Update version to 0.8.6.",
+    "date": "2026-02-08"
+  },
+  {
+    "hash": "a9cb070",
+    "message": "Update dev server to use port 8082.",
+    "date": "2026-02-08"
+  },
+  {
+    "hash": "e4555c0",
+    "message": "Add basic branch stats display.",
+    "date": "2026-02-08"
+  },
+  {
+    "hash": "83bc5c6",
+    "message": "Delay the display of loading text until 1s since page load.",
+    "date": "2026-02-07"
+  },
+  {
+    "hash": "1229f89",
+    "message": "Use port 8081 for playwright tests to avoid conflict with dev/start.",
+    "date": "2026-02-07"
+  },
+  {
+    "hash": "06ecd58",
+    "message": "Use heroicon for the horizontal controls toggle.",
+    "date": "2026-02-07"
+  },
+  {
+    "hash": "2ca929a",
+    "message": "Update README.",
+    "date": "2026-02-07"
+  },
+  {
+    "hash": "266fc7c",
+    "message": "Reduce code duplication in renderer implementation.",
+    "date": "2026-02-07"
+  },
+  {
+    "hash": "e3b7c87",
+    "message": "Fix broken test cases.",
+    "date": "2026-02-07"
+  },
+  {
     "hash": "5f3dac5",
     "message": "Update version to 0.8.5.",
     "date": "2026-02-07"
@@ -453,50 +498,5 @@
     "hash": "a6a3455",
     "message": "Refactor TJA parsing and rendering to use NoteType enum.",
     "date": "2026-01-24"
-  },
-  {
-    "hash": "c3a3891",
-    "message": "Reorganize and rename some symbols for chart rendering.",
-    "date": "2026-01-24"
-  },
-  {
-    "hash": "86c9848",
-    "message": "Define and use frame and render context data structures for chart rendering.",
-    "date": "2026-01-24"
-  },
-  {
-    "hash": "ce2a9fc",
-    "message": "Extract getNoteStyle function and use NoteType enum. Format code.",
-    "date": "2026-01-24"
-  },
-  {
-    "hash": "56fcac5",
-    "message": "Introduce NoteType enum and update usages. Fix formatting issues.",
-    "date": "2026-01-24"
-  },
-  {
-    "hash": "bf7cc13",
-    "message": "Refactor drawBarNotes and apply formatting fixes.",
-    "date": "2026-01-24"
-  },
-  {
-    "hash": "2ac2068",
-    "message": "Refactor renderer to use gradient helper functions.",
-    "date": "2026-01-24"
-  },
-  {
-    "hash": "a38ac0c",
-    "message": "Refactor judgement and location maps to use structured keys.",
-    "date": "2026-01-23"
-  },
-  {
-    "hash": "9eb36eb",
-    "message": "Move calculateInferredHands to auto-annotation.",
-    "date": "2026-01-22"
-  },
-  {
-    "hash": "8bf4f0c",
-    "message": "Add more descriptive types for note location and judgement specifier.",
-    "date": "2026-01-22"
   }
 ]
