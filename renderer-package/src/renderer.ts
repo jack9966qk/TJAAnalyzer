@@ -1891,6 +1891,23 @@ export function renderChart(
       );
     }
   }
+
+  // TODO: remove duplicates with `renderLayout`
+  if (options.showAttribution) {
+    canvasContext.save();
+    canvasContext.fillStyle = PALETTE.text.secondary;
+    const fontSize = constants.statusFontSize;
+    canvasContext.font = `italic ${fontSize}px ${FONT_STACK}`;
+    canvasContext.textAlign = "right";
+    canvasContext.textBaseline = "bottom";
+    const effectivePaddingX = insets?.left ?? INSETS.left;
+    canvasContext.fillText(
+      "TJA renderer by Jack",
+      logicalCanvasWidth - effectivePaddingX,
+      totalHeight - fontSize * 0.8,
+    );
+    canvasContext.restore();
+  }
 }
 
 function drawTextWithCompression(
