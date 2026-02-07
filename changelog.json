@@ -1,5 +1,50 @@
 [
   {
+    "hash": "5f3dac5",
+    "message": "Update version to 0.8.5.",
+    "date": "2026-02-07"
+  },
+  {
+    "hash": "8fdb5b5",
+    "message": "Add missing attribution text under renderChart.",
+    "date": "2026-02-07"
+  },
+  {
+    "hash": "04b06aa",
+    "message": "Fix file sharing web fallback.",
+    "date": "2026-02-07"
+  },
+  {
+    "hash": "af4d21e",
+    "message": "Move the save image button and full screen button to a shared chart options footer.",
+    "date": "2026-02-07"
+  },
+  {
+    "hash": "4cb8975",
+    "message": "Disable PWA service worker in development mode.",
+    "date": "2026-02-07"
+  },
+  {
+    "hash": "bd96459",
+    "message": "Remove canvas container padding and use renderer insets instead. Fix minor issues regarding insets in the renderer.",
+    "date": "2026-02-07"
+  },
+  {
+    "hash": "5989894",
+    "message": "Add basic partial rendering functionality. Add toggle to render only the selected notes.",
+    "date": "2026-02-06"
+  },
+  {
+    "hash": "251c33d",
+    "message": "Run formatter.",
+    "date": "2026-02-06"
+  },
+  {
+    "hash": "d80d54f",
+    "message": "Add limited horizontal compression to chart title if too long.",
+    "date": "2026-02-06"
+  },
+  {
     "hash": "4450ee0",
     "message": "Update version to 0.8.4.",
     "date": "2026-02-06"
@@ -453,50 +498,5 @@
     "hash": "8bf4f0c",
     "message": "Add more descriptive types for note location and judgement specifier.",
     "date": "2026-01-22"
-  },
-  {
-    "hash": "632ee0f",
-    "message": "Update version as 0.7.0.",
-    "date": "2026-01-21"
-  },
-  {
-    "hash": "98c61e3",
-    "message": "Update default stream host as localhost.",
-    "date": "2026-01-21"
-  },
-  {
-    "hash": "1f9124d",
-    "message": "Update OpenTaiko description under the stream input tab.",
-    "date": "2026-01-21"
-  },
-  {
-    "hash": "c2f4f05",
-    "message": "Refactor JudgementKey usage with helper and format code.",
-    "date": "2026-01-21"
-  },
-  {
-    "hash": "8b5605c",
-    "message": "Update judgements representation to support the event format with notechar and ordinal. Reimplement chart incremental rendering.",
-    "date": "2026-01-21"
-  },
-  {
-    "hash": "1cc0f22",
-    "message": "Temporarily remove incremental rendering to prepare for the judgment event update.",
-    "date": "2026-01-19"
-  },
-  {
-    "hash": "66e95d7",
-    "message": "Refactor export functionality into separate component with status feedback.",
-    "date": "2026-01-19"
-  },
-  {
-    "hash": "afb576e",
-    "message": "Update stream event judgement type values.",
-    "date": "2026-01-18"
-  },
-  {
-    "hash": "c4e7790",
-    "message": "Add snapshot tests for web components.",
-    "date": "2026-01-18"
   }
 ]
