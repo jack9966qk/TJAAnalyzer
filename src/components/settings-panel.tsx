@@ -1,6 +1,7 @@
 import * as webjsx from "webjsx";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
+import { saveUserProfile } from "../utils/user-profile.js";
 
 export class SettingsPanel extends HTMLElement {
   private isModalOpen = false;
@@ -40,6 +41,7 @@ export class SettingsPanel extends HTMLElement {
 
   private handleDevModeToggle(e: Event) {
     appState.isTesterMode = (e.target as HTMLInputElement).checked;
+    saveUserProfile({ isTesterMode: appState.isTesterMode });
     window.dispatchEvent(new Event("dev-mode-change"));
     this.renderModal();
   }

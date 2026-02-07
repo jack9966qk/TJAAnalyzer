@@ -9,6 +9,7 @@ import {
 import { EseClient, type GitNode } from "../clients/ese-client.js";
 import { JudgementClient } from "../clients/judgement-client.js";
 import { exampleTJA } from "../core/example-data.js";
+import { loadUserProfile } from "../utils/user-profile.js";
 
 interface AppState {
   parsedTJACharts: Record<string, ParsedChart> | null;
@@ -66,7 +67,7 @@ export const appState: AppState = {
   currentEsePath: null,
   currentStatusKey: "status.initializing",
   currentStatusParams: undefined,
-  isTesterMode: false,
+  isTesterMode: loadUserProfile().isTesterMode,
   isNeutralinoConnected: false,
   swRegistrationError: null,
   displayOnlySelected: false,
