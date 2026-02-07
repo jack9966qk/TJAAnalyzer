@@ -157,6 +157,8 @@ const resources: Resources = {
     "ui.changelog": "Changelog",
     "ui.loading": "Loading...",
     "ui.noChangelog": "No changelog available (or failed to load).",
+    "ui.settings": "Settings",
+    "ui.close": "Close",
   },
   zh: {
     "ui.dataSource": "数据源",
@@ -307,6 +309,8 @@ const resources: Resources = {
     "ui.changelog": "变更日志",
     "ui.loading": "加载中...",
     "ui.noChangelog": "暂无变更日志（或加载失败）。",
+    "ui.settings": "设置",
+    "ui.close": "关闭",
   },
   ja: {
     "ui.dataSource": "データソース",
@@ -457,6 +461,8 @@ const resources: Resources = {
     "ui.changelog": "更新履歴",
     "ui.loading": "読み込み中...",
     "ui.noChangelog": "更新履歴はありません（または読み込みに失敗しました）。",
+    "ui.settings": "設定",
+    "ui.close": "閉じる",
   },
 };
 

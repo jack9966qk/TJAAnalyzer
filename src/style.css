@@ -1040,6 +1040,32 @@ h1 {
   mask: url("/assets/heroicons/optimized/24/outline/language.svg") no-repeat center;
 }
 
+.settings-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-input);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.settings-btn:hover {
+  background-color: var(--bg-hover);
+}
+
+.icon-settings {
+  width: 22px;
+  height: 22px;
+  background-color: var(--text-primary);
+  -webkit-mask: url("/assets/heroicons/optimized/24/outline/cog-6-tooth.svg") no-repeat center;
+  mask: url("/assets/heroicons/optimized/24/outline/cog-6-tooth.svg") no-repeat center;
+}
+
 .icon-chevron-down-small {
   width: 15px;
   height: 15px;

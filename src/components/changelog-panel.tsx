@@ -73,12 +73,6 @@ export class ChangelogPanel extends HTMLElement {
     this.renderModal();
   }
 
-  private handleDevModeToggle(e: Event) {
-    appState.isTesterMode = (e.target as HTMLInputElement).checked;
-    window.dispatchEvent(new Event("dev-mode-change"));
-    this.renderModal();
-  }
-
   private async loadData() {
     try {
       // Load Version
@@ -216,23 +210,6 @@ export class ChangelogPanel extends HTMLElement {
       </div>
     ) : null;
 
-    const devModeToggle = (
-      <div
-        className="about-item"
-        style="padding: 12px; background: var(--bg-panel-header); border-radius: 6px; border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;"
-      >
-        <label style="display: flex; align-items: center; width: 100%; cursor: pointer;">
-          <input
-            type="checkbox"
-            checked={appState.isTesterMode}
-            onchange={this.handleDevModeToggle.bind(this)}
-            style="margin-right: 10px;"
-          />
-          {i18n.t("ui.devMode")}
-        </label>
-      </div>
-    );
-
     const modalVdom = (
       <div
         id="changelog-modal"
@@ -274,7 +251,6 @@ export class ChangelogPanel extends HTMLElement {
               {versionInfo}
               {eseInfo}
               {pwaDebugInfo}
-              {devModeToggle}
             </div>
 
             <h3 style="margin: 0 0 5px 0; font-size: 1.1em; color: var(--text-primary);">{i18n.t("ui.changelog")}</h3>
