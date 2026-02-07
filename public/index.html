@@ -28,6 +28,10 @@
       font-size: 1.5em;
       color: #333333;
     }
+    #loading-screen > div {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
     @media (prefers-color-scheme: dark) {
       #loading-screen {
         background-color: #1e1e1e;
@@ -40,6 +44,12 @@
     <div id="loading-screen">
       <div>Loading...</div>
     </div>
+    <script>
+      setTimeout(function() {
+        var el = document.querySelector('#loading-screen > div');
+        if (el) el.style.opacity = '1';
+      }, 1000);
+    </script>
     <div id="safe-area-cover"></div>
     <div id="app">
       <div id="controls-container">
