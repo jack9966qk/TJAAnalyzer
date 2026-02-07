@@ -1308,6 +1308,10 @@ export function renderLayout(
     totalHeight,
   );
 
+  if (effectiveDpr < dpr && !dirtyRowY) {
+    console.warn(`Chart dimensions exceed canvas limits. Reducing DPR from ${dpr} to ${effectiveDpr.toFixed(2)}.`);
+  }
+
   const canvas = canvasContext.canvas;
   // Resize only if full render (dirtyRowY undefined) or if dimensions mismatch
   // Optimization: Trust that canvas size is correct for partial updates
@@ -1504,109 +1508,54 @@ function drawBarBackgroundWrapper(
   const overExtendWidth = 2 * constants.noteRadiusSmall;
   const isBranchStart = params ? !!params.isBranchStart : false;
 
-  if (isAllBranches && chart.branches) {
-    if (isBranched) {
-      const subHeight = BASE_LANE_HEIGHT;
-      const normalFrame: Frame = { x: frame.x, y: frame.y, width: frame.width, height: subHeight };
-      drawBarBackground(
-        canvasContext,
-        normalFrame,
-        constants.lineWidthBarBorder,
-        true,
-        "normal",
-        !hasLeftNeighbor,
-        !hasRightNeighbor,
-        overExtendWidth,
-        effectiveBeatWidth,
-      );
-      const expertFrame: Frame = { x: frame.x, y: frame.y + subHeight, width: frame.width, height: subHeight };
-      drawBarBackground(
-        canvasContext,
-        expertFrame,
-        constants.lineWidthBarBorder,
-        true,
-        "expert",
-        !hasLeftNeighbor,
-        !hasRightNeighbor,
-        overExtendWidth,
-        effectiveBeatWidth,
-      );
-      const masterFrame: Frame = { x: frame.x, y: frame.y + 2 * subHeight, width: frame.width, height: subHeight };
-      drawBarBackground(
-        canvasContext,
-        masterFrame,
-        constants.lineWidthBarBorder,
-        true,
-        "master",
-        !hasLeftNeighbor,
-        !hasRightNeighbor,
-        overExtendWidth,
-        effectiveBeatWidth,
-      );
-
-      if (isBranchStart) {
-        canvasContext.beginPath();
-        canvasContext.strokeStyle = PALETTE.branches.startLine;
-        canvasContext.lineWidth = constants.lineWidthBarBorder;
-        canvasContext.moveTo(frame.x, frame.y);
-        canvasContext.lineTo(frame.x, frame.y + frame.height);
-        canvasContext.stroke();
-      }
-    } else {
-      drawBarBackground(
-        canvasContext,
-        frame,
-        constants.lineWidthBarBorder,
-        false,
-        "normal",
-        !hasLeftNeighbor,
-        !hasRightNeighbor,
-        overExtendWidth,
-        effectiveBeatWidth,
-      );
-    }
-
-    if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
-      const stripHeight = constants.barNumberFontSize + constants.barNumberOffsetY * 2;
-      const stripY = frame.y - stripHeight - constants.lineWidthBarBorder / 2;
-      const gogoFrame: Frame = { x: frame.x, y: stripY, width: frame.width, height: stripHeight };
-      drawGogoIndicator(
-        canvasContext,
-        gogoFrame,
-        gogoTime,
-        gogoChanges,
-        noteCount,
-        !hasLeftNeighbor,
-        !hasRightNeighbor,
-        overExtendWidth,
-      );
-    }
-
-    const showText =
-      options.isAnnotationMode || options.alwaysShowAnnotations ? !!options.showTextInAnnotationMode : true;
-
-    drawBarLabels(
+  if (isAllBranches && chart.branches && isBranched) {
+    const subHeight = BASE_LANE_HEIGHT;
+    const normalFrame: Frame = { x: frame.x, y: frame.y, width: frame.width, height: subHeight };
+    drawBarBackground(
       canvasContext,
-      frame,
-      info.originalIndex,
-      constants.barNumberFontSize,
-      constants.statusFontSize,
-      constants.barNumberOffsetY,
-      params,
-      noteCount,
-      info.originalIndex === 0,
+      normalFrame,
       constants.lineWidthBarBorder,
-      isBranchStart,
-      showText,
+      true,
+      "normal",
+      !hasLeftNeighbor,
+      !hasRightNeighbor,
+      overExtendWidth,
+      effectiveBeatWidth,
     );
-
-    if (info.isLoopStart && chart.loop) {
-      canvasContext.fillStyle = PALETTE.text.primary;
-      canvasContext.font = `bold ${constants.barNumberFontSize}px ${FONT_STACK}`;
-      canvasContext.textAlign = "right";
-      const text = texts.loopPattern.replace("{n}", chart.loop.iterations.toString());
-      canvasContext.fillText(text, frame.x + frame.width, frame.y - constants.barNumberOffsetY);
-    }
+    const expertFrame: Frame = {
+      x: frame.x,
+      y: frame.y + subHeight,
+      width: frame.width,
+      height: subHeight,
+    };
+    drawBarBackground(
+      canvasContext,
+      expertFrame,
+      constants.lineWidthBarBorder,
+      true,
+      "expert",
+      !hasLeftNeighbor,
+      !hasRightNeighbor,
+      overExtendWidth,
+      effectiveBeatWidth,
+    );
+    const masterFrame: Frame = {
+      x: frame.x,
+      y: frame.y + 2 * subHeight,
+      width: frame.width,
+      height: subHeight,
+    };
+    drawBarBackground(
+      canvasContext,
+      masterFrame,
+      constants.lineWidthBarBorder,
+      true,
+      "master",
+      !hasLeftNeighbor,
+      !hasRightNeighbor,
+      overExtendWidth,
+      effectiveBeatWidth,
+    );
   } else {
     drawBarBackground(
       canvasContext,
@@ -1619,57 +1568,57 @@ function drawBarBackgroundWrapper(
       overExtendWidth,
       effectiveBeatWidth,
     );
+  }
 
-    if (isBranchStart) {
-      canvasContext.beginPath();
-      canvasContext.strokeStyle = PALETTE.branches.startLine;
-      canvasContext.lineWidth = constants.lineWidthBarBorder;
-      canvasContext.moveTo(frame.x, frame.y);
-      canvasContext.lineTo(frame.x, frame.y + frame.height);
-      canvasContext.stroke();
-    }
+  if (isBranchStart) {
+    canvasContext.beginPath();
+    canvasContext.strokeStyle = PALETTE.branches.startLine;
+    canvasContext.lineWidth = constants.lineWidthBarBorder;
+    canvasContext.moveTo(frame.x, frame.y);
+    canvasContext.lineTo(frame.x, frame.y + frame.height);
+    canvasContext.stroke();
+  }
 
-    if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
-      const stripHeight = constants.barNumberFontSize + constants.barNumberOffsetY * 2;
-      const stripY = frame.y - stripHeight - constants.lineWidthBarBorder / 2;
-      const gogoFrame: Frame = { x: frame.x, y: stripY, width: frame.width, height: stripHeight };
-      drawGogoIndicator(
-        canvasContext,
-        gogoFrame,
-        gogoTime,
-        gogoChanges,
-        noteCount,
-        !hasLeftNeighbor,
-        !hasRightNeighbor,
-        overExtendWidth,
-      );
-    }
-
-    const showText =
-      options.isAnnotationMode || options.alwaysShowAnnotations ? !!options.showTextInAnnotationMode : true;
-
-    drawBarLabels(
+  if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
+    const stripHeight = constants.barNumberFontSize + constants.barNumberOffsetY * 2;
+    const stripY = frame.y - stripHeight - constants.lineWidthBarBorder / 2;
+    const gogoFrame: Frame = { x: frame.x, y: stripY, width: frame.width, height: stripHeight };
+    drawGogoIndicator(
       canvasContext,
-      frame,
-      info.originalIndex,
-      constants.barNumberFontSize,
-      constants.statusFontSize,
-      constants.barNumberOffsetY,
-      params,
+      gogoFrame,
+      gogoTime,
+      gogoChanges,
       noteCount,
-      info.originalIndex === 0,
-      constants.lineWidthBarBorder,
-      isBranchStart,
-      showText,
+      !hasLeftNeighbor,
+      !hasRightNeighbor,
+      overExtendWidth,
     );
+  }
 
-    if (info.isLoopStart && chart.loop) {
-      canvasContext.fillStyle = PALETTE.text.primary;
-      canvasContext.font = `bold ${constants.barNumberFontSize}px ${FONT_STACK}`;
-      canvasContext.textAlign = "right";
-      const text = texts.loopPattern.replace("{n}", chart.loop.iterations.toString());
-      canvasContext.fillText(text, frame.x + frame.width, frame.y - constants.barNumberOffsetY);
-    }
+  const showText =
+    options.isAnnotationMode || options.alwaysShowAnnotations ? !!options.showTextInAnnotationMode : true;
+
+  drawBarLabels(
+    canvasContext,
+    frame,
+    info.originalIndex,
+    constants.barNumberFontSize,
+    constants.statusFontSize,
+    constants.barNumberOffsetY,
+    params,
+    noteCount,
+    info.originalIndex === 0,
+    constants.lineWidthBarBorder,
+    isBranchStart,
+    showText,
+  );
+
+  if (info.isLoopStart && chart.loop) {
+    canvasContext.fillStyle = PALETTE.text.primary;
+    canvasContext.font = `bold ${constants.barNumberFontSize}px ${FONT_STACK}`;
+    canvasContext.textAlign = "right";
+    const text = texts.loopPattern.replace("{n}", chart.loop.iterations.toString());
+    canvasContext.fillText(text, frame.x + frame.width, frame.y - constants.barNumberOffsetY);
   }
 }
 
@@ -1769,145 +1718,8 @@ export function renderChart(
     return;
   }
 
-  // Use the new createLayout function
-  // Note: This recreates the layout on every call, maintaining existing behavior for now
   const layout = createLayout(chart, canvas, options, judgements, customDpr, texts);
-
-  // For now, unpack layout to keep using the existing rendering logic in this function
-  // This is an intermediate step. Later we will replace this with renderLayout()
-  const {
-    virtualBars,
-    barFrames,
-    constants,
-    totalHeight,
-    balloonIndices,
-    inferredHands,
-    logicalCanvasWidth,
-    dpr,
-    headerHeight,
-    baseHeaderHeight,
-    locToJudgementKey,
-    baseBarWidth,
-    insets,
-  } = layout;
-
-  const { effectiveDpr, finalCanvasHeight, finalStyleHeight } = calculateEffectiveDpr(
-    dpr,
-    logicalCanvasWidth,
-    totalHeight,
-  );
-
-  if (effectiveDpr < dpr) {
-    console.warn(`Chart dimensions exceed canvas limits. Reducing DPR from ${dpr} to ${effectiveDpr.toFixed(2)}.`);
-  }
-
-  canvas.width = logicalCanvasWidth * effectiveDpr;
-  canvas.height = finalCanvasHeight;
-
-  canvas.style.width = `${logicalCanvasWidth}px`;
-  canvas.style.height = `${finalStyleHeight}px`;
-
-  canvasContext.scale(effectiveDpr, effectiveDpr);
-
-  // Clear
-  canvasContext.fillStyle = PALETTE.background;
-  canvasContext.fillRect(0, 0, logicalCanvasWidth, totalHeight);
-
-  const renderContext: RenderContext = {
-    canvasContext,
-    options,
-    judgements,
-    texts,
-    constants,
-    inferredHands,
-    locToJudgementKey,
-  };
-
-  // Layer 0: Header
-  const effectivePaddingLeft = insets?.left ?? INSETS.left;
-  const effectivePaddingRight = insets?.right ?? INSETS.right;
-  const effectivePaddingY = insets?.top ?? INSETS.top;
-  const availableWidth = logicalCanvasWidth - (effectivePaddingLeft + effectivePaddingRight);
-  const headerFrame: Frame = {
-    x: effectivePaddingLeft,
-    y: effectivePaddingY,
-    width: availableWidth,
-    height: headerHeight,
-  };
-  drawChartHeader(canvasContext, chart, headerFrame, texts, baseHeaderHeight);
-
-  const isAllBranches = !!options.showAllBranches && !!chart.branches;
-  const BASE_LANE_HEIGHT = constants.barHeight;
-
-  // Layer 1: Backgrounds
-  virtualBars.forEach((info, index) => {
-    const frame = barFrames[index];
-    drawBarBackgroundWrapper(
-      canvasContext,
-      frame,
-      info,
-      index,
-      chart,
-      options,
-      constants,
-      virtualBars,
-      barFrames,
-      texts,
-      isAllBranches,
-      BASE_LANE_HEIGHT,
-      baseBarWidth / 4,
-    );
-  });
-
-  // Layer 1.5 & 2: Notes
-  if (isAllBranches && chart.branches) {
-    drawAllBranchesNotes(renderContext, chart, virtualBars, barFrames, balloonIndices, BASE_LANE_HEIGHT);
-  } else {
-    // Layer 1.5: Drumrolls and Balloons
-    drawLongNotes(
-      canvasContext,
-      virtualBars,
-      barFrames,
-      constants,
-      options.viewMode,
-      chart.balloonCounts,
-      balloonIndices,
-      options.selection,
-    );
-
-    // Layer 2: Notes
-    for (let index = virtualBars.length - 1; index >= 0; index--) {
-      const info = virtualBars[index];
-      const frame = barFrames[index];
-
-      drawBarNotes(
-        renderContext,
-        info.bar,
-        frame,
-        info.originalIndex,
-        options.collapsedLoop ? chart.loop : undefined,
-        chart.branchType,
-        info.effectiveBarIndex,
-      );
-    }
-  }
-
-  // TODO: remove duplicates with `renderLayout`
-  if (options.showAttribution) {
-    canvasContext.save();
-    canvasContext.fillStyle = PALETTE.text.secondary;
-    const fontSize = constants.statusFontSize;
-    canvasContext.font = `italic ${fontSize}px ${FONT_STACK}`;
-    canvasContext.textAlign = "right";
-    canvasContext.textBaseline = "bottom";
-    const effectivePaddingX = insets?.left ?? INSETS.left;
-    canvasContext.fillText(
-      "TJA renderer by Jack",
-      logicalCanvasWidth - effectivePaddingX,
-      totalHeight - fontSize * 0.8,
-    );
-    canvasContext.restore();
-  }
+  renderLayout(canvasContext, layout, chart, judgements, options, texts);
 }
 
 function drawTextWithCompression(
