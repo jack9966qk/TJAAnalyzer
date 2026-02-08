@@ -1,5 +1,35 @@
 [
   {
+    "hash": "0802f36",
+    "message": "Update version as 0.9.1.",
+    "date": "2026-02-09"
+  },
+  {
+    "hash": "ad7844b",
+    "message": "Display chart list items with titles instead of full path where appropriate. Add a button to export play data as JSON.",
+    "date": "2026-02-09"
+  },
+  {
+    "hash": "7ac0253",
+    "message": "Unify the behavior of button click feedback by adding a reusable component.",
+    "date": "2026-02-09"
+  },
+  {
+    "hash": "9e3e4d2",
+    "message": "Move dev mode toggle to the end of settings page.",
+    "date": "2026-02-08"
+  },
+  {
+    "hash": "cb37a9a",
+    "message": "Display a strip among chart list items to indicate playdata status.",
+    "date": "2026-02-08"
+  },
+  {
+    "hash": "4020ad5",
+    "message": "Update page URL when rendered ESE chart changes.",
+    "date": "2026-02-08"
+  },
+  {
     "hash": "2799339",
     "message": "Allow saving default view options and triggerig auto annotation on chart load.",
     "date": "2026-02-08"
@@ -467,36 +497,6 @@
   {
     "hash": "17a400a",
     "message": "Fix a test case that never completes.",
-    "date": "2026-01-25"
-  },
-  {
-    "hash": "f5ceb71",
-    "message": "Remove the horizontal midline in rendered chart. Added vertical lines for every quarter beat.",
-    "date": "2026-01-25"
-  },
-  {
-    "hash": "5182d34",
-    "message": "Add minimal renderer usage example.",
-    "date": "2026-01-25"
-  },
-  {
-    "hash": "2ce2f9b",
-    "message": "Implement high-level API in renderer package",
-    "date": "2026-01-25"
-  },
-  {
-    "hash": "53cfca5",
-    "message": "Extract core renderer logic to renderer-package.",
-    "date": "2026-01-25"
-  },
-  {
-    "hash": "f34b3da",
-    "message": "Fix Neutralino native functionalities, especially chart export to directory.",
-    "date": "2026-01-25"
-  },
-  {
-    "hash": "e5cd701",
-    "message": "Attempt to address a flaky test case.",
     "date": "2026-01-25"
   }
 ]
