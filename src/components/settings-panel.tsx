@@ -546,7 +546,7 @@ export class SettingsPanel extends HTMLElement {
           : null;
 
     const viewDefaultsSection = (
-      <div style="margin-top: 20px;">
+      <div>
         <h3 style="margin: 0 0 12px 0; font-size: 16px;">{i18n.t("ui.viewDefaults.title")}</h3>
         <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
           {i18n.t("ui.viewDefaults.desc")}
@@ -624,10 +624,10 @@ export class SettingsPanel extends HTMLElement {
 
     return (
       <div style="display: flex; flex-direction: column; gap: 10px;">
-        {devModeToggle}
         {viewDefaultsSection}
         {autoAnnotateSection}
         {playdataSection}
+        {devModeToggle}
       </div>
     );
   }
