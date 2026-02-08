@@ -1,5 +1,4 @@
 // Parser for fumen-database HTML content
-// This mirrors the logic from dev_instructions/fumen_database_converter/convert_fumen.py
 
 export interface PlaydataEntry {
   title: string; // Song title from fumen-database
@@ -28,7 +27,6 @@ const DIFFICULTY_MAPPING: Record<string, number> = {
 
 /**
  * Normalize title strings to handle common unicode variations.
- * Mirrors the Python script's normalize_title function.
  */
 function normalizeTitle(title: string): string {
   return title.replace(/\u2010/g, "-").replace(/\uff01/g, "!");

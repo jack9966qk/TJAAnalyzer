@@ -580,13 +580,47 @@ canvas {
 }
 
 .ese-result-item {
-  padding: 6px 10px;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
   cursor: pointer;
   border-bottom: 1px solid var(--border-lighter);
   color: var(--text-primary);
   font-family: "Consolas", "Monaco", "Courier New", monospace;
   font-size: 0.9em;
   word-break: break-all;
+}
+
+.ese-result-item-text {
+  padding: 6px 10px;
+  flex: 1;
+}
+
+/* Play status strip on the left of chart list items */
+.play-status-strip {
+  width: 4px;
+  flex-shrink: 0;
+}
+
+.play-status-strip.status-played {
+  background-color: #9ca3af; /* Light grey */
+}
+
+.play-status-strip.status-fullcombo {
+  background: linear-gradient(to bottom, #fcd34d, #f59e0b, #fcd34d); /* Gold gradient */
+}
+
+.play-status-strip.status-perfect {
+  background: linear-gradient(
+    to bottom,
+    #ef4444,
+    #f97316,
+    #eab308,
+    #22c55e,
+    #3b82f6,
+    #a855f7,
+    #ef4444
+  ); /* Rainbow gradient */
 }
 
 .ese-result-item:nth-child(even) {

@@ -3,14 +3,34 @@ import type { GitNode } from "../clients/ese-client.js";
 import { refreshChart, updatePageUrl, updateParsedCharts } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
+import type { Playdata, PlaydataEntry } from "../utils/playdata-parser.js";
+import { buildTitleToEntriesCache, getPlayStatusSync, preloadSongMapping } from "../utils/playdata-status.js";
+import { loadUserProfile } from "../utils/user-profile.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
 
 type DisplayResult = GitNode | { __truncated: true; path?: never; title?: never; titleJp?: never };
+
+interface SongMappingEntry {
+  esePath: string;
+  title: string;
+  candidates: string[];
+  matchType: string;
+  titlecn?: string;
+  titleko?: string;
+  artist?: string;
+}
+
+type SongMapping = Record<string, SongMappingEntry>;
 
 export class ChartListPanel extends HTMLElement {
   private _searchQuery = "";
   private _displayResults: DisplayResult[] = [];
   private _pendingEseLoad: { path: string; diff: string } | null = null;
+
+  // Playdata status caches
+  private _songMapping: SongMapping | null = null;
+  private _titleToEntriesCache: Map<string, PlaydataEntry[]> | null = null;
+  private _cachedPlaydata: Playdata | null | undefined = undefined;
 
   connectedCallback() {
     this.render();
@@ -28,6 +48,9 @@ export class ChartListPanel extends HTMLElement {
   }
 
   activate() {
+    // Load playdata caches if playdata exists
+    this.refreshPlaydataCaches();
+
     if (!appState.eseTree) {
       this.dispatchStatus("status.loadingEse");
       this.renderLoading();
@@ -61,6 +84,35 @@ export class ChartListPanel extends HTMLElement {
       }
       this.render();
     }
+  }
+
+  private async refreshPlaydataCaches() {
+    const profile = loadUserProfile();
+    const playdata = profile.playdata;
+
+    // Only refresh if playdata changed
+    if (playdata === this._cachedPlaydata) {
+      return;
+    }
+
+    this._cachedPlaydata = playdata;
+
+    if (!playdata?.entries?.length) {
+      this._songMapping = null;
+      this._titleToEntriesCache = null;
+      return;
+    }
+
+    // Load song mapping if not cached
+    if (!this._songMapping) {
+      this._songMapping = await preloadSongMapping();
+    }
+
+    // Build title lookup cache
+    this._titleToEntriesCache = buildTitleToEntriesCache(playdata);
+
+    // Re-render with status strips
+    this.render();
   }
 
   setPendingLoad(path: string, diff: string) {
@@ -249,12 +301,27 @@ export class ChartListPanel extends HTMLElement {
                 return <div className="ese-result-placeholder">{i18n.t("ui.ese.truncated")}</div>;
               }
               const isSelected = appState.currentEsePath === node.path;
+
+              // Get play status if playdata is available
+              const profile = loadUserProfile();
+              const playdata = profile.playdata;
+              const hasPlaydata = !!playdata?.entries?.length;
+
+              let statusClass = "";
+              if (hasPlaydata && this._songMapping && this._titleToEntriesCache) {
+                const status = getPlayStatusSync(node.path, playdata, this._songMapping, this._titleToEntriesCache);
+                if (status !== "none") {
+                  statusClass = `status-${status}`;
+                }
+              }
+
               return (
                 <div
                   className={`ese-result-item ${isSelected ? "selected" : ""}`}
                   onclick={() => this.handleResultClick(node)}
                 >
-                  {node.path}
+                  {hasPlaydata && <div className={`play-status-strip ${statusClass}`}></div>}
+                  <div className="ese-result-item-text">{node.path}</div>
                 </div>
               );
             })
