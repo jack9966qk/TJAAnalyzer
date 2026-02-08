@@ -561,7 +561,7 @@ function initJudgementClient() {
         const sortedSummaries = [...event.tjaSummaries].sort((a, b) => a.player - b.player);
         const summary = sortedSummaries[0];
 
-        updateParsedCharts(summary.tjaContent);
+        updateParsedCharts(summary.tjaContent, true);
 
         const diff = summary.difficulty.toLowerCase();
         if (appState.parsedTJACharts?.[diff]) {

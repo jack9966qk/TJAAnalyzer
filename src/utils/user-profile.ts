@@ -1,8 +1,19 @@
 import type { Playdata } from "./playdata-parser.js";
 
+export interface DefaultViewOptions {
+  /** Beats per line value, or 'auto' for auto-zoom */
+  zoom: number | "auto";
+  /** Whether note stats panel is visible */
+  showNoteStats: boolean;
+}
+
 export interface UserProfile {
   isTesterMode: boolean;
   playdata?: Playdata | null;
+  /** Saved default view options (zoom and note stats visibility) */
+  defaultViewOptions?: DefaultViewOptions | null;
+  /** Whether to auto-annotate and switch to annotation tab on chart load */
+  autoAnnotateOnLoad?: boolean;
 }
 
 const STORAGE_KEY = "tja_analyzer_profile";
@@ -11,6 +22,8 @@ const PLAYDATA_STORAGE_KEY = "tja_analyzer_playdata";
 const DEFAULT_PROFILE: UserProfile = {
   isTesterMode: false,
   playdata: null,
+  defaultViewOptions: null,
+  autoAnnotateOnLoad: false,
 };
 
 export function loadUserProfile(): UserProfile {

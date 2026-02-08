@@ -8,7 +8,7 @@ import {
   type Playdata,
   parseFumenDatabaseHtml,
 } from "../utils/playdata-parser.js";
-import { clearPlaydata, loadUserProfile, saveUserProfile } from "../utils/user-profile.js";
+import { clearPlaydata, type DefaultViewOptions, loadUserProfile, saveUserProfile } from "../utils/user-profile.js";
 
 export class SettingsPanel extends HTMLElement {
   private isModalOpen = false;
@@ -23,13 +23,18 @@ export class SettingsPanel extends HTMLElement {
   private isImporting = false;
   private manualPasteContent = "";
 
+  // View defaults and auto-annotate settings
+  private defaultViewOptions: DefaultViewOptions | null = null;
+  private autoAnnotateOnLoad = false;
+  private settingsStatus: { type: "success" | "error" | "none"; message: string } = { type: "none", message: "" };
+
   constructor() {
     super();
     this.modalContainer = document.createElement("div");
   }
 
   connectedCallback() {
-    this.loadPlaydata();
+    this.loadSettings();
     this.render();
     document.body.appendChild(this.modalContainer);
     this.renderModal();
@@ -64,13 +69,15 @@ export class SettingsPanel extends HTMLElement {
     }
   }
 
-  private loadPlaydata() {
+  private loadSettings() {
     const profile = loadUserProfile();
     this.playdata = profile.playdata ?? null;
+    this.defaultViewOptions = profile.defaultViewOptions ?? null;
+    this.autoAnnotateOnLoad = profile.autoAnnotateOnLoad ?? false;
   }
 
   private handleOpen() {
-    this.loadPlaydata();
+    this.loadSettings();
     this.isModalOpen = true;
     this.importStatus = { type: "none", message: "" };
     this.renderModal();
@@ -87,6 +94,37 @@ export class SettingsPanel extends HTMLElement {
     appState.isTesterMode = (e.target as HTMLInputElement).checked;
     saveUserProfile({ isTesterMode: appState.isTesterMode });
     window.dispatchEvent(new Event("dev-mode-change"));
+    this.renderModal();
+  }
+
+  private handleSaveViewDefaults() {
+    // Get current view options from appState
+    const viewOptions = appState.viewOptions;
+    const viewOptionsEl = document.querySelector("view-options") as { statsVisible: boolean } | null;
+
+    const defaults: DefaultViewOptions = {
+      zoom: viewOptions.autoZoom ? "auto" : viewOptions.beatsPerLine,
+      showNoteStats: viewOptionsEl?.statsVisible ?? true,
+    };
+
+    this.defaultViewOptions = defaults;
+    saveUserProfile({ defaultViewOptions: defaults });
+    this.settingsStatus = { type: "success", message: i18n.t("ui.viewDefaults.saved") };
+    this.renderModal();
+  }
+
+  private handleClearViewDefaults() {
+    this.defaultViewOptions = null;
+    saveUserProfile({ defaultViewOptions: null });
+    this.settingsStatus = { type: "success", message: i18n.t("ui.viewDefaults.cleared") };
+    this.renderModal();
+  }
+
+  private handleAutoAnnotateToggle(e: Event) {
+    const checked = (e.target as HTMLInputElement).checked;
+    this.autoAnnotateOnLoad = checked;
+    saveUserProfile({ autoAnnotateOnLoad: checked });
+    window.dispatchEvent(new CustomEvent("settings-change", { detail: { autoAnnotateOnLoad: checked } }));
     this.renderModal();
   }
 
@@ -499,9 +537,96 @@ export class SettingsPanel extends HTMLElement {
       </div>
     );
 
+    // View Defaults Section
+    const zoomText =
+      this.defaultViewOptions?.zoom === "auto"
+        ? i18n.t("ui.auto")
+        : this.defaultViewOptions?.zoom
+          ? `${Math.round((16 / this.defaultViewOptions.zoom) * 100)}%`
+          : null;
+
+    const viewDefaultsSection = (
+      <div style="margin-top: 20px;">
+        <h3 style="margin: 0 0 12px 0; font-size: 16px;">{i18n.t("ui.viewDefaults.title")}</h3>
+        <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
+          {i18n.t("ui.viewDefaults.desc")}
+        </div>
+
+        {this.defaultViewOptions ? (
+          <div style="margin-bottom: 12px; padding: 12px; background: var(--bg-panel); border-radius: 6px; border: 1px solid var(--border-light); font-size: 14px;">
+            <div style="font-weight: 600; margin-bottom: 8px;">{i18n.t("ui.viewDefaults.current")}</div>
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+              <div>
+                {i18n.t("ui.viewDefaults.zoom")}: <strong>{zoomText}</strong>
+              </div>
+              <div>
+                {i18n.t("ui.viewDefaults.noteStats")}:{" "}
+                <strong>
+                  {this.defaultViewOptions.showNoteStats ? i18n.t("ui.viewDefaults.on") : i18n.t("ui.viewDefaults.off")}
+                </strong>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div style="margin-bottom: 12px; padding: 12px; background: var(--bg-panel); border-radius: 6px; border: 1px solid var(--border-light); color: var(--text-secondary); font-size: 14px;">
+            {i18n.t("ui.viewDefaults.none")}
+          </div>
+        )}
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+          <button type="button" onclick={this.handleSaveViewDefaults.bind(this)}>
+            {i18n.t("ui.viewDefaults.save")}
+          </button>
+          {this.defaultViewOptions && (
+            <button type="button" className="btn-secondary" onclick={this.handleClearViewDefaults.bind(this)}>
+              {i18n.t("ui.viewDefaults.clear")}
+            </button>
+          )}
+        </div>
+
+        {this.settingsStatus.type !== "none" && (
+          <div
+            style={`margin-top: 12px; padding: 10px; border-radius: 4px; font-size: 14px; ${
+              this.settingsStatus.type === "success"
+                ? "background: var(--success-bg, #d4edda); color: var(--success-text, #155724);"
+                : "background: var(--error-bg, #f8d7da); color: var(--error-text, #721c24);"
+            }`}
+          >
+            {this.settingsStatus.message}
+          </div>
+        )}
+      </div>
+    );
+
+    // Auto-Annotate Section
+    const autoAnnotateSection = (
+      <div style="margin-top: 20px;">
+        <h3 style="margin: 0 0 12px 0; font-size: 16px;">{i18n.t("ui.autoAnnotate.title")}</h3>
+        <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
+          {i18n.t("ui.autoAnnotate.desc")}
+        </div>
+        <div
+          className="about-item"
+          style="padding: 12px; background: var(--bg-panel-header); border-radius: 6px; border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;"
+        >
+          <label style="display: flex; align-items: center; width: 100%; cursor: pointer;">
+            <input
+              type="checkbox"
+              checked={this.autoAnnotateOnLoad}
+              onchange={this.handleAutoAnnotateToggle.bind(this)}
+              style="margin-right: 10px;"
+            />
+            {i18n.t("ui.autoAnnotate.title")}
+          </label>
+        </div>
+      </div>
+    );
+
     return (
       <div style="display: flex; flex-direction: column; gap: 10px;">
         {devModeToggle}
+        {viewDefaultsSection}
+        {autoAnnotateSection}
         {playdataSection}
       </div>
     );

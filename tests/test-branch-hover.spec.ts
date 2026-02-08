@@ -113,10 +113,6 @@ LEVEL:10
     await internalCanvas.hover({ position: { x: coords.x, y: coords.normalY }, force: true });
     await page.waitForTimeout(200);
 
-    // Debug: log shadow DOM content
-    const shadowText = await stats.evaluate((node) => node.shadowRoot?.textContent);
-    console.log("Note Stats Shadow Text:", shadowText);
-
     await expect(stats.locator(".stat-value", { hasText: /don/i })).toBeVisible();
 
     // 2. Hover Expert (Should be '2' -> ka)

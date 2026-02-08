@@ -3,6 +3,7 @@ import type { JudgementOptions } from "../components/judgement-options.js";
 import type { SelectOptions } from "../components/select-options.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
+import { loadUserProfile } from "../utils/user-profile.js";
 import { courseBranchSelect, noteStatsDisplay, tjaChart } from "../view/ui-elements.js";
 
 export function updateStatsComponent(hit: HitInfo | null) {
@@ -91,7 +92,7 @@ export function updateCollapseLoopState() {
 }
 
 // Helper to read file as text (compatibility wrapper)
-export function updateParsedCharts(content: string) {
+export function updateParsedCharts(content: string, fromStream = false) {
   appState.parsedTJACharts = parseTJA(content);
 
   // Clear selection
@@ -127,6 +128,44 @@ export function updateParsedCharts(content: string) {
   }
 
   updateStatsComponent(null);
+
+  // Apply saved default view options (only if not from stream)
+  if (!fromStream) {
+    const profile = loadUserProfile();
+    if (profile.defaultViewOptions) {
+      const defaults = profile.defaultViewOptions;
+      // Apply zoom
+      if (defaults.zoom === "auto") {
+        appState.viewOptions.autoZoom = true;
+      } else {
+        appState.viewOptions.autoZoom = false;
+        appState.viewOptions.beatsPerLine = defaults.zoom;
+      }
+      // Apply note stats visibility
+      const viewOptionsEl = document.querySelector("view-options") as { statsVisible: boolean } | null;
+      if (viewOptionsEl) {
+        viewOptionsEl.statsVisible = defaults.showNoteStats;
+      }
+      // Notify view-options component to re-render
+      document.dispatchEvent(new Event("view-options-update"));
+    }
+
+    // Auto-annotate on load (only if enabled and not from stream)
+    if (profile.autoAnnotateOnLoad) {
+      // Use setTimeout to ensure chart is fully loaded first
+      setTimeout(() => {
+        // Switch to annotation tab
+        const annotateTab = document.querySelector('.panel-tab[data-do-tab="annotation"]') as HTMLElement;
+        if (annotateTab) {
+          annotateTab.click();
+        }
+        // Trigger auto-annotate
+        if (tjaChart && typeof tjaChart.autoAnnotate === "function") {
+          tjaChart.autoAnnotate();
+        }
+      }, 100);
+    }
+  }
 }
 
 export function updateLoopControls() {
