@@ -230,7 +230,7 @@ export class ChangelogPanel extends HTMLElement {
               <div className="modal-close-icon" />
             </button>
           </div>
-          <div className="about-content" style="padding: 20px 20px 10px 20px;">
+          <div className="about-content" style="padding: 20px 20px 10px 20px; flex-shrink: 0;">
             <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
               <a
                 href="https://github.com/jack9966qk/TJAAnalyzer/issues/new"
@@ -255,7 +255,10 @@ export class ChangelogPanel extends HTMLElement {
 
             <h3 style="margin: 0 0 5px 0; font-size: 1.1em; color: var(--text-primary);">{i18n.t("ui.changelog")}</h3>
           </div>
-          <div id="changelog-list" style="padding: 0 20px 20px 20px; border-top: 1px solid var(--border-lighter);">
+          <div
+            id="changelog-list"
+            style="padding: 0 20px 20px 20px; border-top: 1px solid var(--border-lighter); overflow-y: auto; flex: 1; min-height: 0;"
+          >
             {content}
           </div>
         </div>

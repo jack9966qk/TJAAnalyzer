@@ -681,6 +681,9 @@ canvas {
   transition:
     opacity var(--anim-duration-normal) ease,
     visibility var(--anim-duration-normal) ease;
+  /* Safe area padding for modal scrolling area */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  box-sizing: border-box;
 }
 
 .modal.open {
@@ -695,11 +698,15 @@ canvas {
   border: 1px solid var(--border-color);
   width: 80%;
   max-width: 800px;
+  max-height: calc(90% - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   border-radius: 8px;
   box-shadow: 0 4px 8px var(--shadow-color);
   color: var(--text-primary);
   transform: scale(0.95);
   transition: transform var(--anim-duration-normal) ease;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .modal.open .modal-content {
@@ -758,8 +765,9 @@ canvas {
 
 #changelog-list {
   padding: 20px;
-  max-height: 70vh;
   overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .changelog-item {

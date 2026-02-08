@@ -13,11 +13,15 @@ import { clearPlaydata, loadUserProfile, saveUserProfile } from "../utils/user-p
 export class SettingsPanel extends HTMLElement {
   private isModalOpen = false;
   private modalContainer: HTMLDivElement;
-  private copyButtonState: "idle" | "copied" = "idle";
+
+  private showBookmarklet = false;
   private importStatus: { type: "success" | "error" | "none"; message: string } = { type: "none", message: "" };
   private playdata: Playdata | null = null;
   private isImportMode = false;
+  private isFromBookmarklet = false;
   private isExporting = false;
+  private isImporting = false;
+  private manualPasteContent = "";
 
   constructor() {
     super();
@@ -46,8 +50,9 @@ export class SettingsPanel extends HTMLElement {
       const newUrl = window.location.pathname + window.location.hash;
       window.history.replaceState({}, document.title, newUrl);
 
-      // Open modal in import mode
+      // Open modal in import mode (from bookmarklet)
       this.isImportMode = true;
+      this.isFromBookmarklet = true;
       this.isModalOpen = true;
       this.renderModal();
     }
@@ -74,6 +79,7 @@ export class SettingsPanel extends HTMLElement {
   private handleClose() {
     this.isModalOpen = false;
     this.isImportMode = false;
+    this.isFromBookmarklet = false;
     this.renderModal();
   }
 
@@ -106,26 +112,59 @@ export class SettingsPanel extends HTMLElement {
     return `javascript:${encodeURIComponent(bookmarkletScript)}`;
   }
 
-  private async handleCopyBookmarklet() {
-    try {
-      await navigator.clipboard.writeText(this.getBookmarkletCode());
-      this.copyButtonState = "copied";
-      this.renderModal();
+  private handleShowBookmarklet() {
+    this.showBookmarklet = !this.showBookmarklet;
+    this.renderModal();
+  }
 
-      setTimeout(() => {
-        this.copyButtonState = "idle";
-        this.renderModal();
-      }, 2000);
-    } catch (err) {
-      console.error("Failed to copy bookmarklet:", err);
+  private handleGoToImport() {
+    this.isImportMode = true;
+    this.renderModal();
+  }
+
+  private handleSelectBookmarklet(e: Event) {
+    const textarea = e.target as HTMLTextAreaElement;
+    textarea.select();
+    textarea.setSelectionRange(0, textarea.value.length);
+  }
+
+  private handleManualPasteInput(e: Event) {
+    this.manualPasteContent = (e.target as HTMLTextAreaElement).value;
+    const vdom = this.isImportMode ? this.renderImportModeContent() : this.renderSettingsContent();
+    const settingsContent = this.modalContainer.querySelector(".settings-content");
+    if (settingsContent) {
+      webjsx.applyDiff(settingsContent, vdom);
     }
   }
 
-  private async handlePasteImport() {
-    try {
-      const clipboardText = await navigator.clipboard.readText();
+  private async handlePasteEvent(e: ClipboardEvent) {
+    // Automatically import when user pastes into textarea
+    const text = e.clipboardData?.getData("text");
+    if (text && text.length > 100) {
+      e.preventDefault();
+      this.manualPasteContent = text;
+      await this.handleManualImport();
+    }
+  }
 
-      if (!clipboardText || clipboardText.length < 100) {
+  private isIOS(): boolean {
+    return (
+      /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+      (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+    );
+  }
+
+  private async handleManualImport() {
+    if (!this.manualPasteContent || this.isImporting) return;
+    this.isImporting = true;
+    this.renderModal();
+    await this.processImport(this.manualPasteContent);
+    this.isImporting = false;
+  }
+
+  private async processImport(text: string) {
+    try {
+      if (!text || text.length < 100) {
         this.importStatus = {
           type: "error",
           message: i18n.t("ui.playdata.importFailed"),
@@ -135,7 +174,7 @@ export class SettingsPanel extends HTMLElement {
       }
 
       // Check if it looks like HTML
-      if (!clipboardText.includes("<html") && !clipboardText.includes("<div")) {
+      if (!text.includes("<html") && !text.includes("<div")) {
         this.importStatus = {
           type: "error",
           message: i18n.t("ui.playdata.importFailed"),
@@ -145,7 +184,7 @@ export class SettingsPanel extends HTMLElement {
       }
 
       // Parse the HTML
-      const playdata = parseFumenDatabaseHtml(clipboardText);
+      const playdata = parseFumenDatabaseHtml(text);
 
       if (playdata.entries.length === 0) {
         this.importStatus = {
@@ -159,6 +198,7 @@ export class SettingsPanel extends HTMLElement {
       // Save to profile
       saveUserProfile({ playdata });
       this.playdata = playdata;
+      this.manualPasteContent = ""; // Clear after success
 
       this.importStatus = {
         type: "success",
@@ -170,6 +210,20 @@ export class SettingsPanel extends HTMLElement {
       this.importStatus = {
         type: "error",
         message: i18n.t("ui.playdata.importFailed"),
+      };
+      this.renderModal();
+    }
+  }
+
+  private async handlePasteImport() {
+    try {
+      const clipboardText = await navigator.clipboard.readText();
+      await this.processImport(clipboardText);
+    } catch (err) {
+      console.error("Failed to read clipboard:", err);
+      this.importStatus = {
+        type: "error",
+        message: `${i18n.t("ui.playdata.importFailed")} ${i18n.t("ui.playdata.pasteManualInstruction")}`,
       };
       this.renderModal();
     }
@@ -243,6 +297,91 @@ export class SettingsPanel extends HTMLElement {
   }
 
   renderModal() {
+    const modalVdom = (
+      <div
+        id="settings-modal"
+        className={`modal ${this.isModalOpen ? "open" : ""}`}
+        onclick={(e: MouseEvent) => {
+          if (e.target === e.currentTarget) this.handleClose();
+        }}
+      >
+        <div className="modal-content" style="max-width: 600px;">
+          <div className="modal-header">
+            <h2>{this.isImportMode ? i18n.t("ui.playdata.title") : i18n.t("ui.settings")}</h2>
+            <button
+              type="button"
+              className="close-btn"
+              onclick={this.handleClose.bind(this)}
+              aria-label={i18n.t("ui.close")}
+            >
+              <div className="modal-close-icon" />
+            </button>
+          </div>
+          <div className="settings-content" style="padding: 20px; overflow-y: auto; flex: 1; min-height: 0;">
+            {this.isImportMode ? this.renderImportModeContent() : this.renderSettingsContent()}
+          </div>
+        </div>
+      </div>
+    );
+
+    webjsx.applyDiff(this.modalContainer, modalVdom);
+  }
+
+  renderImportModeContent() {
+    return (
+      <div style="text-align: center; padding: 20px;">
+        <div style="font-size: 16px; margin-bottom: 20px; color: var(--text-primary);">
+          {i18n.t(this.isFromBookmarklet ? "ui.playdata.importReady" : "ui.playdata.pasteHereInstruction")}
+        </div>
+
+        <div style="margin-bottom: 15px;">
+          <textarea
+            placeholder={i18n.t("ui.playdata.pasteInstructions")}
+            style="width: 100%; height: 120px; font-size: 14px; padding: 12px; border: 2px dashed var(--border-light); border-radius: 8px; background: var(--bg-panel); color: var(--text-primary); resize: vertical; box-sizing: border-box;"
+            oninput={this.handleManualPasteInput.bind(this)}
+            onpaste={this.handlePasteEvent.bind(this)}
+            value={this.manualPasteContent}
+            disabled={this.isImporting}
+          />
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+          {!this.isIOS() && (
+            <button
+              type="button"
+              className="btn-secondary"
+              onclick={this.handlePasteImport.bind(this)}
+              disabled={this.isImporting}
+            >
+              {i18n.t("ui.playdata.pasteImport")}
+            </button>
+          )}
+          <button
+            type="button"
+            style="font-size: 16px; padding: 12px 24px;"
+            onclick={this.handleManualImport.bind(this)}
+            disabled={!this.manualPasteContent || this.isImporting}
+          >
+            {this.isImporting ? i18n.t("ui.playdata.importing") : i18n.t("ui.playdata.import")}
+          </button>
+        </div>
+
+        {this.importStatus.type !== "none" && (
+          <div
+            style={`margin-top: 16px; padding: 10px; border-radius: 4px; font-size: 14px; ${
+              this.importStatus.type === "success"
+                ? "background: var(--success-bg, #d4edda); color: var(--success-text, #155724);"
+                : "background: var(--error-bg, #f8d7da); color: var(--error-text, #721c24);"
+            }`}
+          >
+            {this.importStatus.message}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  renderSettingsContent() {
     const devModeToggle = (
       <div
         className="about-item"
@@ -321,13 +460,28 @@ export class SettingsPanel extends HTMLElement {
         </ol>
 
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <button type="button" onclick={this.handleCopyBookmarklet.bind(this)}>
-            {this.copyButtonState === "copied" ? i18n.t("ui.playdata.copied") : i18n.t("ui.playdata.copyBookmarklet")}
+          <button type="button" onclick={this.handleShowBookmarklet.bind(this)}>
+            {this.showBookmarklet ? i18n.t("ui.playdata.hideBookmarklet") : i18n.t("ui.playdata.showBookmarklet")}
           </button>
-          <button type="button" className="btn-secondary" onclick={this.handlePasteImport.bind(this)}>
-            {i18n.t("ui.playdata.pasteImport")}
+          <button type="button" onclick={this.handleGoToImport.bind(this)}>
+            {i18n.t("ui.playdata.goToImport")}
           </button>
         </div>
+
+        {this.showBookmarklet && (
+          <div style="margin-top: 12px;">
+            <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">
+              {i18n.t("ui.playdata.bookmarkletInstructions")}
+            </div>
+            <textarea
+              readOnly
+              value={this.getBookmarkletCode()}
+              onclick={this.handleSelectBookmarklet.bind(this)}
+              onfocus={this.handleSelectBookmarklet.bind(this)}
+              style="width: 100%; height: 80px; font-size: 12px; font-family: monospace; padding: 8px; border: 1px solid var(--border-light); border-radius: 4px; background: var(--bg-panel); color: var(--text-primary); resize: vertical; box-sizing: border-box;"
+            />
+          </div>
+        )}
 
         {this.importStatus.type !== "none" && (
           <div
@@ -345,64 +499,12 @@ export class SettingsPanel extends HTMLElement {
       </div>
     );
 
-    // Import mode shows a focused dialog for pasting
-    const importModeContent = (
-      <div style="text-align: center; padding: 20px;">
-        <div style="font-size: 16px; margin-bottom: 20px; color: var(--text-primary);">
-          {i18n.t("ui.playdata.importReady")}
-        </div>
-        <button type="button" style="font-size: 16px; padding: 12px 24px;" onclick={this.handlePasteImport.bind(this)}>
-          {i18n.t("ui.playdata.pasteImport")}
-        </button>
-        {this.importStatus.type !== "none" && (
-          <div
-            style={`margin-top: 16px; padding: 10px; border-radius: 4px; font-size: 14px; ${
-              this.importStatus.type === "success"
-                ? "background: var(--success-bg, #d4edda); color: var(--success-text, #155724);"
-                : "background: var(--error-bg, #f8d7da); color: var(--error-text, #721c24);"
-            }`}
-          >
-            {this.importStatus.message}
-          </div>
-        )}
+    return (
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        {devModeToggle}
+        {playdataSection}
       </div>
     );
-
-    const modalVdom = (
-      <div
-        id="settings-modal"
-        className={`modal ${this.isModalOpen ? "open" : ""}`}
-        onclick={(e: MouseEvent) => {
-          if (e.target === e.currentTarget) this.handleClose();
-        }}
-      >
-        <div className="modal-content" style="max-width: 600px;">
-          <div className="modal-header">
-            <h2>{this.isImportMode ? i18n.t("ui.playdata.title") : i18n.t("ui.settings")}</h2>
-            <button
-              type="button"
-              className="close-btn"
-              onclick={this.handleClose.bind(this)}
-              aria-label={i18n.t("ui.close")}
-            >
-              <div className="modal-close-icon" />
-            </button>
-          </div>
-          <div className="settings-content" style="padding: 20px; max-height: 70vh; overflow-y: auto;">
-            {this.isImportMode ? (
-              importModeContent
-            ) : (
-              <div style="display: flex; flex-direction: column; gap: 10px;">
-                {devModeToggle}
-                {playdataSection}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-
-    webjsx.applyDiff(this.modalContainer, modalVdom);
   }
 }
 
