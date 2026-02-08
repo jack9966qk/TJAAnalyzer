@@ -34,6 +34,7 @@ import {
   refreshChart,
   updateBranchSelectorState,
   updateCollapseLoopState,
+  updatePageUrl,
   updateParsedCharts,
   updateSelectionUI,
   updateStatsComponent,
@@ -527,6 +528,7 @@ function initEventListeners() {
 
   courseBranchSelect.addEventListener("difficulty-change", () => {
     updateBranchSelectorState(true);
+    updatePageUrl();
   });
 
   courseBranchSelect.addEventListener("branch-change", () => {

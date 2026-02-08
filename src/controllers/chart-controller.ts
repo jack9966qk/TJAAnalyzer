@@ -6,6 +6,30 @@ import { i18n } from "../utils/i18n.js";
 import { loadUserProfile } from "../utils/user-profile.js";
 import { courseBranchSelect, noteStatsDisplay, tjaChart } from "../view/ui-elements.js";
 
+/**
+ * Updates the page URL to reflect the currently loaded ESE chart and difficulty.
+ * Uses replaceState to avoid polluting the browser history.
+ * If no ESE chart is loaded, clears the query parameters.
+ */
+export function updatePageUrl() {
+  const url = new URL(window.location.href);
+
+  if (appState.currentEsePath) {
+    const diff = courseBranchSelect?.difficulty || "oni";
+    url.searchParams.set("ese", appState.currentEsePath);
+    url.searchParams.set("diff", diff);
+  } else {
+    // Clear URL parameters if not loading from ESE
+    url.searchParams.delete("ese");
+    url.searchParams.delete("diff");
+  }
+
+  // Only update if the URL has actually changed
+  if (url.toString() !== window.location.href) {
+    window.history.replaceState(null, "", url.toString());
+  }
+}
+
 export function updateStatsComponent(hit: HitInfo | null) {
   // Logic: note stats shows selected note, or hovered note if it's a note.
   // branch stats shows hovered branch line.

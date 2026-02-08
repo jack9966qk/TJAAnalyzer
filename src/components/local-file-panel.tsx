@@ -1,5 +1,5 @@
 import * as webjsx from "webjsx";
-import { updateParsedCharts } from "../controllers/chart-controller.js";
+import { updatePageUrl, updateParsedCharts } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 
@@ -33,7 +33,9 @@ export class LocalFilePanel extends HTMLElement {
         const content = await readFileAsText(file);
 
         appState.loadedTJAContent = content;
+        appState.currentEsePath = null;
         updateParsedCharts(content);
+        updatePageUrl();
 
         this.dispatchStatus("status.fileLoaded");
 

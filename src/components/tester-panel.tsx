@@ -1,5 +1,5 @@
 import * as webjsx from "webjsx";
-import { clearJudgements, updateParsedCharts } from "../controllers/chart-controller.js";
+import { clearJudgements, updatePageUrl, updateParsedCharts } from "../controllers/chart-controller.js";
 import { exampleTJA } from "../core/example-data.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
@@ -37,6 +37,7 @@ export class TesterPanel extends HTMLElement {
 
     try {
       updateParsedCharts(appState.loadedTJAContent);
+      updatePageUrl();
       this.dispatchStatus("status.exampleLoaded");
     } catch (e) {
       console.error("Error loading example:", e);

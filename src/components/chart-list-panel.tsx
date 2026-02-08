@@ -1,6 +1,6 @@
 import * as webjsx from "webjsx";
 import type { GitNode } from "../clients/ese-client.js";
-import { refreshChart, updateParsedCharts } from "../controllers/chart-controller.js";
+import { refreshChart, updatePageUrl, updateParsedCharts } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
@@ -96,6 +96,7 @@ export class ChartListPanel extends HTMLElement {
       }
 
       this.dispatchStatus("status.chartLoaded");
+      updatePageUrl();
     } catch (e) {
       console.error("Error in loadEseFromUrl", e);
       const errMsg = e instanceof Error ? e.message : String(e);
@@ -171,6 +172,7 @@ export class ChartListPanel extends HTMLElement {
 
       updateParsedCharts(content);
       this.dispatchStatus("status.chartLoaded");
+      updatePageUrl();
     } catch (e) {
       console.error(e);
       const errMsg = e instanceof Error ? e.message : String(e);
