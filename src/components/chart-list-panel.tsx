@@ -120,7 +120,13 @@ export class ChartListPanel extends HTMLElement {
           return (
             node.path.toLowerCase().includes(query) ||
             node.title?.toLowerCase().includes(query) ||
-            node.titleJp?.toLowerCase().includes(query)
+            node.titleJp?.toLowerCase().includes(query) ||
+            node.titleOfficial?.toLowerCase().includes(query) ||
+            node.titleCn?.toLowerCase().includes(query) ||
+            node.titleKo?.toLowerCase().includes(query) ||
+            node.subtitle?.toLowerCase().includes(query) ||
+            node.subtitleJp?.toLowerCase().includes(query) ||
+            node.artist?.toLowerCase().includes(query)
           );
         })
       : eseTree;

@@ -4,6 +4,12 @@ export interface GitNode {
   url: string; // Relative URL
   title?: string;
   titleJp?: string;
+  titleOfficial?: string; // Official title from song mapping (may differ from TJA's TITLEJA)
+  titleCn?: string;
+  titleKo?: string;
+  subtitle?: string;
+  subtitleJp?: string;
+  artist?: string;
 }
 
 export class EseClient {

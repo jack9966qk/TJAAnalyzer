@@ -9,6 +9,23 @@ const API_BASE = "https://ese.tjadataba.se/api/v1";
 const RAW_BASE = "https://ese.tjadataba.se/ESE/ESE/raw/branch/master";
 const TARGET_DIR = path.join(__dirname, "public", "ese");
 const INDEX_FILE = path.join(__dirname, "public", "ese_index.json");
+const SONG_MAPPING_FILE = path.join(__dirname, "data", "song_mapping.json");
+
+// Load song mapping and create a lookup by esePath
+const songMappingByPath = {};
+if (fs.existsSync(SONG_MAPPING_FILE)) {
+  try {
+    const songMappingData = JSON.parse(fs.readFileSync(SONG_MAPPING_FILE, "utf8"));
+    for (const [_songNo, songInfo] of Object.entries(songMappingData)) {
+      if (songInfo.esePath) {
+        songMappingByPath[songInfo.esePath] = songInfo;
+      }
+    }
+    console.log(`Loaded ${Object.keys(songMappingByPath).length} song mappings.`);
+  } catch (e) {
+    console.warn("Failed to load song_mapping.json:", e.message);
+  }
+}
 
 // Ensure target directory exists
 if (!fs.existsSync(TARGET_DIR)) {
@@ -35,6 +52,8 @@ function extractMetadata(content) {
   const lines = content.split(/\r?\n/);
   let title = null;
   let titleJp = null;
+  let subtitle = null;
+  let subtitleJp = null;
 
   for (const line of lines) {
     const trimmed = line.trim();
@@ -42,12 +61,19 @@ function extractMetadata(content) {
       title = trimmed.substring(6).trim();
     } else if (trimmed.startsWith("TITLEJA:")) {
       titleJp = trimmed.substring(8).trim();
+    } else if (trimmed.startsWith("SUBTITLE:")) {
+      subtitle = trimmed.substring(9).trim();
+      // Remove leading -- if present (common in TJA subtitles)
+      if (subtitle.startsWith("--")) subtitle = subtitle.substring(2).trim();
+    } else if (trimmed.startsWith("SUBTITLEJA:")) {
+      subtitleJp = trimmed.substring(11).trim();
+      if (subtitleJp.startsWith("--")) subtitleJp = subtitleJp.substring(2).trim();
     }
 
-    if (title && titleJp) break; // Found both
+    if (title && titleJp && subtitle && subtitleJp) break; // Found all
     if (line.startsWith("#START")) break; // Stop at chart start
   }
-  return { title, titleJp };
+  return { title, titleJp, subtitle, subtitleJp };
 }
 
 async function main() {
@@ -129,6 +155,8 @@ async function main() {
 
       let title = null;
       let titleJp = null;
+      let subtitle = null;
+      let subtitleJp = null;
 
       if (isCached) {
         skipCount++;
@@ -139,6 +167,8 @@ async function main() {
           const meta = extractMetadata(content);
           title = meta.title;
           titleJp = meta.titleJp;
+          subtitle = meta.subtitle;
+          subtitleJp = meta.subtitleJp;
         } catch (_e) {
           console.warn(`Failed to read local file for metadata: ${targetPath}`);
         }
@@ -154,6 +184,8 @@ async function main() {
           const meta = extractMetadata(content);
           title = meta.title;
           titleJp = meta.titleJp;
+          subtitle = meta.subtitle;
+          subtitleJp = meta.subtitleJp;
         } catch (err) {
           console.error(`\nError downloading ${node.path}:`, err.message);
           continue; // Don't add to index if failed
@@ -168,6 +200,20 @@ async function main() {
       };
       if (title) entry.title = title;
       if (titleJp) entry.titleJp = titleJp;
+      if (subtitle) entry.subtitle = subtitle;
+      if (subtitleJp) entry.subtitleJp = subtitleJp;
+
+      // Add metadata from song mapping if available
+      const songMapping = songMappingByPath[node.path];
+      if (songMapping) {
+        // Song mapping title may differ from TJA's TITLEJA, include as official title
+        if (songMapping.title && songMapping.title !== titleJp) {
+          entry.titleOfficial = songMapping.title;
+        }
+        if (songMapping.titlecn) entry.titleCn = songMapping.titlecn;
+        if (songMapping.titleko) entry.titleKo = songMapping.titleko;
+        if (songMapping.artist) entry.artist = songMapping.artist;
+      }
 
       newIndex.push(entry);
     }
