@@ -1,5 +1,15 @@
 [
   {
+    "hash": "2799339",
+    "message": "Allow saving default view options and triggerig auto annotation on chart load.",
+    "date": "2026-02-08"
+  },
+  {
+    "hash": "431778b",
+    "message": "Fix a few broken tests.",
+    "date": "2026-02-08"
+  },
+  {
     "hash": "55261ea",
     "message": "Update version to 0.9.0.",
     "date": "2026-02-08"
@@ -487,16 +497,6 @@
   {
     "hash": "e5cd701",
     "message": "Attempt to address a flaky test case.",
-    "date": "2026-01-25"
-  },
-  {
-    "hash": "07ca362",
-    "message": "Update version to 0.7.2.",
-    "date": "2026-01-25"
-  },
-  {
-    "hash": "ed0b183",
-    "message": "Improve long note rendering and selection logic.",
     "date": "2026-01-25"
   }
 ]
