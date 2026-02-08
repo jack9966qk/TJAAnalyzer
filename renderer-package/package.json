@@ -1,6 +1,6 @@
 {
   "name": "tja-renderer",
-  "version": "0.8.6",
+  "version": "0.9.0",
   "description": "A high-level TJA chart renderer for the web.",
   "type": "module",
   "main": "src/index.ts",
