@@ -28,10 +28,12 @@
       font-size: 1.5em;
       color: #333333;
     }
+
     #loading-screen > div {
       opacity: 0;
       transition: opacity 0.5s ease;
     }
+
     @media (prefers-color-scheme: dark) {
       #loading-screen {
         background-color: #1e1e1e;
@@ -39,13 +41,14 @@
       }
     }
     </style>
-    <script type="module" crossorigin src="/assets/main-BUo6BEdr.js"></script>
+    <script type="module" crossorigin src="/assets/main-CP3MzOvZ.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/renderer-BNN-Vw3U.js">
-    <link rel="modulepreload" crossorigin href="/assets/note-stats-IVWlqOgR.js">
-    <link rel="modulepreload" crossorigin href="/assets/tja-chart-Dl538Joy.js">
-    <link rel="modulepreload" crossorigin href="/assets/changelog-panel-DQamEJjr.js">
-    <link rel="stylesheet" crossorigin href="/assets/style-BI9_lx53.css">
+    <link rel="modulepreload" crossorigin href="/assets/note-stats-BTpy8YN1.js">
+    <link rel="modulepreload" crossorigin href="/assets/tja-chart-DKY_uaXu.js">
+    <link rel="modulepreload" crossorigin href="/assets/changelog-panel-CcvKLmIP.js">
+    <link rel="stylesheet" crossorigin href="/assets/style-DBFxbnas.css">
   <link rel="manifest" href="/manifest.json"></head>
+
   <body>
     <div id="loading-screen">
       <div>Loading...</div>
@@ -61,7 +64,10 @@
       <div id="controls-container">
         <div class="app-header">
           <h1>TJA Analyzer</h1>
-          <language-selector id="language-selector"></language-selector>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <language-selector id="language-selector"></language-selector>
+            <settings-panel id="settings-panel"></settings-panel>
+          </div>
         </div>
 
         <div id="data-source-panel">

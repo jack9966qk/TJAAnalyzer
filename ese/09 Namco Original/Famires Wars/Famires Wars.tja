@@ -2,12 +2,13 @@
 TITLE:Famires Wars
 TITLEJA:ファミレスウォーズ
 SUBTITLE:--Mirai feat. Keiori Aihara
+SUBTITLEJA: 
 BPM:190
 WAVE:Famires Wars.ogg
 OFFSET:-1.500
 DEMOSTART:32.434
 
-//Shinuchi (based on original): 6870/4420/2080/1190
+//Shinuchi: 6870/4420/2080/1190
 
 COURSE:Oni
 LEVEL:8

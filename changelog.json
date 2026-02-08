@@ -1,5 +1,40 @@
 [
   {
+    "hash": "55261ea",
+    "message": "Update version to 0.9.0.",
+    "date": "2026-02-08"
+  },
+  {
+    "hash": "47b72ea",
+    "message": "Support searching by CN/KR title and by artist.",
+    "date": "2026-02-08"
+  },
+  {
+    "hash": "f5cd20a",
+    "message": "Update playdata import flow to work around iOS limitations. Make modal pages respect safe areas.",
+    "date": "2026-02-08"
+  },
+  {
+    "hash": "a6c40e6",
+    "message": "Support exporting playdata to taiko-rating-analyzer format.",
+    "date": "2026-02-08"
+  },
+  {
+    "hash": "adf183e",
+    "message": "Support parsing and importing of fumen-database playdata through a bookmarklet.",
+    "date": "2026-02-08"
+  },
+  {
+    "hash": "022db9f",
+    "message": "Create a local persistent user profile and use it to store tester mode status.",
+    "date": "2026-02-08"
+  },
+  {
+    "hash": "a1f7bdd",
+    "message": "Add a settings modal page, move the developer mode toggle there.",
+    "date": "2026-02-08"
+  },
+  {
     "hash": "12bc59b",
     "message": "Update version to 0.8.6.",
     "date": "2026-02-08"
@@ -463,40 +498,5 @@
     "hash": "ed0b183",
     "message": "Improve long note rendering and selection logic.",
     "date": "2026-01-25"
-  },
-  {
-    "hash": "506fe08",
-    "message": "Refactor annotate options UI and add always show annotations support.",
-    "date": "2026-01-25"
-  },
-  {
-    "hash": "59b736d",
-    "message": "Update version to 0.7.1.",
-    "date": "2026-01-24"
-  },
-  {
-    "hash": "97f07d7",
-    "message": "Fix note gap calculation to respect bar measure ratio (standardized to 4/4).",
-    "date": "2026-01-24"
-  },
-  {
-    "hash": "4592bbf",
-    "message": "Switch view options to judgement mode when stream connection is established.",
-    "date": "2026-01-24"
-  },
-  {
-    "hash": "a020181",
-    "message": "Minor clean up focusing on type annotations.",
-    "date": "2026-01-24"
-  },
-  {
-    "hash": "0852045",
-    "message": "Remove unnecessary trailing comma from some labels.",
-    "date": "2026-01-24"
-  },
-  {
-    "hash": "a6a3455",
-    "message": "Refactor TJA parsing and rendering to use NoteType enum.",
-    "date": "2026-01-24"
   }
 ]
