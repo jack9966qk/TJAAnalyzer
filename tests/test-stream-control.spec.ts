@@ -4,8 +4,8 @@ test.describe("Stream Control Interaction", () => {
   test("Start/Stop Test Stream Button Toggle", async ({ page }) => {
     await page.goto("/");
 
-    // Enable Tester Mode
-    await page.click("#changelog-btn");
+    // Enable Tester Mode (now in Settings panel)
+    await page.click(".settings-btn");
     await page.click("text=Developer Mode");
     await page.click(".close-btn");
 
@@ -40,8 +40,8 @@ test.describe("Stream Control Interaction", () => {
   test("Switching Tabs Stops Stream", async ({ page }) => {
     await page.goto("/");
 
-    // Enable Tester Mode
-    await page.click("#changelog-btn");
+    // Enable Tester Mode (now in Settings panel)
+    await page.click(".settings-btn");
     await page.click("text=Developer Mode");
     await page.click(".close-btn");
 
