@@ -181,6 +181,7 @@ const resources: Resources = {
     "ui.playdata.pasteInstructions": "Please paste the copied HTML content from fumen-database.",
     "ui.playdata.importReady": "Playdata copied from fumen-database. Click below to import.",
     "ui.playdata.export": "Export for taiko-rating-analyzer",
+    "ui.playdata.exportJson": "Export as JSON",
     "ui.playdata.exporting": "Exporting...",
     "ui.playdata.exportSuccess": "Exported {exported} entries ({skipped} skipped).",
     "ui.playdata.exportFailed": "Failed to export playdata.",
@@ -208,6 +209,9 @@ const resources: Resources = {
     "ui.autoAnnotate.title": "Auto-Annotate on Load",
     "ui.autoAnnotate.desc":
       "Automatically switch to annotation tab and run auto-annotate when a chart is loaded (except from stream input).",
+    "ui.chartList.title": "Chart List Display",
+    "ui.chartList.showFullPath": "Always show full file path",
+    "ui.chartList.showFullPathDesc": "Display full file paths instead of song titles in the chart list.",
   },
   zh: {
     "ui.dataSource": "数据源",
@@ -382,6 +386,7 @@ const resources: Resources = {
     "ui.playdata.pasteInstructions": "请粘贴从 fumen-database 复制的 HTML 内容。",
     "ui.playdata.importReady": "已从 fumen-database 复制成绩数据。点击下方按钮导入。",
     "ui.playdata.export": "导出为 taiko-rating-analyzer 格式",
+    "ui.playdata.exportJson": "导出为 JSON",
     "ui.playdata.exporting": "导出中...",
     "ui.playdata.exportSuccess": "已导出 {exported} 条记录（{skipped} 条跳过）。",
     "ui.playdata.exportFailed": "导出成绩失败。",
@@ -408,6 +413,9 @@ const resources: Resources = {
     "ui.viewDefaults.cleared": "默认视图已清除",
     "ui.autoAnnotate.title": "加载时自动标注",
     "ui.autoAnnotate.desc": "加载谱面时自动切换到标注选项卡并运行自动标注（流式输入除外）。",
+    "ui.chartList.title": "谱面列表显示",
+    "ui.chartList.showFullPath": "始终显示完整路径",
+    "ui.chartList.showFullPathDesc": "在谱面列表中显示完整文件路径而非曲名。",
   },
   ja: {
     "ui.dataSource": "データソース",
@@ -582,6 +590,7 @@ const resources: Resources = {
     "ui.playdata.pasteInstructions": "fumen-database からコピーした HTML を貼り付けてください。",
     "ui.playdata.importReady": "fumen-database からプレイデータをコピーしました。下のボタンをクリックしてインポート。",
     "ui.playdata.export": "taiko-rating-analyzer 形式でエクスポート",
+    "ui.playdata.exportJson": "JSONとしてエクスポート",
     "ui.playdata.exporting": "エクスポート中...",
     "ui.playdata.exportSuccess": "{exported} 件をエクスポートしました（{skipped} 件スキップ）。",
     "ui.playdata.exportFailed": "エクスポートに失敗しました。",
@@ -608,6 +617,9 @@ const resources: Resources = {
     "ui.viewDefaults.cleared": "デフォルト表示をクリアしました",
     "ui.autoAnnotate.title": "読み込み時に自動注釈",
     "ui.autoAnnotate.desc": "譜面読み込み時に自動で注釈タブに切り替え、自動注釈を実行します（ストリーム入力を除く）。",
+    "ui.chartList.title": "譜面リスト表示",
+    "ui.chartList.showFullPath": "常に完全なパスを表示",
+    "ui.chartList.showFullPathDesc": "譜面リストで曲名の代わりに完全なファイルパスを表示します。",
   },
 };
 

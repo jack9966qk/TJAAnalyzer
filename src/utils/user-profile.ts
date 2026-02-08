@@ -14,6 +14,8 @@ export interface UserProfile {
   defaultViewOptions?: DefaultViewOptions | null;
   /** Whether to auto-annotate and switch to annotation tab on chart load */
   autoAnnotateOnLoad?: boolean;
+  /** Whether to always show full file path in chart list instead of title */
+  showFullPathInChartList?: boolean;
 }
 
 const STORAGE_KEY = "tja_analyzer_profile";
@@ -24,6 +26,7 @@ const DEFAULT_PROFILE: UserProfile = {
   playdata: null,
   defaultViewOptions: null,
   autoAnnotateOnLoad: false,
+  showFullPathInChartList: false,
 };
 
 export function loadUserProfile(): UserProfile {

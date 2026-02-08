@@ -872,19 +872,20 @@ test.describe("UI Logic", () => {
 
     // Wait for mocked data to load (UI shows "No results" or results)
     // Since initial query is empty, it should list all charts (mocked one)
-    await expect(page.locator(".ese-result-item")).toContainText("cat/song.tja");
+    // Now displays title instead of path by default
+    await expect(page.locator(".ese-result-item")).toContainText("My Song");
 
     // Search by English Title
     await searchInput.fill("My Song");
-    await expect(page.locator(".ese-result-item")).toContainText("cat/song.tja");
+    await expect(page.locator(".ese-result-item")).toContainText("My Song");
 
     // Search by Japanese Title
     await searchInput.fill("私の歌");
-    await expect(page.locator(".ese-result-item")).toContainText("cat/song.tja");
+    await expect(page.locator(".ese-result-item")).toContainText("My Song");
 
     // Search by Path
     await searchInput.fill("song.tja");
-    await expect(page.locator(".ese-result-item")).toContainText("cat/song.tja");
+    await expect(page.locator(".ese-result-item")).toContainText("My Song");
 
     // Search by non-existent
     await searchInput.fill("NotExist");

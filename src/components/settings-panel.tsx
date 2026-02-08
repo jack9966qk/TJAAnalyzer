@@ -27,6 +27,7 @@ export class SettingsPanel extends HTMLElement {
   // View defaults and auto-annotate settings
   private defaultViewOptions: DefaultViewOptions | null = null;
   private autoAnnotateOnLoad = false;
+  private showFullPathInChartList = false;
 
   constructor() {
     super();
@@ -74,6 +75,7 @@ export class SettingsPanel extends HTMLElement {
     this.playdata = profile.playdata ?? null;
     this.defaultViewOptions = profile.defaultViewOptions ?? null;
     this.autoAnnotateOnLoad = profile.autoAnnotateOnLoad ?? false;
+    this.showFullPathInChartList = profile.showFullPathInChartList ?? false;
   }
 
   private handleOpen() {
@@ -125,6 +127,14 @@ export class SettingsPanel extends HTMLElement {
     this.autoAnnotateOnLoad = checked;
     saveUserProfile({ autoAnnotateOnLoad: checked });
     window.dispatchEvent(new CustomEvent("settings-change", { detail: { autoAnnotateOnLoad: checked } }));
+    this.renderModal();
+  }
+
+  private handleShowFullPathToggle(e: Event) {
+    const checked = (e.target as HTMLInputElement).checked;
+    this.showFullPathInChartList = checked;
+    saveUserProfile({ showFullPathInChartList: checked });
+    window.dispatchEvent(new CustomEvent("settings-change", { detail: { showFullPathInChartList: checked } }));
     this.renderModal();
   }
 
@@ -328,6 +338,37 @@ export class SettingsPanel extends HTMLElement {
     }
   }
 
+  private async handleExportPlaydataJson() {
+    if (!this.playdata || this.isExporting) {
+      return;
+    }
+
+    this.isExporting = true;
+    this.importStatus = { type: "none", message: "" };
+    this.renderModal();
+
+    try {
+      const jsonContent = JSON.stringify(this.playdata, null, 2);
+      await shareFile("playdata.json", jsonContent, "application/json", i18n.t("ui.playdata.exportJson"));
+      this.importStatus = {
+        type: "success",
+        message: i18n.t("ui.playdata.exportSuccess", {
+          exported: this.playdata.entries.length,
+          skipped: 0,
+        }),
+      };
+    } catch (err) {
+      console.error("Failed to export playdata JSON:", err);
+      this.importStatus = {
+        type: "error",
+        message: i18n.t("ui.playdata.exportFailed"),
+      };
+    } finally {
+      this.isExporting = false;
+      this.renderModal();
+    }
+  }
+
   render() {
     const vdom = (
       <button
@@ -476,6 +517,14 @@ export class SettingsPanel extends HTMLElement {
             style="font-size: 13px;"
           >
             {this.isExporting ? i18n.t("ui.playdata.exporting") : i18n.t("ui.playdata.export")}
+          </button>
+          <button
+            type="button"
+            onclick={this.handleExportPlaydataJson.bind(this)}
+            disabled={this.isExporting}
+            style="font-size: 13px;"
+          >
+            {this.isExporting ? i18n.t("ui.playdata.exporting") : i18n.t("ui.playdata.exportJson")}
           </button>
           <button
             type="button"
@@ -639,10 +688,35 @@ export class SettingsPanel extends HTMLElement {
       </div>
     );
 
+    // Chart List Display Section
+    const chartListSection = (
+      <div style="margin-top: 20px;">
+        <h3 style="margin: 0 0 12px 0; font-size: 16px;">{i18n.t("ui.chartList.title")}</h3>
+        <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
+          {i18n.t("ui.chartList.showFullPathDesc")}
+        </div>
+        <div
+          className="about-item"
+          style="padding: 12px; background: var(--bg-panel-header); border-radius: 6px; border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;"
+        >
+          <label style="display: flex; align-items: center; width: 100%; cursor: pointer;">
+            <input
+              type="checkbox"
+              checked={this.showFullPathInChartList}
+              onchange={this.handleShowFullPathToggle.bind(this)}
+              style="margin-right: 10px;"
+            />
+            {i18n.t("ui.chartList.showFullPath")}
+          </label>
+        </div>
+      </div>
+    );
+
     return (
       <div style="display: flex; flex-direction: column; gap: 10px;">
         {viewDefaultsSection}
         {autoAnnotateSection}
+        {chartListSection}
         {playdataSection}
         {devModeToggle}
       </div>

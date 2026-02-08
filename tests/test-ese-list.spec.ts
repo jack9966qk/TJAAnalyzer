@@ -42,10 +42,10 @@ test.describe("ESE List Behavior", () => {
     // We expect 3 items
     await expect(resultsContainer.locator(".ese-result-item")).toHaveCount(3);
 
-    // Verify content
-    await expect(resultsContainer).toContainText("cat1/song1.tja");
-    await expect(resultsContainer).toContainText("cat2/song2.tja");
-    await expect(resultsContainer).toContainText("cat3/song3.tja");
+    // Verify content (now displays titles instead of paths)
+    await expect(resultsContainer).toContainText("Song One");
+    await expect(resultsContainer).toContainText("Song Two");
+    await expect(resultsContainer).toContainText("Song Three");
 
     // Ensure "Search for songs..." is NOT visible
     await expect(resultsContainer).not.toContainText("Search for songs...");

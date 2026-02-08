@@ -596,6 +596,12 @@ canvas {
   flex: 1;
 }
 
+/* Use sans-serif font when displaying title instead of path */
+.ese-result-item-text.display-title {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.1em; /* Slightly larger than 0.9em monospace to match visual weight */
+}
+
 /* Play status strip on the left of chart list items */
 .play-status-strip {
   width: 4px;

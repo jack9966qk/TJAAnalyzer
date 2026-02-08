@@ -33,9 +33,36 @@ export class ChartListPanel extends HTMLElement {
   private _titleToEntriesCache: Map<string, PlaydataEntry[]> | null = null;
   private _cachedPlaydata: Playdata | null | undefined = undefined;
 
+  // Title display cache: maps title to paths that have that title
+  private _titleToPathsCache: Map<string, string[]> = new Map();
+  // Settings
+  private _showFullPath = false;
+  private _settingsChangeHandler: (() => void) | null = null;
+
   connectedCallback() {
+    this.loadSettings();
     this.render();
-    i18n.onLanguageChange(() => this.render());
+    i18n.onLanguageChange(() => {
+      this.rebuildTitleCache();
+      this.render();
+    });
+    // Listen to settings changes
+    this._settingsChangeHandler = () => {
+      this.loadSettings();
+      this.render();
+    };
+    window.addEventListener("settings-change", this._settingsChangeHandler);
+  }
+
+  disconnectedCallback() {
+    if (this._settingsChangeHandler) {
+      window.removeEventListener("settings-change", this._settingsChangeHandler);
+    }
+  }
+
+  private loadSettings() {
+    const profile = loadUserProfile();
+    this._showFullPath = profile.showFullPathInChartList ?? false;
   }
 
   get searchQuery() {
@@ -51,6 +78,7 @@ export class ChartListPanel extends HTMLElement {
   activate() {
     // Load playdata caches if playdata exists
     this.refreshPlaydataCaches();
+    this.loadSettings();
 
     if (!appState.eseTree) {
       this.dispatchStatus("status.loadingEse");
@@ -61,6 +89,7 @@ export class ChartListPanel extends HTMLElement {
         .then((tree) => {
           appState.eseTree = tree;
           this.dispatchStatus("status.eseReady");
+          this.rebuildTitleCache();
           this.filterResults();
           this.render();
 
@@ -79,6 +108,7 @@ export class ChartListPanel extends HTMLElement {
           }
         });
     } else {
+      this.rebuildTitleCache();
       if (this._pendingEseLoad) {
         this.loadEseFromUrl(this._pendingEseLoad.path, this._pendingEseLoad.diff);
         this._pendingEseLoad = null;
@@ -114,6 +144,75 @@ export class ChartListPanel extends HTMLElement {
 
     // Re-render with status strips
     this.render();
+  }
+
+  /**
+   * Build a cache that maps each display title to all paths that share that title.
+   * This is used to detect duplicates and fall back to path display.
+   */
+  private rebuildTitleCache() {
+    this._titleToPathsCache.clear();
+    const { eseTree } = appState;
+    if (!eseTree) return;
+
+    for (const node of eseTree) {
+      const title = this.getLocalizedTitle(node);
+      if (title) {
+        const paths = this._titleToPathsCache.get(title) || [];
+        paths.push(node.path);
+        this._titleToPathsCache.set(title, paths);
+      }
+    }
+  }
+
+  /**
+   * Get the localized title for a node based on the current language.
+   * Returns the appropriate title variant or falls back to the base title.
+   */
+  private getLocalizedTitle(node: GitNode): string | undefined {
+    const lang = i18n.language;
+
+    // For Chinese, try titleCn first
+    if (lang === "zh") {
+      return node.titleCn || node.title;
+    }
+
+    // For Japanese, try titleJp first (which comes from TITLEJA in TJA)
+    if (lang === "ja") {
+      return node.titleJp || node.title;
+    }
+
+    // For English and other languages, use the base title
+    return node.title;
+  }
+
+  /**
+   * Get the display text for a chart list item.
+   * Returns the title if it's unique, otherwise returns the path.
+   * If showFullPath is enabled, always returns the path.
+   * @returns object with text and isTitle flag
+   */
+  private getDisplayText(node: GitNode): { text: string; isTitle: boolean } {
+    // If user prefers full path, always show path
+    if (this._showFullPath) {
+      return { text: node.path, isTitle: false };
+    }
+
+    const title = this.getLocalizedTitle(node);
+
+    // No title available, show path
+    if (!title) {
+      return { text: node.path, isTitle: false };
+    }
+
+    // Check if this title is shared by multiple paths
+    const pathsWithTitle = this._titleToPathsCache.get(title);
+    if (pathsWithTitle && pathsWithTitle.length > 1) {
+      // Multiple charts have the same title, fall back to path
+      return { text: node.path, isTitle: false };
+    }
+
+    return { text: title, isTitle: true };
   }
 
   setPendingLoad(path: string, diff: string) {
@@ -313,13 +412,16 @@ export class ChartListPanel extends HTMLElement {
                 }
               }
 
+              const { text: displayText, isTitle } = this.getDisplayText(node);
+              const textClass = `ese-result-item-text${isTitle ? " display-title" : ""}`;
+
               return (
                 <div
                   className={`ese-result-item ${isSelected ? "selected" : ""}`}
                   onclick={() => this.handleResultClick(node)}
                 >
                   {hasPlaydata && <div className={`play-status-strip ${statusClass}`}></div>}
-                  <div className="ese-result-item-text">{node.path}</div>
+                  <div className={textClass}>{displayText}</div>
                 </div>
               );
             })
