@@ -1,8 +1,8 @@
 import type { MessageBoxChoice } from "@neutralinojs/lib";
 import * as webjsx from "webjsx";
+import "./action-button.js";
 import { generateTJAFromSelection } from "../core/tja-exporter.js";
 import { appState } from "../state/app-state.js";
-import styleUrl from "../style.css?url";
 import { shareFile } from "../utils/file-share.js";
 import { i18n } from "../utils/i18n.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
@@ -34,10 +34,6 @@ export class ExportButton extends HTMLElement {
     }
   }
 
-  // State
-  private status: "idle" | "success" | "error" = "idle";
-  private isFading = false;
-
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
@@ -46,10 +42,7 @@ export class ExportButton extends HTMLElement {
   connectedCallback() {
     this.render();
     i18n.onLanguageChange(() => {
-      // Update original text if we are in idle state, otherwise it will update on reset
-      if (this.status === "idle") {
-        this.render();
-      }
+      this.render();
     });
   }
 
@@ -69,11 +62,9 @@ export class ExportButton extends HTMLElement {
     } else if (name === "gap-count") {
       this.gapCount = parseInt(newValue, 10) || 0;
     }
-    // disabled is handled by getter, change triggers render below
+    // disabled is handled by getter/setter
 
-    if (this.status === "idle") {
-      this.render();
-    }
+    this.render();
   }
 
   private generateContent() {
@@ -91,67 +82,20 @@ export class ExportButton extends HTMLElement {
   }
 
   private async handleClick() {
-    if (this.disabled || this.status !== "idle") return;
-
     if (!appState.currentChart || !appState.viewOptions.selection) return;
 
-    try {
-      const content = this.generateContent();
+    const content = this.generateContent();
 
-      if (this.exportType === "directory") {
-        let target: string | FileSystemDirectoryHandle;
-        try {
-          target = await this.pickDirectory();
-        } catch (e) {
-          // If cancelled (and caught inside pickDirectory), we just return
-          if (e instanceof Error && e.message === "Cancelled by user") return;
-          // Real error?
-          console.error("Pick failed:", e);
-          return;
-        }
+    if (this.exportType === "directory") {
+      const target = await this.pickDirectory();
 
-        await this.saveToDirectory(content, target, async (saveAction) => {
-          await this.transitionToResult(async () => {
-            await saveAction();
-            return "success";
-          });
-        });
-      } else {
-        // Download mode
-        await shareFile(`${this.chartName}.tja`, content, "text/plain", "Export TJA");
-        await this.transitionToResult(async () => "success");
-      }
-    } catch (e) {
-      if (e instanceof Error && e.message === "Cancelled by user") {
-        this.status = "idle";
-        this.render();
-        return;
-      }
-      console.error("Export failed:", e);
-      await this.transitionToResult(async () => "error");
+      await this.saveToDirectory(content, target, async (saveAction) => {
+        await saveAction();
+      });
+    } else {
+      // Download mode
+      await shareFile(`${this.chartName}.tja`, content, "text/plain", "Export TJA");
     }
-  }
-
-  private async transitionToResult(action: () => Promise<"success" | "error">) {
-    this.isFading = true;
-    this.render();
-    await new Promise((r) => setTimeout(r, 150)); // Wait for fade out
-
-    const result = await action();
-    this.status = result;
-
-    this.isFading = false;
-    this.render();
-
-    await new Promise((r) => setTimeout(r, 1500));
-
-    this.isFading = true;
-    this.render();
-    await new Promise((r) => setTimeout(r, 150));
-
-    this.status = "idle";
-    this.isFading = false;
-    this.render();
   }
 
   private async pickDirectory(): Promise<string | FileSystemDirectoryHandle> {
@@ -305,39 +249,18 @@ export class ExportButton extends HTMLElement {
   }
 
   render() {
-    let className = "control-btn";
-    let content = "";
-
-    if (this.status === "idle") {
-      content = this.exportType === "download" ? i18n.t("ui.export.download") : i18n.t("ui.export.addToDir");
-    } else if (this.status === "success") {
-      className = "status-message success";
-      content = i18n.t("status.exportSuccess");
-    } else if (this.status === "error") {
-      className = "status-message error";
-      content = i18n.t("status.exportFailed");
-    }
-
-    if (this.isFading) {
-      // Reuse the entering/fading class style
-      // style.css has .status-message.entering { opacity: 0 }
-      // We can just add a utility style for opacity
-      className += " fading";
-    }
+    const content = this.exportType === "download" ? i18n.t("ui.export.download") : i18n.t("ui.export.addToDir");
 
     const vdom = (
-      <div>
-        <link rel="stylesheet" href={styleUrl} />
-        <button
-          type="button"
-          className={className}
-          onclick={this.handleClick.bind(this)}
-          disabled={this.disabled || this.status !== "idle"}
-          style={`width: 100%; transition: opacity 0.15s ease-out, background-color 0.15s; opacity: ${this.isFading ? "0" : "1"}; cursor: ${this.status === "idle" ? "pointer" : "default"}`}
-        >
-          {content}
-        </button>
-      </div>
+      <action-button
+        button-class="control-btn"
+        success-label={i18n.t("status.exportSuccess")}
+        error-label={i18n.t("status.exportFailed")}
+        disabled={this.disabled}
+        action={() => this.handleClick()}
+      >
+        {content}
+      </action-button>
     );
 
     if (this.shadowRoot) {

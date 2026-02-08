@@ -724,11 +724,22 @@ LEVEL:10
 
         const host = document.querySelector("#export-image-footer-btn");
         if (host?.shadowRoot) {
-          const btn = host.shadowRoot.querySelector("button");
-          if (btn) {
-            (btn as HTMLElement).click();
+          const actionBtn = host.shadowRoot.querySelector("action-button");
+          if (actionBtn?.shadowRoot) {
+            const btn = actionBtn.shadowRoot.querySelector("button");
+            if (btn) {
+              (btn as HTMLElement).click();
+            } else {
+              resolve(-3); // Button not found in action-button
+            }
           } else {
-            resolve(-1);
+            // Fallback for flat structure if action-button is not used or different structure
+            const btn = host.shadowRoot.querySelector("button");
+            if (btn) {
+              (btn as HTMLElement).click();
+            } else {
+              resolve(-1); // action-button not found or no button found
+            }
           }
         } else {
           resolve(-1);

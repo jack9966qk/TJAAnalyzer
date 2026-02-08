@@ -1,4 +1,5 @@
 import * as webjsx from "webjsx";
+import "./action-button.js";
 import type { GitNode } from "../clients/ese-client.js";
 import { refreshChart, updatePageUrl, updateParsedCharts } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
@@ -157,9 +158,6 @@ export class ChartListPanel extends HTMLElement {
     }
   }
 
-  // kept for compatibility but does nothing or we remove it?
-  // removed loadExample() as it's no longer used or supported via this panel
-
   private filterResults() {
     const { eseTree } = appState;
     if (!eseTree) {
@@ -205,10 +203,9 @@ export class ChartListPanel extends HTMLElement {
 
     try {
       await navigator.clipboard.writeText(url.toString());
-      alert("Link copied to clipboard!");
     } catch (e) {
       console.error("Failed to copy link:", e);
-      alert("Failed to copy link.");
+      throw e;
     }
   }
 
@@ -277,15 +274,16 @@ export class ChartListPanel extends HTMLElement {
           />
         </div>
         <div className="control-group" style="margin-top: 5px;">
-          <button
-            type="button"
+          <action-button
             id="ese-share-btn"
             style="width: 100%;"
+            success-label={i18n.t("ui.ese.shareSuccess")}
+            error-label={i18n.t("status.exportFailed")}
             disabled={!showShare}
-            onclick={this.handleShare.bind(this)}
+            action={() => this.handleShare()}
           >
             {i18n.t("ui.ese.share")}
-          </button>
+          </action-button>
         </div>
 
         <div id="ese-results">

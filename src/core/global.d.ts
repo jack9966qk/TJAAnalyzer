@@ -2,6 +2,7 @@ import type * as NeutralinoLib from "@neutralinojs/lib";
 import type { ViewOptions, JudgementMap, JudgementValue, JudgementKey, LocationMap } from "./renderer.ts";
 import type { ExportButtonProps } from "../components/export-button.tsx";
 import type { SaveImageButtonProps } from "../components/save-image-button.tsx";
+import type { ActionButtonProps } from "../components/action-button.tsx";
 
 declare global {
   interface Window {
@@ -29,6 +30,7 @@ declare global {
     interface IntrinsicElements {
       "save-image-button": HtmlTag & SaveImageButtonProps;
       "export-button": HtmlTag & ExportButtonProps;
+      "action-button": HtmlTag & ActionButtonProps;
     }
   }
 }

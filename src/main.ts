@@ -23,6 +23,7 @@ import "./components/chart-options-footer.js"; // Ensure side-effect
 import "./components/changelog-panel.js";
 import "./components/language-selector.js";
 import "./components/settings-panel.js";
+import "./components/action-button.js";
 import {
   createJudgementKey,
   type HitInfo,

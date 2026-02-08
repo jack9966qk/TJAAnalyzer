@@ -1,4 +1,5 @@
 import * as webjsx from "webjsx";
+import "./action-button.js";
 import { appState } from "../state/app-state.js";
 import { shareFile } from "../utils/file-share.js";
 import { i18n } from "../utils/i18n.js";
@@ -26,7 +27,6 @@ export class SettingsPanel extends HTMLElement {
   // View defaults and auto-annotate settings
   private defaultViewOptions: DefaultViewOptions | null = null;
   private autoAnnotateOnLoad = false;
-  private settingsStatus: { type: "success" | "error" | "none"; message: string } = { type: "none", message: "" };
 
   constructor() {
     super();
@@ -97,7 +97,7 @@ export class SettingsPanel extends HTMLElement {
     this.renderModal();
   }
 
-  private handleSaveViewDefaults() {
+  private async handleSaveViewDefaults() {
     // Get current view options from appState
     const viewOptions = appState.viewOptions;
     const viewOptionsEl = document.querySelector("view-options") as { statsVisible: boolean } | null;
@@ -109,14 +109,14 @@ export class SettingsPanel extends HTMLElement {
 
     this.defaultViewOptions = defaults;
     saveUserProfile({ defaultViewOptions: defaults });
-    this.settingsStatus = { type: "success", message: i18n.t("ui.viewDefaults.saved") };
+    // Status handled by button
     this.renderModal();
   }
 
-  private handleClearViewDefaults() {
+  private async handleClearViewDefaults() {
     this.defaultViewOptions = null;
     saveUserProfile({ defaultViewOptions: null });
-    this.settingsStatus = { type: "success", message: i18n.t("ui.viewDefaults.cleared") };
+    // Status handled by button
     this.renderModal();
   }
 
@@ -126,6 +126,15 @@ export class SettingsPanel extends HTMLElement {
     saveUserProfile({ autoAnnotateOnLoad: checked });
     window.dispatchEvent(new CustomEvent("settings-change", { detail: { autoAnnotateOnLoad: checked } }));
     this.renderModal();
+  }
+
+  private async handleCopyBookmarklet() {
+    try {
+      await navigator.clipboard.writeText(this.getBookmarkletCode());
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 
   private getBookmarkletCode(): string {
@@ -518,6 +527,15 @@ export class SettingsPanel extends HTMLElement {
               onfocus={this.handleSelectBookmarklet.bind(this)}
               style="width: 100%; height: 80px; font-size: 12px; font-family: monospace; padding: 8px; border: 1px solid var(--border-light); border-radius: 4px; background: var(--bg-panel); color: var(--text-primary); resize: vertical; box-sizing: border-box;"
             />
+            <div style="margin-top: 8px;">
+              <action-button
+                success-label={i18n.t("ui.playdata.copied")}
+                error-label={i18n.t("status.exportFailed")}
+                action={() => this.handleCopyBookmarklet()}
+              >
+                {i18n.t("ui.playdata.copyBookmarklet")}
+              </action-button>
+            </div>
           </div>
         )}
 
@@ -574,27 +592,26 @@ export class SettingsPanel extends HTMLElement {
         )}
 
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <button type="button" onclick={this.handleSaveViewDefaults.bind(this)}>
+          <action-button
+            style="flex: 1;"
+            success-label={i18n.t("ui.viewDefaults.saved")}
+            error-label={i18n.t("status.exportFailed")}
+            action={() => this.handleSaveViewDefaults()}
+          >
             {i18n.t("ui.viewDefaults.save")}
-          </button>
+          </action-button>
           {this.defaultViewOptions && (
-            <button type="button" className="btn-secondary" onclick={this.handleClearViewDefaults.bind(this)}>
+            <action-button
+              style="flex: 1;"
+              success-label={i18n.t("ui.viewDefaults.cleared")}
+              error-label={i18n.t("status.exportFailed")}
+              button-class="btn-secondary"
+              action={() => this.handleClearViewDefaults()}
+            >
               {i18n.t("ui.viewDefaults.clear")}
-            </button>
+            </action-button>
           )}
         </div>
-
-        {this.settingsStatus.type !== "none" && (
-          <div
-            style={`margin-top: 12px; padding: 10px; border-radius: 4px; font-size: 14px; ${
-              this.settingsStatus.type === "success"
-                ? "background: var(--success-bg, #d4edda); color: var(--success-text, #155724);"
-                : "background: var(--error-bg, #f8d7da); color: var(--error-text, #721c24);"
-            }`}
-          >
-            {this.settingsStatus.message}
-          </div>
-        )}
       </div>
     );
 

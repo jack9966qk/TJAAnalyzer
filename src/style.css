@@ -297,7 +297,7 @@ select {
 
 button {
   padding: 8px 16px;
-  border: none;
+  border: 1px solid transparent;
   border-radius: 4px;
   background-color: var(--primary-color);
   color: white; /* Keep white for primary buttons as they are colored */
