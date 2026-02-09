@@ -183,15 +183,50 @@ interface SongMappingEntry {
 
 type SongMapping = Record<string, SongMappingEntry>;
 
+const TITLE_MAPPINGS: Record<string, string> = {
+  "CYBERgenicALICE（先斗寧）": "CYBERgenicALICE(にじさんじ)",
+  "Fly away（伏見ガク）": "Fly away(にじさんじ)",
+  "ファミレスウォーズ（本間ひまわり）": "ファミレスウォーズ(にじさんじ)",
+  "Phoenix（レオス・ヴィンセント）": "Phoenix(にじさんじ)",
+  "いっそこのままで(山神カルタ)": "いっそこのままで (にじさんじ) ",
+  "ヘイラ（ましろ爻）": "ヘイラ(にじさんじ)",
+  "エンジェル ドリーム（フレン・E・ルスタリオ）": "エンジェル ドリーム(にじさんじ)",
+  "ボクハシンセ（花畑チャイカ）": "ボクハシンセ (にじさんじ) ",
+  "濃紅（レヴィ・エリファ）": "濃紅(にじさんじ)",
+  "マリオネットピュア（リゼ・ヘルエスタ）": "マリオネットピュア(にじさんじ)",
+};
+
 /**
  * Normalize title for comparison (handles unicode variations)
  */
 function normalizeTitleForComparison(title: string): string {
-  return title
+  let normalized = title
     .replace(/\u2010/g, "-") // HYPHEN -> HYPHEN-MINUS
     .replace(/\uff01/g, "!") // FULLWIDTH EXCLAMATION MARK -> EXCLAMATION MARK
-    .toLowerCase()
-    .trim();
+    .replace(/＋/g, "+")
+    .replace(/＆/g, "&")
+    .replace(/＠/g, "@")
+    .replace(/？/g, "?")
+    .replace(/ｗ/g, "w")
+    .replace(/（/g, "(")
+    .replace(/）/g, ")")
+    .replace(/～/g, "~")
+    // Roman numerals
+    .replace(/Ⅰ/g, "I")
+    .replace(/Ⅱ/g, "II")
+    .replace(/Ⅲ/g, "III")
+    .replace(/Ⅳ/g, "IV")
+    .replace(/Ⅴ/g, "V")
+    .replace(/Ⅵ/g, "VI")
+    .replace(/Ⅶ/g, "VII")
+    .replace(/Ⅷ/g, "VIII")
+    .replace(/Ⅸ/g, "IX")
+    .replace(/Ⅹ/g, "X");
+
+  // Remove variation selectors
+  normalized = normalized.replace(/[\uFE00-\uFE0F]/g, "");
+
+  return normalized.toLowerCase().trim();
 }
 
 /**
@@ -267,12 +302,27 @@ export function verifyPlaydata(playdata: Playdata, songMapping: SongMapping): Re
 
   playdata.entries.forEach((entry, index) => {
     const normalizedTitle = normalizeTitleForComparison(entry.title);
+
+    // Check specific mappings
+    if (TITLE_MAPPINGS[entry.title]) {
+      const mappedTitle = TITLE_MAPPINGS[entry.title];
+      // Check if mapped title exists (it should)
+      const mappedNormalized = normalizeTitleForComparison(mappedTitle);
+      if (titleToId.has(mappedNormalized)) {
+        matched.push({
+          ...entry,
+          title: mappedTitle,
+        });
+        return;
+      }
+    }
+
     if (titleToId.has(normalizedTitle)) {
       matched.push(entry);
     } else {
       // Find closest match
       let bestMatch = null;
-      let minDistance = 4; // Threshold is 3, so strict less than 4
+      let minDistance = 4;
 
       for (const valid of validTitles) {
         const dist = levenshtein(normalizedTitle, valid.normalized);
