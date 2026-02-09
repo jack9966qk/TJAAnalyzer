@@ -8,6 +8,9 @@ import {
   getPlaydataStats,
   type Playdata,
   parseFumenDatabaseHtml,
+  type ResolutionResult,
+  type UnmatchedEntry,
+  verifyPlaydata,
 } from "../utils/playdata-parser.js";
 import { clearPlaydata, type DefaultViewOptions, loadUserProfile, saveUserProfile } from "../utils/user-profile.js";
 
@@ -28,6 +31,12 @@ export class SettingsPanel extends HTMLElement {
   private defaultViewOptions: DefaultViewOptions | null = null;
   private autoAnnotateOnLoad = false;
   private showFullPathInChartList = false;
+
+  private resolutionState: {
+    result: ResolutionResult;
+    playdata: Playdata;
+    decisions: Map<number, { action: "accept" | "keep" | "skip"; correctedTitle?: string }>;
+  } | null = null;
 
   constructor() {
     super();
@@ -89,6 +98,7 @@ export class SettingsPanel extends HTMLElement {
     this.isModalOpen = false;
     this.isImportMode = false;
     this.isFromBookmarklet = false;
+    this.resolutionState = null;
     this.renderModal();
   }
 
@@ -96,6 +106,86 @@ export class SettingsPanel extends HTMLElement {
     appState.isTesterMode = (e.target as HTMLInputElement).checked;
     saveUserProfile({ isTesterMode: appState.isTesterMode });
     window.dispatchEvent(new Event("dev-mode-change"));
+    this.renderModal();
+  }
+
+  private handleResolveDecision(
+    originalIndices: number[],
+    action: "accept" | "keep" | "skip",
+    correctedTitle?: string,
+  ) {
+    if (!this.resolutionState) return;
+    for (const index of originalIndices) {
+      this.resolutionState.decisions.set(index, { action, correctedTitle });
+    }
+    this.renderModal();
+  }
+
+  private handleBulkResolve(action: "accept" | "keep") {
+    if (!this.resolutionState) return;
+    const { result, decisions } = this.resolutionState;
+
+    // Group unmatched by title to mimic the UI grouping logic
+    const groups = new Map<string, UnmatchedEntry[]>();
+    for (const item of result.unmatched) {
+      const existing = groups.get(item.entry.title) || [];
+      existing.push(item);
+      groups.set(item.entry.title, existing);
+    }
+
+    for (const group of groups.values()) {
+      const first = group[0];
+
+      // Only act on items with suggestions (resolvable)
+      if (first.closestMatch) {
+        for (const item of group) {
+          if (action === "accept") {
+            decisions.set(item.originalIndex, {
+              action: "accept",
+              correctedTitle: first.closestMatch.title,
+            });
+          } else if (action === "keep") {
+            decisions.set(item.originalIndex, { action: "keep" });
+          }
+        }
+      }
+    }
+    this.renderModal();
+  }
+
+  private handleFinalizeImport() {
+    if (!this.resolutionState) return;
+
+    const { playdata, result, decisions } = this.resolutionState;
+    const finalEntries = [...result.matched];
+
+    for (const unmatched of result.unmatched) {
+      const decision = decisions.get(unmatched.originalIndex);
+      if (decision?.action === "accept" && decision.correctedTitle) {
+        finalEntries.push({
+          ...unmatched.entry,
+          title: decision.correctedTitle,
+        });
+      } else if (decision?.action === "keep") {
+        finalEntries.push(unmatched.entry);
+      }
+      // If skip, we do nothing.
+    }
+
+    const finalPlaydata: Playdata = {
+      ...playdata,
+      entries: finalEntries,
+    };
+
+    saveUserProfile({ playdata: finalPlaydata });
+    this.playdata = finalPlaydata;
+    this.resolutionState = null;
+    this.manualPasteContent = "";
+
+    this.importStatus = {
+      type: "success",
+      message: i18n.t("ui.playdata.importSuccess", { count: finalPlaydata.entries.length }),
+    };
     this.renderModal();
   }
 
@@ -250,6 +340,28 @@ export class SettingsPanel extends HTMLElement {
         };
         this.renderModal();
         return;
+      }
+
+      // Fetch song mapping for verification
+      try {
+        const response = await fetch("./data/song_mapping.json");
+        if (response.ok) {
+          const songMapping = await response.json();
+          const verification = verifyPlaydata(playdata, songMapping);
+
+          if (verification.unmatched.length > 0) {
+            this.resolutionState = {
+              result: verification,
+              playdata,
+              decisions: new Map(),
+            };
+            this.importStatus = { type: "none", message: "" };
+            this.renderModal();
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load song mapping for verification, skipping.", e);
       }
 
       // Save to profile
@@ -415,7 +527,224 @@ export class SettingsPanel extends HTMLElement {
     webjsx.applyDiff(this.modalContainer, modalVdom);
   }
 
+  private async handleCopyUnmatchedCSV() {
+    if (!this.resolutionState) return;
+    const { result } = this.resolutionState;
+
+    const csvLines = ["Original Title,Suggested Title,Distance"];
+
+    // Include all unmatched items, sorted by title
+    const allUnmatched = [...result.unmatched].sort((a, b) => a.entry.title.localeCompare(b.entry.title));
+
+    for (const item of allUnmatched) {
+      const original = `"${item.entry.title.replace(/"/g, '""')}"`;
+      const suggestion = item.closestMatch ? `"${item.closestMatch.title.replace(/"/g, '""')}"` : "";
+      const distance = item.closestMatch ? item.closestMatch.distance : "";
+      csvLines.push(`${original},${suggestion},${distance}`);
+    }
+
+    // Simple deduplication
+    const uniqueLines = Array.from(new Set(csvLines));
+
+    try {
+      await navigator.clipboard.writeText(uniqueLines.join("\n"));
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+  }
+
+  renderResolutionUI() {
+    if (!this.resolutionState) return <div />;
+
+    const { result, decisions } = this.resolutionState;
+    // Only check resolution for items that HAVE a suggestion (matched).
+    // Unmatched items (no suggestions) are automatically skipped, so they don't block resolution.
+
+    // Group unmatched entries by title
+    const groups = new Map<string, UnmatchedEntry[]>();
+    for (const item of result.unmatched) {
+      const existing = groups.get(item.entry.title) || [];
+      existing.push(item);
+      groups.set(item.entry.title, existing);
+    }
+
+    const sortedGroups = Array.from(groups.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+
+    // Split groups into those with suggestions and those without
+    const groupsWithSuggestions = sortedGroups.filter(([_, items]) => !!items[0].closestMatch);
+    const groupsWithoutSuggestions = sortedGroups.filter(([_, items]) => !items[0].closestMatch);
+
+    // Check if all resolvable items are resolved
+    const allResolvableResolved = groupsWithSuggestions.every(([_, items]) =>
+      items.every((item) => decisions.has(item.originalIndex)),
+    );
+
+    return (
+      <div style="padding: 20px;">
+        <h3 style="margin-top: 0;">{i18n.t("ui.playdata.resolveConflicts")}</h3>
+        <div style="margin-bottom: 15px; font-size: 14px; color: var(--text-secondary);">
+          {i18n.t("ui.playdata.resolveInstructions")}
+        </div>
+
+        {/* Section 1: Resolvable Conflicts */}
+        {groupsWithSuggestions.length > 0 && (
+          <div style="margin-bottom: 20px;">
+            <h4 style="margin: 0 0 10px 0; font-size: 14px; color: var(--text-primary);">
+              {i18n.t("ui.playdata.resolvable")}
+            </h4>
+
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+              <button
+                type="button"
+                className="btn-secondary"
+                style="font-size: 12px; padding: 6px 12px;"
+                onclick={() => this.handleBulkResolve("accept")}
+              >
+                {i18n.t("ui.playdata.acceptAllSuggestions")}
+              </button>
+              <button
+                type="button"
+                className="btn-secondary"
+                style="font-size: 12px; padding: 6px 12px;"
+                onclick={() => this.handleBulkResolve("keep")}
+              >
+                {i18n.t("ui.playdata.keepAllOriginal")}
+              </button>
+            </div>
+
+            <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-light); border-radius: 4px;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                  <tr style="background: var(--bg-panel-header); border-bottom: 1px solid var(--border-light);">
+                    <th style="padding: 8px; text-align: left;">{i18n.t("ui.playdata.originalTitle")}</th>
+                    <th style="padding: 8px; text-align: left;">{i18n.t("ui.playdata.suggestion")}</th>
+                    <th style="padding: 8px; text-align: center;">{i18n.t("ui.playdata.action")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {groupsWithSuggestions.map(([title, groupItems]) => {
+                    const firstItem = groupItems[0];
+                    const closestMatch = firstItem.closestMatch; // Guaranteed by filter
+                    if (!closestMatch) return null;
+
+                    const decision = decisions.get(firstItem.originalIndex);
+                    const rowStyle = decision
+                      ? decision.action === "accept"
+                        ? "background: rgba(var(--color-success-rgb), 0.1);"
+                        : decision.action === "keep"
+                          ? "background: rgba(var(--color-error-rgb), 0.1);"
+                          : ""
+                      : "";
+
+                    const indices = groupItems.map((g) => g.originalIndex);
+
+                    return (
+                      <tr style={`border-bottom: 1px solid var(--border-light); ${rowStyle}`}>
+                        <td style="padding: 8px;">
+                          {title}
+                          {groupItems.length > 1 && (
+                            <span style="margin-left: 6px; font-size: 11px; color: var(--text-secondary); background: var(--bg-panel-header); padding: 1px 4px; border-radius: 4px;">
+                              x{groupItems.length}
+                            </span>
+                          )}
+                        </td>
+                        <td style="padding: 8px;">
+                          <div>
+                            <div style="font-weight: bold;">{closestMatch.title}</div>
+                            <div style="font-size: 11px; color: var(--text-secondary);">
+                              Distance: {closestMatch.distance}
+                            </div>
+                          </div>
+                        </td>
+                        <td style="padding: 8px; text-align: center;">
+                          <div style="display: flex; gap: 4px; justify-content: center;">
+                            <button
+                              type="button"
+                              className={decision?.action === "accept" ? "active" : "btn-secondary"}
+                              style={`padding: 4px 8px; font-size: 12px; ${
+                                decision?.action === "accept" ? "background: var(--color-success); color: white;" : ""
+                              }`}
+                              onclick={() => this.handleResolveDecision(indices, "accept", closestMatch.title)}
+                            >
+                              {i18n.t("ui.accept")}
+                            </button>
+                            <button
+                              type="button"
+                              className={decision?.action === "keep" ? "active" : "btn-secondary"}
+                              style={`padding: 4px 8px; font-size: 12px; ${
+                                decision?.action === "keep" ? "background: var(--color-error); color: white;" : ""
+                              }`}
+                              onclick={() => this.handleResolveDecision(indices, "keep")}
+                            >
+                              {i18n.t("ui.reject")}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Section 2: Unresolvable (Skipped) */}
+        {groupsWithoutSuggestions.length > 0 && (
+          <div style="margin-bottom: 20px;">
+            <h4 style="margin: 0 0 10px 0; font-size: 14px; color: var(--text-secondary);">
+              {i18n.t("ui.playdata.unresolvable")}
+            </h4>
+            <div style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-light); border-radius: 4px; background: var(--bg-input);">
+              <ul style="margin: 0; padding: 0; list-style: none; font-size: 13px;">
+                {groupsWithoutSuggestions.map(([title, groupItems]) => (
+                  <li style="padding: 8px 12px; border-bottom: 1px solid var(--border-lighter); color: var(--text-secondary);">
+                    {title}
+                    {groupItems.length > 1 && (
+                      <span style="margin-left: 6px; font-size: 11px; color: var(--text-secondary); background: var(--bg-panel-header); padding: 1px 4px; border-radius: 4px;">
+                        x{groupItems.length}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+          <div>
+            {appState.isTesterMode && (
+              <action-button
+                button-class="btn-secondary"
+                style="font-size: 12px;"
+                success-label={i18n.t("ui.playdata.copied")}
+                error-label={i18n.t("status.exportFailed")}
+                action={() => this.handleCopyUnmatchedCSV()}
+              >
+                {i18n.t("ui.playdata.copyCsv")}
+              </action-button>
+            )}
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button type="button" className="btn-secondary" onclick={this.handleClose.bind(this)}>
+              {i18n.t("ui.cancel")}
+            </button>
+            <button type="button" disabled={!allResolvableResolved} onclick={this.handleFinalizeImport.bind(this)}>
+              {i18n.t("ui.playdata.finalizeImport")}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   renderImportModeContent() {
+    if (this.resolutionState) {
+      return this.renderResolutionUI();
+    }
+
     return (
       <div style="text-align: center; padding: 20px;">
         <div style="font-size: 16px; margin-bottom: 20px; color: var(--text-primary);">

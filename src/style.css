@@ -43,6 +43,11 @@
 
   --error-bg: #ffcdd2;
   --error-text: #d32f2f;
+
+  --color-success: #2e7d32;
+  --color-error: #c62828;
+  --color-success-rgb: 46, 125, 50;
+  --color-error-rgb: 198, 40, 40;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -86,6 +91,11 @@
 
     --error-bg: #5c0000;
     --error-text: #ff8a80;
+
+    --color-success: #66bb6a;
+    --color-error: #ef5350;
+    --color-success-rgb: 102, 187, 106;
+    --color-error-rgb: 239, 83, 80;
   }
 }
 

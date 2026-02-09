@@ -195,6 +195,109 @@ function normalizeTitleForComparison(title: string): string {
 }
 
 /**
+ * Calculate Levenshtein distance between two strings
+ */
+function levenshtein(a: string, b: string): number {
+  if (a.length === 0) return b.length;
+  if (b.length === 0) return a.length;
+
+  const matrix = [];
+
+  // increment along the first column of each row
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i] = [i];
+  }
+
+  // increment each column in the first row
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  // Fill in the rest of the matrix
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1, // substitution
+          Math.min(
+            matrix[i][j - 1] + 1, // insertion
+            matrix[i - 1][j] + 1, // deletion
+          ),
+        );
+      }
+    }
+  }
+
+  return matrix[b.length][a.length];
+}
+
+export interface UnmatchedEntry {
+  entry: PlaydataEntry;
+  originalIndex: number;
+  closestMatch: {
+    title: string;
+    songId: string;
+    distance: number;
+  } | null;
+}
+
+export interface ResolutionResult {
+  matched: PlaydataEntry[];
+  unmatched: UnmatchedEntry[];
+}
+
+/**
+ * Verify playdata against song mapping and identify unmatched entries
+ */
+export function verifyPlaydata(playdata: Playdata, songMapping: SongMapping): ResolutionResult {
+  const titleToId = buildTitleToIdMap(songMapping);
+
+  // Also build a list of all valid titles for fuzzy matching
+  const validTitles: { title: string; id: string; normalized: string }[] = [];
+  for (const [id, entry] of Object.entries(songMapping)) {
+    if (entry.title) {
+      validTitles.push({ title: entry.title, id, normalized: normalizeTitleForComparison(entry.title) });
+    }
+  }
+
+  const matched: PlaydataEntry[] = [];
+  const unmatched: UnmatchedEntry[] = [];
+
+  playdata.entries.forEach((entry, index) => {
+    const normalizedTitle = normalizeTitleForComparison(entry.title);
+    if (titleToId.has(normalizedTitle)) {
+      matched.push(entry);
+    } else {
+      // Find closest match
+      let bestMatch = null;
+      let minDistance = 4; // Threshold is 3, so strict less than 4
+
+      for (const valid of validTitles) {
+        const dist = levenshtein(normalizedTitle, valid.normalized);
+        if (dist < minDistance) {
+          minDistance = dist;
+          bestMatch = {
+            title: valid.title,
+            songId: valid.id,
+            distance: dist,
+          };
+        }
+      }
+
+      unmatched.push({
+        entry,
+        originalIndex: index,
+        closestMatch: bestMatch,
+      });
+    }
+  });
+
+  return { matched, unmatched };
+}
+
+/**
  * Build a reverse lookup from title to song ID
  */
 function buildTitleToIdMap(songMapping: SongMapping): Map<string, string> {
