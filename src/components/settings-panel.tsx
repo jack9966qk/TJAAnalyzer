@@ -5,10 +5,11 @@ import { shareFile } from "../utils/file-share.js";
 import { i18n } from "../utils/i18n.js";
 import {
   convertToTaikoRatingAnalyzerFormat,
+  type FumenDatabasePlaydata,
   getPlaydataStats,
   type Playdata,
+  type PlaydataEntry,
   parseFumenDatabaseHtml,
-  type ResolutionResult,
   type UnmatchedEntry,
   verifyPlaydata,
 } from "../utils/playdata-parser.js";
@@ -33,8 +34,11 @@ export class SettingsPanel extends HTMLElement {
   private showFullPathInChartList = false;
 
   private resolutionState: {
-    result: ResolutionResult;
-    playdata: Playdata;
+    result: {
+      matched: PlaydataEntry[];
+      unmatched: UnmatchedEntry[];
+    };
+    playdata: FumenDatabasePlaydata;
     decisions: Map<number, { action: "accept" | "keep" | "skip"; correctedTitle?: string }>;
   } | null = null;
 
@@ -157,23 +161,30 @@ export class SettingsPanel extends HTMLElement {
     if (!this.resolutionState) return;
 
     const { playdata, result, decisions } = this.resolutionState;
-    const finalEntries = [...result.matched];
+    const finalEntries: PlaydataEntry[] = [...result.matched];
+    const unmatchedEntries = result.unmatched;
 
-    for (const unmatched of result.unmatched) {
-      const decision = decisions.get(unmatched.originalIndex);
-      if (decision?.action === "accept" && decision.correctedTitle) {
-        finalEntries.push({
-          ...unmatched.entry,
-          title: decision.correctedTitle,
-        });
-      } else if (decision?.action === "keep") {
-        finalEntries.push(unmatched.entry);
+    decisions.forEach((decision, originalIndex) => {
+      const unmatchedEntry = unmatchedEntries.find((u) => u.originalIndex === originalIndex);
+      if (!unmatchedEntry) return;
+
+      if (decision.action === "accept" && decision.correctedTitle) {
+        const songId = unmatchedEntry.closestMatch?.songId;
+        if (songId) {
+          const { title, ...rest } = unmatchedEntry.entry;
+          finalEntries.push({
+            ...rest,
+            songId,
+          });
+        }
+      } else if (decision.action === "keep") {
+        // This path is tricky, as we don't have a songId. For now, we'll have to skip.
       }
-      // If skip, we do nothing.
-    }
+    });
 
     const finalPlaydata: Playdata = {
       ...playdata,
+      version: 1,
       entries: finalEntries,
     };
 
@@ -186,6 +197,7 @@ export class SettingsPanel extends HTMLElement {
       type: "success",
       message: i18n.t("ui.playdata.importSuccess", { count: finalPlaydata.entries.length }),
     };
+    window.dispatchEvent(new Event("settings-change"));
     this.renderModal();
   }
 
@@ -359,14 +371,41 @@ export class SettingsPanel extends HTMLElement {
             this.renderModal();
             return;
           }
+
+          const finalPlaydata: Playdata = {
+            ...playdata,
+            version: 1,
+            entries: verification.matched,
+          };
+
+          // Save to profile
+          saveUserProfile({ playdata: finalPlaydata });
+          this.playdata = finalPlaydata;
+          window.dispatchEvent(new Event("settings-change"));
+        } else {
+          // If song mapping fails, save the parsed data without songId
+          const finalPlaydata: Playdata = {
+            ...playdata,
+            version: 1,
+            entries: [], // No matched entries
+          };
+          saveUserProfile({ playdata: finalPlaydata });
+          this.playdata = finalPlaydata;
+          window.dispatchEvent(new Event("settings-change"));
         }
       } catch (e) {
         console.warn("Failed to load song mapping for verification, skipping.", e);
+        // Save the parsed data without songId
+        const finalPlaydata: Playdata = {
+          ...playdata,
+          version: 1,
+          entries: [], // No matched entries
+        };
+        saveUserProfile({ playdata: finalPlaydata });
+        this.playdata = finalPlaydata;
+        window.dispatchEvent(new Event("settings-change"));
       }
 
-      // Save to profile
-      saveUserProfile({ playdata });
-      this.playdata = playdata;
       this.manualPasteContent = ""; // Clear after success
 
       this.importStatus = {
@@ -405,6 +444,7 @@ export class SettingsPanel extends HTMLElement {
       type: "success",
       message: i18n.t("ui.playdata.cleared"),
     };
+    window.dispatchEvent(new Event("settings-change"));
     this.renderModal();
   }
 

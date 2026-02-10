@@ -5,7 +5,7 @@ import { refreshChart, updatePageUrl, updateParsedCharts } from "../controllers/
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import type { Playdata, PlaydataEntry } from "../utils/playdata-parser.js";
-import { buildTitleToEntriesCache, getPlayStatusSync, preloadSongMapping } from "../utils/playdata-status.js";
+import { buildSongIdToEntriesCache, getPlayStatusSync, preloadSongMapping } from "../utils/playdata-status.js";
 import { loadUserProfile } from "../utils/user-profile.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
 
@@ -30,7 +30,7 @@ export class ChartListPanel extends HTMLElement {
 
   // Playdata status caches
   private _songMapping: SongMapping | null = null;
-  private _titleToEntriesCache: Map<string, PlaydataEntry[]> | null = null;
+  private _songIdToEntriesCache: Map<string, PlaydataEntry[]> | null = null;
   private _cachedPlaydata: Playdata | null | undefined = undefined;
 
   // Title display cache: maps title to paths that have that title
@@ -49,6 +49,7 @@ export class ChartListPanel extends HTMLElement {
     // Listen to settings changes
     this._settingsChangeHandler = () => {
       this.loadSettings();
+      this.refreshPlaydataCaches();
       this.render();
     };
     window.addEventListener("settings-change", this._settingsChangeHandler);
@@ -130,7 +131,7 @@ export class ChartListPanel extends HTMLElement {
 
     if (!playdata?.entries?.length) {
       this._songMapping = null;
-      this._titleToEntriesCache = null;
+      this._songIdToEntriesCache = null;
       return;
     }
 
@@ -140,7 +141,7 @@ export class ChartListPanel extends HTMLElement {
     }
 
     // Build title lookup cache
-    this._titleToEntriesCache = buildTitleToEntriesCache(playdata);
+    this._songIdToEntriesCache = buildSongIdToEntriesCache(playdata);
 
     // Re-render with status strips
     this.render();
@@ -405,8 +406,8 @@ export class ChartListPanel extends HTMLElement {
               const hasPlaydata = !!playdata?.entries?.length;
 
               let statusClass = "";
-              if (hasPlaydata && this._songMapping && this._titleToEntriesCache) {
-                const status = getPlayStatusSync(node.path, playdata, this._songMapping, this._titleToEntriesCache);
+              if (hasPlaydata && this._songMapping && this._songIdToEntriesCache) {
+                const status = getPlayStatusSync(node.path, playdata, this._songIdToEntriesCache);
                 if (status !== "none") {
                   statusClass = `status-${status}`;
                 }

@@ -20,6 +20,7 @@ export interface UserProfile {
 
 const STORAGE_KEY = "tja_analyzer_profile";
 const PLAYDATA_STORAGE_KEY = "tja_analyzer_playdata";
+const CURRENT_PLAYDATA_VERSION = 1;
 
 const DEFAULT_PROFILE: UserProfile = {
   isTesterMode: false,
@@ -37,7 +38,12 @@ export function loadUserProfile(): UserProfile {
 
     if (playdataStr) {
       try {
-        playdata = JSON.parse(playdataStr);
+        const parsed = JSON.parse(playdataStr);
+        if (parsed.version === CURRENT_PLAYDATA_VERSION) {
+          playdata = parsed;
+        } else {
+          console.warn("Playdata version mismatch, discarding old data.");
+        }
       } catch (e) {
         console.error("Failed to parse playdata", e);
       }

@@ -1,6 +1,6 @@
 // Parser for fumen-database HTML content
 
-export interface PlaydataEntry {
+export interface FumenDatabaseEntry {
   title: string; // Song title from fumen-database
   difficulty: number; // 1=easy, 2=normal, 3=hard, 4=extreme, 5=hidden
   score: number;
@@ -11,7 +11,25 @@ export interface PlaydataEntry {
   drumroll: number;
 }
 
+export interface FumenDatabasePlaydata {
+  entries: FumenDatabaseEntry[];
+  updatedAt: string;
+  source: "fumen-database";
+}
+
+export interface PlaydataEntry {
+  songId: string;
+  difficulty: number;
+  score: number;
+  great: number;
+  good: number;
+  bad: number;
+  combo: number;
+  drumroll: number;
+}
+
 export interface Playdata {
+  version: 1;
   entries: PlaydataEntry[];
   updatedAt: string;
   source: "fumen-database";
@@ -36,7 +54,7 @@ function normalizeTitle(title: string): string {
  * Parse fumen-database HTML content and extract playdata.
  * This runs client-side in the browser.
  */
-export function parseFumenDatabaseHtml(html: string): Playdata {
+export function parseFumenDatabaseHtml(html: string): FumenDatabasePlaydata {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, "text/html");
 
@@ -51,7 +69,7 @@ export function parseFumenDatabaseHtml(html: string): Playdata {
     }
   }
 
-  const entries: PlaydataEntry[] = [];
+  const entries: FumenDatabaseEntry[] = [];
 
   // Find all song rows - they have class 'filter_selector'
   const rows = Array.from(doc.querySelectorAll("div.filter_selector"));
@@ -269,7 +287,7 @@ function levenshtein(a: string, b: string): number {
 }
 
 export interface UnmatchedEntry {
-  entry: PlaydataEntry;
+  entry: FumenDatabaseEntry;
   originalIndex: number;
   closestMatch: {
     title: string;
@@ -286,7 +304,7 @@ export interface ResolutionResult {
 /**
  * Verify playdata against song mapping and identify unmatched entries
  */
-export function verifyPlaydata(playdata: Playdata, songMapping: SongMapping): ResolutionResult {
+export function verifyPlaydata(playdata: FumenDatabasePlaydata, songMapping: SongMapping): ResolutionResult {
   const titleToId = buildTitleToIdMap(songMapping);
 
   // Also build a list of all valid titles for fuzzy matching
@@ -308,17 +326,24 @@ export function verifyPlaydata(playdata: Playdata, songMapping: SongMapping): Re
       const mappedTitle = TITLE_MAPPINGS[entry.title];
       // Check if mapped title exists (it should)
       const mappedNormalized = normalizeTitleForComparison(mappedTitle);
-      if (titleToId.has(mappedNormalized)) {
+      const songId = titleToId.get(mappedNormalized);
+      if (songId) {
+        const { title, ...rest } = entry;
         matched.push({
-          ...entry,
-          title: mappedTitle,
+          ...rest,
+          songId,
         });
         return;
       }
     }
 
-    if (titleToId.has(normalizedTitle)) {
-      matched.push(entry);
+    const songId = titleToId.get(normalizedTitle);
+    if (songId) {
+      const { title, ...rest } = entry;
+      matched.push({
+        ...rest,
+        songId,
+      });
     } else {
       // Find closest match
       let bestMatch = null;
@@ -402,30 +427,25 @@ export interface ExportResult {
  * Convert playdata to taiko-rating-analyzer format
  */
 export async function convertToTaikoRatingAnalyzerFormat(playdata: Playdata): Promise<ExportResult> {
-  // Load song mapping
-  const response = await fetch("./data/song_mapping.json");
-  if (!response.ok) {
-    throw new Error("Failed to load song mapping");
-  }
-  const songMapping: SongMapping = await response.json();
-
-  const titleToId = buildTitleToIdMap(songMapping);
-
   const result: TaikoRatingAnalyzerEntry[] = [];
   let skippedCount = 0;
 
   for (const entry of playdata.entries) {
-    const normalizedTitle = normalizeTitleForComparison(entry.title);
-    const songId = titleToId.get(normalizedTitle);
+    if (!entry.songId) {
+      console.warn(`Song ID not found for an entry`);
+      skippedCount++;
+      continue;
+    }
 
-    if (!songId) {
-      console.warn(`Song ID not found for title: "${entry.title}"`);
+    const songIdNum = Number.parseInt(entry.songId, 10);
+    if (Number.isNaN(songIdNum)) {
+      console.warn(`Invalid song ID (not an integer): "${entry.songId}"`);
       skippedCount++;
       continue;
     }
 
     result.push([
-      Number.parseInt(songId, 10), // id
+      songIdNum, // id
       entry.difficulty, // level
       entry.score, // score
       0, // scoreRank (always 0)

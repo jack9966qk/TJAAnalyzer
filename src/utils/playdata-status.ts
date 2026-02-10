@@ -64,17 +64,6 @@ async function getEsePathToIdMap(): Promise<Map<string, string>> {
 }
 
 /**
- * Normalize title for comparison (handles unicode variations)
- */
-function normalizeTitleForComparison(title: string): string {
-  return title
-    .replace(/\u2010/g, "-") // HYPHEN -> HYPHEN-MINUS
-    .replace(/\uff01/g, "!") // FULLWIDTH EXCLAMATION MARK -> EXCLAMATION MARK
-    .toLowerCase()
-    .trim();
-}
-
-/**
  * Determine the play status of a PlaydataEntry
  */
 function getEntryStatus(entry: PlaydataEntry): PlayStatus {
@@ -91,19 +80,20 @@ function getEntryStatus(entry: PlaydataEntry): PlayStatus {
 }
 
 /**
- * Build a title-based lookup map from playdata
+ * Build a songId-based lookup map from playdata
  */
-function buildPlaydataTitleMap(playdata: Playdata): Map<string, PlaydataEntry[]> {
-  const titleToEntries = new Map<string, PlaydataEntry[]>();
+function buildPlaydataSongIdMap(playdata: Playdata): Map<string, PlaydataEntry[]> {
+  const songIdToEntries = new Map<string, PlaydataEntry[]>();
 
   for (const entry of playdata.entries) {
-    const normalized = normalizeTitleForComparison(entry.title);
-    const existing = titleToEntries.get(normalized) || [];
-    existing.push(entry);
-    titleToEntries.set(normalized, existing);
+    if (entry.songId) {
+      const existing = songIdToEntries.get(entry.songId) || [];
+      existing.push(entry);
+      songIdToEntries.set(entry.songId, existing);
+    }
   }
 
-  return titleToEntries;
+  return songIdToEntries;
 }
 
 /**
@@ -113,9 +103,8 @@ function buildPlaydataTitleMap(playdata: Playdata): Map<string, PlaydataEntry[]>
 export async function getPlayStatusForEsePath(
   esePath: string,
   playdata: Playdata | null | undefined,
-  songMapping: SongMapping | null,
 ): Promise<PlayStatus> {
-  if (!playdata?.entries?.length || !songMapping) {
+  if (!playdata?.entries?.length) {
     return "none";
   }
 
@@ -127,16 +116,9 @@ export async function getPlayStatusForEsePath(
     return "none";
   }
 
-  // Get the title from song mapping
-  const mappingEntry = songMapping[songId];
-  if (!mappingEntry?.title) {
-    return "none";
-  }
-
   // Build title lookup if needed
-  const titleToEntries = buildPlaydataTitleMap(playdata);
-  const normalizedTitle = normalizeTitleForComparison(mappingEntry.title);
-  const entries = titleToEntries.get(normalizedTitle);
+  const songIdToEntries = buildPlaydataSongIdMap(playdata);
+  const entries = songIdToEntries.get(songId);
 
   if (!entries || entries.length === 0) {
     return "none";
@@ -178,10 +160,9 @@ export function getCachedSongMapping(): SongMapping | null {
 export function getPlayStatusSync(
   esePath: string,
   playdata: Playdata | null | undefined,
-  songMapping: SongMapping | null,
-  titleToEntriesCache: Map<string, PlaydataEntry[]> | null,
+  songIdToEntriesCache: Map<string, PlaydataEntry[]> | null,
 ): PlayStatus {
-  if (!playdata?.entries?.length || !songMapping || !cachedEsePathToId) {
+  if (!playdata?.entries?.length || !cachedEsePathToId || !songIdToEntriesCache) {
     return "none";
   }
 
@@ -191,15 +172,8 @@ export function getPlayStatusSync(
     return "none";
   }
 
-  // Get the title from song mapping
-  const mappingEntry = songMapping[songId];
-  if (!mappingEntry?.title) {
-    return "none";
-  }
-
   // Use cached title lookup
-  const normalizedTitle = normalizeTitleForComparison(mappingEntry.title);
-  const entries = titleToEntriesCache?.get(normalizedTitle);
+  const entries = songIdToEntriesCache.get(songId);
 
   if (!entries || entries.length === 0) {
     return "none";
@@ -217,11 +191,11 @@ export function getPlayStatusSync(
 }
 
 /**
- * Build a title-to-entries cache from playdata (call once per render cycle)
+ * Build a songId-to-entries cache from playdata (call once per render cycle)
  */
-export function buildTitleToEntriesCache(playdata: Playdata | null | undefined): Map<string, PlaydataEntry[]> | null {
+export function buildSongIdToEntriesCache(playdata: Playdata | null | undefined): Map<string, PlaydataEntry[]> | null {
   if (!playdata?.entries?.length) {
     return null;
   }
-  return buildPlaydataTitleMap(playdata);
+  return buildPlaydataSongIdMap(playdata);
 }
