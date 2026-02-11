@@ -39,7 +39,6 @@ export class SettingsPanel extends HTMLElement {
       unmatched: UnmatchedEntry[];
     };
     playdata: FumenDatabasePlaydata;
-    decisions: Map<number, { action: "accept" | "keep" | "skip"; correctedTitle?: string }>;
   } | null = null;
 
   constructor() {
@@ -113,74 +112,11 @@ export class SettingsPanel extends HTMLElement {
     this.renderModal();
   }
 
-  private handleResolveDecision(
-    originalIndices: number[],
-    action: "accept" | "keep" | "skip",
-    correctedTitle?: string,
-  ) {
-    if (!this.resolutionState) return;
-    for (const index of originalIndices) {
-      this.resolutionState.decisions.set(index, { action, correctedTitle });
-    }
-    this.renderModal();
-  }
-
-  private handleBulkResolve(action: "accept" | "keep") {
-    if (!this.resolutionState) return;
-    const { result, decisions } = this.resolutionState;
-
-    // Group unmatched by title to mimic the UI grouping logic
-    const groups = new Map<string, UnmatchedEntry[]>();
-    for (const item of result.unmatched) {
-      const existing = groups.get(item.entry.title) || [];
-      existing.push(item);
-      groups.set(item.entry.title, existing);
-    }
-
-    for (const group of groups.values()) {
-      const first = group[0];
-
-      // Only act on items with suggestions (resolvable)
-      if (first.closestMatch) {
-        for (const item of group) {
-          if (action === "accept") {
-            decisions.set(item.originalIndex, {
-              action: "accept",
-              correctedTitle: first.closestMatch.title,
-            });
-          } else if (action === "keep") {
-            decisions.set(item.originalIndex, { action: "keep" });
-          }
-        }
-      }
-    }
-    this.renderModal();
-  }
-
   private handleFinalizeImport() {
     if (!this.resolutionState) return;
 
-    const { playdata, result, decisions } = this.resolutionState;
+    const { playdata, result } = this.resolutionState;
     const finalEntries: PlaydataEntry[] = [...result.matched];
-    const unmatchedEntries = result.unmatched;
-
-    decisions.forEach((decision, originalIndex) => {
-      const unmatchedEntry = unmatchedEntries.find((u) => u.originalIndex === originalIndex);
-      if (!unmatchedEntry) return;
-
-      if (decision.action === "accept" && decision.correctedTitle) {
-        const songId = unmatchedEntry.closestMatch?.songId;
-        if (songId) {
-          const { title, ...rest } = unmatchedEntry.entry;
-          finalEntries.push({
-            ...rest,
-            songId,
-          });
-        }
-      } else if (decision.action === "keep") {
-        // This path is tricky, as we don't have a songId. For now, we'll have to skip.
-      }
-    });
 
     const finalPlaydata: Playdata = {
       version: 2,
@@ -366,7 +302,6 @@ export class SettingsPanel extends HTMLElement {
             this.resolutionState = {
               result: verification,
               playdata,
-              decisions: new Map(),
             };
             this.importStatus = { type: "none", message: "" };
             this.renderModal();
@@ -575,16 +510,14 @@ export class SettingsPanel extends HTMLElement {
     if (!this.resolutionState) return;
     const { result } = this.resolutionState;
 
-    const csvLines = ["Original Title,Suggested Title,Distance"];
+    const csvLines = ["Original Title"];
 
     // Include all unmatched items, sorted by title
     const allUnmatched = [...result.unmatched].sort((a, b) => a.entry.title.localeCompare(b.entry.title));
 
     for (const item of allUnmatched) {
       const original = `"${item.entry.title.replace(/"/g, '""')}"`;
-      const suggestion = item.closestMatch ? `"${item.closestMatch.title.replace(/"/g, '""')}"` : "";
-      const distance = item.closestMatch ? item.closestMatch.distance : "";
-      csvLines.push(`${original},${suggestion},${distance}`);
+      csvLines.push(`${original}`);
     }
 
     // Simple deduplication
@@ -601,9 +534,7 @@ export class SettingsPanel extends HTMLElement {
   renderResolutionUI() {
     if (!this.resolutionState) return <div />;
 
-    const { result, decisions } = this.resolutionState;
-    // Only check resolution for items that HAVE a suggestion (matched).
-    // Unmatched items (no suggestions) are automatically skipped, so they don't block resolution.
+    const { result } = this.resolutionState;
 
     // Group unmatched entries by title
     const groups = new Map<string, UnmatchedEntry[]>();
@@ -615,134 +546,18 @@ export class SettingsPanel extends HTMLElement {
 
     const sortedGroups = Array.from(groups.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 
-    // Split groups into those with suggestions and those without
-    const groupsWithSuggestions = sortedGroups.filter(([_, items]) => !!items[0].closestMatch);
-    const groupsWithoutSuggestions = sortedGroups.filter(([_, items]) => !items[0].closestMatch);
-
-    // Check if all resolvable items are resolved
-    const allResolvableResolved = groupsWithSuggestions.every(([_, items]) =>
-      items.every((item) => decisions.has(item.originalIndex)),
-    );
-
     return (
       <div style="padding: 20px;">
-        <h3 style="margin-top: 0;">{i18n.t("ui.playdata.resolveConflicts")}</h3>
+        <h3 style="margin-top: 0;">{i18n.t("ui.playdata.unresolvable")}</h3>
         <div style="margin-bottom: 15px; font-size: 14px; color: var(--text-secondary);">
-          {i18n.t("ui.playdata.resolveInstructions")}
+          The following entries could not be imported because their Song ID was not found in the database.
         </div>
 
-        {/* Section 1: Resolvable Conflicts */}
-        {groupsWithSuggestions.length > 0 && (
+        {sortedGroups.length > 0 ? (
           <div style="margin-bottom: 20px;">
-            <h4 style="margin: 0 0 10px 0; font-size: 14px; color: var(--text-primary);">
-              {i18n.t("ui.playdata.resolvable")}
-            </h4>
-
-            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
-              <button
-                type="button"
-                className="btn-secondary"
-                style="font-size: 12px; padding: 6px 12px;"
-                onclick={() => this.handleBulkResolve("accept")}
-              >
-                {i18n.t("ui.playdata.acceptAllSuggestions")}
-              </button>
-              <button
-                type="button"
-                className="btn-secondary"
-                style="font-size: 12px; padding: 6px 12px;"
-                onclick={() => this.handleBulkResolve("keep")}
-              >
-                {i18n.t("ui.playdata.keepAllOriginal")}
-              </button>
-            </div>
-
-            <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-light); border-radius: 4px;">
-              <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
-                <thead>
-                  <tr style="background: var(--bg-panel-header); border-bottom: 1px solid var(--border-light);">
-                    <th style="padding: 8px; text-align: left;">{i18n.t("ui.playdata.originalTitle")}</th>
-                    <th style="padding: 8px; text-align: left;">{i18n.t("ui.playdata.suggestion")}</th>
-                    <th style="padding: 8px; text-align: center;">{i18n.t("ui.playdata.action")}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {groupsWithSuggestions.map(([title, groupItems]) => {
-                    const firstItem = groupItems[0];
-                    const closestMatch = firstItem.closestMatch; // Guaranteed by filter
-                    if (!closestMatch) return null;
-
-                    const decision = decisions.get(firstItem.originalIndex);
-                    const rowStyle = decision
-                      ? decision.action === "accept"
-                        ? "background: rgba(var(--color-success-rgb), 0.1);"
-                        : decision.action === "keep"
-                          ? "background: rgba(var(--color-error-rgb), 0.1);"
-                          : ""
-                      : "";
-
-                    const indices = groupItems.map((g) => g.originalIndex);
-
-                    return (
-                      <tr style={`border-bottom: 1px solid var(--border-light); ${rowStyle}`}>
-                        <td style="padding: 8px;">
-                          {title}
-                          {groupItems.length > 1 && (
-                            <span style="margin-left: 6px; font-size: 11px; color: var(--text-secondary); background: var(--bg-panel-header); padding: 1px 4px; border-radius: 4px;">
-                              x{groupItems.length}
-                            </span>
-                          )}
-                        </td>
-                        <td style="padding: 8px;">
-                          <div>
-                            <div style="font-weight: bold;">{closestMatch.title}</div>
-                            <div style="font-size: 11px; color: var(--text-secondary);">
-                              Distance: {closestMatch.distance}
-                            </div>
-                          </div>
-                        </td>
-                        <td style="padding: 8px; text-align: center;">
-                          <div style="display: flex; gap: 4px; justify-content: center;">
-                            <button
-                              type="button"
-                              className={decision?.action === "accept" ? "active" : "btn-secondary"}
-                              style={`padding: 4px 8px; font-size: 12px; ${
-                                decision?.action === "accept" ? "background: var(--color-success); color: white;" : ""
-                              }`}
-                              onclick={() => this.handleResolveDecision(indices, "accept", closestMatch.title)}
-                            >
-                              {i18n.t("ui.accept")}
-                            </button>
-                            <button
-                              type="button"
-                              className={decision?.action === "keep" ? "active" : "btn-secondary"}
-                              style={`padding: 4px 8px; font-size: 12px; ${
-                                decision?.action === "keep" ? "background: var(--color-error); color: white;" : ""
-                              }`}
-                              onclick={() => this.handleResolveDecision(indices, "keep")}
-                            >
-                              {i18n.t("ui.reject")}
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-
-        {/* Section 2: Unresolvable (Skipped) */}
-        {groupsWithoutSuggestions.length > 0 && (
-          <div style="margin-bottom: 20px;">
-            <h4 style="margin: 0 0 10px 0; font-size: 14px; color: var(--text-secondary);">
-              {i18n.t("ui.playdata.unresolvable")}
-            </h4>
-            <div style="max-height: 200px; overflow-y: auto; border: 1px solid var(--border-light); border-radius: 4px; background: var(--bg-input);">
+            <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-light); border-radius: 4px; background: var(--bg-input);">
               <ul style="margin: 0; padding: 0; list-style: none; font-size: 13px;">
-                {groupsWithoutSuggestions.map(([title, groupItems]) => (
+                {sortedGroups.map(([title, groupItems]) => (
                   <li style="padding: 8px 12px; border-bottom: 1px solid var(--border-lighter); color: var(--text-secondary);">
                     {title}
                     {groupItems.length > 1 && (
@@ -754,6 +569,10 @@ export class SettingsPanel extends HTMLElement {
                 ))}
               </ul>
             </div>
+          </div>
+        ) : (
+          <div style="margin-bottom: 20px; color: var(--text-secondary);">
+            {i18n.t("ui.playdata.noData")}
           </div>
         )}
 
@@ -775,7 +594,7 @@ export class SettingsPanel extends HTMLElement {
             <button type="button" className="btn-secondary" onclick={this.handleClose.bind(this)}>
               {i18n.t("ui.cancel")}
             </button>
-            <button type="button" disabled={!allResolvableResolved} onclick={this.handleFinalizeImport.bind(this)}>
+            <button type="button" onclick={this.handleFinalizeImport.bind(this)}>
               {i18n.t("ui.playdata.finalizeImport")}
             </button>
           </div>
