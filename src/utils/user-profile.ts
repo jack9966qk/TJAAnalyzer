@@ -20,7 +20,7 @@ export interface UserProfile {
 
 const STORAGE_KEY = "tja_analyzer_profile";
 const PLAYDATA_STORAGE_KEY = "tja_analyzer_playdata";
-const CURRENT_PLAYDATA_VERSION = 1;
+const CURRENT_PLAYDATA_VERSION = 2;
 
 const DEFAULT_PROFILE: UserProfile = {
   isTesterMode: false,

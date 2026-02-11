@@ -1,14 +1,35 @@
 // Parser for fumen-database HTML content
 
+export enum Crown {
+  None,
+  Clear,
+  FullCombo,
+  Perfect,
+}
+
+export enum ScoreRank {
+  None,
+  White,
+  Bronze,
+  Silver,
+  Gold,
+  Pink,
+  Purple,
+  Rainbow,
+}
+
 export interface FumenDatabaseEntry {
   title: string; // Song title from fumen-database
-  difficulty: number; // 1=easy, 2=normal, 3=hard, 4=extreme, 5=hidden
+  difficulty: number; // 1=easy, 2=normal, 3=hard, 4=oni, 5=ura
   score: number;
   great: number;
   good: number;
   bad: number;
   combo: number;
   drumroll: number;
+  songId: number;
+  crown: Crown;
+  scoreRank: ScoreRank;
 }
 
 export interface FumenDatabasePlaydata {
@@ -26,10 +47,12 @@ export interface PlaydataEntry {
   bad: number;
   combo: number;
   drumroll: number;
+  crown: Crown;
+  scoreRank: ScoreRank;
 }
 
 export interface Playdata {
-  version: 1;
+  version: 2;
   entries: PlaydataEntry[];
   updatedAt: string;
   source: "fumen-database";
@@ -41,6 +64,23 @@ const DIFFICULTY_MAPPING: Record<string, number> = {
   difficulty_hard_color: 3,
   difficulty_extreme_color: 4,
   difficulty_hidden_color: 5,
+};
+
+const CROWN_MAPPING: Record<string, Crown> = {
+  crown_clear: Crown.Clear,
+  crown_full: Crown.FullCombo, // This is for Full Combo
+  crown_preDonderfull: Crown.FullCombo, // Full Combo, another variant
+  crown_donderfull: Crown.Perfect, // This is for Perfect
+};
+
+const SCORE_RANK_MAPPING: Record<string, ScoreRank> = {
+  scoreRank_white: ScoreRank.White,
+  scoreRank_bronze: ScoreRank.Bronze,
+  scoreRank_silver: ScoreRank.Silver,
+  scoreRank_gold: ScoreRank.Gold,
+  scoreRank_pink: ScoreRank.Pink,
+  scoreRank_purple: ScoreRank.Purple,
+  scoreRank_rainbow: ScoreRank.Rainbow,
 };
 
 /**
@@ -84,20 +124,57 @@ export function parseFumenDatabaseHtml(html: string): FumenDatabasePlaydata {
         continue;
       }
 
-      // Difficulty - from the difficulty class on table_difficulty div
+      let songId = 0;
       let difficulty = 0;
-      const diffDiv = row.querySelector(".table_difficulty");
-      if (diffDiv) {
-        const classes = diffDiv.className.split(" ");
-        for (const c of classes) {
-          if (DIFFICULTY_MAPPING[c] !== undefined) {
-            difficulty = DIFFICULTY_MAPPING[c];
+      if (titleDiv) {
+        const href = titleDiv.getAttribute("href");
+        if (href) {
+          const match = href.match(/\/song\/(\d+)-(\d+)\//);
+          if (match) {
+            songId = parseInt(match[1], 10);
+            difficulty = parseInt(match[2], 10);
+          }
+        }
+      }
+
+      // If difficulty was not found from href, try reading from text
+      if (difficulty === 0) {
+        const diffDiv = row.querySelector(".table_difficulty");
+        if (diffDiv) {
+          const classes = diffDiv.className.split(" ");
+          for (const c of classes) {
+            if (DIFFICULTY_MAPPING[c] !== undefined) {
+              difficulty = DIFFICULTY_MAPPING[c];
+              break;
+            }
+          }
+        }
+      }
+
+      let crown = Crown.None;
+      const crownImg = row.querySelector(".table_crown img");
+      if (crownImg) {
+        const src = crownImg.getAttribute("src") || "";
+        for (const key in CROWN_MAPPING) {
+          if (src.includes(key)) {
+            crown = CROWN_MAPPING[key];
             break;
           }
         }
       }
 
-      // Score
+      let scoreRank = ScoreRank.None;
+      const scoreRankImg = row.querySelector(".table_scorerank img");
+      if (scoreRankImg) {
+        const src = scoreRankImg.getAttribute("src") || "";
+        for (const key in SCORE_RANK_MAPPING) {
+          if (src.includes(key)) {
+            scoreRank = SCORE_RANK_MAPPING[key];
+            break;
+          }
+        }
+      }
+
       let score = 0;
       const scoreDiv = row.querySelector(".table_totalscore");
       if (scoreDiv) {
@@ -137,6 +214,9 @@ export function parseFumenDatabaseHtml(html: string): FumenDatabasePlaydata {
         bad,
         combo,
         drumroll,
+        songId,
+        crown,
+        scoreRank,
       });
     } catch (e) {
       console.error("Error parsing row:", e);

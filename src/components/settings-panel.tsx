@@ -183,9 +183,10 @@ export class SettingsPanel extends HTMLElement {
     });
 
     const finalPlaydata: Playdata = {
-      ...playdata,
-      version: 1,
+      version: 2,
       entries: finalEntries,
+      updatedAt: playdata.updatedAt,
+      source: playdata.source,
     };
 
     saveUserProfile({ playdata: finalPlaydata });
@@ -373,9 +374,10 @@ export class SettingsPanel extends HTMLElement {
           }
 
           const finalPlaydata: Playdata = {
-            ...playdata,
-            version: 1,
+            version: 2,
             entries: verification.matched,
+            updatedAt: playdata.updatedAt,
+            source: playdata.source,
           };
 
           // Save to profile
@@ -385,9 +387,10 @@ export class SettingsPanel extends HTMLElement {
         } else {
           // If song mapping fails, save the parsed data without songId
           const finalPlaydata: Playdata = {
-            ...playdata,
-            version: 1,
+            version: 2,
             entries: [], // No matched entries
+            updatedAt: playdata.updatedAt,
+            source: playdata.source,
           };
           saveUserProfile({ playdata: finalPlaydata });
           this.playdata = finalPlaydata;
@@ -397,9 +400,10 @@ export class SettingsPanel extends HTMLElement {
         console.warn("Failed to load song mapping for verification, skipping.", e);
         // Save the parsed data without songId
         const finalPlaydata: Playdata = {
-          ...playdata,
-          version: 1,
+          version: 2,
           entries: [], // No matched entries
+          updatedAt: playdata.updatedAt,
+          source: playdata.source,
         };
         saveUserProfile({ playdata: finalPlaydata });
         this.playdata = finalPlaydata;
