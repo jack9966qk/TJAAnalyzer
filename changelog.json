@@ -1,5 +1,45 @@
 [
   {
+    "hash": "0c07c01",
+    "message": "Update version as 0.9.2.",
+    "date": "2026-02-11"
+  },
+  {
+    "hash": "d71ea4f",
+    "message": "Update chart list to use crown status from playdata for the strip color.",
+    "date": "2026-02-11"
+  },
+  {
+    "hash": "3d4a376",
+    "message": "Update playdata importer to identify songs by ID instead of title. Remove the manual resolution UI.",
+    "date": "2026-02-11"
+  },
+  {
+    "hash": "9c3c9bc",
+    "message": "Extend fumen-database parsing to include song ID, crown and score rank.",
+    "date": "2026-02-11"
+  },
+  {
+    "hash": "29d085f",
+    "message": "Store playdata with song ID instead of titles from Fumen Database. Add versioning to the stored playdata. Fix an issue where chart list UI for playdata can be outdated.",
+    "date": "2026-02-11"
+  },
+  {
+    "hash": "6009484",
+    "message": "Improve title resolution during playdata import.",
+    "date": "2026-02-10"
+  },
+  {
+    "hash": "be8028c",
+    "message": "Update playdata importer to allow users to manually address some unmatched entires where a fuzzy match is available.",
+    "date": "2026-02-10"
+  },
+  {
+    "hash": "d4ea942",
+    "message": "Update README with a high level version history.",
+    "date": "2026-02-09"
+  },
+  {
     "hash": "0802f36",
     "message": "Update version as 0.9.1.",
     "date": "2026-02-09"
@@ -458,45 +498,5 @@
     "hash": "7535b47",
     "message": "Update version to 0.7.4.",
     "date": "2026-01-26"
-  },
-  {
-    "hash": "1a63ef1",
-    "message": "Fix build errors in fresh clone: update package config and tsconfig.",
-    "date": "2026-01-26"
-  },
-  {
-    "hash": "fb308cb",
-    "message": "Update README.",
-    "date": "2026-01-25"
-  },
-  {
-    "hash": "1eec8b4",
-    "message": "Update vertical beat divider line width to match bar border width.",
-    "date": "2026-01-25"
-  },
-  {
-    "hash": "ac26dfa",
-    "message": "Reduce bottom spacing of floating chart options tab in vertical layout.",
-    "date": "2026-01-25"
-  },
-  {
-    "hash": "db33a78",
-    "message": "Update version to 0.7.3.",
-    "date": "2026-01-25"
-  },
-  {
-    "hash": "e866164",
-    "message": "Add a script to generate song mapping into ESE paths.",
-    "date": "2026-01-25"
-  },
-  {
-    "hash": "5b729db",
-    "message": "Fix some formatting issues.",
-    "date": "2026-01-25"
-  },
-  {
-    "hash": "17a400a",
-    "message": "Fix a test case that never completes.",
-    "date": "2026-01-25"
   }
 ]
