@@ -1,8 +1,6 @@
 // Utility functions for determining playdata status for chart list items
 
-import type { Playdata, PlaydataEntry } from "./playdata-parser.js";
-
-export type PlayStatus = "none" | "played" | "fullcombo" | "perfect";
+import { Crown, type Playdata, type PlaydataEntry } from "./playdata-parser.js";
 
 interface SongMappingEntry {
   esePath: string;
@@ -63,20 +61,47 @@ async function getEsePathToIdMap(): Promise<Map<string, string>> {
   return esePathToId;
 }
 
-/**
- * Determine the play status of a PlaydataEntry
- */
-function getEntryStatus(entry: PlaydataEntry): PlayStatus {
-  // Perfect: only great hits (no good or bad)
-  if (entry.good === 0 && entry.bad === 0) {
-    return "perfect";
+export function getCrownCssClass(crown: Crown): string {
+  switch (crown) {
+    case Crown.Perfect:
+      return "status-perfect";
+    case Crown.FullCombo:
+      return "status-fullcombo";
+    case Crown.Clear:
+      return "status-played";
+    default:
+      return "";
   }
-  // Full combo: no bad hits
-  if (entry.bad === 0) {
-    return "fullcombo";
+}
+
+function resolveStatus(entries: PlaydataEntry[]): Crown {
+  if (!entries || entries.length === 0) {
+    return Crown.None;
   }
-  // Otherwise: played (has bad hits)
-  return "played";
+
+  // Filter out entries with Crown.None (0)
+  const clearedEntries = entries.filter((e) => e.crown >= Crown.Clear);
+
+  if (clearedEntries.length === 0) {
+    return Crown.None;
+  }
+
+  // Find the entry with the highest difficulty among cleared entries
+  let bestEntry = clearedEntries[0];
+
+  for (let i = 1; i < clearedEntries.length; i++) {
+    const entry = clearedEntries[i];
+    if (entry.difficulty > bestEntry.difficulty) {
+      bestEntry = entry;
+    } else if (entry.difficulty === bestEntry.difficulty) {
+      // Tie-breaker: higher crown
+      if (entry.crown > bestEntry.crown) {
+        bestEntry = entry;
+      }
+    }
+  }
+
+  return bestEntry.crown;
 }
 
 /**
@@ -103,9 +128,9 @@ function buildPlaydataSongIdMap(playdata: Playdata): Map<string, PlaydataEntry[]
 export async function getPlayStatusForEsePath(
   esePath: string,
   playdata: Playdata | null | undefined,
-): Promise<PlayStatus> {
+): Promise<Crown> {
   if (!playdata?.entries?.length) {
-    return "none";
+    return Crown.None;
   }
 
   // Get song ID from esePath
@@ -113,7 +138,7 @@ export async function getPlayStatusForEsePath(
   const songId = esePathToId.get(esePath);
 
   if (!songId) {
-    return "none";
+    return Crown.None;
   }
 
   // Build title lookup if needed
@@ -121,18 +146,10 @@ export async function getPlayStatusForEsePath(
   const entries = songIdToEntries.get(songId);
 
   if (!entries || entries.length === 0) {
-    return "none";
+    return Crown.None;
   }
 
-  // Find the entry with the highest difficulty
-  let highestDiffEntry = entries[0];
-  for (const entry of entries) {
-    if (entry.difficulty > highestDiffEntry.difficulty) {
-      highestDiffEntry = entry;
-    }
-  }
-
-  return getEntryStatus(highestDiffEntry);
+  return resolveStatus(entries);
 }
 
 /**
@@ -161,33 +178,25 @@ export function getPlayStatusSync(
   esePath: string,
   playdata: Playdata | null | undefined,
   songIdToEntriesCache: Map<string, PlaydataEntry[]> | null,
-): PlayStatus {
+): Crown {
   if (!playdata?.entries?.length || !cachedEsePathToId || !songIdToEntriesCache) {
-    return "none";
+    return Crown.None;
   }
 
   // Get song ID from esePath
   const songId = cachedEsePathToId.get(esePath);
   if (!songId) {
-    return "none";
+    return Crown.None;
   }
 
   // Use cached title lookup
   const entries = songIdToEntriesCache.get(songId);
 
   if (!entries || entries.length === 0) {
-    return "none";
+    return Crown.None;
   }
 
-  // Find the entry with the highest difficulty
-  let highestDiffEntry = entries[0];
-  for (const entry of entries) {
-    if (entry.difficulty > highestDiffEntry.difficulty) {
-      highestDiffEntry = entry;
-    }
-  }
-
-  return getEntryStatus(highestDiffEntry);
+  return resolveStatus(entries);
 }
 
 /**

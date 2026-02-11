@@ -5,7 +5,13 @@ import { refreshChart, updatePageUrl, updateParsedCharts } from "../controllers/
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import type { Playdata, PlaydataEntry } from "../utils/playdata-parser.js";
-import { buildSongIdToEntriesCache, getPlayStatusSync, preloadSongMapping } from "../utils/playdata-status.js";
+import { Crown } from "../utils/playdata-parser.js";
+import {
+  buildSongIdToEntriesCache,
+  getCrownCssClass,
+  getPlayStatusSync,
+  preloadSongMapping,
+} from "../utils/playdata-status.js";
 import { loadUserProfile } from "../utils/user-profile.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
 
@@ -405,11 +411,11 @@ export class ChartListPanel extends HTMLElement {
               const playdata = profile.playdata;
               const hasPlaydata = !!playdata?.entries?.length;
 
-              let statusClass = "";
+                            let statusClass = "";
               if (hasPlaydata && this._songMapping && this._songIdToEntriesCache) {
                 const status = getPlayStatusSync(node.path, playdata, this._songIdToEntriesCache);
-                if (status !== "none") {
-                  statusClass = `status-${status}`;
+                if (status !== Crown.None) {
+                  statusClass = getCrownCssClass(status);
                 }
               }
 
@@ -421,7 +427,7 @@ export class ChartListPanel extends HTMLElement {
                   className={`ese-result-item ${isSelected ? "selected" : ""}`}
                   onclick={() => this.handleResultClick(node)}
                 >
-                  {hasPlaydata && <div className={`play-status-strip ${statusClass}`}></div>}
+                  {hasPlaydata && statusClass && <div className={`play-status-strip ${statusClass}`}></div>}
                   <div className={textClass}>{displayText}</div>
                 </div>
               );
