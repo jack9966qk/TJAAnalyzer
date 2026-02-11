@@ -125,10 +125,7 @@ function buildPlaydataSongIdMap(playdata: Playdata): Map<string, PlaydataEntry[]
  * Get the play status for a given ESE path
  * Returns the status of the highest difficulty played
  */
-export async function getPlayStatusForEsePath(
-  esePath: string,
-  playdata: Playdata | null | undefined,
-): Promise<Crown> {
+export async function getPlayStatusForEsePath(esePath: string, playdata: Playdata | null | undefined): Promise<Crown> {
   if (!playdata?.entries?.length) {
     return Crown.None;
   }

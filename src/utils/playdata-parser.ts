@@ -319,7 +319,6 @@ export function verifyPlaydata(playdata: FumenDatabasePlaydata, songMapping: Son
   return { matched, unmatched };
 }
 
-
 /**
  * Taiko-rating-analyzer format:
  * [id, level, score, scoreRank, great, good, bad, drumroll, combo, playCount, clearCount, fullcomboCount, perfectCount, updatedAt]

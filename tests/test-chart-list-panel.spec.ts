@@ -129,9 +129,12 @@ test.describe("Chart List Panel Component", () => {
     const itemPlayed = page.locator(".ese-result-item").filter({ hasText: "Song Played" });
     await expect(itemPlayed.locator(".play-status-strip")).toHaveClass(/status-played/);
 
-    // 4. Failed -> No strip
+    // 4. Failed -> No status color, but strip is present for alignment
     const itemFailed = page.locator(".ese-result-item").filter({ hasText: "Song Failed" });
-    await expect(itemFailed.locator(".play-status-strip")).not.toBeVisible();
+    await expect(itemFailed.locator(".play-status-strip")).toBeVisible();
+    await expect(itemFailed.locator(".play-status-strip")).not.toHaveClass(/status-perfect/);
+    await expect(itemFailed.locator(".play-status-strip")).not.toHaveClass(/status-fullcombo/);
+    await expect(itemFailed.locator(".play-status-strip")).not.toHaveClass(/status-played/);
 
     // 5. Mixed (Failed Hard + FC Normal) -> Should be Gold (FC), ignoring the failed run
     const itemMixed = page.locator(".ese-result-item").filter({ hasText: "Song Mixed" });

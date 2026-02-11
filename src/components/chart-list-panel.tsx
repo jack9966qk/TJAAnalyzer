@@ -400,38 +400,49 @@ export class ChartListPanel extends HTMLElement {
           ) : this._displayResults.length === 0 ? (
             <div className="ese-result-placeholder">{i18n.t("ui.ese.noResults")}</div>
           ) : (
-            this._displayResults.map((node: DisplayResult) => {
-              if ("__truncated" in node) {
-                return <div className="ese-result-placeholder">{i18n.t("ui.ese.truncated")}</div>;
-              }
-              const isSelected = appState.currentEsePath === node.path;
-
-              // Get play status if playdata is available
+            (() => {
+              // Get play status context
               const profile = loadUserProfile();
               const playdata = profile.playdata;
               const hasPlaydata = !!playdata?.entries?.length;
+              let anyItemHasStatus = false;
 
-                            let statusClass = "";
-              if (hasPlaydata && this._songMapping && this._songIdToEntriesCache) {
-                const status = getPlayStatusSync(node.path, playdata, this._songIdToEntriesCache);
-                if (status !== Crown.None) {
-                  statusClass = getCrownCssClass(status);
+              // Pre-calculate statuses and check if any item has status
+              const itemsWithStatus = this._displayResults.map((node: DisplayResult) => {
+                if ("__truncated" in node) return { node, statusClass: "" };
+
+                let statusClass = "";
+                if (hasPlaydata && this._songMapping && this._songIdToEntriesCache) {
+                  const status = getPlayStatusSync(node.path, playdata, this._songIdToEntriesCache);
+                  if (status !== Crown.None) {
+                    statusClass = getCrownCssClass(status);
+                    anyItemHasStatus = true;
+                  }
                 }
-              }
+                return { node, statusClass };
+              });
 
-              const { text: displayText, isTitle } = this.getDisplayText(node);
-              const textClass = `ese-result-item-text${isTitle ? " display-title" : ""}`;
+              const showStrip = hasPlaydata && anyItemHasStatus;
 
-              return (
-                <div
-                  className={`ese-result-item ${isSelected ? "selected" : ""}`}
-                  onclick={() => this.handleResultClick(node)}
-                >
-                  {hasPlaydata && statusClass && <div className={`play-status-strip ${statusClass}`}></div>}
-                  <div className={textClass}>{displayText}</div>
-                </div>
-              );
-            })
+              return itemsWithStatus.map(({ node, statusClass }) => {
+                if ("__truncated" in node) {
+                  return <div className="ese-result-placeholder">{i18n.t("ui.ese.truncated")}</div>;
+                }
+                const isSelected = appState.currentEsePath === node.path;
+                const { text: displayText, isTitle } = this.getDisplayText(node);
+                const textClass = `ese-result-item-text${isTitle ? " display-title" : ""}`;
+
+                return (
+                  <div
+                    className={`ese-result-item ${isSelected ? "selected" : ""}`}
+                    onclick={() => this.handleResultClick(node)}
+                  >
+                    {showStrip && <div className={`play-status-strip ${statusClass || ""}`}></div>}
+                    <div className={textClass}>{displayText}</div>
+                  </div>
+                );
+              });
+            })()
           )}
         </div>
       </div>

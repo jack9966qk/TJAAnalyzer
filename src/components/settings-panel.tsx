@@ -571,9 +571,7 @@ export class SettingsPanel extends HTMLElement {
             </div>
           </div>
         ) : (
-          <div style="margin-bottom: 20px; color: var(--text-secondary);">
-            {i18n.t("ui.playdata.noData")}
-          </div>
+          <div style="margin-bottom: 20px; color: var(--text-secondary);">{i18n.t("ui.playdata.noData")}</div>
         )}
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
