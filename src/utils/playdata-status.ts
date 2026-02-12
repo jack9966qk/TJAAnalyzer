@@ -144,21 +144,25 @@ function resolveBestEntry(entries: PlaydataEntry[]): PlaydataEntry | null {
   // Filter out entries with Crown.None (0)
   const clearedEntries = entries.filter((e) => e.crown >= Crown.Clear);
 
-  if (clearedEntries.length === 0) {
-    return null;
-  }
+  // If we have cleared entries, prioritize them. Otherwise use all entries (e.g. failed plays)
+  const candidates = clearedEntries.length > 0 ? clearedEntries : entries;
 
-  // Find the entry with the highest difficulty among cleared entries
-  let bestEntry = clearedEntries[0];
+  // Find the entry with the highest difficulty among candidates
+  let bestEntry = candidates[0];
 
-  for (let i = 1; i < clearedEntries.length; i++) {
-    const entry = clearedEntries[i];
+  for (let i = 1; i < candidates.length; i++) {
+    const entry = candidates[i];
     if (entry.difficulty > bestEntry.difficulty) {
       bestEntry = entry;
     } else if (entry.difficulty === bestEntry.difficulty) {
       // Tie-breaker: higher crown
       if (entry.crown > bestEntry.crown) {
         bestEntry = entry;
+      } else if (entry.crown === bestEntry.crown) {
+        // Tie-breaker: higher score
+        if (entry.score > bestEntry.score) {
+          bestEntry = entry;
+        }
       }
     }
   }
