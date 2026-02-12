@@ -1,5 +1,35 @@
 [
   {
+    "hash": "dea4676",
+    "message": "Update version to 0.9.3.",
+    "date": "2026-02-13"
+  },
+  {
+    "hash": "7409751",
+    "message": "Add a label to the playdata display dropdown, add localization, and move the share chart button below the list.",
+    "date": "2026-02-13"
+  },
+  {
+    "hash": "1d8d5af",
+    "message": "Add UI tests for playdata display in chart list.",
+    "date": "2026-02-13"
+  },
+  {
+    "hash": "44a394e",
+    "message": "Slight improvement in chart list playdata styling.",
+    "date": "2026-02-12"
+  },
+  {
+    "hash": "711df51",
+    "message": "Add a few display modes to show playdata along with the chart list.",
+    "date": "2026-02-12"
+  },
+  {
+    "hash": "cd48125",
+    "message": "Make sure chart list labels are aligned regardless of the playdata strip status.",
+    "date": "2026-02-12"
+  },
+  {
     "hash": "0c07c01",
     "message": "Update version as 0.9.2.",
     "date": "2026-02-11"
@@ -468,35 +498,5 @@
     "hash": "af0d3c9",
     "message": "Get commit hash and date when fetching from ESE.",
     "date": "2026-01-28"
-  },
-  {
-    "hash": "a87e325",
-    "message": "Fix macOS portable app icon issue by converting PNG to ICNS in build script.",
-    "date": "2026-01-28"
-  },
-  {
-    "hash": "47032a5",
-    "message": "Update version to 0.7.5.",
-    "date": "2026-01-28"
-  },
-  {
-    "hash": "b50a651",
-    "message": "Add release script to automate Neutralino builds and GitHub releases",
-    "date": "2026-01-28"
-  },
-  {
-    "hash": "9818580",
-    "message": "Add auto zooming functionality which adjusts zoom level based on canvas width.",
-    "date": "2026-01-27"
-  },
-  {
-    "hash": "bdac9b0",
-    "message": "Add portable builds using neutralino-build-scripts via setup script and patch.",
-    "date": "2026-01-26"
-  },
-  {
-    "hash": "7535b47",
-    "message": "Update version to 0.7.4.",
-    "date": "2026-01-26"
   }
 ]
