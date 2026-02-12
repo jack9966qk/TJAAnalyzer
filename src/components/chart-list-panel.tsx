@@ -9,10 +9,14 @@ import { Crown } from "../utils/playdata-parser.js";
 import {
   buildSongIdToEntriesCache,
   getCrownCssClass,
-  getPlayStatusSync,
+  getDnStyleCssClass,
+  getPlayEntrySync,
+  getScoreRankChar,
+  getScoreRankCssClass,
+  PlaydataDisplayMode,
   preloadSongMapping,
 } from "../utils/playdata-status.js";
-import { loadUserProfile } from "../utils/user-profile.js";
+import { loadUserProfile, saveUserProfile } from "../utils/user-profile.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
 
 type DisplayResult = GitNode | { __truncated: true; path?: never; title?: never; titleJp?: never };
@@ -43,6 +47,7 @@ export class ChartListPanel extends HTMLElement {
   private _titleToPathsCache: Map<string, string[]> = new Map();
   // Settings
   private _showFullPath = false;
+  private _displayMode: PlaydataDisplayMode = PlaydataDisplayMode.Crown;
   private _settingsChangeHandler: (() => void) | null = null;
 
   connectedCallback() {
@@ -70,6 +75,7 @@ export class ChartListPanel extends HTMLElement {
   private loadSettings() {
     const profile = loadUserProfile();
     this._showFullPath = profile.showFullPathInChartList ?? false;
+    this._displayMode = profile.chartListDisplayMode ?? PlaydataDisplayMode.Crown;
   }
 
   get searchQuery() {
@@ -298,6 +304,13 @@ export class ChartListPanel extends HTMLElement {
     this.searchQuery = (e.target as HTMLInputElement).value;
   }
 
+  private handleDisplayModeChange(e: Event) {
+    const val = (e.target as HTMLSelectElement).value as PlaydataDisplayMode;
+    this._displayMode = val;
+    saveUserProfile({ chartListDisplayMode: val });
+    this.render();
+  }
+
   private async handleShare() {
     if (!appState.currentEsePath) return;
 
@@ -363,6 +376,10 @@ export class ChartListPanel extends HTMLElement {
     const isEseReady = !!eseTree;
     const showShare = !!appState.currentEsePath;
 
+    const profile = loadUserProfile();
+    const playdata = profile.playdata;
+    const hasPlaydata = !!playdata?.entries?.length;
+
     const vdom = (
       <div style="display: contents;">
         <div className="control-group">
@@ -379,6 +396,35 @@ export class ChartListPanel extends HTMLElement {
             oninput={this.handleSearchInput.bind(this)}
           />
         </div>
+
+        {hasPlaydata && (
+          <div className="control-group" style="margin-top: 5px;">
+            <select style="width: 100%; padding: 5px;" onchange={this.handleDisplayModeChange.bind(this)}>
+              <option value={PlaydataDisplayMode.None} selected={this._displayMode === PlaydataDisplayMode.None}>
+                None
+              </option>
+              <option value={PlaydataDisplayMode.Crown} selected={this._displayMode === PlaydataDisplayMode.Crown}>
+                Crown
+              </option>
+              <option
+                value={PlaydataDisplayMode.CrownWithScoreRank}
+                selected={this._displayMode === PlaydataDisplayMode.CrownWithScoreRank}
+              >
+                Crown + Score Rank
+              </option>
+              <option value={PlaydataDisplayMode.DnStyle} selected={this._displayMode === PlaydataDisplayMode.DnStyle}>
+                DN Style
+              </option>
+              <option
+                value={PlaydataDisplayMode.DnStyleWithCounts}
+                selected={this._displayMode === PlaydataDisplayMode.DnStyleWithCounts}
+              >
+                DN Style + Counts
+              </option>
+            </select>
+          </div>
+        )}
+
         <div className="control-group" style="margin-top: 5px;">
           <action-button
             id="ese-share-btn"
@@ -401,30 +447,28 @@ export class ChartListPanel extends HTMLElement {
             <div className="ese-result-placeholder">{i18n.t("ui.ese.noResults")}</div>
           ) : (
             (() => {
-              // Get play status context
-              const profile = loadUserProfile();
-              const playdata = profile.playdata;
-              const hasPlaydata = !!playdata?.entries?.length;
-              let anyItemHasStatus = false;
-
               // Pre-calculate statuses and check if any item has status
+              let anyItemHasStatus = false;
               const itemsWithStatus = this._displayResults.map((node: DisplayResult) => {
-                if ("__truncated" in node) return { node, statusClass: "" };
+                if ("__truncated" in node) return { node, entry: null };
 
-                let statusClass = "";
+                let entry: PlaydataEntry | null = null;
                 if (hasPlaydata && this._songMapping && this._songIdToEntriesCache) {
-                  const status = getPlayStatusSync(node.path, playdata, this._songIdToEntriesCache);
-                  if (status !== Crown.None) {
-                    statusClass = getCrownCssClass(status);
+                  entry = getPlayEntrySync(node.path, playdata, this._songIdToEntriesCache);
+                  if (entry && entry.crown !== Crown.None) {
                     anyItemHasStatus = true;
                   }
                 }
-                return { node, statusClass };
+                return { node, entry };
               });
 
-              const showStrip = hasPlaydata && anyItemHasStatus;
+              // Decide layout based on mode and if any item has status
+              const mode = this._displayMode;
+              const showStrip = mode !== PlaydataDisplayMode.None && hasPlaydata && anyItemHasStatus;
+              const showRank = mode === PlaydataDisplayMode.CrownWithScoreRank && hasPlaydata && anyItemHasStatus;
+              const showCounts = mode === PlaydataDisplayMode.DnStyleWithCounts && hasPlaydata && anyItemHasStatus;
 
-              return itemsWithStatus.map(({ node, statusClass }) => {
+              return itemsWithStatus.map(({ node, entry }) => {
                 if ("__truncated" in node) {
                   return <div className="ese-result-placeholder">{i18n.t("ui.ese.truncated")}</div>;
                 }
@@ -432,13 +476,53 @@ export class ChartListPanel extends HTMLElement {
                 const { text: displayText, isTitle } = this.getDisplayText(node);
                 const textClass = `ese-result-item-text${isTitle ? " display-title" : ""}`;
 
+                // Determine Strip Class
+                let stripClass = "";
+                if (entry) {
+                  if (mode === PlaydataDisplayMode.DnStyle || mode === PlaydataDisplayMode.DnStyleWithCounts) {
+                    stripClass = getDnStyleCssClass(entry);
+                  } else if (mode === PlaydataDisplayMode.Crown || mode === PlaydataDisplayMode.CrownWithScoreRank) {
+                    stripClass = getCrownCssClass(entry.crown);
+                  }
+                }
+
+                // Determine Rank Element
+                let rankEl = null;
+                if (showRank) {
+                  let rankClass = "scorerank-placeholder";
+                  let rankChar = "";
+
+                  if (entry) {
+                    if (entry.crown !== Crown.None) {
+                      rankClass = getScoreRankCssClass(entry.scoreRank);
+                      rankChar = getScoreRankChar(entry.scoreRank);
+                    } else {
+                      // Entry exists but Crown is None (e.g. failed play or just imported data without clear)
+                      rankClass = getScoreRankCssClass(entry.scoreRank);
+                      rankChar = getScoreRankChar(entry.scoreRank);
+                    }
+                  }
+
+                  rankEl = <div className={`score-rank-box ${rankClass}`}>{rankChar}</div>;
+                }
+
+                // Determine Counts Element
+                let countsEl = null;
+                if (showCounts && entry) {
+                  countsEl = <div className="judgement-counts-chip">{`${entry.good}(${entry.bad})`}</div>;
+                }
+
                 return (
                   <div
                     className={`ese-result-item ${isSelected ? "selected" : ""}`}
                     onclick={() => this.handleResultClick(node)}
                   >
-                    {showStrip && <div className={`play-status-strip ${statusClass || ""}`}></div>}
-                    <div className={textClass}>{displayText}</div>
+                    {showStrip && <div className={`play-status-strip ${stripClass || ""}`}></div>}
+                    <div className={textClass}>
+                      {showRank && rankEl}
+                      {displayText}
+                      {countsEl}
+                    </div>
                   </div>
                 );
               });

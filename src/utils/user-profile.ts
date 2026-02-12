@@ -1,4 +1,5 @@
 import type { Playdata } from "./playdata-parser.js";
+import { PlaydataDisplayMode } from "./playdata-status.js";
 
 export interface DefaultViewOptions {
   /** Beats per line value, or 'auto' for auto-zoom */
@@ -16,6 +17,8 @@ export interface UserProfile {
   autoAnnotateOnLoad?: boolean;
   /** Whether to always show full file path in chart list instead of title */
   showFullPathInChartList?: boolean;
+  /** Playdata display mode in chart list */
+  chartListDisplayMode?: PlaydataDisplayMode;
 }
 
 const STORAGE_KEY = "tja_analyzer_profile";
@@ -28,6 +31,7 @@ const DEFAULT_PROFILE: UserProfile = {
   defaultViewOptions: null,
   autoAnnotateOnLoad: false,
   showFullPathInChartList: false,
+  chartListDisplayMode: PlaydataDisplayMode.Crown,
 };
 
 export function loadUserProfile(): UserProfile {

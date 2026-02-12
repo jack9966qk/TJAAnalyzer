@@ -1,6 +1,14 @@
 // Utility functions for determining playdata status for chart list items
 
-import { Crown, type Playdata, type PlaydataEntry } from "./playdata-parser.js";
+import { Crown, type Playdata, type PlaydataEntry, ScoreRank } from "./playdata-parser.js";
+
+export enum PlaydataDisplayMode {
+  None = "none",
+  Crown = "crown",
+  CrownWithScoreRank = "crownWithScoreRank",
+  DnStyle = "dnStyle",
+  DnStyleWithCounts = "dnStyleWithCounts",
+}
 
 interface SongMappingEntry {
   esePath: string;
@@ -74,16 +82,70 @@ export function getCrownCssClass(crown: Crown): string {
   }
 }
 
-function resolveStatus(entries: PlaydataEntry[]): Crown {
+export function getScoreRankChar(rank: ScoreRank): string {
+  switch (rank) {
+    case ScoreRank.White:
+    case ScoreRank.Bronze:
+    case ScoreRank.Silver:
+      return "粋";
+    case ScoreRank.Gold:
+    case ScoreRank.Pink:
+    case ScoreRank.Purple:
+      return "雅";
+    case ScoreRank.Rainbow:
+      return "極";
+    default:
+      return "";
+  }
+}
+
+export function getScoreRankCssClass(rank: ScoreRank): string {
+  switch (rank) {
+    case ScoreRank.White:
+      return "scorerank-white";
+    case ScoreRank.Bronze:
+      return "scorerank-bronze";
+    case ScoreRank.Silver:
+      return "scorerank-silver";
+    case ScoreRank.Gold:
+      return "scorerank-gold";
+    case ScoreRank.Pink:
+      return "scorerank-pink";
+    case ScoreRank.Purple:
+      return "scorerank-purple";
+    case ScoreRank.Rainbow:
+      return "scorerank-rainbow";
+    default:
+      return "scorerank-none";
+  }
+}
+
+export function getDnStyleCssClass(entry: PlaydataEntry): string {
+  if (entry.good === 0 && entry.bad === 0 && entry.great > 0) {
+    return "dn-cyan";
+  }
+  if (entry.bad === 0 && entry.good < 10) {
+    return "dn-green";
+  }
+  if (entry.crown >= Crown.FullCombo) {
+    return "dn-gold";
+  }
+  if (entry.crown >= Crown.Clear) {
+    return "dn-grey";
+  }
+  return "dn-white";
+}
+
+function resolveBestEntry(entries: PlaydataEntry[]): PlaydataEntry | null {
   if (!entries || entries.length === 0) {
-    return Crown.None;
+    return null;
   }
 
   // Filter out entries with Crown.None (0)
   const clearedEntries = entries.filter((e) => e.crown >= Crown.Clear);
 
   if (clearedEntries.length === 0) {
-    return Crown.None;
+    return null;
   }
 
   // Find the entry with the highest difficulty among cleared entries
@@ -101,7 +163,12 @@ function resolveStatus(entries: PlaydataEntry[]): Crown {
     }
   }
 
-  return bestEntry.crown;
+  return bestEntry;
+}
+
+function resolveStatus(entries: PlaydataEntry[]): Crown {
+  const best = resolveBestEntry(entries);
+  return best ? best.crown : Crown.None;
 }
 
 /**
@@ -176,24 +243,33 @@ export function getPlayStatusSync(
   playdata: Playdata | null | undefined,
   songIdToEntriesCache: Map<string, PlaydataEntry[]> | null,
 ): Crown {
+  const entry = getPlayEntrySync(esePath, playdata, songIdToEntriesCache);
+  return entry ? entry.crown : Crown.None;
+}
+
+export function getPlayEntrySync(
+  esePath: string,
+  playdata: Playdata | null | undefined,
+  songIdToEntriesCache: Map<string, PlaydataEntry[]> | null,
+): PlaydataEntry | null {
   if (!playdata?.entries?.length || !cachedEsePathToId || !songIdToEntriesCache) {
-    return Crown.None;
+    return null;
   }
 
   // Get song ID from esePath
   const songId = cachedEsePathToId.get(esePath);
   if (!songId) {
-    return Crown.None;
+    return null;
   }
 
   // Use cached title lookup
   const entries = songIdToEntriesCache.get(songId);
 
   if (!entries || entries.length === 0) {
-    return Crown.None;
+    return null;
   }
 
-  return resolveStatus(entries);
+  return resolveBestEntry(entries);
 }
 
 /**
