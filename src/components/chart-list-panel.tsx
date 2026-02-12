@@ -399,44 +399,32 @@ export class ChartListPanel extends HTMLElement {
 
         {hasPlaydata && (
           <div className="control-group" style="margin-top: 5px;">
-            <select style="width: 100%; padding: 5px;" onchange={this.handleDisplayModeChange.bind(this)}>
+            <label>{i18n.t("ui.chartList.playdataDisplay")}</label>
+            <select style="flex: 1; padding: 5px;" onchange={this.handleDisplayModeChange.bind(this)}>
               <option value={PlaydataDisplayMode.None} selected={this._displayMode === PlaydataDisplayMode.None}>
-                None
+                {i18n.t("ui.chartList.none")}
               </option>
               <option value={PlaydataDisplayMode.Crown} selected={this._displayMode === PlaydataDisplayMode.Crown}>
-                Crown
+                {i18n.t("ui.chartList.crown")}
               </option>
               <option
                 value={PlaydataDisplayMode.CrownWithScoreRank}
                 selected={this._displayMode === PlaydataDisplayMode.CrownWithScoreRank}
               >
-                Crown + Score Rank
+                {i18n.t("ui.chartList.crownScoreRank")}
               </option>
               <option value={PlaydataDisplayMode.DnStyle} selected={this._displayMode === PlaydataDisplayMode.DnStyle}>
-                DN Style
+                {i18n.t("ui.chartList.dnCategory")}
               </option>
               <option
                 value={PlaydataDisplayMode.DnStyleWithCounts}
                 selected={this._displayMode === PlaydataDisplayMode.DnStyleWithCounts}
               >
-                DN Style + Counts
+                {i18n.t("ui.chartList.dnCategoryCounts")}
               </option>
             </select>
           </div>
         )}
-
-        <div className="control-group" style="margin-top: 5px;">
-          <action-button
-            id="ese-share-btn"
-            style="width: 100%;"
-            success-label={i18n.t("ui.ese.shareSuccess")}
-            error-label={i18n.t("status.exportFailed")}
-            disabled={!showShare}
-            action={() => this.handleShare()}
-          >
-            {i18n.t("ui.ese.share")}
-          </action-button>
-        </div>
 
         <div id="ese-results">
           {!isEseReady ? (
@@ -528,6 +516,19 @@ export class ChartListPanel extends HTMLElement {
               });
             })()
           )}
+        </div>
+
+        <div className="control-group" style="margin-top: 5px;">
+          <action-button
+            id="ese-share-btn"
+            style="width: 100%;"
+            success-label={i18n.t("ui.ese.shareSuccess")}
+            error-label={i18n.t("status.exportFailed")}
+            disabled={!showShare}
+            action={() => this.handleShare()}
+          >
+            {i18n.t("ui.ese.share")}
+          </action-button>
         </div>
       </div>
     );
