@@ -210,7 +210,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
         let isFirstBar = true;
 
         for (const line of linesToParse) {
-          if (line.startsWith("#")) {
+          if (line.startsWith("#") || line.trim().toUpperCase().startsWith("EXAM")) {
             const upperLine = line.toUpperCase();
             if (upperLine.startsWith("#BPMCHANGE")) {
               const parts = line.split(/[:\s]+/);
