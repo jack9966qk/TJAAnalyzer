@@ -21,6 +21,23 @@ export interface GogoChange {
   isGogo: boolean;
 }
 
+export interface NextSong {
+  title: string;
+  subtitle: string;
+  genre: string;
+  wave: string;
+  scoreInit: number;
+  scoreDiff: number;
+  level?: number;
+  course?: string;
+  hideTitle?: boolean;
+}
+
+export interface NextSongChange {
+  index: number;
+  nextSong: NextSong;
+}
+
 export interface BarParams {
   bpm: number;
   scroll: number;
@@ -36,6 +53,7 @@ export interface BarParams {
   bpmChanges?: BPMChange[];
   scrollChanges?: ScrollChange[];
   gogoChanges?: GogoChange[];
+  nextSongChanges?: NextSongChange[];
 }
 
 export interface ParsedChart {
@@ -71,6 +89,7 @@ interface ParserState {
   currentBarBpmChanges: BPMChange[];
   currentBarScrollChanges: ScrollChange[];
   currentBarGogoChanges: GogoChange[];
+  currentBarNextSongChanges: NextSongChange[];
 }
 
 function createInitialState(bpm: number): ParserState {
@@ -83,6 +102,7 @@ function createInitialState(bpm: number): ParserState {
     currentBarBpmChanges: [],
     currentBarScrollChanges: [],
     currentBarGogoChanges: [],
+    currentBarNextSongChanges: [],
   };
 }
 
@@ -237,6 +257,27 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
               state.gogoTime = false;
               state.currentBarGogoChanges.push({ index: state.currentBarBuffer.length, isGogo: false });
               if (state.currentBarBuffer.length === 0) barStartGogoTime = false;
+            } else if (upperLine.startsWith("#NEXTSONG")) {
+              const argsStr = line.substring(9).trim();
+              const args = splitArgs(argsStr);
+              if (args.length >= 6) {
+                const nextSong: NextSong = {
+                  title: args[0],
+                  subtitle: args[1],
+                  genre: args[2],
+                  wave: args[3],
+                  scoreInit: parseInt(args[4], 10) || 0,
+                  scoreDiff: parseInt(args[5], 10) || 0,
+                };
+                if (args.length > 6 && args[6]) nextSong.level = parseFloat(args[6]);
+                if (args.length > 7 && args[7]) nextSong.course = args[7];
+                if (args.length > 8 && args[8]) nextSong.hideTitle = args[8].toLowerCase() === "true";
+
+                state.currentBarNextSongChanges.push({
+                  index: state.currentBarBuffer.length,
+                  nextSong: nextSong,
+                });
+              }
             }
             // Ignore other commands
             continue;
@@ -271,6 +312,8 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                 scrollChanges:
                   state.currentBarScrollChanges.length > 0 ? [...state.currentBarScrollChanges] : undefined,
                 gogoChanges: state.currentBarGogoChanges.length > 0 ? [...state.currentBarGogoChanges] : undefined,
+                nextSongChanges:
+                  state.currentBarNextSongChanges.length > 0 ? [...state.currentBarNextSongChanges] : undefined,
               });
 
               isFirstBar = false;
@@ -282,6 +325,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
               state.currentBarBpmChanges = [];
               state.currentBarScrollChanges = [];
               state.currentBarGogoChanges = [];
+              state.currentBarNextSongChanges = [];
               state.currentBarBuffer = "";
               tempLine = tempLine.substring(commaIdx + 1);
             }
@@ -503,4 +547,27 @@ function areBarsEqual(b1: NoteType[], b2: NoteType[]): boolean {
     if (b1[i] !== b2[i]) return false;
   }
   return true;
+}
+
+function splitArgs(str: string): string[] {
+  const result: string[] = [];
+  let current = "";
+  let isEscaped = false;
+
+  for (let i = 0; i < str.length; i++) {
+    const char = str[i];
+    if (isEscaped) {
+      current += char;
+      isEscaped = false;
+    } else if (char === "\\") {
+      isEscaped = true;
+    } else if (char === ",") {
+      result.push(current.trim());
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+  result.push(current.trim());
+  return result;
 }

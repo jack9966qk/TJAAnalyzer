@@ -265,6 +265,7 @@ export interface RenderConstants {
   lineWidthUnderlineBorder: number;
   barNumberFontSize: number;
   statusFontSize: number;
+  nextSongFontSize: number;
   barNumberOffsetY: number;
   headerHeight: number;
 }
@@ -596,6 +597,7 @@ function calculateLayout(
     lineWidthUnderlineBorder: baseBarWidth * LAYOUT_RATIOS.lineWidthUnderlineBorder,
     barNumberFontSize: baseBarWidth * LAYOUT_RATIOS.barNumberFontSize,
     statusFontSize: baseBarWidth * LAYOUT_RATIOS.statusFontSize,
+    nextSongFontSize: baseBarWidth * LAYOUT_RATIOS.statusFontSize * 0.9,
     barNumberOffsetY: baseBarWidth * LAYOUT_RATIOS.barNumberOffsetY,
     headerHeight: baseBarWidth * LAYOUT_RATIOS.headerHeight,
   };
@@ -628,6 +630,11 @@ function calculateLayout(
 
     // 2. Branch State Change (only if not empty row)
     if (!isRowEmpty && previousIsBranched !== null && previousIsBranched !== isBranchedDisplay) {
+      shouldBreak = true;
+    }
+
+    // 3. Next Song Command (Force line break before this bar)
+    if (!isRowEmpty && params && params.nextSongChanges && params.nextSongChanges.length > 0) {
       shouldBreak = true;
     }
 
@@ -1706,6 +1713,7 @@ function drawBarBackgroundWrapper(
     info.originalIndex,
     constants.barNumberFontSize,
     constants.statusFontSize,
+    constants.nextSongFontSize,
     constants.barNumberOffsetY,
     params,
     noteCount,
@@ -3084,6 +3092,7 @@ function drawBarLabels(
   originalBarIndex: number,
   numFontSize: number,
   statusFontSize: number,
+  nextSongFontSize: number,
   offsetY: number,
   params: BarParams | undefined,
   noteCount: number,
@@ -3131,7 +3140,22 @@ function drawBarLabels(
     canvasContext.textBaseline = "bottom";
 
     const barNumY = y - offsetY;
-    canvasContext.fillText((originalBarIndex + 1).toString(), x + textPadding, barNumY);
+    const barNumText = (originalBarIndex + 1).toString();
+    canvasContext.fillText(barNumText, x + textPadding, barNumY);
+
+    // 1.5 Draw Next Song Info
+    if (params && params.nextSongChanges && params.nextSongChanges.length > 0) {
+      const nextSong = params.nextSongChanges[0].nextSong;
+      const text = `Next: ${nextSong.title}`;
+
+      canvasContext.font = `italic ${nextSongFontSize}px ${FONT_STACK}`;
+      // Draw to the right of bar number
+      const barNumWidth = canvasContext.measureText(barNumText).width;
+      const nextSongX = x + textPadding + barNumWidth + 10;
+
+      // Ensure it doesn't overflow (basic compression)
+      drawTextWithCompression(canvasContext, text, nextSongX, barNumY, width - (nextSongX - x));
+    }
   }
 
   if (!params) {
