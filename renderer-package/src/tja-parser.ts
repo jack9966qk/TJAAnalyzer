@@ -350,18 +350,6 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
         if (upper.startsWith("#BRANCHSTART")) {
           hasSeenBranchStart = true;
 
-          // Parse params: #BRANCHSTART p, 65, 80
-          const parts = line.split(/[, \s]+/);
-          if (parts.length >= 4) {
-            lastBranchStartParams = {
-              type: parts[1].toLowerCase(),
-              p1: parseFloat(parts[2]),
-              p2: parseFloat(parts[3]),
-            };
-          } else {
-            lastBranchStartParams = undefined;
-          }
-
           // Flush Common to all
           if (bufferCommon.length > 0) {
             parseLines(bufferCommon, normalBars, normalParams, stateN, false);
@@ -379,6 +367,18 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
             parseLines(srcN, normalBars, normalParams, stateN, true, true, lastBranchStartParams);
             parseLines(srcE, expertBars, expertParams, stateE, true, true, lastBranchStartParams);
             parseLines(srcM, masterBars, masterParams, stateM, true, true, lastBranchStartParams);
+          }
+
+          // Parse params: #BRANCHSTART p, 65, 80
+          const parts = line.split(/[, \s]+/);
+          if (parts.length >= 4) {
+            lastBranchStartParams = {
+              type: parts[1].toLowerCase(),
+              p1: parseFloat(parts[2]),
+              p2: parseFloat(parts[3]),
+            };
+          } else {
+            lastBranchStartParams = undefined;
           }
 
           inBranch = true;
