@@ -3144,7 +3144,7 @@ function drawBarLabels(
     canvasContext.fillText(barNumText, x + textPadding, barNumY);
 
     // 1.5 Draw Next Song Info
-    if (params && params.nextSongChanges && params.nextSongChanges.length > 0) {
+    if (params?.nextSongChanges && params.nextSongChanges.length > 0) {
       const nextSong = params.nextSongChanges[0].nextSong;
       const text = `Next: ${nextSong.title}`;
 

@@ -399,30 +399,35 @@ export class ChartListPanel extends HTMLElement {
 
         {hasPlaydata && (
           <div className="control-group" style="margin-top: 5px;">
-            <label>{i18n.t("ui.chartList.playdataDisplay")}</label>
-            <select style="flex: 1; padding: 5px;" onchange={this.handleDisplayModeChange.bind(this)}>
-              <option value={PlaydataDisplayMode.None} selected={this._displayMode === PlaydataDisplayMode.None}>
-                {i18n.t("ui.chartList.none")}
-              </option>
-              <option value={PlaydataDisplayMode.Crown} selected={this._displayMode === PlaydataDisplayMode.Crown}>
-                {i18n.t("ui.chartList.crown")}
-              </option>
-              <option
-                value={PlaydataDisplayMode.CrownWithScoreRank}
-                selected={this._displayMode === PlaydataDisplayMode.CrownWithScoreRank}
-              >
-                {i18n.t("ui.chartList.crownScoreRank")}
-              </option>
-              <option value={PlaydataDisplayMode.DnStyle} selected={this._displayMode === PlaydataDisplayMode.DnStyle}>
-                {i18n.t("ui.chartList.dnCategory")}
-              </option>
-              <option
-                value={PlaydataDisplayMode.DnStyleWithCounts}
-                selected={this._displayMode === PlaydataDisplayMode.DnStyleWithCounts}
-              >
-                {i18n.t("ui.chartList.dnCategoryCounts")}
-              </option>
-            </select>
+            <label style="display: flex; width: 100%; gap: 5px; align-items: center;">
+              {i18n.t("ui.chartList.playdataDisplay")}
+              <select style="flex: 1; padding: 5px;" onchange={this.handleDisplayModeChange.bind(this)}>
+                <option value={PlaydataDisplayMode.None} selected={this._displayMode === PlaydataDisplayMode.None}>
+                  {i18n.t("ui.chartList.none")}
+                </option>
+                <option value={PlaydataDisplayMode.Crown} selected={this._displayMode === PlaydataDisplayMode.Crown}>
+                  {i18n.t("ui.chartList.crown")}
+                </option>
+                <option
+                  value={PlaydataDisplayMode.CrownWithScoreRank}
+                  selected={this._displayMode === PlaydataDisplayMode.CrownWithScoreRank}
+                >
+                  {i18n.t("ui.chartList.crownScoreRank")}
+                </option>
+                <option
+                  value={PlaydataDisplayMode.DnStyle}
+                  selected={this._displayMode === PlaydataDisplayMode.DnStyle}
+                >
+                  {i18n.t("ui.chartList.dnCategory")}
+                </option>
+                <option
+                  value={PlaydataDisplayMode.DnStyleWithCounts}
+                  selected={this._displayMode === PlaydataDisplayMode.DnStyleWithCounts}
+                >
+                  {i18n.t("ui.chartList.dnCategoryCounts")}
+                </option>
+              </select>
+            </label>
           </div>
         )}
 
