@@ -1,5 +1,50 @@
 [
   {
+    "hash": "8f44c5e",
+    "message": "Update version to 0.9.4.",
+    "date": "2026-02-14"
+  },
+  {
+    "hash": "ff87636",
+    "message": "Prioritize branching indicator (yellow line) over BPM/HS change indicator (grey line) when both happen at the same time.",
+    "date": "2026-02-14"
+  },
+  {
+    "hash": "f57b1bc",
+    "message": "Update branching stats panel width and indicate unreachable expert/master branches.",
+    "date": "2026-02-14"
+  },
+  {
+    "hash": "2fdeb80",
+    "message": "Automatically hide unreachable branches on the rendered chart. Improve connection between unbranched bars and single branch bars.",
+    "date": "2026-02-14"
+  },
+  {
+    "hash": "f5a525f",
+    "message": "Update outdated snapshots.",
+    "date": "2026-02-14"
+  },
+  {
+    "hash": "e5b3f29",
+    "message": "Fix branch condition parsing with unpaired BRANCHSTART/BRANCHEND commands.",
+    "date": "2026-02-13"
+  },
+  {
+    "hash": "6104d80",
+    "message": "Run formatter.",
+    "date": "2026-02-13"
+  },
+  {
+    "hash": "ab6268d",
+    "message": "Fix incorrect notes parsing by EXAM commands.",
+    "date": "2026-02-13"
+  },
+  {
+    "hash": "ecfb087",
+    "message": "Add basic support for the NEXTSONG command in Dan charts.",
+    "date": "2026-02-13"
+  },
+  {
     "hash": "dea4676",
     "message": "Update version to 0.9.3.",
     "date": "2026-02-13"
@@ -453,50 +498,5 @@
     "hash": "ab1c378",
     "message": "Minor style fixes for hover color and status panel.",
     "date": "2026-01-30"
-  },
-  {
-    "hash": "77e12ed",
-    "message": "Update formatter config and run formatter.",
-    "date": "2026-01-30"
-  },
-  {
-    "hash": "c41e89d",
-    "message": "Polish auto-zoom logic: use weighted efficiency score for varied bar lengths.",
-    "date": "2026-01-30"
-  },
-  {
-    "hash": "dc8b9cf",
-    "message": "Update version to 0.7.6.",
-    "date": "2026-01-29"
-  },
-  {
-    "hash": "8a2a128",
-    "message": "Replace collapse/expand buttons with heroicons and clickable panel headers.",
-    "date": "2026-01-29"
-  },
-  {
-    "hash": "bdaf28c",
-    "message": "Fix blocked font request warnings by removing explicit font names.",
-    "date": "2026-01-29"
-  },
-  {
-    "hash": "60e9e3e",
-    "message": "Clean up some redundant comments.",
-    "date": "2026-01-29"
-  },
-  {
-    "hash": "2df99e6",
-    "message": "Update the changelog panel to also display ESE version and a link to file issues.",
-    "date": "2026-01-29"
-  },
-  {
-    "hash": "4f439a5",
-    "message": "Run formatter.",
-    "date": "2026-01-28"
-  },
-  {
-    "hash": "af0d3c9",
-    "message": "Get commit hash and date when fetching from ESE.",
-    "date": "2026-01-28"
   }
 ]
