@@ -1,5 +1,6 @@
 import {
   createJudgementKey,
+  DEFAULT_VIEW_OPTIONS,
   JudgementMap,
   type JudgementValue,
   LocationMap,
@@ -43,7 +44,7 @@ window.setOptions = (options: Partial<ViewOptions>) => {
   } else {
     // Assuming options is full if viewOptions is not set, or we need default.
     // But we set default below.
-    tjaChart.viewOptions = options as ViewOptions;
+    tjaChart.viewOptions = { ...DEFAULT_VIEW_OPTIONS, ...options };
   }
 };
 
@@ -69,15 +70,7 @@ window.setJudgements = (newJudgements: JudgementMap<JudgementValue>) => {
 
 // Default Options
 tjaChart.viewOptions = {
-  viewMode: "original",
-  coloringMode: "categorical",
-  visibility: { perfect: true, good: true, poor: true },
-  collapsedLoop: false,
-  selectedLoopIteration: undefined,
-  beatsPerLine: 16,
-  selection: null,
-  annotations: new LocationMap(),
-  isAnnotationMode: false,
+  ...DEFAULT_VIEW_OPTIONS,
   showAllBranches: false,
 };
 

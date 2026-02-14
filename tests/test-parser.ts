@@ -241,6 +241,89 @@ LEVEL:9
 
   console.log("Sequential Branching parser test passed.");
 
+  // --- Branch Reachability Tests ---
+  console.log("Testing Branch Reachability Unit Cases...");
+
+  // Case 1: p, 101, 102 (Impossible percentage)
+  // Expected: Normal only
+  const case1 = `
+TITLE:Case 1
+COURSE:Oni
+#START
+#BRANCHSTART p, 101, 102
+#N
+1,
+#E
+2,
+#M
+3,
+#BRANCHEND
+#END
+`;
+  const chart1 = parseTJA(case1).oni;
+  if (!chart1) throw new Error("Case 1 chart not parsed");
+  const reach1 = chart1.barParams[0].reachableBranches;
+  if (!reach1) throw new Error("Case 1: No reachableBranches found");
+
+  console.log("Case 1 (101, 102):", reach1);
+  if (reach1.normal !== true) throw new Error("Case 1: Normal should be reachable");
+  if (reach1.expert !== false) throw new Error("Case 1: Expert should NOT be reachable");
+  if (reach1.master !== false) throw new Error("Case 1: Master should NOT be reachable");
+
+  // Case 2: p, 85, 85 (Empty Expert range)
+  // Expected: Normal and Master reachable. Expert not reachable.
+  const case2 = `
+TITLE:Case 2
+COURSE:Oni
+#START
+#BRANCHSTART p, 85, 85
+#N
+1,
+#E
+2,
+#M
+3,
+#BRANCHEND
+#END
+`;
+  const chart2 = parseTJA(case2).oni;
+  if (!chart2) throw new Error("Case 2 chart not parsed");
+  const reach2 = chart2.barParams[0].reachableBranches;
+  if (!reach2) throw new Error("Case 2: No reachableBranches found");
+
+  console.log("Case 2 (85, 85):", reach2);
+  if (reach2.normal !== true) throw new Error("Case 2: Normal should be reachable");
+  if (reach2.expert !== false) throw new Error("Case 2: Expert should NOT be reachable");
+  if (reach2.master !== true) throw new Error("Case 2: Master should be reachable");
+
+  // Case 3: p, 70, 90 (Normal range)
+  // Expected: All reachable
+  const case3 = `
+TITLE:Case 3
+COURSE:Oni
+#START
+#BRANCHSTART p, 70, 90
+#N
+1,
+#E
+2,
+#M
+3,
+#BRANCHEND
+#END
+`;
+  const chart3 = parseTJA(case3).oni;
+  if (!chart3) throw new Error("Case 3 chart not parsed");
+  const reach3 = chart3.barParams[0].reachableBranches;
+  if (!reach3) throw new Error("Case 3: No reachableBranches found");
+
+  console.log("Case 3 (70, 90):", reach3);
+  if (reach3.normal !== true) throw new Error("Case 3: Normal should be reachable");
+  if (reach3.expert !== true) throw new Error("Case 3: Expert should be reachable");
+  if (reach3.master !== true) throw new Error("Case 3: Master should be reachable");
+
+  console.log("All Reachability Tests Passed.");
+
   console.log("Parser test passed.");
 } catch (e: unknown) {
   console.error("Parser test failed:", e);

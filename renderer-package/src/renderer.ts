@@ -1,5 +1,6 @@
 import { calculateInferredHands } from "./auto-annotation.js";
 import {
+  BranchName,
   createJudgementKey,
   createNoteLocation,
   isBig,
@@ -282,9 +283,15 @@ export interface LongNoteSegment {
   startNoteIndex: number;
 }
 
+export interface BranchLayoutInfo {
+  branches: Record<BranchName, { offsetY: number; visible: boolean } | undefined>;
+  laneCount: number;
+}
+
 export interface ChartLayout {
   virtualBars: RenderBarInfo[];
   barFrames: Frame[];
+  branchLayouts: BranchLayoutInfo[];
   constants: RenderConstants;
   totalHeight: number;
   globalBarStartIndices: number[];
@@ -316,11 +323,12 @@ export interface ViewOptions {
   selectedLoopIteration?: number;
   beatsPerLine: number;
   showAllBranches?: boolean;
+  hideUnreachableBranches?: boolean;
   selection: {
     start: NoteLocation;
     end: NoteLocation | null;
   } | null;
-  hoveredNote?: (NoteLocation & { branch?: "normal" | "expert" | "master" }) | null;
+  hoveredNote?: (NoteLocation & { branch?: BranchName }) | null;
   annotations?: LocationMap<string>;
   isAnnotationMode?: boolean;
   showTextInAnnotationMode?: boolean;
@@ -378,6 +386,7 @@ export const DEFAULT_VIEW_OPTIONS: ViewOptions = {
   },
   collapsedLoop: false,
   beatsPerLine: 16,
+  hideUnreachableBranches: true,
   selection: null,
   showAttribution: true,
 };
@@ -419,14 +428,14 @@ function isNoteSelected(barIdx: number, charIdx: number, selection: ViewOptions[
   return true; // strictly between startBar and endBar
 }
 
-function getVirtualBars(
+function generateBaseVirtualBars(
   chart: ParsedChart,
   options: ViewOptions,
   judgements: JudgementMap<JudgementValue>,
   locToJudgementKey: LocationMap<JudgementKey>,
 ): RenderBarInfo[] {
   const { bars, loop } = chart;
-  let virtualBars: RenderBarInfo[] = [];
+  const virtualBars: RenderBarInfo[] = [];
 
   if (options.collapsedLoop && loop) {
     // Pre-loop
@@ -500,55 +509,75 @@ function getVirtualBars(
     }
   } else {
     // Standard View
-    virtualBars = bars.map((b, i) => ({ bar: b, originalIndex: i, effectiveBarIndex: i }));
+    for (let i = 0; i < bars.length; i++) {
+      virtualBars.push({ bar: bars[i], originalIndex: i, effectiveBarIndex: i });
+    }
   }
+  return virtualBars;
+}
+
+function filterVirtualBarsByRange(virtualBars: RenderBarInfo[], range: ViewOptions["range"]): RenderBarInfo[] {
+  if (!range) return virtualBars;
+
+  let { start, end } = range;
+
+  // Normalize start/end order
+  if (start.barIndex > end.barIndex || (start.barIndex === end.barIndex && start.charIndex > end.charIndex)) {
+    const temp = start;
+    start = end;
+    end = temp;
+  }
+
+  // Filter bars outside the range
+  const filteredBars = virtualBars.filter(
+    (vb) => vb.originalIndex >= start.barIndex && vb.originalIndex <= end.barIndex,
+  );
+
+  // Modify start and end bars to clear notes outside the range
+  return filteredBars.map((vb) => {
+    let modifiedBar = vb.bar;
+    let isModified = false;
+
+    // Check Start
+    if (vb.originalIndex === start.barIndex) {
+      if (!isModified) {
+        modifiedBar = [...(vb.bar || [])];
+        isModified = true;
+      }
+      for (let i = 0; i < Math.min(start.charIndex, modifiedBar.length); i++) {
+        modifiedBar[i] = NoteType.None;
+      }
+    }
+
+    // Check End
+    if (vb.originalIndex === end.barIndex) {
+      if (!isModified) {
+        modifiedBar = [...(vb.bar || [])];
+        isModified = true;
+      }
+      for (let i = end.charIndex + 1; i < modifiedBar.length; i++) {
+        modifiedBar[i] = NoteType.None;
+      }
+    }
+
+    if (isModified) {
+      return { ...vb, bar: modifiedBar };
+    }
+    return vb;
+  });
+}
+
+function getVirtualBars(
+  chart: ParsedChart,
+  options: ViewOptions,
+  judgements: JudgementMap<JudgementValue>,
+  locToJudgementKey: LocationMap<JudgementKey>,
+): RenderBarInfo[] {
+  let virtualBars = generateBaseVirtualBars(chart, options, judgements, locToJudgementKey);
 
   // Handle Partial Rendering (Range)
   if (options.range && (!options.showAllBranches || !chart.branches)) {
-    let { start, end } = options.range;
-
-    // Normalize start/end order
-    if (start.barIndex > end.barIndex || (start.barIndex === end.barIndex && start.charIndex > end.charIndex)) {
-      const temp = start;
-      start = end;
-      end = temp;
-    }
-
-    // Filter bars outside the range
-    virtualBars = virtualBars.filter((vb) => vb.originalIndex >= start.barIndex && vb.originalIndex <= end.barIndex);
-
-    // Modify start and end bars to clear notes outside the range
-    virtualBars = virtualBars.map((vb) => {
-      let modifiedBar = vb.bar;
-      let isModified = false;
-
-      // Check Start
-      if (vb.originalIndex === start.barIndex) {
-        if (!isModified) {
-          modifiedBar = [...(vb.bar || [])];
-          isModified = true;
-        }
-        for (let i = 0; i < Math.min(start.charIndex, modifiedBar.length); i++) {
-          modifiedBar[i] = NoteType.None;
-        }
-      }
-
-      // Check End
-      if (vb.originalIndex === end.barIndex) {
-        if (!isModified) {
-          modifiedBar = [...(vb.bar || [])];
-          isModified = true;
-        }
-        for (let i = end.charIndex + 1; i < modifiedBar.length; i++) {
-          modifiedBar[i] = NoteType.None;
-        }
-      }
-
-      if (isModified) {
-        return { ...vb, bar: modifiedBar };
-      }
-      return vb;
-    });
+    virtualBars = filterVirtualBarsByRange(virtualBars, options.range);
   }
 
   return virtualBars;
@@ -570,18 +599,58 @@ function calculateGlobalBarStartIndices(bars: NoteType[][]): number[] {
   return indices;
 }
 
+function determineVisibleBranches(
+  chart: ParsedChart,
+  params: BarParams | undefined,
+  options: ViewOptions,
+): Set<BranchName> {
+  const visibleBranches = new Set<BranchName>();
+
+  const isBranched = params?.isBranched;
+  if (!isBranched) {
+    visibleBranches.add(BranchName.Normal);
+    return visibleBranches;
+  }
+
+  if (!options.showAllBranches || !chart.branches) {
+    // Not showing all branches, treat as single lane of the current chart's branch type
+    const branch = chart.branchType || BranchName.Normal;
+    visibleBranches.add(branch);
+    return visibleBranches;
+  }
+
+  // showAllBranches is true and chart.branches exists
+  if (options.hideUnreachableBranches && params.reachableBranches) {
+    if (params.reachableBranches.normal) visibleBranches.add(BranchName.Normal);
+    if (params.reachableBranches.expert) visibleBranches.add(BranchName.Expert);
+    if (params.reachableBranches.master) visibleBranches.add(BranchName.Master);
+    if (visibleBranches.size > 0) {
+      return visibleBranches;
+    }
+  }
+
+  // Show all 3
+  visibleBranches.add(BranchName.Normal);
+  visibleBranches.add(BranchName.Expert);
+  visibleBranches.add(BranchName.Master);
+  return visibleBranches;
+}
+
 function calculateLayout(
   virtualBars: RenderBarInfo[],
   chart: ParsedChart,
   logicalCanvasWidth: number,
   options: ViewOptions,
   insets: Insets,
-): { barFrames: Frame[]; constants: RenderConstants; totalHeight: number; baseBarWidth: number } {
+): {
+  barFrames: Frame[];
+  branchLayouts: BranchLayoutInfo[];
+  constants: RenderConstants;
+  totalHeight: number;
+  baseBarWidth: number;
+} {
   // 1. Determine Base Dimensions
-  // The full canvas width (minus padding) represents 'beatsPerLine' beats.
   const availableWidth = logicalCanvasWidth - (insets.left + insets.right);
-  // Base width is width of one 4/4 bar (4 beats).
-  // Number of base bars per row = beatsPerLine / 4
   const baseBarWidth: number = availableWidth / (options.beatsPerLine / 4);
 
   // Constants for drawing
@@ -604,64 +673,163 @@ function calculateLayout(
 
   // 2. Calculate Layout Positions
   const barFrames: Frame[] = [];
-  let currentY = insets.top;
-  let currentRowX = 0;
-  let currentRowMaxHeight = 0;
-  let previousIsBranched: boolean | null = null;
-  let isRowEmpty = true;
+  const branchLayouts: BranchLayoutInfo[] = [];
 
-  for (const info of virtualBars) {
-    // Determine width based on measure
+  let currentY = insets.top;
+
+  // Row Accumulation
+  let currentRowItems: RowItem[] = [];
+  let currentRowWidth = 0;
+  let rowIsMultiLane = false;
+
+  const flushRow = () => {
+    if (currentRowItems.length === 0) return;
+
+    // 1. Determine Row Branches (Union)
+    const rowBranchesSet = new Set<BranchName>();
+    for (const item of currentRowItems) {
+      for (const b of item.visibleBranches) {
+        rowBranchesSet.add(b);
+      }
+    }
+
+    // Sort: Normal -> Expert -> Master
+    const sortedRowBranches: BranchName[] = [];
+    if (rowBranchesSet.has(BranchName.Normal)) sortedRowBranches.push(BranchName.Normal);
+    if (rowBranchesSet.has(BranchName.Expert)) sortedRowBranches.push(BranchName.Expert);
+    if (rowBranchesSet.has(BranchName.Master)) sortedRowBranches.push(BranchName.Master);
+
+    let maxNumBranches = 0;
+    for (const item of currentRowItems) {
+      maxNumBranches = Math.max(maxNumBranches, item.visibleBranches.size);
+    }
+
+    const rowHeight = (maxNumBranches > 1 ? sortedRowBranches.length : 1) * constants.barHeight;
+
+    let currentX = insets.left;
+
+    for (const item of currentRowItems) {
+      // Build BranchLayoutInfo
+      const layoutInfo: BranchLayoutInfo = {
+        branches: { [BranchName.Normal]: undefined, [BranchName.Expert]: undefined, [BranchName.Master]: undefined },
+        laneCount: maxNumBranches > 1 ? sortedRowBranches.length : 1,
+      };
+
+      if (maxNumBranches > 1) {
+        // Stacked
+        for (const b of item.visibleBranches) {
+          const idx = sortedRowBranches.indexOf(b);
+          if (idx !== -1) {
+            layoutInfo.branches[b] = {
+              offsetY: idx * constants.barHeight,
+              visible: true,
+            };
+          }
+        }
+      } else {
+        // Collapsed (Single Lane)
+        for (const b of item.visibleBranches) {
+          layoutInfo.branches[b] = {
+            offsetY: 0,
+            visible: true,
+          };
+        }
+      }
+
+      barFrames.push({
+        x: currentX,
+        y: currentY,
+        width: item.width,
+        height: rowHeight,
+      });
+      branchLayouts.push(layoutInfo);
+
+      currentX += item.width;
+    }
+
+    currentY += rowHeight + constants.rowSpacing;
+    currentRowItems = [];
+    currentRowWidth = 0;
+    rowIsMultiLane = false;
+  };
+
+  for (let i = 0; i < virtualBars.length; i++) {
+    const info = virtualBars[i];
     const params = chart.barParams[info.originalIndex];
     const measureRatio = params ? params.measureRatio : 1.0;
     const actualBarWidth = baseBarWidth * measureRatio;
 
-    // Determine if this bar is displayed as branched (3 lanes) or common (1 lane)
-    const isBranchedDisplay = (!!options.showAllBranches && chart.branches && params && params.isBranched) || false;
-    const thisBarHeight = isBranchedDisplay ? constants.barHeight * 3 : constants.barHeight;
+    // Determine Visible Branches
+    const visibleBranches = determineVisibleBranches(chart, params, options);
 
-    // Check for break conditions
-    let shouldBreak = false;
+    const itemIsMultiLane = visibleBranches.size > 1;
 
-    // 1. Width Overflow
-    if (!isRowEmpty && currentRowX + actualBarWidth > availableWidth + 1.0) {
-      shouldBreak = true;
+    // Break Conditions
+    if (
+      shouldBreakRow(
+        currentRowItems,
+        currentRowWidth,
+        actualBarWidth,
+        availableWidth,
+        rowIsMultiLane,
+        itemIsMultiLane,
+        params,
+      )
+    ) {
+      flushRow();
     }
 
-    // 2. Branch State Change (only if not empty row)
-    if (!isRowEmpty && previousIsBranched !== null && previousIsBranched !== isBranchedDisplay) {
-      shouldBreak = true;
-    }
-
-    // 3. Next Song Command (Force line break before this bar)
-    if (!isRowEmpty && params && params.nextSongChanges && params.nextSongChanges.length > 0) {
-      shouldBreak = true;
-    }
-
-    if (shouldBreak) {
-      currentY += currentRowMaxHeight + constants.rowSpacing;
-      currentRowX = 0;
-      currentRowMaxHeight = 0;
-      isRowEmpty = true;
-    }
-
-    barFrames.push({
-      x: insets.left + currentRowX,
-      y: currentY,
+    // Add to Row
+    currentRowItems.push({
+      virtualBarIndex: i,
       width: actualBarWidth,
-      height: thisBarHeight,
+      visibleBranches,
     });
-
-    currentRowX += actualBarWidth;
-    currentRowMaxHeight = Math.max(currentRowMaxHeight, thisBarHeight);
-    previousIsBranched = isBranchedDisplay;
-    isRowEmpty = false;
+    currentRowWidth += actualBarWidth;
+    if (currentRowItems.length === 1) {
+      rowIsMultiLane = itemIsMultiLane;
+    }
   }
 
-  const totalHeight =
-    barFrames.length > 0 ? currentY + currentRowMaxHeight + insets.bottom : insets.top + insets.bottom;
+  // Final Flush
+  flushRow();
 
-  return { barFrames, constants, totalHeight, baseBarWidth };
+  const finalHeight =
+    currentY > insets.top ? currentY - constants.rowSpacing + insets.bottom : insets.top + insets.bottom;
+
+  return { barFrames, branchLayouts, constants, totalHeight: finalHeight, baseBarWidth };
+}
+
+interface RowItem {
+  virtualBarIndex: number;
+  width: number;
+  visibleBranches: Set<BranchName>;
+}
+
+function shouldBreakRow(
+  currentRowItems: RowItem[],
+  currentRowWidth: number,
+  actualBarWidth: number,
+  availableWidth: number,
+  rowIsMultiLane: boolean,
+  itemIsMultiLane: boolean,
+  params: BarParams | undefined,
+): boolean {
+  if (currentRowItems.length === 0) return false;
+
+  if (currentRowWidth + actualBarWidth > availableWidth + 1.0) {
+    return true;
+  }
+
+  if (rowIsMultiLane !== itemIsMultiLane) {
+    return true;
+  }
+
+  if (params?.nextSongChanges && params.nextSongChanges.length > 0) {
+    return true;
+  }
+
+  return false;
 }
 
 export interface HitInfo {
@@ -670,7 +838,7 @@ export interface HitInfo {
   type: NoteType;
   bpm: number;
   scroll: number;
-  branch?: "normal" | "expert" | "master";
+  branch?: BranchName;
   ordinal?: number;
   branchStartParams?: BarParams["branchStartParams"];
 }
@@ -798,30 +966,34 @@ export function getNoteAt(
     let barY = frame.y;
 
     let targetChart = chart;
-    let currentBranch: "normal" | "expert" | "master" | undefined = chart.branchType;
+    let currentBranch: BranchName | undefined = chart.branchType;
     const params = chart.barParams[info.originalIndex];
     const isBranchedBar = isAllBranches && params && params.isBranched;
 
     if (isBranchedBar && chart.branches) {
-      const subHeight = frame.height / 3;
-      if (y >= frame.y && y < frame.y + subHeight) {
-        targetChart = chart.branches.normal || chart;
-        currentBranch = "normal";
-        barY = frame.y;
-      } else if (y >= frame.y + subHeight && y < frame.y + 2 * subHeight) {
-        targetChart = chart.branches.expert || chart;
-        currentBranch = "expert";
-        barY = frame.y + subHeight;
-      } else if (y >= frame.y + 2 * subHeight && y < frame.y + 3 * subHeight) {
-        targetChart = chart.branches.master || chart;
-        currentBranch = "master";
-        barY = frame.y + 2 * subHeight;
-      } else {
-        continue;
+      const layout = activeLayout.branchLayouts[index];
+      let found = false;
+      const branches: BranchName[] = [BranchName.Normal, BranchName.Expert, BranchName.Master];
+
+      for (const b of branches) {
+        const branchInfo = layout.branches[b];
+        if (branchInfo?.visible) {
+          const branchY = frame.y + branchInfo.offsetY;
+          const branchHeight = activeLayout.constants.barHeight;
+
+          if (y >= branchY && y < branchY + branchHeight) {
+            targetChart = chart.branches[b] || chart;
+            currentBranch = b;
+            barY = branchY;
+            found = true;
+            break;
+          }
+        }
       }
+      if (!found) continue;
     }
 
-    const centerY = barY + (isBranchedBar ? frame.height / 3 : frame.height) / 2;
+    const centerY = barY + (isBranchedBar ? activeLayout.constants.barHeight : frame.height) / 2;
 
     const bar = targetChart.bars[info.originalIndex];
     if (!bar || bar.length === 0) continue;
@@ -993,7 +1165,18 @@ export function getNotePosition(
       let y = frame.y + frame.height / 2;
 
       if (!!options.showAllBranches && chart.branches && chart.barParams[info.originalIndex].isBranched) {
-        y = frame.y + frame.height / 6;
+        const layout = activeLayout.branchLayouts[index];
+        let branchY = frame.y;
+
+        if (layout.branches.normal?.visible) {
+          branchY += layout.branches.normal.offsetY;
+        } else if (layout.branches.expert?.visible) {
+          branchY += layout.branches.expert.offsetY;
+        } else if (layout.branches.master?.visible) {
+          branchY += layout.branches.master.offsetY;
+        }
+
+        y = branchY + activeLayout.constants.barHeight / 2;
       }
 
       return { x, y };
@@ -1050,6 +1233,7 @@ function calculateLongNoteSegments(
     const bar = virtualBars[i].bar;
     if (!bar) continue;
     const frame = barFrames[i];
+    if (frame.height <= 0) continue;
 
     const originalBarIdx = virtualBars[i].originalIndex;
 
@@ -1267,6 +1451,7 @@ export function createLayout(
 
   const {
     barFrames,
+    branchLayouts,
     constants,
     totalHeight: layoutHeight,
   } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options, barLayoutInsets);
@@ -1305,6 +1490,7 @@ export function createLayout(
   return {
     virtualBars,
     barFrames,
+    branchLayouts,
     constants,
     totalHeight,
     globalBarStartIndices,
@@ -1485,6 +1671,7 @@ export function renderLayout(
       constants,
       virtualBars,
       barFrames,
+      layout.branchLayouts,
       texts,
       isAllBranches,
       BASE_LANE_HEIGHT,
@@ -1494,7 +1681,16 @@ export function renderLayout(
 
   // Layer 1.5 & 2: Notes
   if (isAllBranches && chart.branches) {
-    drawAllBranchesNotes(renderContext, chart, virtualBars, barFrames, balloonIndices, BASE_LANE_HEIGHT, dirtyRowY);
+    drawAllBranchesNotes(
+      renderContext,
+      chart,
+      virtualBars,
+      barFrames,
+      layout.branchLayouts,
+      balloonIndices,
+      BASE_LANE_HEIGHT,
+      dirtyRowY,
+    );
   } else {
     // Layer 1.5: Drumrolls and Balloons
     drawLongNotes(
@@ -1558,12 +1754,14 @@ function drawBarBackgroundWrapper(
   constants: RenderConstants,
   virtualBars: RenderBarInfo[],
   barFrames: Frame[],
+  branchLayouts: BranchLayoutInfo[],
   texts: RenderTexts,
-  isAllBranches: boolean,
+  _isAllBranches: boolean,
   BASE_LANE_HEIGHT: number,
   beatWidth: number,
 ) {
   const params = chart.barParams[info.originalIndex];
+  const layout = branchLayouts[index];
 
   // Fallback if beatWidth is missing or 0
   let effectiveBeatWidth = beatWidth;
@@ -1612,66 +1810,29 @@ function drawBarBackgroundWrapper(
     );
   }
 
-  if (isAllBranches && chart.branches && isBranched) {
-    const subHeight = BASE_LANE_HEIGHT;
-    const normalFrame: Frame = { x: frame.x, y: frame.y, width: frame.width, height: subHeight };
-    drawBarBackground(
-      canvasContext,
-      normalFrame,
-      constants.lineWidthBarBorder,
-      true,
-      "normal",
-      !hasLeftNeighbor,
-      !hasRightNeighbor,
-      overExtendWidth,
-      effectiveBeatWidth,
-    );
-    const expertFrame: Frame = {
-      x: frame.x,
-      y: frame.y + subHeight,
-      width: frame.width,
-      height: subHeight,
-    };
-    drawBarBackground(
-      canvasContext,
-      expertFrame,
-      constants.lineWidthBarBorder,
-      true,
-      "expert",
-      !hasLeftNeighbor,
-      !hasRightNeighbor,
-      overExtendWidth,
-      effectiveBeatWidth,
-    );
-    const masterFrame: Frame = {
-      x: frame.x,
-      y: frame.y + 2 * subHeight,
-      width: frame.width,
-      height: subHeight,
-    };
-    drawBarBackground(
-      canvasContext,
-      masterFrame,
-      constants.lineWidthBarBorder,
-      true,
-      "master",
-      !hasLeftNeighbor,
-      !hasRightNeighbor,
-      overExtendWidth,
-      effectiveBeatWidth,
-    );
-  } else {
-    drawBarBackground(
-      canvasContext,
-      frame,
-      constants.lineWidthBarBorder,
-      isBranched,
-      chart.branchType,
-      !hasLeftNeighbor,
-      !hasRightNeighbor,
-      overExtendWidth,
-      effectiveBeatWidth,
-    );
+  // Draw Backgrounds based on Branch Layout
+  const branches: BranchName[] = [BranchName.Normal, BranchName.Expert, BranchName.Master];
+  for (const b of branches) {
+    const branchInfo = layout.branches[b];
+    if (branchInfo?.visible) {
+      const bFrame: Frame = {
+        x: frame.x,
+        y: frame.y + branchInfo.offsetY,
+        width: frame.width,
+        height: BASE_LANE_HEIGHT,
+      };
+
+      drawBarBackground(
+        canvasContext,
+        bFrame,
+        constants.lineWidthBarBorder,
+        isBranched ? b : undefined,
+        !hasLeftNeighbor,
+        !hasRightNeighbor,
+        overExtendWidth,
+        effectiveBeatWidth,
+      );
+    }
   }
 
   const showText =
@@ -1737,16 +1898,17 @@ function drawAllBranchesNotes(
   chart: ParsedChart,
   virtualBars: RenderBarInfo[],
   barFrames: Frame[],
+  branchLayouts: BranchLayoutInfo[],
   _balloonIndices: LocationMap<number>,
   BASE_LANE_HEIGHT: number,
   dirtyRowY?: Set<number>,
 ) {
   const { canvasContext, options, constants } = renderContext;
   if (!chart.branches) return;
-  const branches: { type: "normal" | "expert" | "master"; data: ParsedChart; yOffset: number }[] = [
-    { type: "normal", data: chart.branches.normal || chart, yOffset: 0 },
-    { type: "expert", data: chart.branches.expert || chart, yOffset: BASE_LANE_HEIGHT },
-    { type: "master", data: chart.branches.master || chart, yOffset: BASE_LANE_HEIGHT * 2 },
+  const branches: { type: BranchName; data: ParsedChart }[] = [
+    { type: BranchName.Normal, data: chart.branches.normal || chart },
+    { type: BranchName.Expert, data: chart.branches.expert || chart },
+    { type: BranchName.Master, data: chart.branches.master || chart },
   ];
 
   branches.forEach((b) => {
@@ -1756,22 +1918,21 @@ function drawAllBranchesNotes(
     }));
 
     const branchFrames = barFrames.map((f, idx) => {
-      const params = chart.barParams[virtualBars[idx].originalIndex];
-      const isBranched = params ? params.isBranched : false;
+      const layout = branchLayouts[idx];
+      const branchInfo = layout.branches[b.type];
 
-      if (isBranched) {
+      if (branchInfo?.visible) {
         return {
           ...f,
-          y: f.y + b.yOffset,
-          height: BASE_LANE_HEIGHT,
-        };
-      } else {
-        return {
-          ...f,
-          y: f.y,
+          y: f.y + branchInfo.offsetY,
           height: BASE_LANE_HEIGHT,
         };
       }
+      return {
+        ...f,
+        height: 0,
+        width: 0,
+      };
     });
 
     drawLongNotes(
@@ -1790,11 +1951,12 @@ function drawAllBranchesNotes(
       const info = branchVirtualBars[index];
       const frame = branchFrames[index];
       if (dirtyRowY && !dirtyRowY.has(frame.y)) continue;
+      if (frame.height <= 0) continue;
 
       // OPTIMIZATION: If unbranched, only draw for 'normal' branch to avoid overdraw
       const params = chart.barParams[info.originalIndex];
       const isBranched = params ? params.isBranched : false;
-      if (!isBranched && b.type !== "normal") continue;
+      if (!isBranched && b.type !== BranchName.Normal) continue;
 
       const branchContext: RenderContext = {
         ...renderContext,
@@ -1807,7 +1969,7 @@ function drawAllBranchesNotes(
         frame,
         info.originalIndex,
         undefined,
-        b.type as "normal" | "expert" | "master",
+        b.type as BranchName,
         info.effectiveBarIndex,
       );
     }
@@ -2078,8 +2240,7 @@ function drawBarBackground(
   canvasContext: CanvasRenderingContext2D,
   frame: Frame,
   borderW: number,
-  isBranched: boolean,
-  branchType: string = "normal",
+  branchType?: BranchName,
   drawLeftExt: boolean = false,
   drawRightExt: boolean = false,
   overExtendWidth: number = 0,
@@ -2088,11 +2249,11 @@ function drawBarBackground(
   const { x, y, width, height } = frame;
 
   let fillColor = PALETTE.branches.default;
-  if (isBranched) {
-    if (branchType === "normal") fillColor = PALETTE.branches.normal; // Normal
-    if (branchType === "expert")
+  if (branchType) {
+    if (branchType === BranchName.Normal) fillColor = PALETTE.branches.normal; // Normal
+    if (branchType === BranchName.Expert)
       fillColor = PALETTE.branches.expert; // Professional
-    else if (branchType === "master") fillColor = PALETTE.branches.master; // Master
+    else if (branchType === BranchName.Master) fillColor = PALETTE.branches.master; // Master
   }
 
   // Helper for extensions
@@ -2260,6 +2421,7 @@ function drawLongNotes(
     const bar = virtualBars[i].bar;
     if (!bar) continue;
     const frame = barFrames[i];
+    if (frame.height <= 0) continue;
     const isDirty = !dirtyRowY || dirtyRowY.has(frame.y);
 
     const originalBarIdx = virtualBars[i].originalIndex;
@@ -2951,7 +3113,7 @@ function drawBarNotes(
   frame: Frame,
   originalBarIndex: number = -1,
   loopInfo?: LoopInfo,
-  currentBranch?: "normal" | "expert" | "master",
+  currentBranch?: BranchName,
   effectiveBarIndex?: number,
 ): void {
   const { canvasContext, options, judgements, texts, constants, inferredHands, locToJudgementKey } = renderContext;

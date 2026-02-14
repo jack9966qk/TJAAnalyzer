@@ -1,4 +1,4 @@
-import { NoteType, toNoteType } from "./primitives.js";
+import { BranchName, NoteType, toNoteType } from "./primitives.js";
 
 export interface LoopInfo {
   startBarIndex: number;
@@ -50,6 +50,11 @@ export interface BarParams {
     p1: number;
     p2: number;
   };
+  reachableBranches?: {
+    normal: boolean;
+    expert: boolean;
+    master: boolean;
+  };
   bpmChanges?: BPMChange[];
   scrollChanges?: ScrollChange[];
   gogoChanges?: GogoChange[];
@@ -71,11 +76,9 @@ export interface ParsedChart {
   course: string;
 
   // Branching
-  branchType?: "normal" | "expert" | "master";
+  branchType?: BranchName;
   branches?: {
-    normal?: ParsedChart;
-    expert?: ParsedChart;
-    master?: ParsedChart;
+    [key in BranchName]?: ParsedChart;
   };
 }
 
@@ -104,6 +107,37 @@ function createInitialState(bpm: number): ParserState {
     currentBarGogoChanges: [],
     currentBarNextSongChanges: [],
   };
+}
+
+function calculateReachability(params?: { type: string; p1: number; p2: number }) {
+  if (!params) {
+    return { normal: true, expert: true, master: true };
+  }
+
+  const { type, p1, p2 } = params;
+  const isPercent = ["p", "d", "pp", "jb"].includes(type);
+
+  // We check if it is *possible* to satisfy these conditions.
+  // Range:
+  // p: [0, 100]
+  // r, s, others: [0, Infinity]
+  const maxVal = isPercent ? 100 : Infinity;
+  const minVal = 0;
+
+  // Master reachable if [p2, Infinity] overlaps with [minVal, maxVal]
+  // i.e. maxVal >= p2
+  const master = maxVal >= p2;
+
+  // Expert reachable if [p1, p2) overlaps with [minVal, maxVal]
+  // i.e. max(p1, minVal) < min(p2, maxVal + epsilon)
+  // Simply: p1 < p2 AND p1 <= maxVal
+  const expert = p1 < p2 && p1 <= maxVal;
+
+  // Normal reachable if (-Infinity, min(p1, p2)) overlaps with [minVal, maxVal]
+  // i.e. min(p1, p2) > minVal
+  const normal = Math.min(p1, p2) > minVal;
+
+  return { normal, expert, master };
 }
 
 export function parseTJA(content: string): Record<string, ParsedChart> {
@@ -208,6 +242,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
         // We use state.measureRatio as the ratio for the CURRENT accumulating bar.
 
         let isFirstBar = true;
+        const reachable = isBranched ? calculateReachability(branchStartParams) : undefined;
 
         for (const line of linesToParse) {
           if (line.startsWith("#") || line.trim().toUpperCase().startsWith("EXAM")) {
@@ -308,6 +343,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
                 isBranched: isBranched,
                 isBranchStart: isBranched && markFirstAsBranchStart && isFirstBar,
                 branchStartParams: isBranched && markFirstAsBranchStart && isFirstBar ? branchStartParams : undefined,
+                reachableBranches: reachable,
                 bpmChanges: state.currentBarBpmChanges.length > 0 ? [...state.currentBarBpmChanges] : undefined,
                 scrollChanges:
                   state.currentBarScrollChanges.length > 0 ? [...state.currentBarScrollChanges] : undefined,
@@ -433,11 +469,7 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
       }
 
       // Create Charts
-      const createChart = (
-        bars: NoteType[][],
-        params: BarParams[],
-        type: "normal" | "expert" | "master",
-      ): ParsedChart => {
+      const createChart = (bars: NoteType[][], params: BarParams[], type: BranchName): ParsedChart => {
         return {
           bars,
           barParams: params,
@@ -453,13 +485,13 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
         };
       };
 
-      const normalChart = createChart(normalBars, normalParams, "normal");
+      const normalChart = createChart(normalBars, normalParams, BranchName.Normal);
 
       if (hasSeenBranchStart) {
         normalChart.branches = {
-          normal: normalChart,
-          expert: createChart(expertBars, expertParams, "expert"),
-          master: createChart(masterBars, masterParams, "master"),
+          [BranchName.Normal]: normalChart,
+          [BranchName.Expert]: createChart(expertBars, expertParams, BranchName.Expert),
+          [BranchName.Master]: createChart(masterBars, masterParams, BranchName.Master),
         };
       }
 

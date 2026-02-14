@@ -16,6 +16,12 @@ export enum NoteType {
   Kusudama = "9",
 }
 
+export enum BranchName {
+  Normal = "normal",
+  Expert = "expert",
+  Master = "master",
+}
+
 export const JUDGEABLE_NOTES = [NoteType.Don, NoteType.Ka, NoteType.DonBig, NoteType.KaBig];
 
 export const BIG_NOTES = [NoteType.DonBig, NoteType.KaBig, NoteType.DrumrollBig, NoteType.Kusudama];

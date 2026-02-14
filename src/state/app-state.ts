@@ -51,6 +51,7 @@ export const appState: AppState = {
     showTextInAnnotationMode: false,
     alwaysShowAnnotations: false,
     autoZoom: false,
+    hideUnreachableBranches: true,
   },
   loadedTJAContent: exampleTJA,
   activeDataSourceMode: "list",
