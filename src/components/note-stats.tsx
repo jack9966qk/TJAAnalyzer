@@ -388,17 +388,25 @@ export class NoteStatsDisplay extends HTMLElement {
       const expertVal = params ? params.p1.toString() : def;
       const masterVal = params ? params.p2.toString() : def;
 
+      let reachable = { normal: true, expert: true, master: true };
+      if (branchHit && chart && chart.barParams[branchHit.originalBarIndex]) {
+        const barParams = chart.barParams[branchHit.originalBarIndex];
+        if (barParams.reachableBranches) {
+          reachable = barParams.reachableBranches;
+        }
+      }
+
       branchStats = (
         <div className="branch-info-panel">
           <div className="branch-row">
             <span className="label">{i18n.t("stats.branch.type")}:</span>
             <span className="val">{typeLabel}</span>
           </div>
-          <div className="branch-row">
+          <div className="branch-row" style={!reachable.expert ? "text-decoration: line-through; opacity: 0.6;" : ""}>
             <span className="label">{i18n.t("stats.branch.expert")}:</span>
             <span className="val">{expertVal}</span>
           </div>
-          <div className="branch-row">
+          <div className="branch-row" style={!reachable.master ? "text-decoration: line-through; opacity: 0.6;" : ""}>
             <span className="label">{i18n.t("stats.branch.master")}:</span>
             <span className="val">{masterVal}</span>
           </div>
@@ -467,8 +475,8 @@ export class NoteStatsDisplay extends HTMLElement {
                 overflow-y: auto;
             }
             .branch-info-panel {
-                flex-basis: calc(90px * 2 + 10px);
-                min-width: calc(90px * 2 + 10px);
+                flex-basis: 208px;
+                min-width: 208px;
                 background-color: var(--stat-box-bg, #37474f);
                 color: var(--stat-box-text, #eceff1);
                 padding: 10px 15px;

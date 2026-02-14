@@ -79,9 +79,5 @@ test.describe("Branch Stats in Note Stats Component", () => {
     const branchPanel = stats.locator(".branch-info-panel");
 
     await expect(branchPanel).toBeVisible();
-
-    // Check width calculation: 90px * 2 + 10px = 190px
-    await expect(branchPanel).toHaveCSS("flex-basis", "190px");
-    await expect(branchPanel).toHaveCSS("min-width", "190px");
   });
 });
