@@ -3375,13 +3375,15 @@ function drawBarLabels(
     const hasZero = changeIndices.has(0);
     if (hasZero) {
       // Draw index 0 with full width to cover the bar border
-      canvasContext.beginPath();
-      canvasContext.strokeStyle = PALETTE.status.line;
-      canvasContext.lineWidth = barBorderWidth;
-      const lineX = x;
-      canvasContext.moveTo(lineX, y + height);
-      canvasContext.lineTo(lineX, topY);
-      canvasContext.stroke();
+      if (!isBranchStart) {
+        canvasContext.beginPath();
+        canvasContext.strokeStyle = PALETTE.status.line;
+        canvasContext.lineWidth = barBorderWidth;
+        const lineX = x;
+        canvasContext.moveTo(lineX, y + height);
+        canvasContext.lineTo(lineX, topY);
+        canvasContext.stroke();
+      }
 
       changeIndices.delete(0);
     }
