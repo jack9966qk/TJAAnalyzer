@@ -1,5 +1,40 @@
 [
   {
+    "hash": "830f74a",
+    "message": "Update version to 0.9.5.",
+    "date": "2026-02-16"
+  },
+  {
+    "hash": "a54d275",
+    "message": "Apply a few anti aliasing optimizations to renderer.",
+    "date": "2026-02-16"
+  },
+  {
+    "hash": "5e169eb",
+    "message": "Slightly adjust note sizes and border widths.",
+    "date": "2026-02-16"
+  },
+  {
+    "hash": "c920df9",
+    "message": "Support overriding layout ratios in renderer public API.",
+    "date": "2026-02-16"
+  },
+  {
+    "hash": "2673864",
+    "message": "Update border drawing logic so that the line width ratios map exactly to the visible width, without overlapping or gaps between the note circles or borders.",
+    "date": "2026-02-16"
+  },
+  {
+    "hash": "03282e5",
+    "message": "Separate more clearly public and private API in the renderer package. Update app to use package dependency.",
+    "date": "2026-02-16"
+  },
+  {
+    "hash": "335dbef",
+    "message": "Refactor renderer.ts into smaller components.",
+    "date": "2026-02-16"
+  },
+  {
     "hash": "8f44c5e",
     "message": "Update version to 0.9.4.",
     "date": "2026-02-14"
@@ -463,40 +498,5 @@
     "hash": "4d55ac2",
     "message": "Wrap chart difficulty and BPM headers if title or subtitle is too long.",
     "date": "2026-01-31"
-  },
-  {
-    "hash": "74c5451",
-    "message": "Avoid text input auto zooming and autocoreect on iOS.",
-    "date": "2026-01-30"
-  },
-  {
-    "hash": "abe6dae",
-    "message": "Remove .tmp files.",
-    "date": "2026-01-30"
-  },
-  {
-    "hash": "31e71e5",
-    "message": "Replace shell build scripts with cross-platform Node.js script.",
-    "date": "2026-01-30"
-  },
-  {
-    "hash": "e52c131",
-    "message": "Support fullscreen mode in more browsers. Add a floating close button in fullscreen mode.",
-    "date": "2026-01-30"
-  },
-  {
-    "hash": "249fdc5",
-    "message": "Update version to 0.7.7.",
-    "date": "2026-01-30"
-  },
-  {
-    "hash": "6536d47",
-    "message": "Add basic chart fullscreen support.",
-    "date": "2026-01-30"
-  },
-  {
-    "hash": "ab1c378",
-    "message": "Minor style fixes for hover color and status panel.",
-    "date": "2026-01-30"
   }
 ]
