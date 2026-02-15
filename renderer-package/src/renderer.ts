@@ -194,16 +194,16 @@ export function drawCapsule(
   fillColor: string,
   innerBorderColor: string,
 ): void {
-  // radius is the total outer extent. Borders are drawn from inner to outer.
+  // radius is the total outer extent. Borders are drawn as filled shapes
+  // from outer to inner for crisp edges (no stroke straddling).
+  const innerBorderR = radius - borderOuterW;
   const fillR = radius - borderOuterW - borderInnerW;
-  const innerBorderR = radius - borderOuterW - borderInnerW / 2;
-  const outerBorderR = radius - borderOuterW / 2;
 
-  // Helper to trace a capsule path at a given radius
-  const traceCapsulePath = (r: number) => {
+  // Helper to trace a closed, filled capsule path at a given radius
+  const traceCapsuleFillPath = (r: number) => {
     canvasContext.beginPath();
     if (startCap) {
-      canvasContext.arc(startX, centerY, r, Math.PI, Math.PI * 1.5, false);
+      canvasContext.arc(startX, centerY, r, Math.PI / 2, Math.PI * 1.5, false);
     } else {
       canvasContext.moveTo(startX, centerY - r);
     }
@@ -211,44 +211,29 @@ export function drawCapsule(
     if (endCap) {
       canvasContext.arc(endX, centerY, r, Math.PI * 1.5, Math.PI * 2.5, false);
     } else {
-      canvasContext.moveTo(endX, centerY + r);
+      canvasContext.lineTo(endX, centerY + r);
     }
     canvasContext.lineTo(startX, centerY + r);
     if (startCap) {
-      canvasContext.arc(startX, centerY, r, Math.PI * 0.5, Math.PI, false);
+      // closePath completes the arc back to the start
     }
+    canvasContext.closePath();
   };
 
-  // 1. Fill (innermost)
-  canvasContext.beginPath();
-  canvasContext.moveTo(startX, centerY + fillR);
-  if (startCap) {
-    canvasContext.arc(startX, centerY, fillR, Math.PI / 2, Math.PI * 1.5, false);
-  } else {
-    canvasContext.lineTo(startX, centerY - fillR);
-  }
-  canvasContext.lineTo(endX, centerY - fillR);
-  if (endCap) {
-    canvasContext.arc(endX, centerY, fillR, Math.PI * 1.5, Math.PI * 2.5, false);
-  } else {
-    canvasContext.lineTo(endX, centerY + fillR);
-  }
-  canvasContext.lineTo(startX, centerY + fillR);
-  canvasContext.closePath();
-  canvasContext.fillStyle = fillColor;
+  // 1. Outer Border (outermost, black)
+  traceCapsuleFillPath(radius);
+  canvasContext.fillStyle = PALETTE.notes.border.black;
   canvasContext.fill();
 
   // 2. Inner Border (middle layer)
-  traceCapsulePath(innerBorderR);
-  canvasContext.strokeStyle = innerBorderColor;
-  canvasContext.lineWidth = borderInnerW;
-  canvasContext.stroke();
+  traceCapsuleFillPath(innerBorderR);
+  canvasContext.fillStyle = innerBorderColor;
+  canvasContext.fill();
 
-  // 3. Outer Border (outermost layer)
-  traceCapsulePath(outerBorderR);
-  canvasContext.strokeStyle = PALETTE.notes.border.black;
-  canvasContext.lineWidth = borderOuterW;
-  canvasContext.stroke();
+  // 3. Fill (innermost, note color)
+  traceCapsuleFillPath(fillR);
+  canvasContext.fillStyle = fillColor;
+  canvasContext.fill();
 }
 
 function drawChartHeader(
@@ -474,8 +459,17 @@ function drawBarBackground(
   drawRightExt: boolean = false,
   overExtendWidth: number = 0,
   beatWidth: number = 0,
+  dpr: number = 1,
 ): void {
   const { x, y, width, height } = frame;
+
+  // Snap a coordinate to the nearest half device pixel for crisp 1-device-pixel lines.
+  // When a stroke of width W falls on a coordinate, it spans [coord - W/2, coord + W/2].
+  // If W is an odd number of device pixels, the coordinate must land on a half device pixel
+  // so the stroke occupies exactly those pixels.
+  const deviceBorderW = Math.round(borderW * dpr);
+  const snapLine = (v: number) =>
+    deviceBorderW % 2 === 1 ? (Math.round(v * dpr) + 0.5) / dpr : Math.round(v * dpr) / dpr;
 
   let fillColor = PALETTE.branches.default;
   if (branchType) {
@@ -494,9 +488,18 @@ function drawBarBackground(
 
     // 2. Horizontal Borders Gradient
     // Top Border
-    drawGradientLine(canvasContext, exX, y, exX + exW, y, PALETTE.ui.barBorder, borderW, direction);
+    drawGradientLine(canvasContext, exX, snapLine(y), exX + exW, snapLine(y), PALETTE.ui.barBorder, borderW, direction);
     // Bottom Border
-    drawGradientLine(canvasContext, exX, y + height, exX + exW, y + height, PALETTE.ui.barBorder, borderW, direction);
+    drawGradientLine(
+      canvasContext,
+      exX,
+      snapLine(y + height),
+      exX + exW,
+      snapLine(y + height),
+      PALETTE.ui.barBorder,
+      borderW,
+      direction,
+    );
   };
 
   if (drawLeftExt && overExtendWidth > 0) {
@@ -519,7 +522,7 @@ function drawBarBackground(
     canvasContext.beginPath();
     // Draw lines at integer beat intervals relative to bar start
     for (let i = 1; i < numBeats - 0.01; i++) {
-      const lineX = x + i * beatWidth;
+      const lineX = snapLine(x + i * beatWidth);
       canvasContext.moveTo(lineX, y);
       canvasContext.lineTo(lineX, y + height);
     }
@@ -527,23 +530,28 @@ function drawBarBackground(
   }
 
   // Draw Bar Border (Horizontal)
+  const sY = snapLine(y);
+  const sYH = snapLine(y + height);
+  const sX = snapLine(x);
+  const sXW = snapLine(x + width);
+
   canvasContext.strokeStyle = PALETTE.ui.barBorder;
   canvasContext.lineWidth = borderW;
   canvasContext.beginPath();
-  canvasContext.moveTo(x, y);
-  canvasContext.lineTo(x + width, y);
-  canvasContext.moveTo(x, y + height);
-  canvasContext.lineTo(x + width, y + height);
+  canvasContext.moveTo(x, sY);
+  canvasContext.lineTo(x + width, sY);
+  canvasContext.moveTo(x, sYH);
+  canvasContext.lineTo(x + width, sYH);
   canvasContext.stroke();
 
   // Draw Bar Border (Vertical)
   canvasContext.strokeStyle = PALETTE.ui.barVerticalLine;
   canvasContext.lineWidth = borderW;
   canvasContext.beginPath();
-  canvasContext.moveTo(x, y);
-  canvasContext.lineTo(x, y + height);
-  canvasContext.moveTo(x + width, y);
-  canvasContext.lineTo(x + width, y + height);
+  canvasContext.moveTo(sX, y);
+  canvasContext.lineTo(sX, y + height);
+  canvasContext.moveTo(sXW, y);
+  canvasContext.lineTo(sXW, y + height);
   canvasContext.stroke();
 }
 
@@ -742,6 +750,7 @@ function drawBarBackgroundWrapper(
   _isAllBranches: boolean,
   BASE_LANE_HEIGHT: number,
   beatWidth: number,
+  dpr: number = 1,
 ) {
   const params = chart.barParams[info.originalIndex];
   const layout = branchLayouts[index];
@@ -814,6 +823,7 @@ function drawBarBackgroundWrapper(
         !hasRightNeighbor,
         overExtendWidth,
         effectiveBeatWidth,
+        dpr,
       );
     }
   }
@@ -1234,31 +1244,27 @@ function drawBarNotes(
         effectiveInnerBorderColor = PALETTE.notes.border.yellow;
       }
 
-      // Draw from inner to outer: fill -> inner border -> outer border
-      // radius is the total outer extent including all borders
+      // Draw from outer to inner using filled circles for crisp edges.
+      // radius is the total outer extent including all borders.
       const fillR = radius - effectiveBorderOuterW - effectiveBorderInnerW;
-      const innerBorderR = radius - effectiveBorderOuterW - effectiveBorderInnerW / 2;
-      const outerBorderR = radius - effectiveBorderOuterW / 2;
 
-      // 1. Fill (innermost)
+      // 1. Outer border (outermost, black)
       canvasContext.beginPath();
-      canvasContext.arc(noteX, centerY, fillR, 0, Math.PI * 2);
-      canvasContext.fillStyle = color;
+      canvasContext.arc(noteX, centerY, radius, 0, Math.PI * 2);
+      canvasContext.fillStyle = PALETTE.notes.border.black;
       canvasContext.fill();
 
       // 2. Inner border (middle layer)
       canvasContext.beginPath();
-      canvasContext.arc(noteX, centerY, innerBorderR, 0, Math.PI * 2);
-      canvasContext.lineWidth = effectiveBorderInnerW;
-      canvasContext.strokeStyle = effectiveInnerBorderColor;
-      canvasContext.stroke();
+      canvasContext.arc(noteX, centerY, radius - effectiveBorderOuterW, 0, Math.PI * 2);
+      canvasContext.fillStyle = effectiveInnerBorderColor;
+      canvasContext.fill();
 
-      // 3. Outer border (outermost layer)
+      // 3. Fill (innermost, note color)
       canvasContext.beginPath();
-      canvasContext.arc(noteX, centerY, outerBorderR, 0, Math.PI * 2);
-      canvasContext.lineWidth = effectiveBorderOuterW;
-      canvasContext.strokeStyle = PALETTE.notes.border.black;
-      canvasContext.stroke();
+      canvasContext.arc(noteX, centerY, fillR, 0, Math.PI * 2);
+      canvasContext.fillStyle = color;
+      canvasContext.fill();
 
       // Annotation Rendering
       if ((options.isAnnotationMode || options.alwaysShowAnnotations) && options.annotations && isJudgeable(noteChar)) {
@@ -1392,30 +1398,26 @@ function drawBalloonSegment(
       headColor = PALETTE.notes.unjudged;
     }
 
-    // Draw Head from inner to outer
+    // Draw Head from outer to inner using filled circles for crisp edges
     const fillR = radius - effectiveBorderOuterW - effectiveBorderInnerW;
-    const innerBorderR = radius - effectiveBorderOuterW - effectiveBorderInnerW / 2;
-    const outerBorderR = radius - effectiveBorderOuterW / 2;
 
-    // 1. Fill (innermost)
+    // 1. Outer border (outermost, black)
     canvasContext.beginPath();
-    canvasContext.arc(startX, centerY, fillR, 0, Math.PI * 2);
-    canvasContext.fillStyle = headColor;
+    canvasContext.arc(startX, centerY, radius, 0, Math.PI * 2);
+    canvasContext.fillStyle = PALETTE.notes.border.black;
     canvasContext.fill();
 
     // 2. Inner border (middle layer)
     canvasContext.beginPath();
-    canvasContext.arc(startX, centerY, innerBorderR, 0, Math.PI * 2);
-    canvasContext.lineWidth = effectiveBorderInnerW;
-    canvasContext.strokeStyle = effectiveHeadInnerBorderColor;
-    canvasContext.stroke();
+    canvasContext.arc(startX, centerY, radius - effectiveBorderOuterW, 0, Math.PI * 2);
+    canvasContext.fillStyle = effectiveHeadInnerBorderColor;
+    canvasContext.fill();
 
-    // 3. Outer border (outermost layer)
+    // 3. Fill (innermost, head color)
     canvasContext.beginPath();
-    canvasContext.arc(startX, centerY, outerBorderR, 0, Math.PI * 2);
-    canvasContext.lineWidth = effectiveBorderOuterW;
-    canvasContext.strokeStyle = PALETTE.notes.border.black;
-    canvasContext.stroke();
+    canvasContext.arc(startX, centerY, fillR, 0, Math.PI * 2);
+    canvasContext.fillStyle = headColor;
+    canvasContext.fill();
 
     // Draw Count
     if (viewMode !== "judgements") {
@@ -1815,6 +1817,7 @@ export function renderLayout(
       isAllBranches,
       BASE_LANE_HEIGHT,
       layout.baseBarWidth / 4,
+      effectiveDpr,
     );
   });
 
