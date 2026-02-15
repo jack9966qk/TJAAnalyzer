@@ -1,0 +1,139 @@
+export function drawTextWithCompression(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  minScale: number = 0.7,
+) {
+  const width = ctx.measureText(text).width;
+  let scale = 1.0;
+  if (width > maxWidth) {
+    scale = maxWidth / width;
+    if (scale < minScale) scale = minScale;
+  }
+
+  if (scale < 1.0) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(scale, 1.0);
+    ctx.fillText(text, 0, 0);
+    ctx.restore();
+  } else {
+    ctx.fillText(text, x, y);
+  }
+}
+
+export function hexToRgba(hex: string, alpha: number): string {
+  const h = hex.replace("#", "");
+  let r = 0,
+    g = 0,
+    b = 0;
+  if (h.length === 3) {
+    r = parseInt(h[0] + h[0], 16);
+    g = parseInt(h[1] + h[1], 16);
+    b = parseInt(h[2] + h[2], 16);
+  } else if (h.length === 6) {
+    r = parseInt(h.substring(0, 2), 16);
+    g = parseInt(h.substring(2, 4), 16);
+    b = parseInt(h.substring(4, 6), 16);
+  } else if (h.length === 8) {
+    r = parseInt(h.substring(0, 2), 16);
+    g = parseInt(h.substring(2, 4), 16);
+    b = parseInt(h.substring(4, 6), 16);
+  }
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+export function drawGradientRect(
+  canvasContext: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  color: string,
+  direction: "left" | "right",
+) {
+  const grad = canvasContext.createLinearGradient(x, y, x + width, y);
+  const cSolid = hexToRgba(color, 1);
+  const cMid = hexToRgba(color, 0.2);
+  const cTrans = hexToRgba(color, 0);
+
+  if (direction === "left") {
+    grad.addColorStop(0, cTrans);
+    grad.addColorStop(0.25, cMid);
+    grad.addColorStop(0.5, cSolid);
+    grad.addColorStop(1, cSolid);
+  } else {
+    grad.addColorStop(0, cSolid);
+    grad.addColorStop(0.5, cSolid);
+    grad.addColorStop(0.75, cMid);
+    grad.addColorStop(1, cTrans);
+  }
+
+  canvasContext.fillStyle = grad;
+  canvasContext.fillRect(x, y, width, height);
+}
+
+export function drawGradientLine(
+  canvasContext: CanvasRenderingContext2D,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  color: string,
+  lineWidth: number,
+  direction: "left" | "right",
+) {
+  const grad = canvasContext.createLinearGradient(x1, y1, x2, y1); // Horizontal gradient
+  const cSolid = hexToRgba(color, 1);
+  const cMid = hexToRgba(color, 0.2);
+  const cTrans = hexToRgba(color, 0);
+
+  if (direction === "left") {
+    grad.addColorStop(0, cTrans);
+    grad.addColorStop(0.25, cMid);
+    grad.addColorStop(0.5, cSolid);
+    grad.addColorStop(1, cSolid);
+  } else {
+    grad.addColorStop(0, cSolid);
+    grad.addColorStop(0.5, cSolid);
+    grad.addColorStop(0.75, cMid);
+    grad.addColorStop(1, cTrans);
+  }
+
+  canvasContext.strokeStyle = grad;
+  canvasContext.lineWidth = lineWidth;
+  canvasContext.beginPath();
+  canvasContext.moveTo(x1, y1);
+  canvasContext.lineTo(x2, y2);
+  canvasContext.stroke();
+}
+
+export function getGradientColor(delta: number): string {
+  const clamped = Math.max(-100, Math.min(100, delta));
+  let r = 0;
+  let g = 0;
+  let b = 0;
+
+  if (clamped < 0) {
+    // -100 (#B0CC35: 176, 204, 53) -> 0 (White: 255, 255, 255)
+    // t: 0 (at -100) -> 1 (at 0)
+    const t = (clamped + 100) / 100;
+
+    // Lerp from Target to White
+    r = Math.round(176 + (255 - 176) * t);
+    g = Math.round(204 + (255 - 204) * t);
+    b = Math.round(53 + (255 - 53) * t);
+  } else {
+    // 0 (White: 255, 255, 255) -> 100 (#952CD1: 149, 44, 209)
+    // t: 0 (at 0) -> 1 (at 100)
+    const t = clamped / 100;
+
+    // Lerp from White to Target
+    r = Math.round(255 + (149 - 255) * t);
+    g = Math.round(255 + (44 - 255) * t);
+    b = Math.round(255 + (209 - 255) * t);
+  }
+  return `rgb(${r}, ${g}, ${b})`;
+}

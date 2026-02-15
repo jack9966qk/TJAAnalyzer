@@ -233,6 +233,8 @@ export class LocationMap<V> {
 export const createJudgementKey = (char: string, ordinal: number): JudgementKey => ({ char, ordinal });
 export const createNoteLocation = (barIndex: number, charIndex: number): NoteLocation => ({ barIndex, charIndex });
 
+export type ViewMode = "original" | "judgements" | "judgements-underline" | "judgements-text";
+
 export function toNoteType(char: string): NoteType {
   switch (char) {
     case "1":
@@ -257,3 +259,92 @@ export function toNoteType(char: string): NoteType {
       return NoteType.None;
   }
 }
+
+export enum JudgementType {
+  Perfect = "perfect",
+  Great = "great",
+  Good = "good",
+  Poor = "poor",
+  Miss = "miss",
+  Bad = "bad",
+  Auto = "auto",
+  Adlib = "adlib",
+  Mine = "mine",
+}
+
+export interface JudgementValue {
+  judgement: string;
+  delta: number;
+}
+
+export interface JudgementVisibility {
+  perfect: boolean;
+  good: boolean;
+  poor: boolean;
+}
+
+export interface ViewOptions {
+  viewMode: "original" | "judgements" | "judgements-underline" | "judgements-text";
+  coloringMode: "categorical" | "gradient";
+  visibility: JudgementVisibility;
+  collapsedLoop: boolean;
+  selectedLoopIteration?: number;
+  beatsPerLine: number;
+  showAllBranches?: boolean;
+  hideUnreachableBranches?: boolean;
+  selection: {
+    start: NoteLocation;
+    end: NoteLocation | null;
+  } | null;
+  hoveredNote?: (NoteLocation & { branch?: BranchName }) | null;
+  annotations?: LocationMap<string>;
+  isAnnotationMode?: boolean;
+  showTextInAnnotationMode?: boolean;
+  alwaysShowAnnotations?: boolean;
+  showAttribution?: boolean;
+  range?: {
+    start: NoteLocation;
+    end: NoteLocation;
+  };
+}
+
+export interface RenderTexts {
+  loopPattern: string; // e.g. "Loop x{n}"
+  judgement: {
+    perfect: string;
+    good: string;
+    poor: string;
+  };
+  course?: Record<string, string>;
+}
+
+export const DEFAULT_TEXTS: RenderTexts = {
+  loopPattern: "Loop x{n}",
+  judgement: {
+    perfect: "良",
+    good: "可",
+    poor: "不可",
+  },
+  course: {
+    easy: "Easy",
+    normal: "Normal",
+    hard: "Hard",
+    oni: "Oni",
+    edit: "Oni (Ura)",
+  },
+};
+
+export const DEFAULT_VIEW_OPTIONS: ViewOptions = {
+  viewMode: "original",
+  coloringMode: "categorical",
+  visibility: {
+    perfect: true,
+    good: true,
+    poor: true,
+  },
+  collapsedLoop: false,
+  beatsPerLine: 16,
+  hideUnreachableBranches: true,
+  selection: null,
+  showAttribution: true,
+};
