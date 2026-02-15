@@ -24,15 +24,50 @@ export interface Insets {
 
 export const INSETS: Insets = { top: 20, bottom: 20, left: 10, right: 10 };
 
-export const LAYOUT_RATIOS = {
+/**
+ * All values are ratios relative to `baseBarWidth` (the pixel width of a 4/4 bar).
+ *
+ * Note border sizes are the actual visible thickness of each border layer.
+ * Drawing order is from inner to outer: fill → inner border → outer border.
+ */
+export interface LayoutRatios {
+  /** Height of a single bar lane. */
+  barHeight: number;
+  /** Vertical spacing between rows of bars. */
+  rowSpacing: number;
+  /** Total outer radius of a small note (don/ka), including fill and all border layers. */
+  noteRadiusSmall: number;
+  /** Total outer radius of a big note (DON/KA), including fill and all border layers. */
+  noteRadiusBig: number;
+  /** Stroke width of horizontal/vertical bar border lines. */
+  lineWidthBarBorder: number;
+  /** Stroke width of the center line within a bar. */
+  lineWidthCenter: number;
+  /** Actual visible thickness of the outer (black) note border ring. */
+  lineWidthNoteOuter: number;
+  /** Actual visible thickness of the inner (white/colored) note border ring. */
+  lineWidthNoteInner: number;
+  /** Stroke width of the judgement underline border. */
+  lineWidthUnderlineBorder: number;
+  /** Font size for bar number labels above each bar. */
+  barNumberFontSize: number;
+  /** Font size for BPM/HS status labels above bars. */
+  statusFontSize: number;
+  /** Vertical offset between bar number text baseline and bar top edge. */
+  barNumberOffsetY: number;
+  /** Height of the chart header area (title, subtitle, course, BPM). */
+  headerHeight: number;
+}
+
+export const LAYOUT_RATIOS: LayoutRatios = {
   barHeight: 0.14,
   rowSpacing: 0.16,
-  noteRadiusSmall: 0.035,
-  noteRadiusBig: 0.05,
+  noteRadiusSmall: 0.046,
+  noteRadiusBig: 0.061,
   lineWidthBarBorder: 0.01,
   lineWidthCenter: 0.005,
-  lineWidthNoteOuter: 0.022,
-  lineWidthNoteInner: 0.0075,
+  lineWidthNoteOuter: 0.007,
+  lineWidthNoteInner: 0.008,
   lineWidthUnderlineBorder: 0.008,
   barNumberFontSize: 0.045,
   statusFontSize: 0.045,
