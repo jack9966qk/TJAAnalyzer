@@ -1,6 +1,9 @@
+import type { LayoutRatios } from "./layout.js";
 import { JudgementMap } from "./primitives.js";
 import { DEFAULT_VIEW_OPTIONS, renderChart, type ViewOptions } from "./renderer.js";
 import { parseTJA } from "./tja-parser.js";
+
+export type { LayoutRatios };
 
 export interface RenderOptions {
   /**
@@ -35,6 +38,13 @@ export interface RenderOptions {
    * Default: true
    */
   showAttribution?: boolean;
+
+  /**
+   * Optional partial overrides for the layout ratios.
+   * All values are ratios relative to `baseBarWidth` (the pixel width of a 4/4 bar).
+   * Only the specified fields are overridden; unspecified fields use defaults.
+   */
+  layoutRatios?: Partial<LayoutRatios>;
 }
 
 /**
@@ -88,5 +98,5 @@ export function renderTJAString(tjaContent: string, canvas: HTMLCanvasElement, o
     showAttribution: options.showAttribution ?? true,
   };
 
-  renderChart(chart, canvas, new JudgementMap(), viewOptions, undefined, options.dpr);
+  renderChart(chart, canvas, new JudgementMap(), viewOptions, undefined, options.dpr, options.layoutRatios);
 }

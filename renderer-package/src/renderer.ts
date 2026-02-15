@@ -14,6 +14,7 @@ import {
   type Insets,
   isNoteSelected,
   LAYOUT_RATIOS,
+  type LayoutRatios,
   type RenderBarInfo,
   type RenderConstants,
 } from "./layout.js";
@@ -38,7 +39,16 @@ import type { BarParams, GogoChange, LoopInfo, ParsedChart } from "./tja-parser.
 // Re-exports to maintain API compatibility
 export { getGradientColor } from "./drawing-utils.js";
 export { getBranchLineAt, getChartElementAt, getNoteAt, getNotePosition, type HitInfo };
-export { calculateAutoZoomBeats, calculateLayout, createLayout, INSETS, LAYOUT_RATIOS, type ChartLayout, type Insets };
+export {
+  calculateAutoZoomBeats,
+  calculateLayout,
+  createLayout,
+  INSETS,
+  LAYOUT_RATIOS,
+  type ChartLayout,
+  type Insets,
+  type LayoutRatios,
+};
 export { BranchName, DEFAULT_TEXTS, DEFAULT_VIEW_OPTIONS, JudgementType, LocationMap, NoteType };
 export type { JudgementKey, JudgementMap, JudgementValue, RenderTexts, ViewMode, ViewOptions };
 
@@ -1410,10 +1420,10 @@ function drawBalloonSegment(
     // Draw Count
     if (viewMode !== "judgements") {
       canvasContext.fillStyle = PALETTE.text.inverted;
-      canvasContext.font = `bold ${radius * 1.5}px ${FONT_STACK}`;
+      canvasContext.font = `bold ${fillR * 1.5}px ${FONT_STACK}`;
       canvasContext.textAlign = "center";
       canvasContext.textBaseline = "middle";
-      canvasContext.fillText(count.toString(), startX, centerY - radius * 0.2);
+      canvasContext.fillText(count.toString(), startX, centerY - fillR * 0.2);
     }
   }
 }
@@ -1880,6 +1890,7 @@ export function renderChart(
   options: ViewOptions,
   texts: RenderTexts = DEFAULT_TEXTS,
   customDpr?: number,
+  layoutRatios?: Partial<LayoutRatios>,
 ): void {
   const canvasContext = canvas.getContext("2d");
   if (!canvasContext) {
@@ -1887,6 +1898,6 @@ export function renderChart(
     return;
   }
 
-  const layout = createLayout(chart, canvas, options, judgements, customDpr, texts);
+  const layout = createLayout(chart, canvas, options, judgements, customDpr, texts, undefined, layoutRatios);
   renderLayout(canvasContext, layout, chart, judgements, options, texts);
 }

@@ -75,6 +75,11 @@ export const LAYOUT_RATIOS: LayoutRatios = {
   headerHeight: 0.35,
 };
 
+export function resolveLayoutRatios(overrides?: Partial<LayoutRatios>): LayoutRatios {
+  if (!overrides) return LAYOUT_RATIOS;
+  return { ...LAYOUT_RATIOS, ...overrides };
+}
+
 export interface RenderBarInfo {
   bar: NoteType[];
   originalIndex: number;
@@ -149,6 +154,7 @@ export function calculateAutoZoomBeats(
   canvasWidth: number,
   barLengths: Map<number, number> = new Map([[4, 1]]),
   insets: Insets = INSETS,
+  layoutRatios?: Partial<LayoutRatios>,
 ): number {
   if (canvasWidth <= 0) return 16;
   if (barLengths.size === 0) barLengths.set(4, 1);
@@ -175,9 +181,10 @@ export function calculateAutoZoomBeats(
   const effectiveMinDiameter = dynamicDiameter;
 
   // Bleed Ratio (Bar Extension)
-  const ratioBleed = LAYOUT_RATIOS.noteRadiusSmall * 2;
+  const resolved = resolveLayoutRatios(layoutRatios);
+  const ratioBleed = resolved.noteRadiusSmall * 2;
   // Note Inner Ratio (for minD check)
-  const ratioInner = LAYOUT_RATIOS.noteRadiusSmall * 2;
+  const ratioInner = resolved.noteRadiusSmall * 2;
 
   // We need to satisfy: NoteInnerDiameter >= effectiveMinDiameter
   // NoteInnerDiameter = BaseBarWidth * ratioInner
@@ -521,6 +528,7 @@ export function calculateLayout(
   logicalCanvasWidth: number,
   options: ViewOptions,
   insets: Insets,
+  layoutRatios?: Partial<LayoutRatios>,
 ): {
   barFrames: Frame[];
   branchLayouts: BranchLayoutInfo[];
@@ -533,21 +541,22 @@ export function calculateLayout(
   const baseBarWidth: number = availableWidth / (options.beatsPerLine / 4);
 
   // Constants for drawing
+  const resolved = resolveLayoutRatios(layoutRatios);
   const constants = {
-    barHeight: baseBarWidth * LAYOUT_RATIOS.barHeight,
-    rowSpacing: baseBarWidth * LAYOUT_RATIOS.rowSpacing,
-    noteRadiusSmall: baseBarWidth * LAYOUT_RATIOS.noteRadiusSmall,
-    noteRadiusBig: baseBarWidth * LAYOUT_RATIOS.noteRadiusBig,
-    lineWidthBarBorder: baseBarWidth * LAYOUT_RATIOS.lineWidthBarBorder,
-    lineWidthCenter: baseBarWidth * LAYOUT_RATIOS.lineWidthCenter,
-    lineWidthNoteOuter: baseBarWidth * LAYOUT_RATIOS.lineWidthNoteOuter,
-    lineWidthNoteInner: baseBarWidth * LAYOUT_RATIOS.lineWidthNoteInner,
-    lineWidthUnderlineBorder: baseBarWidth * LAYOUT_RATIOS.lineWidthUnderlineBorder,
-    barNumberFontSize: baseBarWidth * LAYOUT_RATIOS.barNumberFontSize,
-    statusFontSize: baseBarWidth * LAYOUT_RATIOS.statusFontSize,
-    nextSongFontSize: baseBarWidth * LAYOUT_RATIOS.statusFontSize * 0.9,
-    barNumberOffsetY: baseBarWidth * LAYOUT_RATIOS.barNumberOffsetY,
-    headerHeight: baseBarWidth * LAYOUT_RATIOS.headerHeight,
+    barHeight: baseBarWidth * resolved.barHeight,
+    rowSpacing: baseBarWidth * resolved.rowSpacing,
+    noteRadiusSmall: baseBarWidth * resolved.noteRadiusSmall,
+    noteRadiusBig: baseBarWidth * resolved.noteRadiusBig,
+    lineWidthBarBorder: baseBarWidth * resolved.lineWidthBarBorder,
+    lineWidthCenter: baseBarWidth * resolved.lineWidthCenter,
+    lineWidthNoteOuter: baseBarWidth * resolved.lineWidthNoteOuter,
+    lineWidthNoteInner: baseBarWidth * resolved.lineWidthNoteInner,
+    lineWidthUnderlineBorder: baseBarWidth * resolved.lineWidthUnderlineBorder,
+    barNumberFontSize: baseBarWidth * resolved.barNumberFontSize,
+    statusFontSize: baseBarWidth * resolved.statusFontSize,
+    nextSongFontSize: baseBarWidth * resolved.statusFontSize * 0.9,
+    barNumberOffsetY: baseBarWidth * resolved.barNumberOffsetY,
+    headerHeight: baseBarWidth * resolved.headerHeight,
   };
 
   // 2. Calculate Layout Positions
@@ -944,6 +953,7 @@ export function createLayout(
   customDpr?: number,
   texts?: RenderTexts,
   baseInsets: Insets = INSETS,
+  layoutRatios?: Partial<LayoutRatios>,
 ): ChartLayout {
   // Reset width to 100% to allow measuring the container's available width
   canvas.style.width = "100%";
@@ -958,7 +968,8 @@ export function createLayout(
   // For available width calculation, assume all bars have 4 beats
   const barsPerLine = beatsPerLine / 4;
 
-  const ratioBleed = LAYOUT_RATIOS.noteRadiusSmall * 2;
+  const resolved = resolveLayoutRatios(layoutRatios);
+  const ratioBleed = resolved.noteRadiusSmall * 2;
   const baseBarWidth = safeWidth / (barsPerLine + 2 * ratioBleed);
   const bleedPixels = baseBarWidth * ratioBleed;
 
@@ -971,7 +982,7 @@ export function createLayout(
 
   const availableWidth = baseBarWidth * barsPerLine;
 
-  const baseHeaderHeight = baseBarWidth * LAYOUT_RATIOS.headerHeight;
+  const baseHeaderHeight = baseBarWidth * resolved.headerHeight;
 
   let headerHeight = baseHeaderHeight;
   const ctx = canvas.getContext("2d");
@@ -979,8 +990,8 @@ export function createLayout(
     headerHeight = measureHeaderHeight(ctx, chart, availableWidth, baseHeaderHeight, texts);
   }
 
-  const statusFontSize = baseBarWidth * LAYOUT_RATIOS.statusFontSize;
-  const barNumberOffsetY = baseBarWidth * LAYOUT_RATIOS.barNumberOffsetY;
+  const statusFontSize = baseBarWidth * resolved.statusFontSize;
+  const barNumberOffsetY = baseBarWidth * resolved.barNumberOffsetY;
   const annotationHeight = barNumberOffsetY + 3 * statusFontSize;
 
   const gap = Math.max(effectiveInsets.top, annotationHeight);
@@ -1002,7 +1013,7 @@ export function createLayout(
     branchLayouts,
     constants,
     totalHeight: layoutHeight,
-  } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options, barLayoutInsets);
+  } = calculateLayout(virtualBars, chart, logicalCanvasWidth, options, barLayoutInsets, layoutRatios);
 
   let totalHeight = layoutHeight;
   if (options.showAttribution) {
