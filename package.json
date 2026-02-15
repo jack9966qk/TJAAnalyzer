@@ -32,6 +32,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@neutralinojs/lib": "^6.4.0",
+    "tja-renderer": "file:renderer-package",
     "webjsx": "^0.0.73"
   }
 }

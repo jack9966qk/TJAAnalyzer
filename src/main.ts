@@ -24,13 +24,15 @@ import "./components/changelog-panel.js";
 import "./components/language-selector.js";
 import "./components/settings-panel.js";
 import "./components/action-button.js";
-import {
-  createJudgementKey,
-  type HitInfo,
-  type JudgementMap,
-  type JudgementValue,
-  type ViewOptions as RendererViewOptions,
-} from "../renderer-package/src/index.js";
+import * as Renderer from "tja-renderer";
+
+const { createJudgementKey } = Renderer.Private;
+
+type HitInfo = Renderer.Private.HitInfo;
+type JudgementMap<T> = Renderer.Private.JudgementMap<T>;
+type JudgementValue = Renderer.Private.JudgementValue;
+type RendererViewOptions = Renderer.Private.ViewOptions;
+
 import {
   refreshChart,
   updateBranchSelectorState,

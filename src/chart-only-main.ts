@@ -1,14 +1,12 @@
-import {
-  createJudgementKey,
-  DEFAULT_VIEW_OPTIONS,
-  JudgementMap,
-  type JudgementValue,
-  LocationMap,
-  parseTJA,
-  type ViewOptions,
-} from "../renderer-package/src/index.js";
+import * as Renderer from "tja-renderer";
 import { TJAChart } from "./components/tja-chart.js";
 import { exampleTJA } from "./core/example-data.js";
+
+const { createJudgementKey, DEFAULT_VIEW_OPTIONS, JudgementMap, LocationMap, parseTJA } = Renderer.Private;
+
+type JudgementValue = Renderer.Private.JudgementValue;
+type ViewOptions = Renderer.Private.ViewOptions;
+type JudgementMap<T> = Renderer.Private.JudgementMap<T>;
 
 // Ensure side-effects
 console.log("TJAChart module loaded", TJAChart);

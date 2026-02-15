@@ -1,27 +1,31 @@
+import * as Renderer from "tja-renderer";
 import * as webjsx from "webjsx";
-import {
-  type ChartLayout,
+import { appState } from "../state/app-state.js";
+
+const {
   calculateAutoZoomBeats,
   createLayout,
   generateAutoAnnotations,
   getChartElementAt,
   getNotePosition,
-  type HitInfo,
   INSETS,
-  type Insets,
   JUDGEABLE_NOTES,
-  type JudgementKey,
   JudgementMap,
-  type JudgementValue,
   LocationMap,
   PALETTE,
-  type ParsedChart,
-  type RenderTexts,
   renderChart,
   renderLayout,
-  type ViewOptions,
-} from "../../renderer-package/src/index.js";
-import { appState } from "../state/app-state.js";
+} = Renderer.Private;
+
+type ChartLayout = Renderer.Private.ChartLayout;
+type HitInfo = Renderer.Private.HitInfo;
+type Insets = Renderer.Private.Insets;
+type JudgementKey = Renderer.Private.JudgementKey;
+type JudgementValue = Renderer.Private.JudgementValue;
+type ParsedChart = Renderer.Private.ParsedChart;
+type RenderTexts = Renderer.Private.RenderTexts;
+type ViewOptions = Renderer.Private.ViewOptions;
+type JudgementMap<T> = Renderer.Private.JudgementMap<T>;
 
 interface VendorDocument extends Document {
   fullscreenElement: Element | null;

@@ -1,9 +1,11 @@
+import * as Renderer from "tja-renderer";
 import * as webjsx from "webjsx";
-import { LocationMap } from "../../renderer-package/src/index.js";
 import { refreshChart } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { tjaChart } from "../view/ui-elements.js";
+
+const { LocationMap } = Renderer.Private;
 
 export class AnnotateOptions extends HTMLElement {
   connectedCallback() {

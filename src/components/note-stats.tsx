@@ -1,18 +1,15 @@
+import * as Renderer from "tja-renderer";
 import * as webjsx from "webjsx";
-import {
-  getGradientColor,
-  type HitInfo,
-  JUDGEABLE_NOTES,
-  JudgementMap,
-  JudgementType,
-  type JudgementValue,
-  NoteType,
-  PALETTE,
-  type ParsedChart,
-  RENDERABLE_NOTES,
-  type ViewOptions,
-} from "../../renderer-package/src/index.js";
 import { i18n } from "../utils/i18n.js";
+
+const { getGradientColor, JUDGEABLE_NOTES, JudgementMap, JudgementType, NoteType, PALETTE, RENDERABLE_NOTES } =
+  Renderer.Private;
+
+type HitInfo = Renderer.Private.HitInfo;
+type JudgementMap<T> = Renderer.Private.JudgementMap<T>;
+type JudgementValue = Renderer.Private.JudgementValue;
+type ParsedChart = Renderer.Private.ParsedChart;
+type ViewOptions = Renderer.Private.ViewOptions;
 
 export class NoteStatsDisplay extends HTMLElement {
   private _hit: HitInfo | null = null;
@@ -92,7 +89,11 @@ export class NoteStatsDisplay extends HTMLElement {
     return gap.toFixed(3);
   }
 
-  private getGapInfo(chart: ParsedChart, currentBarIdx: number, currentCharIdx: number): string | null {
+  private getGapInfo(
+    chart: Renderer.Private.ParsedChart,
+    currentBarIdx: number,
+    currentCharIdx: number,
+  ): string | null {
     const currentBar = chart.bars[currentBarIdx];
     const currentTotal = currentBar.length;
     // Get measure ratio, default to 1.0 if not present

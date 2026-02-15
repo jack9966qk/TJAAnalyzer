@@ -1,10 +1,14 @@
-import { type HitInfo, LocationMap, parseTJA, type RenderTexts } from "../../renderer-package/src/index.js";
+import * as Renderer from "tja-renderer";
 import type { JudgementOptions } from "../components/judgement-options.js";
 import type { SelectOptions } from "../components/select-options.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { loadUserProfile } from "../utils/user-profile.js";
 import { courseBranchSelect, noteStatsDisplay, tjaChart } from "../view/ui-elements.js";
+
+const { LocationMap, parseTJA } = Renderer.Private;
+type HitInfo = Renderer.Private.HitInfo;
+type RenderTexts = Renderer.Private.RenderTexts;
 
 /**
  * Updates the page URL to reflect the currently loaded ESE chart and difficulty.

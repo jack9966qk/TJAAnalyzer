@@ -1,5 +1,9 @@
-import { NoteType, parseTJA, type ViewOptions } from "../renderer-package/src/index.js";
+import * as Renderer from "tja-renderer";
 import { generateTJAFromSelection } from "../src/core/tja-exporter.js";
+
+const { NoteType, parseTJA } = Renderer.Private;
+
+type ViewOptions = Renderer.Private.ViewOptions;
 
 function runTest(name: string, fn: () => void) {
   try {

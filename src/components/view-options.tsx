@@ -1,9 +1,11 @@
+import * as Renderer from "tja-renderer";
 import * as webjsx from "webjsx";
-import { INSETS, LAYOUT_RATIOS } from "../../renderer-package/src/index.js";
 import { refreshChart } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { noteStatsDisplay } from "../view/ui-elements.js";
+
+const { INSETS, LAYOUT_RATIOS } = Renderer.Private;
 
 export class ViewOptions extends HTMLElement {
   private _statsVisible = true;

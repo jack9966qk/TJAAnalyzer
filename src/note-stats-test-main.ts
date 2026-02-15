@@ -1,14 +1,13 @@
-import {
-  createJudgementKey,
-  type HitInfo,
-  JUDGEABLE_NOTES,
-  JudgementMap,
-  type JudgementValue,
-  type ParsedChart,
-  type ViewOptions,
-} from "../renderer-package/src/index.js";
+import * as Renderer from "tja-renderer";
 import { NoteStatsDisplay } from "./components/note-stats.js";
 import "./style.css";
+
+const { createJudgementKey, JUDGEABLE_NOTES, JudgementMap } = Renderer.Private;
+
+type HitInfo = Renderer.Private.HitInfo;
+type JudgementValue = Renderer.Private.JudgementValue;
+type ParsedChart = Renderer.Private.ParsedChart;
+type ViewOptions = Renderer.Private.ViewOptions;
 
 // Ensure NoteStatsDisplay is registered
 console.log("NoteStatsDisplay module loaded", NoteStatsDisplay);

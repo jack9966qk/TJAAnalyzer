@@ -1,6 +1,9 @@
-import { NoteType } from "../../renderer-package/src/primitives.js";
-import type { ViewOptions } from "../../renderer-package/src/renderer.js";
-import type { ParsedChart } from "../../renderer-package/src/tja-parser.js";
+import * as Renderer from "tja-renderer";
+
+const { NoteType } = Renderer.Private;
+type NoteType = Renderer.Private.NoteType;
+type ViewOptions = Renderer.Private.ViewOptions;
+type ParsedChart = Renderer.Private.ParsedChart;
 
 interface ChartContext {
   bpm: number;
