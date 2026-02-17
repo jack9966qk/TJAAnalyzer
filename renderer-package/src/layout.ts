@@ -62,15 +62,15 @@ export interface LayoutRatios {
 }
 
 export const LAYOUT_RATIOS: LayoutRatios = {
-  barHeight: 0.14,
+  barHeight: 0.129,
   rowSpacing: 0.16,
-  noteRadiusSmall: 0.046,
-  noteRadiusBig: 0.06,
+  noteRadiusSmall: 0.0382,
+  noteRadiusBig: 0.0582,
   lineWidthBarBorder: 0.01,
   lineWidthCenter: 0.005,
-  lineWidthNoteOuter: 0.005,
-  lineWidthNoteInner: 0.009,
-  lineWidthNoteInnerBig: 0.009,
+  lineWidthNoteOuter: 0.0036,
+  lineWidthNoteInner: 0.0073,
+  lineWidthNoteInnerBig: 0.01,
   lineWidthUnderlineBorder: 0.006,
   barNumberFontSize: 0.045,
   statusFontSize: 0.045,

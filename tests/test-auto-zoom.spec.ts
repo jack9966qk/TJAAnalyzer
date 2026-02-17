@@ -31,7 +31,7 @@ test.describe("Auto Zoom Feature", () => {
     await page.setViewportSize({ width: 1920, height: 1080 });
     await page.waitForTimeout(1000);
 
-    await expect(zoomResetBtn).toHaveText("50%");
+    await expect(zoomResetBtn).toHaveText("67%");
     const text1 = await zoomResetBtn.textContent();
 
     await page.setViewportSize({ width: 1400, height: 900 });
@@ -39,7 +39,7 @@ test.describe("Auto Zoom Feature", () => {
     const text2 = await zoomResetBtn.textContent();
     expect(text1).not.toEqual(text2);
 
-    await expect(zoomResetBtn).toHaveText("80%");
+    await expect(zoomResetBtn).toHaveText("100%");
 
     await page.setViewportSize({ width: 600, height: 600 });
     await page.waitForTimeout(1000);
