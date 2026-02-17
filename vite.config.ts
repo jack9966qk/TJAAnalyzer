@@ -52,6 +52,7 @@ export default defineConfig({
       webjsx: path.resolve(process.cwd(), "node_modules/webjsx/dist/index.js"),
       "/src": path.resolve(process.cwd(), "src"),
     },
+    preserveSymlinks: true,
   },
   server: {
     port: 8082,
@@ -68,6 +69,8 @@ export default defineConfig({
         chartOnly: path.resolve(process.cwd(), "public/chart-only.html"),
         componentTest: path.resolve(process.cwd(), "public/component-test.html"),
         noteStatsTest: path.resolve(process.cwd(), "public/note-stats-test.html"),
+        playground: path.resolve(process.cwd(), "public/playground/index.html"),
+        playgroundBasic: path.resolve(process.cwd(), "public/playground/basic.html"),
       },
     },
     target: "esnext",
@@ -118,6 +121,7 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         navigateFallback: "/index.html",
+        navigateFallbackDenylist: [/^\/playground/],
         globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
         runtimeCaching: [
           {
