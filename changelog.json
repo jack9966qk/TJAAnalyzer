@@ -1,5 +1,25 @@
 [
   {
+    "hash": "d92d8ea",
+    "message": "Update version to 0.9.6.",
+    "date": "2026-02-18"
+  },
+  {
+    "hash": "badb185",
+    "message": "Slight adjustments to default layout ratios.",
+    "date": "2026-02-18"
+  },
+  {
+    "hash": "b1f4c8b",
+    "message": "Add a layout parameter for large note inner border width.",
+    "date": "2026-02-18"
+  },
+  {
+    "hash": "55e9e07",
+    "message": "Add a playground for renderer parameters to the renderer example package. Include the renderer example content in the app build process.",
+    "date": "2026-02-18"
+  },
+  {
     "hash": "00db0ab",
     "message": "Slight adjustments in default note sizes and line widths.",
     "date": "2026-02-16"
@@ -477,26 +497,6 @@
   {
     "hash": "95a852d",
     "message": "Add basic offline and auto update support to the PWA (not including ESE).",
-    "date": "2026-01-31"
-  },
-  {
-    "hash": "85429c5",
-    "message": "Migrate build process to vite.",
-    "date": "2026-01-31"
-  },
-  {
-    "hash": "62b144b",
-    "message": "Add spacing between header and chart when the header wraps.",
-    "date": "2026-01-31"
-  },
-  {
-    "hash": "7ad210a",
-    "message": "Add basic PWA support, making the web app installable and removing browser UI.",
-    "date": "2026-01-31"
-  },
-  {
-    "hash": "6e93727",
-    "message": "Update version to 0.7.8.",
     "date": "2026-01-31"
   }
 ]
