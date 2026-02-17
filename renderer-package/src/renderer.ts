@@ -1163,6 +1163,7 @@ function drawBarNotes(
     noteRadiusBig: rBig,
     lineWidthNoteOuter: borderOuterW,
     lineWidthNoteInner: borderInnerW,
+    lineWidthNoteInnerBig: borderInnerBigW,
     lineWidthUnderlineBorder: borderUnderlineW,
   } = constants;
   const { viewMode, selection } = options;
@@ -1234,7 +1235,8 @@ function drawBarNotes(
         options.hoveredNote.branch === currentBranch; // Match branch
 
       // Use helper for selection styles
-      const styles = getBorderStyles(isSelected, borderOuterW, borderInnerW, borderColor);
+      const effectiveBorderInnerWBase = radius === rBig ? borderInnerBigW : borderInnerW;
+      const styles = getBorderStyles(isSelected, borderOuterW, effectiveBorderInnerWBase, borderColor);
       const effectiveBorderOuterW = styles.outerW;
       const effectiveBorderInnerW = styles.innerW;
       let effectiveInnerBorderColor = styles.innerColor;
@@ -1446,6 +1448,7 @@ function drawLongNotes(
     noteRadiusBig: rBig,
     lineWidthNoteOuter: borderOuterW,
     lineWidthNoteInner: borderInnerW,
+    lineWidthNoteInnerBig: borderInnerBigW,
   } = constants;
 
   let currentLongNote: {
@@ -1487,8 +1490,10 @@ function drawLongNotes(
       } else if (char === NoteType.End) {
         if (currentLongNote) {
           // End the long note
-          const radius =
-            currentLongNote.type === NoteType.DrumrollBig || currentLongNote.type === NoteType.Kusudama ? rBig : rSmall;
+          const isBig = currentLongNote.type === NoteType.DrumrollBig || currentLongNote.type === NoteType.Kusudama;
+          const radius = isBig ? rBig : rSmall;
+          const effectiveBorderInnerW = isBig ? borderInnerBigW : borderInnerW;
+
           const startX = barX + segmentStartIdx * noteStep;
           const endX = barX + j * noteStep;
 
@@ -1519,7 +1524,7 @@ function drawLongNotes(
                 hasStartCap,
                 hasEndCap,
                 borderOuterW,
-                borderInnerW,
+                effectiveBorderInnerW,
                 viewMode,
                 count,
                 currentLongNote.type === NoteType.Kusudama,
@@ -1536,7 +1541,7 @@ function drawLongNotes(
                 hasStartCap,
                 hasEndCap,
                 borderOuterW,
-                borderInnerW,
+                effectiveBorderInnerW,
                 viewMode,
                 currentLongNote.type,
                 isSelected,
@@ -1552,8 +1557,10 @@ function drawLongNotes(
 
     // If still active at end of bar, draw segment to end
     if (segmentActive && currentLongNote) {
-      const radius =
-        currentLongNote.type === NoteType.DrumrollBig || currentLongNote.type === NoteType.Kusudama ? rBig : rSmall;
+      const isBig = currentLongNote.type === NoteType.DrumrollBig || currentLongNote.type === NoteType.Kusudama;
+      const radius = isBig ? rBig : rSmall;
+      const effectiveBorderInnerW = isBig ? borderInnerBigW : borderInnerW;
+
       const startX = barX + segmentStartIdx * noteStep;
       const endX = barX + frame.width; // Visual end of bar
 
@@ -1583,7 +1590,7 @@ function drawLongNotes(
             hasStartCap,
             hasEndCap,
             borderOuterW,
-            borderInnerW,
+            effectiveBorderInnerW,
             viewMode,
             count,
             currentLongNote.type === NoteType.Kusudama,
@@ -1599,7 +1606,7 @@ function drawLongNotes(
             hasStartCap,
             hasEndCap,
             borderOuterW,
-            borderInnerW,
+            effectiveBorderInnerW,
             viewMode,
             currentLongNote.type,
             isSelected,

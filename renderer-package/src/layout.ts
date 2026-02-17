@@ -47,6 +47,8 @@ export interface LayoutRatios {
   lineWidthNoteOuter: number;
   /** Actual visible thickness of the inner (white/colored) note border ring. */
   lineWidthNoteInner: number;
+  /** Actual visible thickness of the inner (white/colored) large note border ring. */
+  lineWidthNoteInnerBig: number;
   /** Stroke width of the judgement underline border. */
   lineWidthUnderlineBorder: number;
   /** Font size for bar number labels above each bar. */
@@ -68,6 +70,7 @@ export const LAYOUT_RATIOS: LayoutRatios = {
   lineWidthCenter: 0.005,
   lineWidthNoteOuter: 0.005,
   lineWidthNoteInner: 0.009,
+  lineWidthNoteInnerBig: 0.009,
   lineWidthUnderlineBorder: 0.006,
   barNumberFontSize: 0.045,
   statusFontSize: 0.045,
@@ -104,6 +107,7 @@ export interface RenderConstants {
   lineWidthCenter: number;
   lineWidthNoteOuter: number;
   lineWidthNoteInner: number;
+  lineWidthNoteInnerBig: number;
   lineWidthUnderlineBorder: number;
   barNumberFontSize: number;
   statusFontSize: number;
@@ -551,6 +555,7 @@ export function calculateLayout(
     lineWidthCenter: baseBarWidth * resolved.lineWidthCenter,
     lineWidthNoteOuter: baseBarWidth * resolved.lineWidthNoteOuter,
     lineWidthNoteInner: baseBarWidth * resolved.lineWidthNoteInner,
+    lineWidthNoteInnerBig: baseBarWidth * resolved.lineWidthNoteInnerBig,
     lineWidthUnderlineBorder: baseBarWidth * resolved.lineWidthUnderlineBorder,
     barNumberFontSize: baseBarWidth * resolved.barNumberFontSize,
     statusFontSize: baseBarWidth * resolved.statusFontSize,
