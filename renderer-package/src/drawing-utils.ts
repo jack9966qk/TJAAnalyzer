@@ -137,3 +137,14 @@ export function getGradientColor(delta: number): string {
   }
   return `rgb(${r}, ${g}, ${b})`;
 }
+
+/**
+ * Snaps a coordinate to the nearest device pixel for crisp rendering of lines with a given width.
+ * @param value The logical coordinate to snap
+ * @param lineWidth The logical line width
+ * @param dpr Device pixel ratio
+ */
+export function snapForDevicePixel(value: number, lineWidth: number, dpr: number): number {
+  const deviceBorderW = Math.round(lineWidth * dpr);
+  return deviceBorderW % 2 === 1 ? (Math.round(value * dpr) + 0.5) / dpr : Math.round(value * dpr) / dpr;
+}

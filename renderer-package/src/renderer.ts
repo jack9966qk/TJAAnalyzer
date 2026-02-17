@@ -1,4 +1,10 @@
-import { drawGradientLine, drawGradientRect, drawTextWithCompression, getGradientColor } from "./drawing-utils.js";
+import {
+  drawGradientLine,
+  drawGradientRect,
+  drawTextWithCompression,
+  getGradientColor,
+  snapForDevicePixel,
+} from "./drawing-utils.js";
 import { getBranchLineAt, getChartElementAt, getNoteAt, getNotePosition, type HitInfo } from "./hit-testing.js";
 import {
   type BranchLayoutInfo,
@@ -463,13 +469,8 @@ function drawBarBackground(
 ): void {
   const { x, y, width, height } = frame;
 
-  // Snap a coordinate to the nearest half device pixel for crisp 1-device-pixel lines.
-  // When a stroke of width W falls on a coordinate, it spans [coord - W/2, coord + W/2].
-  // If W is an odd number of device pixels, the coordinate must land on a half device pixel
-  // so the stroke occupies exactly those pixels.
-  const deviceBorderW = Math.round(borderW * dpr);
-  const snapLine = (v: number) =>
-    deviceBorderW % 2 === 1 ? (Math.round(v * dpr) + 0.5) / dpr : Math.round(v * dpr) / dpr;
+  const snapLine = (v: number) => snapForDevicePixel(v, borderW, dpr);
+  const snappedBorderW = Math.max(1, Math.round(borderW * dpr)) / dpr;
 
   let fillColor = PALETTE.branches.default;
   if (branchType) {
@@ -518,7 +519,7 @@ function drawBarBackground(
     const numBeats = width / beatWidth;
 
     canvasContext.strokeStyle = PALETTE.ui.gridLine; // Use Palette Color
-    canvasContext.lineWidth = borderW;
+    canvasContext.lineWidth = snappedBorderW;
     canvasContext.beginPath();
     // Draw lines at integer beat intervals relative to bar start
     for (let i = 1; i < numBeats - 0.01; i++) {
@@ -536,7 +537,7 @@ function drawBarBackground(
   const sXW = snapLine(x + width);
 
   canvasContext.strokeStyle = PALETTE.ui.barBorder;
-  canvasContext.lineWidth = borderW;
+  canvasContext.lineWidth = snappedBorderW;
   canvasContext.beginPath();
   canvasContext.moveTo(x, sY);
   canvasContext.lineTo(x + width, sY);
@@ -546,7 +547,7 @@ function drawBarBackground(
 
   // Draw Bar Border (Vertical)
   canvasContext.strokeStyle = PALETTE.ui.barVerticalLine;
-  canvasContext.lineWidth = borderW;
+  canvasContext.lineWidth = snappedBorderW;
   canvasContext.beginPath();
   canvasContext.moveTo(sX, y);
   canvasContext.lineTo(sX, y + height);
@@ -569,6 +570,7 @@ function drawBarLabels(
   barBorderWidth: number,
   isBranchStart: boolean = false,
   showText: boolean = true,
+  dpr: number = 1,
 ): void {
   const { x, y, width, height } = frame;
   canvasContext.save();
@@ -580,23 +582,28 @@ function drawBarLabels(
   const topY = showText ? y - offsetY - 3 * lineHeight : y;
 
   // Draw Bar Line Extensions (Left and Right)
+  const snappedBarBorderWidth = Math.max(1, Math.round(barBorderWidth * dpr)) / dpr;
   if (showText) {
-    canvasContext.lineWidth = barBorderWidth;
+    canvasContext.lineWidth = snappedBarBorderWidth;
+
+    const snap = (v: number) => snapForDevicePixel(v, barBorderWidth, dpr);
+    const snX = snap(x);
+    const snXW = snap(x + width);
 
     // Left Extension
     if (!isBranchStart) {
       canvasContext.beginPath();
       canvasContext.strokeStyle = PALETTE.ui.barVerticalLine;
-      canvasContext.moveTo(x, y);
-      canvasContext.lineTo(x, topY);
+      canvasContext.moveTo(snX, y);
+      canvasContext.lineTo(snX, topY);
       canvasContext.stroke();
     }
 
     // Right Extension
     canvasContext.beginPath();
     canvasContext.strokeStyle = PALETTE.ui.barVerticalLine;
-    canvasContext.moveTo(x + width, y);
-    canvasContext.lineTo(x + width, topY);
+    canvasContext.moveTo(snXW, y);
+    canvasContext.lineTo(snXW, topY);
     canvasContext.stroke();
 
     // Text Padding
@@ -685,8 +692,8 @@ function drawBarLabels(
       if (!isBranchStart) {
         canvasContext.beginPath();
         canvasContext.strokeStyle = PALETTE.status.line;
-        canvasContext.lineWidth = barBorderWidth;
-        const lineX = x;
+        canvasContext.lineWidth = snappedBarBorderWidth;
+        const lineX = snapForDevicePixel(x, barBorderWidth, dpr);
         canvasContext.moveTo(lineX, y + height);
         canvasContext.lineTo(lineX, topY);
         canvasContext.stroke();
@@ -699,9 +706,10 @@ function drawBarLabels(
       canvasContext.beginPath();
       canvasContext.strokeStyle = PALETTE.status.line;
       canvasContext.lineWidth = barBorderWidth * 0.8; // Slightly thinner
+      const snapGrid = (v: number) => snapForDevicePixel(v, barBorderWidth, dpr);
 
       changeIndices.forEach((idx) => {
-        const lineX = x + (idx / noteCount) * width;
+        const lineX = snapGrid(x + (idx / noteCount) * width);
         canvasContext.moveTo(lineX, y + height); // From bottom of bar
         canvasContext.lineTo(lineX, topY); // To top of labels
       });
@@ -846,8 +854,10 @@ function drawBarBackgroundWrapper(
       canvasContext.strokeStyle = PALETTE.ui.selectionBorder;
       canvasContext.lineWidth = constants.lineWidthBarBorder * 3;
       // Draw single continuous highlight from top of extension to bottom of lane
-      canvasContext.moveTo(frame.x, topY);
-      canvasContext.lineTo(frame.x, frame.y + frame.height);
+      const snap = (v: number) => snapForDevicePixel(v, constants.lineWidthBarBorder, dpr);
+      const snX = snap(frame.x);
+      canvasContext.moveTo(snX, topY);
+      canvasContext.lineTo(snX, frame.y + frame.height);
       canvasContext.stroke();
       canvasContext.restore();
     }
@@ -856,8 +866,10 @@ function drawBarBackgroundWrapper(
     canvasContext.beginPath();
     canvasContext.strokeStyle = PALETTE.branches.startLine;
     canvasContext.lineWidth = constants.lineWidthBarBorder;
-    canvasContext.moveTo(frame.x, topY);
-    canvasContext.lineTo(frame.x, frame.y + frame.height);
+    const snap = (v: number) => snapForDevicePixel(v, constants.lineWidthBarBorder, dpr);
+    const snX = snap(frame.x);
+    canvasContext.moveTo(snX, topY);
+    canvasContext.lineTo(snX, frame.y + frame.height);
     canvasContext.stroke();
   }
 
@@ -875,6 +887,7 @@ function drawBarBackgroundWrapper(
     constants.lineWidthBarBorder,
     isBranchStart,
     showText,
+    dpr,
   );
 
   if (info.isLoopStart && chart.loop) {
