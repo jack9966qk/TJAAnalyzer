@@ -1,5 +1,10 @@
 [
   {
+    "hash": "00db0ab",
+    "message": "Slight adjustments in default note sizes and line widths.",
+    "date": "2026-02-16"
+  },
+  {
     "hash": "830f74a",
     "message": "Update version to 0.9.5.",
     "date": "2026-02-16"
@@ -492,11 +497,6 @@
   {
     "hash": "6e93727",
     "message": "Update version to 0.7.8.",
-    "date": "2026-01-31"
-  },
-  {
-    "hash": "4d55ac2",
-    "message": "Wrap chart difficulty and BPM headers if title or subtitle is too long.",
     "date": "2026-01-31"
   }
 ]
