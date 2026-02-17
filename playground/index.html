@@ -3,26 +3,703 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TJA Renderer Example</title>
+    <title>TJA Renderer Playground</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-    body {
+    :root {
+      --bg-primary: #0f1117;
+      --bg-secondary: #1a1d27;
+      --bg-tertiary: #242834;
+      --bg-input: #2a2e3b;
+      --border-color: #353a4a;
+      --border-focus: #6366f1;
+      --text-primary: #e8eaed;
+      --text-secondary: #9aa0b0;
+      --text-muted: #6b7185;
+      --accent: #6366f1;
+      --accent-hover: #818cf8;
+      --accent-glow: rgba(99, 102, 241, 0.15);
+      --success: #34d399;
+      --warning: #fbbf24;
+      --danger: #f87171;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+      --transition-fast: 150ms ease;
+      --transition-normal: 250ms ease;
+    }
+
+    * {
       margin: 0;
       padding: 0;
-      background: #f0f0f0;
-      /* Enable vertical scroll, but hide horizontal overflow if any */
-      overflow-y: auto;
-      overflow-x: hidden;
+      box-sizing: border-box;
     }
-    canvas {
+
+    body {
+      font-family: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header .nav-link {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color var(--transition-fast);
+    }
+
+    .header .nav-link:hover {
+      color: var(--text-primary);
+    }
+
+    /* Main Layout */
+    .main-layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 360px;
+      min-width: 360px;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      overflow-y: auto;
+      padding-bottom: 24px;
+    }
+
+    .sidebar::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .sidebar::-webkit-scrollbar-thumb {
+      background: var(--border-color);
+      border-radius: 3px;
+    }
+
+    .sidebar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    /* Sections */
+    .section {
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      cursor: pointer;
+      user-select: none;
+      transition: background var(--transition-fast);
+    }
+
+    .section-header:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+    }
+
+    .section-chevron {
+      width: 16px;
+      height: 16px;
+      color: var(--text-muted);
+      transition: transform var(--transition-normal);
+    }
+
+    .section-body {
+      padding: 0 20px 16px;
+    }
+
+    .section.collapsed .section-chevron {
+      transform: rotate(-90deg);
+    }
+
+    .section.collapsed .section-body {
+      display: none;
+    }
+
+    /* Controls */
+    .control-group {
+      margin-bottom: 14px;
+    }
+
+    .control-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .control-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .control-label-text {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .control-label-value {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      font-variant-numeric: tabular-nums;
+      min-width: 50px;
+      text-align: right;
+    }
+
+    /* Range Slider */
+    .range-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      background: var(--bg-input);
+      border-radius: 2px;
+      outline: none;
+      transition: background var(--transition-fast);
+    }
+
+    .range-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      transition:
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
+    }
+
+    .range-slider::-webkit-slider-thumb:hover {
+      box-shadow: 0 0 0 6px var(--accent-glow);
+      transform: scale(1.15);
+    }
+
+    .range-slider::-moz-range-thumb {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    /* Number Input */
+    .number-input {
+      width: 100%;
+      padding: 7px 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: "Inter", sans-serif;
+      font-size: 13px;
+      font-variant-numeric: tabular-nums;
+      outline: none;
+      transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+    }
+
+    .number-input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    /* Select */
+    .select-input {
+      width: 100%;
+      padding: 7px 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: "Inter", sans-serif;
+      font-size: 13px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color var(--transition-fast);
+    }
+
+    .select-input:focus {
+      border-color: var(--border-focus);
+    }
+
+    /* Toggle */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 0;
+    }
+
+    .toggle-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-track {
+      position: absolute;
+      inset: 0;
+      background: var(--bg-input);
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      transition:
+        background var(--transition-normal),
+        border-color var(--transition-normal);
+    }
+
+    .toggle-thumb {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 14px;
+      height: 14px;
+      background: var(--text-secondary);
+      border-radius: 50%;
+      transition:
+        transform var(--transition-normal),
+        background var(--transition-normal);
+    }
+
+    .toggle-switch input:checked + .toggle-track {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .toggle-switch input:checked + .toggle-track .toggle-thumb {
+      transform: translateX(16px);
+      background: white;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      font-family: "Inter", sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .btn:hover {
+      background: var(--bg-input);
+      color: var(--text-primary);
+      border-color: var(--accent);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn-row .btn {
+      flex: 1;
+    }
+
+    /* Textarea */
+    .tja-textarea {
+      width: 100%;
+      min-height: 120px;
+      max-height: 300px;
+      padding: 10px 12px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-primary);
+      font-family: "SF Mono", "JetBrains Mono", "Fira Code", monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      outline: none;
+      resize: vertical;
+      transition: border-color var(--transition-fast);
+    }
+
+    .tja-textarea:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    /* Canvas Area */
+    .canvas-area {
+      flex: 1;
+      overflow: auto;
+      background: #d4d4d4;
+      position: relative;
+    }
+
+    .canvas-area canvas {
       display: block;
       width: 100%;
-      /* Height will be set dynamically by the renderer */
+    }
+
+    .canvas-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-height: 400px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    /* Status bar */
+    .status-bar {
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+      padding: 6px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .status-bar .status-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+
+    /* Tooltip */
+    .control-label-text[data-tooltip] {
+      cursor: help;
+      border-bottom: 1px dotted var(--text-muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .main-layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        min-width: unset;
+        max-height: 50vh;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+      }
+    }
+
+    /* Inline input row - label + input side by side */
+    .control-inline {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .control-inline:last-child {
+      margin-bottom: 0;
+    }
+
+    .control-inline .control-label-text {
+      flex-shrink: 0;
+      min-width: 100px;
+    }
+
+    .control-inline .number-input {
+      width: 80px;
+      flex-shrink: 0;
+    }
+
+    .control-inline .range-slider {
+      flex: 1;
+    }
+
+    .control-inline .control-label-value {
+      flex-shrink: 0;
+    }
+
+    /* Ratio row: label — slider — value — reset */
+    .ratio-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-rows: auto auto;
+      gap: 2px 8px;
+      margin-bottom: 12px;
+      align-items: center;
+    }
+
+    .ratio-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .ratio-row .control-label-text {
+      grid-column: 1;
+      grid-row: 1;
+      font-size: 12px;
+    }
+
+    .ratio-row .control-label-value {
+      grid-column: 2;
+      grid-row: 1;
+      font-size: 11px;
+    }
+
+    .ratio-row .range-slider {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+
+    .ratio-reset-btn {
+      width: 18px;
+      height: 18px;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 3px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      font-size: 10px;
+      transition: all var(--transition-fast);
+      opacity: 0;
+    }
+
+    .ratio-row:hover .ratio-reset-btn,
+    .ratio-row .ratio-reset-btn.modified {
+      opacity: 1;
+    }
+
+    .ratio-reset-btn:hover {
+      background: var(--bg-input);
+      color: var(--text-primary);
+    }
+
+    .ratio-row .ratio-reset-btn.modified {
+      color: var(--warning);
     }
     </style>
-    <script type="module" crossorigin src="/playground/assets/main-DV4l35D6.js"></script>
+    <script type="module" crossorigin src="/playground/assets/main-ClZfixeY.js"></script>
     <link rel="modulepreload" crossorigin href="/playground/assets/api-C2mq9Ght.js">
   </head>
   <body>
-    <canvas id="chart-canvas"></canvas>
+    <!-- Header -->
+    <div class="header">
+      <h1>TJA Renderer Playground</h1>
+      <a class="nav-link" href="basic.html">← Basic Example</a>
+    </div>
+
+    <div class="main-layout">
+      <!-- Sidebar Controls -->
+      <div class="sidebar" id="sidebar">
+        <!-- TJA Content Section -->
+        <div class="section" id="section-tja">
+          <div class="section-header" onclick="toggleSection('section-tja')">
+            <span class="section-title">TJA Content</span>
+            <svg class="section-chevron" viewBox="0 0 20 20" fill="currentColor">
+              <path
+                fill-rule="evenodd"
+                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+          <div class="section-body">
+            <textarea
+              class="tja-textarea"
+              id="tja-input"
+              spellcheck="false"
+              placeholder="Paste TJA content here..."
+            ></textarea>
+            <div class="btn-row">
+              <button class="btn" id="btn-load-example">Load Example</button>
+              <button class="btn btn-primary" id="btn-render">Render</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Render Options Section -->
+        <div class="section" id="section-options">
+          <div class="section-header" onclick="toggleSection('section-options')">
+            <span class="section-title">Render Options</span>
+            <svg class="section-chevron" viewBox="0 0 20 20" fill="currentColor">
+              <path
+                fill-rule="evenodd"
+                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+          <div class="section-body">
+            <div class="control-group">
+              <div class="control-label"><span class="control-label-text">Course</span></div>
+              <select class="select-input" id="opt-course">
+                <option value="">(auto)</option>
+                <option value="Edit">Edit (Ura)</option>
+                <option value="Oni" selected>Oni</option>
+                <option value="Hard">Hard</option>
+                <option value="Normal">Normal</option>
+                <option value="Easy">Easy</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <div class="control-label">
+                <span class="control-label-text">Beats Per Line</span>
+                <span class="control-label-value" id="val-bpl">16</span>
+              </div>
+              <input type="range" class="range-slider" id="opt-bpl" min="4" max="64" step="4" value="16">
+            </div>
+            <div class="control-group">
+              <div class="control-label">
+                <span class="control-label-text">DPR (Device Pixel Ratio)</span>
+                <span class="control-label-value" id="val-dpr">2</span>
+              </div>
+              <input type="range" class="range-slider" id="opt-dpr" min="0.5" max="4" step="0.5" value="2">
+            </div>
+            <div class="control-group">
+              <div class="toggle-row">
+                <span class="toggle-label">Show All Branches</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="opt-branches">
+                  <div class="toggle-track">
+                    <div class="toggle-thumb"></div>
+                  </div>
+                </label>
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="toggle-row">
+                <span class="toggle-label">Show Attribution</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="opt-attribution" checked>
+                  <div class="toggle-track">
+                    <div class="toggle-thumb"></div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Layout Ratios Section -->
+        <div class="section" id="section-ratios">
+          <div class="section-header" onclick="toggleSection('section-ratios')">
+            <span class="section-title">Layout Ratios</span>
+            <svg class="section-chevron" viewBox="0 0 20 20" fill="currentColor">
+              <path
+                fill-rule="evenodd"
+                d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </div>
+          <div class="section-body">
+            <div id="ratios-container"></div>
+            <div class="btn-row">
+              <button class="btn" id="btn-reset-ratios">Reset All</button>
+              <button class="btn" id="btn-copy-ratios">Copy as JSON</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Canvas Area -->
+      <div class="canvas-area" id="canvas-area">
+        <canvas id="chart-canvas"></canvas>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+      <span class="status-item">
+        <span class="status-dot"></span>
+        <span id="status-text">Ready</span>
+      </span>
+      <span id="render-time"></span>
+    </div>
+
   </body>
 </html>
