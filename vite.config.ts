@@ -56,6 +56,12 @@ export default defineConfig({
   },
   server: {
     port: 8082,
+    watch: {
+      ignored: ["!**/node_modules/tja-renderer/**"],
+    },
+  },
+  optimizeDeps: {
+    exclude: ["tja-renderer"],
   },
   preview: {
     allowedHosts: ["tjaanalyzer-dev-ja.ckq.me"],
