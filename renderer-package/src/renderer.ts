@@ -1388,7 +1388,6 @@ function drawDrumrollSegment(
   startCap: boolean,
   endCap: boolean,
   borderOuterW: number,
-  borderInnerW: number,
   viewMode: "original" | "judgements" | "judgements-underline" | "judgements-text",
   _type: string,
   isSelected: boolean = false,
@@ -1402,7 +1401,8 @@ function drawDrumrollSegment(
   }
 
   // Handle Selection
-  const borderStyles = getBorderStyles(isSelected, borderOuterW, borderInnerW, innerBorderColor);
+  // Drumrolls ignore the inner border width to retain the total size but show more fill color.
+  const borderStyles = getBorderStyles(isSelected, borderOuterW, 0, innerBorderColor);
 
   drawCapsule(
     canvasContext,
@@ -1621,7 +1621,6 @@ function drawLongNotes(
                 hasStartCap,
                 hasEndCap,
                 borderOuterW,
-                effectiveBorderInnerW,
                 viewMode,
                 currentLongNote.type,
                 isSelected,
@@ -1686,7 +1685,6 @@ function drawLongNotes(
             hasStartCap,
             hasEndCap,
             borderOuterW,
-            effectiveBorderInnerW,
             viewMode,
             currentLongNote.type,
             isSelected,
