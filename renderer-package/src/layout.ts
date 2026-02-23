@@ -66,7 +66,7 @@ export const LAYOUT_RATIOS: LayoutRatios = {
   rowSpacing: 0.16,
   noteRadiusSmall: 0.0382,
   noteRadiusBig: 0.0582,
-  lineWidthBarBorder: 0.01,
+  lineWidthBarBorder: 0.0072,
   lineWidthCenter: 0.005,
   lineWidthNoteOuter: 0.0036,
   lineWidthNoteInner: 0.0073,
