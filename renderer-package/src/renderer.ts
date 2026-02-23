@@ -125,7 +125,7 @@ export const PALETTE = {
     hs: "#8B0000",
     line: "#666",
   },
-  gogo: "#f8a33cff",
+  gogo: "#f8a33c",
 };
 
 export interface RenderContext {
@@ -456,6 +456,156 @@ function drawGogoIndicator(
   }
 }
 
+function drawVerticalBarLine(
+  canvasContext: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  height: number,
+  topY: number,
+  type: "branch" | "status" | "barLine",
+  config: {
+    barBorderWidth: number;
+    dpr: number;
+  },
+) {
+  const { barBorderWidth, dpr } = config;
+  const snap = (v: number) => snapForDevicePixel(v, barBorderWidth, dpr);
+  const snappedWidth = Math.max(1, Math.round(barBorderWidth * dpr)) / dpr;
+  const lineX = snap(x);
+
+  canvasContext.beginPath();
+  canvasContext.lineWidth = snappedWidth;
+
+  if (type === "branch") {
+    canvasContext.strokeStyle = PALETTE.branches.startLine;
+    canvasContext.moveTo(lineX, topY); // From top of labels
+    canvasContext.lineTo(lineX, y + height); // To bottom of bar
+  } else if (type === "status") {
+    canvasContext.strokeStyle = PALETTE.status.line;
+    canvasContext.moveTo(lineX, topY); // From top of labels
+    canvasContext.lineTo(lineX, y + height); // To bottom of bar
+  } else if (type === "barLine") {
+    canvasContext.strokeStyle = PALETTE.ui.barVerticalLine;
+    canvasContext.moveTo(lineX, topY); // From top of labels
+    canvasContext.lineTo(lineX, y + height); // To bottom of bar
+  }
+
+  canvasContext.stroke();
+}
+
+export interface BarStatusLabel {
+  type: "BPM" | "HS";
+  val: number;
+  index: number;
+}
+
+function getBarStatusLabels(
+  params: BarParams | undefined,
+  isFirstBar: boolean,
+  prevParams?: BarParams,
+  prevNoteCount?: number,
+): BarStatusLabel[] {
+  const labels: BarStatusLabel[] = [];
+  if (!params) return labels;
+
+  if (isFirstBar) {
+    labels.push({ type: "BPM", val: params.bpm, index: 0 });
+    if (params.scroll !== 1.0) {
+      labels.push({ type: "HS", val: params.scroll, index: 0 });
+    }
+  }
+
+  if (prevParams && prevNoteCount !== undefined) {
+    if (prevParams.bpmChanges) {
+      for (const c of prevParams.bpmChanges) {
+        if (c.index === prevNoteCount) {
+          labels.push({ type: "BPM", val: c.bpm, index: 0 });
+        }
+      }
+    }
+    if (prevParams.scrollChanges) {
+      for (const c of prevParams.scrollChanges) {
+        if (c.index === prevNoteCount) {
+          labels.push({ type: "HS", val: c.scroll, index: 0 });
+        }
+      }
+    }
+  }
+
+  if (params.bpmChanges) {
+    for (const c of params.bpmChanges) {
+      const exists = labels.some((l) => l.type === "BPM" && l.index === c.index);
+      if (!exists) labels.push({ type: "BPM", val: c.bpm, index: c.index });
+    }
+  }
+
+  if (params.scrollChanges) {
+    for (const c of params.scrollChanges) {
+      const exists = labels.some((l) => l.type === "HS" && l.index === c.index);
+      if (!exists) labels.push({ type: "HS", val: c.scroll, index: c.index });
+    }
+  }
+
+  return labels;
+}
+
+function drawBarLines(
+  canvasContext: CanvasRenderingContext2D,
+  frame: Frame,
+  params: BarParams | undefined,
+  noteCount: number,
+  barBorderWidth: number,
+  statusFontSize: number,
+  barNumberOffsetY: number,
+  isBranchStart: boolean,
+  showText: boolean,
+  dpr: number,
+  isFirstBar: boolean,
+  prevParams?: BarParams,
+  prevNoteCount?: number,
+) {
+  const { x, y, width, height } = frame;
+  const lineHeight = statusFontSize;
+  const topY = showText ? y - barNumberOffsetY - 3 * lineHeight : y;
+
+  const positions = new Map<number, "branch" | "status" | "barLine">();
+
+  // Vertical Bar Lines - Medium Priority
+  positions.set(0, "barLine"); // Left edge (can be overwritten by branch/status)
+  positions.set(Math.round(width * 100) / 100, "barLine"); // Right edge
+
+  // Status Lines (BPM/HS/Scroll) - High Priority
+  const labels = getBarStatusLabels(params, isFirstBar, prevParams, prevNoteCount);
+  const uniqueIndices = new Set(labels.map((l) => l.index));
+
+  uniqueIndices.forEach((idx) => {
+    // Only map valid proportional indices (or index 0 when empty)
+    if (noteCount > 0 && idx < noteCount) {
+      const pos = (idx / noteCount) * width;
+      positions.set(Math.round(pos * 100) / 100, "status");
+    } else if (idx === 0) {
+      positions.set(0, "status");
+    }
+  });
+
+  // Branch Start - Highest Priority (Left edge only)
+  if (isBranchStart) {
+    positions.set(0, "branch");
+  }
+
+  // Render all line sorted by position
+  const sortedPositions = Array.from(positions.keys()).sort((a, b) => a - b);
+
+  sortedPositions.forEach((pos) => {
+    const type = positions.get(pos);
+    if (!type) return;
+    drawVerticalBarLine(canvasContext, x + pos, y, height, topY, type, {
+      barBorderWidth,
+      dpr,
+    });
+  });
+}
+
 function drawBarBackground(
   canvasContext: CanvasRenderingContext2D,
   frame: Frame,
@@ -510,31 +660,31 @@ function drawBarBackground(
     drawExtension(x + width, overExtendWidth, false);
   }
 
-  // 1. Fill Background
+  // Fill Background
   canvasContext.fillStyle = fillColor;
   canvasContext.fillRect(x, y, width, height);
 
   // Draw Grid Lines (Beat Dividers)
   if (beatWidth > 0) {
-    const numBeats = width / beatWidth;
-
-    canvasContext.strokeStyle = PALETTE.ui.gridLine; // Use Palette Color
+    canvasContext.strokeStyle = PALETTE.ui.gridLine;
     canvasContext.lineWidth = snappedBorderW;
     canvasContext.beginPath();
+
+    const numBeats = width / beatWidth;
     // Draw lines at integer beat intervals relative to bar start
+    // We use a small epsilon for float comparison safety
     for (let i = 1; i < numBeats - 0.01; i++) {
       const lineX = snapLine(x + i * beatWidth);
       canvasContext.moveTo(lineX, y);
       canvasContext.lineTo(lineX, y + height);
     }
+
     canvasContext.stroke();
   }
 
   // Draw Bar Border (Horizontal)
   const sY = snapLine(y);
   const sYH = snapLine(y + height);
-  const sX = snapLine(x);
-  const sXW = snapLine(x + width);
 
   canvasContext.strokeStyle = PALETTE.ui.barBorder;
   canvasContext.lineWidth = snappedBorderW;
@@ -543,16 +693,6 @@ function drawBarBackground(
   canvasContext.lineTo(x + width, sY);
   canvasContext.moveTo(x, sYH);
   canvasContext.lineTo(x + width, sYH);
-  canvasContext.stroke();
-
-  // Draw Bar Border (Vertical)
-  canvasContext.strokeStyle = PALETTE.ui.barVerticalLine;
-  canvasContext.lineWidth = snappedBorderW;
-  canvasContext.beginPath();
-  canvasContext.moveTo(sX, y);
-  canvasContext.lineTo(sX, y + height);
-  canvasContext.moveTo(sXW, y);
-  canvasContext.lineTo(sXW, y + height);
   canvasContext.stroke();
 }
 
@@ -568,43 +708,20 @@ function drawBarLabels(
   noteCount: number,
   isFirstBar: boolean,
   barBorderWidth: number,
-  isBranchStart: boolean = false,
   showText: boolean = true,
   dpr: number = 1,
+  prevParams?: BarParams,
+  prevNoteCount?: number,
 ): void {
-  const { x, y, width, height } = frame;
+  const { x, y, width } = frame;
   canvasContext.save();
 
   const lineHeight = statusFontSize;
-  // Stack: BarNum (0), BPM (1), HS (2)
-  // Baseline of HS is: y - offsetY - 2 * lineHeight
-  // Top of HS is approx: y - offsetY - 3 * lineHeight
-  const topY = showText ? y - offsetY - 3 * lineHeight : y;
 
   // Draw Bar Line Extensions (Left and Right)
   const snappedBarBorderWidth = Math.max(1, Math.round(barBorderWidth * dpr)) / dpr;
   if (showText) {
     canvasContext.lineWidth = snappedBarBorderWidth;
-
-    const snap = (v: number) => snapForDevicePixel(v, barBorderWidth, dpr);
-    const snX = snap(x);
-    const snXW = snap(x + width);
-
-    // Left Extension
-    if (!isBranchStart) {
-      canvasContext.beginPath();
-      canvasContext.strokeStyle = PALETTE.ui.barVerticalLine;
-      canvasContext.moveTo(snX, y);
-      canvasContext.lineTo(snX, topY);
-      canvasContext.stroke();
-    }
-
-    // Right Extension
-    canvasContext.beginPath();
-    canvasContext.strokeStyle = PALETTE.ui.barVerticalLine;
-    canvasContext.moveTo(snXW, y);
-    canvasContext.lineTo(snXW, topY);
-    canvasContext.stroke();
 
     // Text Padding
     const textPadding = statusFontSize * 0.2;
@@ -639,34 +756,7 @@ function drawBarLabels(
     return;
   }
 
-  // 2. Prepare Labels
-  interface Label {
-    type: "BPM" | "HS";
-    val: number;
-    index: number;
-  }
-  const labels: Label[] = [];
-
-  if (isFirstBar) {
-    labels.push({ type: "BPM", val: params.bpm, index: 0 });
-    if (params.scroll !== 1.0) {
-      labels.push({ type: "HS", val: params.scroll, index: 0 });
-    }
-  }
-
-  if (params.bpmChanges) {
-    for (const c of params.bpmChanges) {
-      const exists = labels.some((l) => l.type === "BPM" && l.index === c.index);
-      if (!exists) labels.push({ type: "BPM", val: c.bpm, index: c.index });
-    }
-  }
-
-  if (params.scrollChanges) {
-    for (const c of params.scrollChanges) {
-      const exists = labels.some((l) => l.type === "HS" && l.index === c.index);
-      if (!exists) labels.push({ type: "HS", val: c.scroll, index: c.index });
-    }
-  }
+  const labels = getBarStatusLabels(params, isFirstBar, prevParams, prevNoteCount);
 
   if (labels.length === 0) {
     canvasContext.restore();
@@ -677,45 +767,6 @@ function drawBarLabels(
   const hsY = bpmY - lineHeight;
 
   canvasContext.font = `bold ${statusFontSize}px 'Consolas', 'Monaco', 'Lucida Console', monospace`;
-
-  // Process Mid-Bar Lines
-  // Collect unique indices including 0
-  const changeIndices = new Set<number>();
-  labels.forEach((l) => {
-    changeIndices.add(l.index);
-  });
-
-  if (changeIndices.size > 0 && noteCount > 0) {
-    const hasZero = changeIndices.has(0);
-    if (hasZero) {
-      // Draw index 0 with full width to cover the bar border
-      if (!isBranchStart) {
-        canvasContext.beginPath();
-        canvasContext.strokeStyle = PALETTE.status.line;
-        canvasContext.lineWidth = snappedBarBorderWidth;
-        const lineX = snapForDevicePixel(x, barBorderWidth, dpr);
-        canvasContext.moveTo(lineX, y + height);
-        canvasContext.lineTo(lineX, topY);
-        canvasContext.stroke();
-      }
-
-      changeIndices.delete(0);
-    }
-
-    if (changeIndices.size > 0) {
-      canvasContext.beginPath();
-      canvasContext.strokeStyle = PALETTE.status.line;
-      canvasContext.lineWidth = barBorderWidth * 0.8; // Slightly thinner
-      const snapGrid = (v: number) => snapForDevicePixel(v, barBorderWidth, dpr);
-
-      changeIndices.forEach((idx) => {
-        const lineX = snapGrid(x + (idx / noteCount) * width);
-        canvasContext.moveTo(lineX, y + height); // From bottom of bar
-        canvasContext.lineTo(lineX, topY); // To top of labels
-      });
-      canvasContext.stroke();
-    }
-  }
 
   if (showText) {
     // Text Padding
@@ -861,17 +912,32 @@ function drawBarBackgroundWrapper(
       canvasContext.stroke();
       canvasContext.restore();
     }
-
-    // Draw single continuous yellow line
-    canvasContext.beginPath();
-    canvasContext.strokeStyle = PALETTE.branches.startLine;
-    canvasContext.lineWidth = constants.lineWidthBarBorder;
-    const snap = (v: number) => snapForDevicePixel(v, constants.lineWidthBarBorder, dpr);
-    const snX = snap(frame.x);
-    canvasContext.moveTo(snX, topY);
-    canvasContext.lineTo(snX, frame.y + frame.height);
-    canvasContext.stroke();
   }
+
+  let prevParams: BarParams | undefined;
+  let prevNoteCount: number | undefined;
+  if (info.originalIndex > 0) {
+    prevParams = chart.barParams[info.originalIndex - 1];
+    prevNoteCount = chart.bars[info.originalIndex - 1]?.length || 0;
+  }
+
+  const isFirstBar = info.originalIndex === 0;
+
+  drawBarLines(
+    canvasContext,
+    frame,
+    params,
+    noteCount,
+    constants.lineWidthBarBorder,
+    constants.statusFontSize,
+    constants.barNumberOffsetY,
+    isBranchStart,
+    showText,
+    dpr,
+    isFirstBar,
+    prevParams,
+    prevNoteCount,
+  );
 
   drawBarLabels(
     canvasContext,
@@ -883,11 +949,12 @@ function drawBarBackgroundWrapper(
     constants.barNumberOffsetY,
     params,
     noteCount,
-    info.originalIndex === 0,
+    isFirstBar,
     constants.lineWidthBarBorder,
-    isBranchStart,
     showText,
     dpr,
+    prevParams,
+    prevNoteCount,
   );
 
   if (info.isLoopStart && chart.loop) {
