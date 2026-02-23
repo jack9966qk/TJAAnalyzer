@@ -147,7 +147,7 @@ export function getBorderStyles(
   if (isSelected) {
     return {
       outerW: borderOuterW * 2,
-      innerW: borderInnerW * 2,
+      innerW: borderInnerW * 1.5,
       innerColor: PALETTE.notes.border.yellow,
     };
   }
