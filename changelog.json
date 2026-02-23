@@ -1,5 +1,40 @@
 [
   {
+    "hash": "6ad2de5",
+    "message": "Update version to 0.9.7.",
+    "date": "2026-02-24"
+  },
+  {
+    "hash": "e359554",
+    "message": "Slightly reduce inner border width multiplier for selected notes.",
+    "date": "2026-02-24"
+  },
+  {
+    "hash": "12c8d9b",
+    "message": "Remove the inner (white) border from drumroll notes.",
+    "date": "2026-02-24"
+  },
+  {
+    "hash": "0862c33",
+    "message": "Slightly reduce bar border line width.",
+    "date": "2026-02-24"
+  },
+  {
+    "hash": "74fda94",
+    "message": "Update Vite config to allow app hot reloading when the renderer package changes.",
+    "date": "2026-02-24"
+  },
+  {
+    "hash": "0f66251",
+    "message": "Improve vertical bar line rendering by determining the line color beforehand and drawing a single line across bar top and body.",
+    "date": "2026-02-24"
+  },
+  {
+    "hash": "558290e",
+    "message": "Apply pixel snapping more consistently across renderer implementation.",
+    "date": "2026-02-18"
+  },
+  {
     "hash": "d92d8ea",
     "message": "Update version to 0.9.6.",
     "date": "2026-02-18"
@@ -463,40 +498,5 @@
     "hash": "6eaf62f",
     "message": "Apply formatter to song_mapping JSON.",
     "date": "2026-02-01"
-  },
-  {
-    "hash": "c7de8cd",
-    "message": "Add quick, simple animations to panels, chart and modal.",
-    "date": "2026-02-01"
-  },
-  {
-    "hash": "926af0a",
-    "message": "Update version to 0.8.0.",
-    "date": "2026-02-01"
-  },
-  {
-    "hash": "b1dc16d",
-    "message": "Update song mapping generator to support incremental updates. Check in the mapping file.",
-    "date": "2026-02-01"
-  },
-  {
-    "hash": "90e689b",
-    "message": "Minor formatting fixes.",
-    "date": "2026-02-01"
-  },
-  {
-    "hash": "2296fc5",
-    "message": "Update song mapping generator to make use of TaikoWiki database. Refine LLM prompt and output format.",
-    "date": "2026-02-01"
-  },
-  {
-    "hash": "8dcff1d",
-    "message": "Fix directory export button visibility and functionality.",
-    "date": "2026-02-01"
-  },
-  {
-    "hash": "95a852d",
-    "message": "Add basic offline and auto update support to the PWA (not including ESE).",
-    "date": "2026-01-31"
   }
 ]

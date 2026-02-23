@@ -1,4 +1,4 @@
-import"./tja-parser-Cnv1qElK.js";import{r as O}from"./api-BsHrvXHf.js";const L=`//TJADB Project
+import"./tja-parser-DXIWUJeH.js";import{r as O}from"./api-BEqbeUch.js";const L=`//TJADB Project
 TITLE:Daisuki na Taiko no Ne
 TITLEJA:大好きな太鼓の音
 SUBTITLE:--Soshina feat. Miki Narahashi
