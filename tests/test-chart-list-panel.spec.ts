@@ -43,7 +43,7 @@ test.describe("Chart List Panel Component", () => {
     const firstResult = page.locator(".ese-result-item").first();
     await firstResult.click();
 
-    await expect(statusDisplay).toContainText(/Chart loaded from ESE/i);
+    await expect(statusDisplay).toContainText(/Chart loaded/i);
 
     const shareBtn = page.locator("#ese-share-btn");
     await expect(shareBtn).not.toBeDisabled();

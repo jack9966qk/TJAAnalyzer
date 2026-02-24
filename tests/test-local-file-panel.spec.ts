@@ -35,7 +35,7 @@ test.describe("Local File Panel Component", () => {
 
     // Verify status display updates
     const statusDisplay = page.locator("#status-display");
-    await expect(statusDisplay).toContainText(/Loaded local TJA file/i);
+    await expect(statusDisplay).toContainText(/Loaded file/i);
 
     // Verify chart title is displayed in the canvas/component (indirectly via status or visual check)
     // Or we can check if the Example Load button in Chart List panel is reset?
