@@ -1,5 +1,5 @@
 import type { Playdata } from "./playdata-parser.js";
-import { PlaydataDisplayMode } from "./playdata-status.js";
+import { PlaydataLeadingMode, PlaydataStripMode, PlaydataTrailingMode } from "./playdata-status.js";
 
 export interface DefaultViewOptions {
   /** Beats per line value, or 'auto' for auto-zoom */
@@ -17,8 +17,12 @@ export interface UserProfile {
   autoAnnotateOnLoad?: boolean;
   /** Whether to always show full file path in chart list instead of title */
   showFullPathInChartList?: boolean;
-  /** Playdata display mode in chart list */
-  chartListDisplayMode?: PlaydataDisplayMode;
+  /** Left strip mode in chart list */
+  chartListStripMode?: PlaydataStripMode;
+  /** Leading element mode in chart list */
+  chartListLeadingMode?: PlaydataLeadingMode;
+  /** Trailing element mode in chart list */
+  chartListTrailingMode?: PlaydataTrailingMode;
 }
 
 const STORAGE_KEY = "tja_analyzer_profile";
@@ -31,7 +35,9 @@ const DEFAULT_PROFILE: UserProfile = {
   defaultViewOptions: null,
   autoAnnotateOnLoad: false,
   showFullPathInChartList: false,
-  chartListDisplayMode: PlaydataDisplayMode.Crown,
+  chartListStripMode: PlaydataStripMode.Crown,
+  chartListLeadingMode: PlaydataLeadingMode.None,
+  chartListTrailingMode: PlaydataTrailingMode.None,
 };
 
 export function loadUserProfile(): UserProfile {
@@ -55,6 +61,24 @@ export function loadUserProfile(): UserProfile {
 
     if (data) {
       const profile = JSON.parse(data);
+      // Migrate old chartListDisplayMode to new fields
+      if (profile.chartListDisplayMode && !profile.chartListStripMode) {
+        const mode = profile.chartListDisplayMode as string;
+        if (mode === "none") {
+          profile.chartListStripMode = PlaydataStripMode.None;
+        } else if (mode === "crown") {
+          profile.chartListStripMode = PlaydataStripMode.Crown;
+        } else if (mode === "crownWithScoreRank") {
+          profile.chartListStripMode = PlaydataStripMode.Crown;
+          profile.chartListLeadingMode = PlaydataLeadingMode.ScoreRank;
+        } else if (mode === "dnStyle") {
+          profile.chartListStripMode = PlaydataStripMode.DnCategory;
+        } else if (mode === "dnStyleWithCounts") {
+          profile.chartListStripMode = PlaydataStripMode.DnCategory;
+          profile.chartListTrailingMode = PlaydataTrailingMode.Counts;
+        }
+        delete profile.chartListDisplayMode;
+      }
       return { ...DEFAULT_PROFILE, ...profile, playdata };
     }
     return { ...DEFAULT_PROFILE, playdata };

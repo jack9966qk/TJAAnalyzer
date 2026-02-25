@@ -13,6 +13,7 @@ import {
   type UnmatchedEntry,
   verifyPlaydata,
 } from "../utils/playdata-parser.js";
+import { PlaydataLeadingMode, PlaydataStripMode, PlaydataTrailingMode } from "../utils/playdata-status.js";
 import { clearPlaydata, type DefaultViewOptions, loadUserProfile, saveUserProfile } from "../utils/user-profile.js";
 
 export class SettingsPanel extends HTMLElement {
@@ -32,6 +33,9 @@ export class SettingsPanel extends HTMLElement {
   private defaultViewOptions: DefaultViewOptions | null = null;
   private autoAnnotateOnLoad = false;
   private showFullPathInChartList = false;
+  private stripMode: PlaydataStripMode = PlaydataStripMode.Crown;
+  private leadingMode: PlaydataLeadingMode = PlaydataLeadingMode.None;
+  private trailingMode: PlaydataTrailingMode = PlaydataTrailingMode.None;
 
   private resolutionState: {
     result: {
@@ -88,6 +92,9 @@ export class SettingsPanel extends HTMLElement {
     this.defaultViewOptions = profile.defaultViewOptions ?? null;
     this.autoAnnotateOnLoad = profile.autoAnnotateOnLoad ?? false;
     this.showFullPathInChartList = profile.showFullPathInChartList ?? false;
+    this.stripMode = profile.chartListStripMode ?? PlaydataStripMode.Crown;
+    this.leadingMode = profile.chartListLeadingMode ?? PlaydataLeadingMode.None;
+    this.trailingMode = profile.chartListTrailingMode ?? PlaydataTrailingMode.None;
   }
 
   private handleOpen() {
@@ -174,6 +181,30 @@ export class SettingsPanel extends HTMLElement {
     this.showFullPathInChartList = checked;
     saveUserProfile({ showFullPathInChartList: checked });
     window.dispatchEvent(new CustomEvent("settings-change", { detail: { showFullPathInChartList: checked } }));
+    this.renderModal();
+  }
+
+  private handleStripModeChange(e: Event) {
+    const val = (e.target as HTMLSelectElement).value as PlaydataStripMode;
+    this.stripMode = val;
+    saveUserProfile({ chartListStripMode: val });
+    window.dispatchEvent(new Event("settings-change"));
+    this.renderModal();
+  }
+
+  private handleLeadingModeChange(e: Event) {
+    const val = (e.target as HTMLSelectElement).value as PlaydataLeadingMode;
+    this.leadingMode = val;
+    saveUserProfile({ chartListLeadingMode: val });
+    window.dispatchEvent(new Event("settings-change"));
+    this.renderModal();
+  }
+
+  private handleTrailingModeChange(e: Event) {
+    const val = (e.target as HTMLSelectElement).value as PlaydataTrailingMode;
+    this.trailingMode = val;
+    saveUserProfile({ chartListTrailingMode: val });
+    window.dispatchEvent(new Event("settings-change"));
     this.renderModal();
   }
 
@@ -898,6 +929,53 @@ export class SettingsPanel extends HTMLElement {
             />
             {i18n.t("ui.chartList.showFullPath")}
           </label>
+        </div>
+        <div style="margin-top: 12px; padding: 12px; background: var(--bg-panel); border-radius: 6px; border: 1px solid var(--border-light);">
+          <div style="font-size: 14px; margin-bottom: 8px;">{i18n.t("ui.chartList.playdataDisplay")}</div>
+          <div style="display: flex; gap: 8px;">
+            <label style="display: flex; flex-direction: column; flex: 1; gap: 4px; font-size: 13px; color: var(--text-secondary);">
+              {i18n.t("ui.chartList.stripMode")}
+              <select style="padding: 5px; width: 100%;" onchange={this.handleStripModeChange.bind(this)}>
+                <option value={PlaydataStripMode.None} selected={this.stripMode === PlaydataStripMode.None}>
+                  {i18n.t("ui.chartList.none")}
+                </option>
+                <option value={PlaydataStripMode.Crown} selected={this.stripMode === PlaydataStripMode.Crown}>
+                  {i18n.t("ui.chartList.crown")}
+                </option>
+                <option value={PlaydataStripMode.DnCategory} selected={this.stripMode === PlaydataStripMode.DnCategory}>
+                  {i18n.t("ui.chartList.dnCategory")}
+                </option>
+              </select>
+            </label>
+            <label style="display: flex; flex-direction: column; flex: 1; gap: 4px; font-size: 13px; color: var(--text-secondary);">
+              {i18n.t("ui.chartList.leadingMode")}
+              <select style="padding: 5px; width: 100%;" onchange={this.handleLeadingModeChange.bind(this)}>
+                <option value={PlaydataLeadingMode.None} selected={this.leadingMode === PlaydataLeadingMode.None}>
+                  {i18n.t("ui.chartList.none")}
+                </option>
+                <option
+                  value={PlaydataLeadingMode.ScoreRank}
+                  selected={this.leadingMode === PlaydataLeadingMode.ScoreRank}
+                >
+                  {i18n.t("ui.chartList.scoreRank")}
+                </option>
+              </select>
+            </label>
+            <label style="display: flex; flex-direction: column; flex: 1; gap: 4px; font-size: 13px; color: var(--text-secondary);">
+              {i18n.t("ui.chartList.trailingMode")}
+              <select style="padding: 5px; width: 100%;" onchange={this.handleTrailingModeChange.bind(this)}>
+                <option value={PlaydataTrailingMode.None} selected={this.trailingMode === PlaydataTrailingMode.None}>
+                  {i18n.t("ui.chartList.none")}
+                </option>
+                <option
+                  value={PlaydataTrailingMode.Counts}
+                  selected={this.trailingMode === PlaydataTrailingMode.Counts}
+                >
+                  {i18n.t("ui.chartList.counts")}
+                </option>
+              </select>
+            </label>
+          </div>
         </div>
       </div>
     );

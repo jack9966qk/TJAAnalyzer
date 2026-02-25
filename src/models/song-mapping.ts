@@ -41,8 +41,8 @@ export function getLocalizedTitle(entry: SongMappingEntry, lang: string): string
   }
 
   // Fallback to ja if available
-  if (entry.titleList["ja"]) {
-    return entry.titleList["ja"];
+  if (entry.titleList.ja) {
+    return entry.titleList.ja;
   }
 
   return entry.defaultTitle;
@@ -79,8 +79,8 @@ export function getLocalizedSubtitle(entry: SongMappingEntry, lang: string): str
   }
 
   // Fallback to ja if available
-  if (entry.subtitleList["ja"]) {
-    return entry.subtitleList["ja"];
+  if (entry.subtitleList.ja) {
+    return entry.subtitleList.ja;
   }
 
   return undefined;

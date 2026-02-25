@@ -13,16 +13,17 @@ import {
   getPlayEntrySync,
   getScoreRankChar,
   getScoreRankCssClass,
-  PlaydataDisplayMode,
+  PlaydataLeadingMode,
+  PlaydataStripMode,
+  PlaydataTrailingMode,
   preloadSongMapping,
 } from "../utils/playdata-status.js";
-import { loadUserProfile, saveUserProfile } from "../utils/user-profile.js";
+import { loadUserProfile } from "../utils/user-profile.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
 
 type DisplayResult = GitNode | { __truncated: true; path?: never; title?: never; titleJp?: never };
 
 import {
-  getLocalizedSubtitle as getSongMappingSubtitle,
   getLocalizedTitle as getSongMappingTitle,
   type SongMapping,
   type SongMappingEntry,
@@ -42,7 +43,9 @@ export class ChartListPanel extends HTMLElement {
   private _titleToPathsCache: Map<string, string[]> = new Map();
   // Settings
   private _showFullPath = false;
-  private _displayMode: PlaydataDisplayMode = PlaydataDisplayMode.Crown;
+  private _stripMode: PlaydataStripMode = PlaydataStripMode.Crown;
+  private _leadingMode: PlaydataLeadingMode = PlaydataLeadingMode.None;
+  private _trailingMode: PlaydataTrailingMode = PlaydataTrailingMode.None;
   private _settingsChangeHandler: (() => void) | null = null;
 
   connectedCallback() {
@@ -70,7 +73,9 @@ export class ChartListPanel extends HTMLElement {
   private loadSettings() {
     const profile = loadUserProfile();
     this._showFullPath = profile.showFullPathInChartList ?? false;
-    this._displayMode = profile.chartListDisplayMode ?? PlaydataDisplayMode.Crown;
+    this._stripMode = profile.chartListStripMode ?? PlaydataStripMode.Crown;
+    this._leadingMode = profile.chartListLeadingMode ?? PlaydataLeadingMode.None;
+    this._trailingMode = profile.chartListTrailingMode ?? PlaydataTrailingMode.None;
   }
 
   get searchQuery() {
@@ -311,13 +316,6 @@ export class ChartListPanel extends HTMLElement {
     this.searchQuery = (e.target as HTMLInputElement).value;
   }
 
-  private handleDisplayModeChange(e: Event) {
-    const val = (e.target as HTMLSelectElement).value as PlaydataDisplayMode;
-    this._displayMode = val;
-    saveUserProfile({ chartListDisplayMode: val });
-    this.render();
-  }
-
   private async handleShare() {
     if (!appState.currentEsePath) return;
 
@@ -404,40 +402,6 @@ export class ChartListPanel extends HTMLElement {
           />
         </div>
 
-        {hasPlaydata && (
-          <div className="control-group" style="margin-top: 5px;">
-            <label style="display: flex; width: 100%; gap: 5px; align-items: center;">
-              {i18n.t("ui.chartList.playdataDisplay")}
-              <select style="flex: 1; padding: 5px;" onchange={this.handleDisplayModeChange.bind(this)}>
-                <option value={PlaydataDisplayMode.None} selected={this._displayMode === PlaydataDisplayMode.None}>
-                  {i18n.t("ui.chartList.none")}
-                </option>
-                <option value={PlaydataDisplayMode.Crown} selected={this._displayMode === PlaydataDisplayMode.Crown}>
-                  {i18n.t("ui.chartList.crown")}
-                </option>
-                <option
-                  value={PlaydataDisplayMode.CrownWithScoreRank}
-                  selected={this._displayMode === PlaydataDisplayMode.CrownWithScoreRank}
-                >
-                  {i18n.t("ui.chartList.crownScoreRank")}
-                </option>
-                <option
-                  value={PlaydataDisplayMode.DnStyle}
-                  selected={this._displayMode === PlaydataDisplayMode.DnStyle}
-                >
-                  {i18n.t("ui.chartList.dnCategory")}
-                </option>
-                <option
-                  value={PlaydataDisplayMode.DnStyleWithCounts}
-                  selected={this._displayMode === PlaydataDisplayMode.DnStyleWithCounts}
-                >
-                  {i18n.t("ui.chartList.dnCategoryCounts")}
-                </option>
-              </select>
-            </label>
-          </div>
-        )}
-
         <div id="ese-results">
           {!isEseReady ? (
             <div className="ese-result-placeholder" style="padding:10px;">
@@ -463,10 +427,12 @@ export class ChartListPanel extends HTMLElement {
               });
 
               // Decide layout based on mode and if any item has status
-              const mode = this._displayMode;
-              const showStrip = mode !== PlaydataDisplayMode.None && hasPlaydata && anyItemHasStatus;
-              const showRank = mode === PlaydataDisplayMode.CrownWithScoreRank && hasPlaydata && anyItemHasStatus;
-              const showCounts = mode === PlaydataDisplayMode.DnStyleWithCounts && hasPlaydata && anyItemHasStatus;
+              const stripMode = this._stripMode;
+              const leadingMode = this._leadingMode;
+              const trailingMode = this._trailingMode;
+              const showStrip = stripMode !== PlaydataStripMode.None && hasPlaydata && anyItemHasStatus;
+              const showRank = leadingMode === PlaydataLeadingMode.ScoreRank && hasPlaydata && anyItemHasStatus;
+              const showCounts = trailingMode === PlaydataTrailingMode.Counts && hasPlaydata && anyItemHasStatus;
 
               return itemsWithStatus.map(({ node, entry }) => {
                 if ("__truncated" in node) {
@@ -479,9 +445,9 @@ export class ChartListPanel extends HTMLElement {
                 // Determine Strip Class
                 let stripClass = "";
                 if (entry) {
-                  if (mode === PlaydataDisplayMode.DnStyle || mode === PlaydataDisplayMode.DnStyleWithCounts) {
+                  if (stripMode === PlaydataStripMode.DnCategory) {
                     stripClass = getDnStyleCssClass(entry);
-                  } else if (mode === PlaydataDisplayMode.Crown || mode === PlaydataDisplayMode.CrownWithScoreRank) {
+                  } else if (stripMode === PlaydataStripMode.Crown) {
                     stripClass = getCrownCssClass(entry.crown);
                   }
                 }

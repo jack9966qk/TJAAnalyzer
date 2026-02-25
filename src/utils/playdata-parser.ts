@@ -266,7 +266,7 @@ export function getPlaydataStats(playdata: Playdata | null): {
   };
 }
 
-import type { SongMapping, SongMappingEntry } from "../models/song-mapping.js";
+import type { SongMapping } from "../models/song-mapping.js";
 
 export interface UnmatchedEntry {
   entry: FumenDatabaseEntry;

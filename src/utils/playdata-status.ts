@@ -2,15 +2,23 @@
 
 import { Crown, type Playdata, type PlaydataEntry, ScoreRank } from "./playdata-parser.js";
 
-export enum PlaydataDisplayMode {
+export enum PlaydataStripMode {
   None = "none",
   Crown = "crown",
-  CrownWithScoreRank = "crownWithScoreRank",
-  DnStyle = "dnStyle",
-  DnStyleWithCounts = "dnStyleWithCounts",
+  DnCategory = "dnCategory",
 }
 
-import type { SongMapping, SongMappingEntry } from "../models/song-mapping.js";
+export enum PlaydataLeadingMode {
+  None = "none",
+  ScoreRank = "scoreRank",
+}
+
+export enum PlaydataTrailingMode {
+  None = "none",
+  Counts = "counts",
+}
+
+import type { SongMapping } from "../models/song-mapping.js";
 
 // Cache for song mapping data
 let cachedSongMapping: SongMapping | null = null;
