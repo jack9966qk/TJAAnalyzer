@@ -215,6 +215,10 @@ async function main() {
           if (songMapping.titleList.ko) entry.titleKo = songMapping.titleList.ko;
         }
         if (songMapping.artist) entry.artist = songMapping.artist;
+        if (songMapping.courses) entry.courses = songMapping.courses;
+        if (songMapping.bpm) entry.bpm = songMapping.bpm;
+        if (songMapping.platforms) entry.platforms = songMapping.platforms;
+        if (songMapping.region) entry.region = songMapping.region;
       }
 
       newIndex.push(entry);

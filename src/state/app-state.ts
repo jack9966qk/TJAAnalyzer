@@ -1,5 +1,5 @@
 import * as Renderer from "tja-renderer";
-import { EseClient, type GitNode } from "../clients/ese-client.js";
+import { EseClient, type EseIndexEntry } from "../clients/ese-client.js";
 import { JudgementClient } from "../clients/judgement-client.js";
 import { exampleTJA } from "../core/example-data.js";
 import { loadUserProfile } from "../utils/user-profile.js";
@@ -26,7 +26,7 @@ interface AppState {
   selectedBranchHitInfo: HitInfo | null;
   annotations: LocationMap<string>;
   eseClient: EseClient;
-  eseTree: GitNode[] | null;
+  eseTree: EseIndexEntry[] | null;
   judgementClient: JudgementClient;
   judgements: JudgementMap<JudgementValue>;
   currentEsePath: string | null;

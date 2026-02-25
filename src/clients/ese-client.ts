@@ -1,4 +1,6 @@
-export interface GitNode {
+import type { CourseInfo } from "../../generate-song-mapping.js";
+
+export interface EseIndexEntry {
   path: string;
   type: "blob" | "tree";
   url: string; // Relative URL
@@ -10,13 +12,17 @@ export interface GitNode {
   subtitle?: string;
   subtitleJp?: string;
   artist?: string;
+  courses?: Partial<Record<"easy" | "normal" | "hard" | "oni" | "ura", CourseInfo>>;
+  bpm?: { min: number; max: number };
+  platforms?: string[];
+  region?: Record<string, number>;
 }
 
 export class EseClient {
   private indexUrl = "ese_index.json";
-  private treeCache: GitNode[] | null = null;
+  private treeCache: EseIndexEntry[] | null = null;
 
-  async getTjaFiles(): Promise<GitNode[]> {
+  async getTjaFiles(): Promise<EseIndexEntry[]> {
     if (this.treeCache) {
       return this.treeCache;
     }
@@ -32,17 +38,17 @@ export class EseClient {
         }
         throw new Error(`Failed to fetch ESE index: ${response.status} ${response.statusText}`);
       }
-      let result: GitNode[];
+      let result: EseIndexEntry[];
       const data: unknown = await response.json();
       if (Array.isArray(data)) {
-        result = data as GitNode[];
+        result = data as EseIndexEntry[];
       } else if (
         typeof data === "object" &&
         data !== null &&
         "files" in data &&
         Array.isArray((data as { files: unknown }).files)
       ) {
-        result = (data as { files: GitNode[] }).files;
+        result = (data as { files: EseIndexEntry[] }).files;
       } else {
         result = [];
       }

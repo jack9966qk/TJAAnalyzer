@@ -1,6 +1,6 @@
 import * as webjsx from "webjsx";
 import "./action-button.js";
-import type { GitNode } from "../clients/ese-client.js";
+import type { EseIndexEntry } from "../clients/ese-client.js";
 import { refreshChart, updatePageUrl, updateParsedCharts } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
@@ -21,7 +21,7 @@ import {
 import { loadUserProfile } from "../utils/user-profile.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
 
-type DisplayResult = GitNode | { __truncated: true; path?: never; title?: never; titleJp?: never };
+type DisplayResult = EseIndexEntry | { __truncated: true; path?: never; title?: never; titleJp?: never };
 
 import {
   getLocalizedTitle as getSongMappingTitle,
@@ -182,7 +182,7 @@ export class ChartListPanel extends HTMLElement {
    * Get the localized title for a node based on the current language.
    * Returns the appropriate title variant or falls back to the base title.
    */
-  private getLocalizedTitle(node: GitNode): string | undefined {
+  private getLocalizedTitle(node: EseIndexEntry): string | undefined {
     const lang = i18n.language;
 
     // Check if we have song mapping data for this node
@@ -201,7 +201,7 @@ export class ChartListPanel extends HTMLElement {
       }
     }
 
-    // Fallback to GitNode metadata if mapping not available
+    // Fallback to EseIndexEntry metadata if mapping not available
     if (lang === "zh") {
       return node.titleCn || node.title;
     }
@@ -217,7 +217,7 @@ export class ChartListPanel extends HTMLElement {
    * If showFullPath is enabled, always returns the path.
    * @returns object with text and isTitle flag
    */
-  private getDisplayText(node: GitNode): { text: string; isTitle: boolean } {
+  private getDisplayText(node: EseIndexEntry): { text: string; isTitle: boolean } {
     // If user prefers full path, always show path
     if (this._showFullPath) {
       return { text: node.path, isTitle: false };
@@ -333,7 +333,7 @@ export class ChartListPanel extends HTMLElement {
     }
   }
 
-  private async handleResultClick(node: GitNode) {
+  private async handleResultClick(node: EseIndexEntry) {
     try {
       this.dispatchStatus("status.loadingChart");
 

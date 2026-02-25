@@ -4,6 +4,7 @@ import * as path from "node:path";
 import * as readline from "node:readline";
 import { fileURLToPath } from "node:url";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { buildLookupMaps, fetchExternalSongData } from "./fetch-external-data.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -12,13 +13,6 @@ const ESE_DIR = path.join(__dirname, "public", "ese");
 const OUTPUT_FILE = path.join(__dirname, "data", "song_mapping.json");
 const ENV_FILE = path.join(__dirname, ".env");
 
-const TAIKO_RATING_ANALYZER_URL =
-  "https://raw.githubusercontent.com/KirisameVanilla/taiko-rating-analyzer/refs/heads/main/public/songs.json";
-const TAIKO_WIKI_DB_URL =
-  "https://raw.githubusercontent.com/taikowiki/taiko-song-database/refs/heads/main/database.json";
-const DONDER_HELPER_URL =
-  "https://raw.githubusercontent.com/Donder-Helper/DonderHelper/refs/heads/main/Data/songs.json";
-
 // CLI args
 const args = process.argv.slice(2);
 const USE_LLM = args.includes("--resolve-llm");
@@ -26,27 +20,10 @@ const FORCE_REGEN = args.includes("--force");
 
 const LLM_CONCURRENCY = 5;
 
-interface TaikoRatingAnalyzerSong {
-  id: number;
-  title: string;
-  title_cn?: string;
-  [key: string]: unknown;
+export interface CourseInfo {
+  level: number;
+  maxCombo?: number;
 }
-
-interface TaikoWikiSong {
-  songNo: string;
-  title: string;
-  titleKo?: string | null;
-  artists?: string[];
-  [key: string]: unknown;
-}
-
-interface DonderHelperSong {
-  TitleList?: Record<string, string>;
-  [key: string]: unknown;
-}
-
-type DonderHelperData = Record<string, DonderHelperSong>;
 
 interface MergedSong {
   id: number;
@@ -54,6 +31,10 @@ interface MergedSong {
   titleList: Record<string, string>;
   subtitleList?: Record<string, string>;
   artist?: string;
+  courses?: Partial<Record<"easy" | "normal" | "hard" | "oni" | "ura", CourseInfo>>;
+  bpm?: { min: number; max: number };
+  platforms?: string[];
+  region?: Record<string, number>;
 }
 
 interface TjaFile {
@@ -64,12 +45,16 @@ interface TjaFile {
   subtitle: string | null;
 }
 
-interface SongMappingEntry {
+export interface SongMappingEntry {
   esePath: string;
   defaultTitle: string;
   titleList?: Record<string, string>;
   subtitleList?: Record<string, string>;
   artist?: string;
+  courses?: Partial<Record<"easy" | "normal" | "hard" | "oni" | "ura", CourseInfo>>;
+  bpm?: { min: number; max: number };
+  platforms?: string[];
+  region?: Record<string, number>;
   candidates?: string[];
   matchType?: "exact" | "fuzzy" | "fuzzy + manual" | "fuzzy + llm";
 }
@@ -261,37 +246,25 @@ async function main() {
   }
 
   console.log(`Step 2: Retrieving song data...`);
-  let taikoRatingAnalyzerSongs: TaikoRatingAnalyzerSong[] = [];
-  let taikoWikiSongs: TaikoWikiSong[] = [];
-  let donderHelperData: DonderHelperData = {};
-
+  let externalData: Awaited<ReturnType<typeof fetchExternalSongData>>;
   try {
-    console.log(`Fetching songs from ${TAIKO_RATING_ANALYZER_URL}...`);
-    const songsResp = await fetch(TAIKO_RATING_ANALYZER_URL);
-    if (!songsResp.ok) throw new Error(`Failed to fetch songs: ${songsResp.statusText}`);
-    taikoRatingAnalyzerSongs = (await songsResp.json()) as TaikoRatingAnalyzerSong[];
-
-    console.log(`Fetching database from ${TAIKO_WIKI_DB_URL}...`);
-    const dbResp = await fetch(TAIKO_WIKI_DB_URL);
-    if (!dbResp.ok) throw new Error(`Failed to fetch database: ${dbResp.statusText}`);
-    taikoWikiSongs = (await dbResp.json()) as TaikoWikiSong[];
-
-    console.log(`Fetching DonderHelper data from ${DONDER_HELPER_URL}...`);
-    const dhResp = await fetch(DONDER_HELPER_URL);
-    if (!dhResp.ok) throw new Error(`Failed to fetch DonderHelper data: ${dhResp.statusText}`);
-    donderHelperData = (await dhResp.json()) as DonderHelperData;
+    externalData = await fetchExternalSongData();
   } catch (e) {
     console.error("Error fetching song data:", e);
     process.exit(1);
   }
 
-  // Create map for DB songs
-  const taikoWikiMap = new Map<string, TaikoWikiSong>();
-  for (const dbSong of taikoWikiSongs) {
-    taikoWikiMap.set(dbSong.songNo, dbSong);
-  }
+  const { taikoRatingAnalyzerSongs, donderHelperData } = externalData;
+  const { taikoWikiMap, donderHelperValues } = buildLookupMaps(externalData);
 
-  const donderHelperValues = Object.values(donderHelperData);
+  // DonderHelper difficulty name mapping to standard names
+  const dhDiffMap: Record<string, "easy" | "normal" | "hard" | "oni" | "ura"> = {
+    Easy: "easy",
+    Normal: "normal",
+    Hard: "hard",
+    Extreme: "oni",
+    Hidden: "ura",
+  };
 
   // Join
   const mergedSongs: MergedSong[] = taikoRatingAnalyzerSongs.map((src) => {
@@ -323,12 +296,52 @@ async function main() {
       subtitleList = dhSubtitles;
     }
 
+    // Build per-difficulty course info (stars + note count)
+    const courses: MergedSong["courses"] = {};
+    const diffNames = ["easy", "normal", "hard", "oni", "ura"] as const;
+    for (const diff of diffNames) {
+      const wikiCourse = dbSong?.courses?.[diff];
+      if (wikiCourse && wikiCourse.level > 0) {
+        courses[diff] = { level: wikiCourse.level };
+        if (wikiCourse.maxCombo && wikiCourse.maxCombo > 0) {
+          courses[diff]!.maxCombo = wikiCourse.maxCombo;
+        }
+      }
+    }
+    // Fallback to DonderHelper for missing difficulties
+    if (dhSong?.Difficulties) {
+      for (const [dhName, stdName] of Object.entries(dhDiffMap)) {
+        if (courses[stdName]) continue; // Already have from TaikoWiki
+        const dhDiff = dhSong.Difficulties[dhName as keyof typeof dhSong.Difficulties];
+        if (dhDiff && dhDiff.Level > 0) {
+          courses[stdName] = { level: dhDiff.Level };
+          const noteCount = dhDiff.NoteCount?.Single?.Normal;
+          if (noteCount && noteCount > 0) {
+            courses[stdName]!.maxCombo = noteCount;
+          }
+        }
+      }
+    }
+
+    // BPM from TaikoWiki
+    const bpm = dbSong?.bpm?.min && dbSong?.bpm?.max ? { min: dbSong.bpm.min, max: dbSong.bpm.max } : undefined;
+
+    // Platforms from TaikoWiki version
+    const platforms = dbSong?.version && dbSong.version.length > 0 ? dbSong.version : undefined;
+
+    // Region from DonderHelper
+    const region = dhSong?.Region;
+
     return {
       id: src.id,
       defaultTitle,
       titleList,
       subtitleList,
       artist,
+      courses: Object.keys(courses).length > 0 ? courses : undefined,
+      bpm,
+      platforms,
+      region,
     };
   });
 
@@ -414,6 +427,18 @@ async function main() {
       }
       if (song.subtitleList) {
         newEntry.subtitleList = song.subtitleList;
+      }
+      if (song.courses) {
+        newEntry.courses = song.courses;
+      }
+      if (song.bpm) {
+        newEntry.bpm = song.bpm;
+      }
+      if (song.platforms) {
+        newEntry.platforms = song.platforms;
+      }
+      if (song.region) {
+        newEntry.region = song.region;
       }
 
       mapping[song.id] = newEntry;
@@ -543,6 +568,18 @@ async function main() {
       }
       if (song.artist) {
         entry.artist = song.artist;
+      }
+      if (song.courses) {
+        entry.courses = song.courses;
+      }
+      if (song.bpm) {
+        entry.bpm = song.bpm;
+      }
+      if (song.platforms) {
+        entry.platforms = song.platforms;
+      }
+      if (song.region) {
+        entry.region = song.region;
       }
 
       mapping[song.id] = entry;
