@@ -21,17 +21,12 @@ import { courseBranchSelect } from "../view/ui-elements.js";
 
 type DisplayResult = GitNode | { __truncated: true; path?: never; title?: never; titleJp?: never };
 
-interface SongMappingEntry {
-  esePath: string;
-  title: string;
-  candidates: string[];
-  matchType: string;
-  titlecn?: string;
-  titleko?: string;
-  artist?: string;
-}
-
-type SongMapping = Record<string, SongMappingEntry>;
+import {
+  getLocalizedSubtitle as getSongMappingSubtitle,
+  getLocalizedTitle as getSongMappingTitle,
+  type SongMapping,
+  type SongMappingEntry,
+} from "../models/song-mapping.js";
 
 export class ChartListPanel extends HTMLElement {
   private _searchQuery = "";
@@ -185,17 +180,29 @@ export class ChartListPanel extends HTMLElement {
   private getLocalizedTitle(node: GitNode): string | undefined {
     const lang = i18n.language;
 
-    // For Chinese, try titleCn first
+    // Check if we have song mapping data for this node
+    // To do that efficiently, we need a reverse lookup from path -> SongMappingEntry
+    // But since this is a quick sync lookup, we can try to find an entry in _songMapping
+    if (this._songMapping) {
+      let mappingEntry: SongMappingEntry | undefined;
+      for (const entry of Object.values(this._songMapping)) {
+        if (entry.esePath === node.path) {
+          mappingEntry = entry;
+          break;
+        }
+      }
+      if (mappingEntry) {
+        return getSongMappingTitle(mappingEntry, lang);
+      }
+    }
+
+    // Fallback to GitNode metadata if mapping not available
     if (lang === "zh") {
       return node.titleCn || node.title;
     }
-
-    // For Japanese, try titleJp first (which comes from TITLEJA in TJA)
     if (lang === "ja") {
       return node.titleJp || node.title;
     }
-
-    // For English and other languages, use the base title
     return node.title;
   }
 

@@ -10,17 +10,7 @@ export enum PlaydataDisplayMode {
   DnStyleWithCounts = "dnStyleWithCounts",
 }
 
-interface SongMappingEntry {
-  esePath: string;
-  title: string;
-  candidates: string[];
-  matchType: string;
-  titlecn?: string;
-  titleko?: string;
-  artist?: string;
-}
-
-type SongMapping = Record<string, SongMappingEntry>;
+import type { SongMapping, SongMappingEntry } from "../models/song-mapping.js";
 
 // Cache for song mapping data
 let cachedSongMapping: SongMapping | null = null;

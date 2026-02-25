@@ -206,12 +206,14 @@ async function main() {
       // Add metadata from song mapping if available
       const songMapping = songMappingByPath[node.path];
       if (songMapping) {
-        // Song mapping title may differ from TJA's TITLEJA, include as official title
-        if (songMapping.title && songMapping.title !== titleJp) {
-          entry.titleOfficial = songMapping.title;
+        // Song mapping defaultTitle may differ from TJA's TITLEJA, include as official title
+        if (songMapping.defaultTitle && songMapping.defaultTitle !== titleJp) {
+          entry.titleOfficial = songMapping.defaultTitle;
         }
-        if (songMapping.titlecn) entry.titleCn = songMapping.titlecn;
-        if (songMapping.titleko) entry.titleKo = songMapping.titleko;
+        if (songMapping.titleList) {
+          if (songMapping.titleList["zh-CN"]) entry.titleCn = songMapping.titleList["zh-CN"];
+          if (songMapping.titleList.ko) entry.titleKo = songMapping.titleList.ko;
+        }
         if (songMapping.artist) entry.artist = songMapping.artist;
       }
 

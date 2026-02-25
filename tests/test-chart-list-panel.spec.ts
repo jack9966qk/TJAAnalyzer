@@ -52,11 +52,11 @@ test.describe("Chart List Panel Component", () => {
   test("Playdata Status Strips", async ({ page }) => {
     // Mock song mapping
     const mockMapping = {
-      "100": { esePath: "cat1/song_perfect.tja" },
-      "101": { esePath: "cat1/song_fc.tja" },
-      "102": { esePath: "cat1/song_played.tja" },
-      "103": { esePath: "cat1/song_none.tja" },
-      "104": { esePath: "cat1/song_mixed.tja" },
+      "100": { esePath: "cat1/song_perfect.tja", defaultTitle: "Song Perfect" },
+      "101": { esePath: "cat1/song_fc.tja", defaultTitle: "Song Full Combo" },
+      "102": { esePath: "cat1/song_played.tja", defaultTitle: "Song Played" },
+      "103": { esePath: "cat1/song_none.tja", defaultTitle: "Song Failed" },
+      "104": { esePath: "cat1/song_mixed.tja", defaultTitle: "Song Mixed" },
     };
 
     // Mock playdata in localStorage

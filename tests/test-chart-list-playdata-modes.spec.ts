@@ -8,17 +8,17 @@ test.describe("Chart List Playdata Display Modes", () => {
         status: 200,
         contentType: "application/json",
         body: JSON.stringify({
-          song1: { esePath: "Category/Song 1.tja", title: "Song 1", candidates: [], matchType: "manual" },
-          song2: { esePath: "Category/Song 2.tja", title: "Song 2", candidates: [], matchType: "manual" },
+          song1: { esePath: "Category/Song 1.tja", defaultTitle: "Song 1", candidates: [], matchType: "manual" },
+          song2: { esePath: "Category/Song 2.tja", defaultTitle: "Song 2", candidates: [], matchType: "manual" },
           song3: {
             esePath: "Category/Song 3 with a very long title.tja",
-            title: "Song 3 with a very long title that should wrap around to the next line",
+            defaultTitle: "Song 3 with a very long title that should wrap around to the next line",
             candidates: [],
             matchType: "manual",
           },
-          song4: { esePath: "Category/Song 4.tja", title: "Song 4", candidates: [], matchType: "manual" },
-          song5: { esePath: "Category/Song 5.tja", title: "Song 5", candidates: [], matchType: "manual" },
-          song6: { esePath: "Category/Song 6.tja", title: "Song 6", candidates: [], matchType: "manual" },
+          song4: { esePath: "Category/Song 4.tja", defaultTitle: "Song 4", candidates: [], matchType: "manual" },
+          song5: { esePath: "Category/Song 5.tja", defaultTitle: "Song 5", candidates: [], matchType: "manual" },
+          song6: { esePath: "Category/Song 6.tja", defaultTitle: "Song 6", candidates: [], matchType: "manual" },
         }),
       });
     });

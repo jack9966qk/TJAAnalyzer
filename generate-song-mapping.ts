@@ -16,6 +16,8 @@ const TAIKO_RATING_ANALYZER_URL =
   "https://raw.githubusercontent.com/KirisameVanilla/taiko-rating-analyzer/refs/heads/main/public/songs.json";
 const TAIKO_WIKI_DB_URL =
   "https://raw.githubusercontent.com/taikowiki/taiko-song-database/refs/heads/main/database.json";
+const DONDER_HELPER_URL =
+  "https://raw.githubusercontent.com/Donder-Helper/DonderHelper/refs/heads/main/Data/songs.json";
 
 // CLI args
 const args = process.argv.slice(2);
@@ -39,11 +41,18 @@ interface TaikoWikiSong {
   [key: string]: unknown;
 }
 
+interface DonderHelperSong {
+  TitleList?: Record<string, string>;
+  [key: string]: unknown;
+}
+
+type DonderHelperData = Record<string, DonderHelperSong>;
+
 interface MergedSong {
   id: number;
-  title: string;
-  title_cn?: string;
-  title_ko?: string;
+  defaultTitle: string;
+  titleList: Record<string, string>;
+  subtitleList?: Record<string, string>;
   artist?: string;
 }
 
@@ -57,9 +66,9 @@ interface TjaFile {
 
 interface SongMappingEntry {
   esePath: string;
-  title: string;
-  titlecn?: string;
-  titleko?: string;
+  defaultTitle: string;
+  titleList?: Record<string, string>;
+  subtitleList?: Record<string, string>;
   artist?: string;
   candidates?: string[];
   matchType?: "exact" | "fuzzy" | "fuzzy + manual" | "fuzzy + llm";
@@ -254,6 +263,7 @@ async function main() {
   console.log(`Step 2: Retrieving song data...`);
   let taikoRatingAnalyzerSongs: TaikoRatingAnalyzerSong[] = [];
   let taikoWikiSongs: TaikoWikiSong[] = [];
+  let donderHelperData: DonderHelperData = {};
 
   try {
     console.log(`Fetching songs from ${TAIKO_RATING_ANALYZER_URL}...`);
@@ -265,6 +275,11 @@ async function main() {
     const dbResp = await fetch(TAIKO_WIKI_DB_URL);
     if (!dbResp.ok) throw new Error(`Failed to fetch database: ${dbResp.statusText}`);
     taikoWikiSongs = (await dbResp.json()) as TaikoWikiSong[];
+
+    console.log(`Fetching DonderHelper data from ${DONDER_HELPER_URL}...`);
+    const dhResp = await fetch(DONDER_HELPER_URL);
+    if (!dhResp.ok) throw new Error(`Failed to fetch DonderHelper data: ${dhResp.statusText}`);
+    donderHelperData = (await dhResp.json()) as DonderHelperData;
   } catch (e) {
     console.error("Error fetching song data:", e);
     process.exit(1);
@@ -276,21 +291,43 @@ async function main() {
     taikoWikiMap.set(dbSong.songNo, dbSong);
   }
 
+  const donderHelperValues = Object.values(donderHelperData);
+
   // Join
   const mergedSongs: MergedSong[] = taikoRatingAnalyzerSongs.map((src) => {
     const idStr = String(src.id);
     const dbSong = taikoWikiMap.get(idStr);
+    const dhSong = donderHelperData[src.title] || donderHelperValues.find((d) => d.TitleList?.ja === src.title);
 
     // Prefer DB title if exists
-    const title = dbSong?.title || src.title;
+    const defaultTitle = dbSong?.title || src.title;
     const artist = dbSong?.artists?.join(", ");
-    const title_ko = dbSong?.titleKo || undefined;
+
+    const titleList: Record<string, string> = {};
+    if (src.title) titleList.ja = src.title;
+    if (src.title_cn) titleList["zh-CN"] = src.title_cn;
+
+    if (dbSong?.title) titleList.ja = dbSong.title;
+    if (typeof dbSong?.titleKo === "string") titleList.ko = dbSong.titleKo;
+    if (typeof dbSong?.aliasKo === "string") titleList["ALIAS-ko"] = dbSong.aliasKo;
+    if (typeof dbSong?.titleEn === "string") titleList["en-US"] = dbSong.titleEn;
+    if (typeof dbSong?.aliasEn === "string") titleList["ALIAS-en"] = dbSong.aliasEn;
+
+    if (dhSong?.TitleList) {
+      Object.assign(titleList, dhSong.TitleList);
+    }
+
+    let subtitleList: Record<string, string> | undefined;
+    const dhSubtitles = dhSong?.SubtitleList as Record<string, string> | undefined;
+    if (dhSubtitles && Object.keys(dhSubtitles).length > 0) {
+      subtitleList = dhSubtitles;
+    }
 
     return {
       id: src.id,
-      title,
-      title_cn: src.title_cn,
-      title_ko,
+      defaultTitle,
+      titleList,
+      subtitleList,
       artist,
     };
   });
@@ -314,7 +351,7 @@ async function main() {
   const itemsForResolution: ProcessingItem[] = [];
 
   for (const song of mergedSongs) {
-    const targetTitle = song.title;
+    const targetTitle = song.defaultTitle;
     let candidates: { file: TjaFile; dist?: number }[] = [];
     let matchType: ProcessingItem["matchType"] = "none";
 
@@ -360,14 +397,26 @@ async function main() {
 
     if (existing) {
       // Incrementally update: Keep resolution, update metadata and candidates
-      mapping[song.id] = {
+      const newEntry: SongMappingEntry = {
         ...existing,
-        title: song.title,
-        titlecn: song.title_cn || existing.titlecn,
-        titleko: song.title_ko || existing.titleko,
+        defaultTitle: song.defaultTitle,
         artist: song.artist || existing.artist,
         candidates: candidatesList,
       };
+
+      // Clean up old fields
+      delete (newEntry as unknown as Record<string, unknown>).title;
+      delete (newEntry as unknown as Record<string, unknown>).titlecn;
+      delete (newEntry as unknown as Record<string, unknown>).titleko;
+
+      if (Object.keys(song.titleList).length > 0) {
+        newEntry.titleList = song.titleList;
+      }
+      if (song.subtitleList) {
+        newEntry.subtitleList = song.subtitleList;
+      }
+
+      mapping[song.id] = newEntry;
       // We do NOT add this to itemsForResolution
     } else {
       // New song, needs resolution
@@ -395,7 +444,7 @@ async function main() {
         const item = itemsToLLM[index];
 
         const choice = await resolveWithGemini(
-          item.song.title,
+          item.song.defaultTitle,
           item.candidates.map((c) => c.file),
         );
         item.llmChoiceIndex = choice;
@@ -423,7 +472,7 @@ async function main() {
 
   for (const item of itemsForResolution) {
     const { song, candidates, matchType, llmChoiceIndex } = item;
-    const targetTitle = song.title;
+    const targetTitle = song.defaultTitle;
     console.log(`\nProcessing New Song ID ${song.id}: "${targetTitle}"`);
 
     let selectedPath: string | null = null;
@@ -482,15 +531,15 @@ async function main() {
     if (selectedPath) {
       const entry: SongMappingEntry = {
         esePath: selectedPath,
-        title: song.title,
+        defaultTitle: song.defaultTitle,
         candidates: candidatesList,
         matchType: finalMatchType,
       };
-      if (song.title_cn) {
-        entry.titlecn = song.title_cn;
+      if (Object.keys(song.titleList).length > 0) {
+        entry.titleList = song.titleList;
       }
-      if (song.title_ko) {
-        entry.titleko = song.title_ko;
+      if (song.subtitleList) {
+        entry.subtitleList = song.subtitleList;
       }
       if (song.artist) {
         entry.artist = song.artist;
