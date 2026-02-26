@@ -1,5 +1,40 @@
 [
   {
+    "hash": "68e2c8c",
+    "message": "Update version to 0.10.0.",
+    "date": "2026-02-27"
+  },
+  {
+    "hash": "5c9a0dc",
+    "message": "Update 1 outdated snapshot.",
+    "date": "2026-02-27"
+  },
+  {
+    "hash": "b996f21",
+    "message": "Fetch 10 star DFC difficulty data and add a filtering option for it.",
+    "date": "2026-02-27"
+  },
+  {
+    "hash": "11c40fc",
+    "message": "Add to advanced search filtering by playdata category.",
+    "date": "2026-02-27"
+  },
+  {
+    "hash": "d8dfa3e",
+    "message": "Set up advanced search which allows filtering by difficulty, stars, BPM and more.",
+    "date": "2026-02-27"
+  },
+  {
+    "hash": "7d41632",
+    "message": "Update song_mapping.",
+    "date": "2026-02-27"
+  },
+  {
+    "hash": "05dc988",
+    "message": "Expand ESE index to include additional metadata.",
+    "date": "2026-02-26"
+  },
+  {
     "hash": "75bb864",
     "message": "Update version to 0.9.8.",
     "date": "2026-02-26"
@@ -463,40 +498,5 @@
     "hash": "de18f2f",
     "message": "Update version to 0.8.2.",
     "date": "2026-02-03"
-  },
-  {
-    "hash": "e659548",
-    "message": "Update chart rendering with more consistent and configurable insets/paddings.",
-    "date": "2026-02-03"
-  },
-  {
-    "hash": "d9cc431",
-    "message": "Run formatter.",
-    "date": "2026-02-01"
-  },
-  {
-    "hash": "ad6c7c7",
-    "message": "Dynamically change minimum note diameter during auto zoom calculation.",
-    "date": "2026-02-01"
-  },
-  {
-    "hash": "53eabd2",
-    "message": "Add DPR parameter in renderer package API, and clarify the showAllBranches behavior.",
-    "date": "2026-02-01"
-  },
-  {
-    "hash": "fc537be",
-    "message": "Fix blank screen on load by preventing unnecessary Neutralino init, add offline UI test.",
-    "date": "2026-02-01"
-  },
-  {
-    "hash": "98355e7",
-    "message": "Update version to 0.8.1.",
-    "date": "2026-02-01"
-  },
-  {
-    "hash": "5483a93",
-    "message": "Add a dev mode toggle and move some UI to a tester tab. Add a zoom stats debug label.",
-    "date": "2026-02-01"
   }
 ]
