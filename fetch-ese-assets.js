@@ -219,6 +219,7 @@ async function main() {
         if (songMapping.bpm) entry.bpm = songMapping.bpm;
         if (songMapping.platforms) entry.platforms = songMapping.platforms;
         if (songMapping.region) entry.region = songMapping.region;
+        if (songMapping.dfcDifficulty) entry.dfcDifficulty = songMapping.dfcDifficulty;
       }
 
       newIndex.push(entry);

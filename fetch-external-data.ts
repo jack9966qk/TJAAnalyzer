@@ -81,17 +81,42 @@ export interface DonderHelperSong {
 
 export type DonderHelperData = Record<string, DonderHelperSong>;
 
+export interface TaikoWikiDfcSong {
+  songNo: string;
+  title: string;
+  difficulty: string; // "oni" | "ura"
+  order: number;
+}
+
+export interface TaikoWikiDfcSection {
+  order: number;
+  name: string; // e.g. "SS", "iS+", "pA"
+  songs: TaikoWikiDfcSong[];
+}
+
+export interface TaikoWikiDfcResponse {
+  name: string;
+  level: number;
+  type: string;
+  data: {
+    name: string;
+    sections: TaikoWikiDfcSection[];
+  };
+}
+
 const TAIKO_RATING_ANALYZER_URL =
   "https://raw.githubusercontent.com/KirisameVanilla/taiko-rating-analyzer/refs/heads/main/public/songs.json";
 const TAIKO_WIKI_DB_URL =
   "https://raw.githubusercontent.com/taikowiki/taiko-song-database/refs/heads/main/database.json";
 const DONDER_HELPER_URL =
   "https://raw.githubusercontent.com/Donder-Helper/DonderHelper/refs/heads/main/Data/songs.json";
+const TAIKO_WIKI_DFC_URL = "https://taiko.wiki/api/v1/diffchart?type=dfc&level=10";
 
 export interface ExternalSongData {
   taikoRatingAnalyzerSongs: TaikoRatingAnalyzerSong[];
   taikoWikiSongs: TaikoWikiSong[];
   donderHelperData: DonderHelperData;
+  dfcSections: TaikoWikiDfcSection[];
 }
 
 export async function fetchExternalSongData(): Promise<ExternalSongData> {
@@ -110,7 +135,23 @@ export async function fetchExternalSongData(): Promise<ExternalSongData> {
   if (!dhResp.ok) throw new Error(`Failed to fetch DonderHelper data: ${dhResp.statusText}`);
   const donderHelperData = (await dhResp.json()) as DonderHelperData;
 
-  return { taikoRatingAnalyzerSongs, taikoWikiSongs, donderHelperData };
+  console.log(`Fetching DFC diffchart from taiko.wiki...`);
+  let dfcSections: TaikoWikiDfcSection[] = [];
+  try {
+    const dfcResp = await fetch(TAIKO_WIKI_DFC_URL);
+    if (dfcResp.ok) {
+      const dfcData = (await dfcResp.json()) as TaikoWikiDfcResponse;
+      dfcSections = dfcData.data.sections;
+      console.log(`Fetched ${dfcSections.length} DFC sections.`);
+    } else {
+      console.warn(`Failed to fetch DFC data: ${dfcResp.statusText}`);
+    }
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    console.warn(`Failed to fetch DFC data: ${msg}`);
+  }
+
+  return { taikoRatingAnalyzerSongs, taikoWikiSongs, donderHelperData, dfcSections };
 }
 
 /** Build lookup maps from the fetched data, keyed by song ID string. */
@@ -122,7 +163,15 @@ export function buildLookupMaps(data: ExternalSongData) {
 
   const donderHelperValues = Object.values(data.donderHelperData);
 
-  return { taikoWikiMap, donderHelperValues };
+  // Build DFC lookup: "songNo:difficulty" -> section name
+  const dfcMap = new Map<string, string>();
+  for (const section of data.dfcSections) {
+    for (const song of section.songs) {
+      dfcMap.set(`${song.songNo}:${song.difficulty}`, section.name);
+    }
+  }
+
+  return { taikoWikiMap, donderHelperValues, dfcMap };
 }
 
 /**

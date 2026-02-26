@@ -35,6 +35,7 @@ interface MergedSong {
   bpm?: { min: number; max: number };
   platforms?: string[];
   region?: Record<string, number>;
+  dfcDifficulty?: Record<string, string>;
 }
 
 interface TjaFile {
@@ -55,6 +56,7 @@ export interface SongMappingEntry {
   bpm?: { min: number; max: number };
   platforms?: string[];
   region?: Record<string, number>;
+  dfcDifficulty?: Record<string, string>;
   candidates?: string[];
   matchType?: "exact" | "fuzzy" | "fuzzy + manual" | "fuzzy + llm";
 }
@@ -255,7 +257,7 @@ async function main() {
   }
 
   const { taikoRatingAnalyzerSongs, donderHelperData } = externalData;
-  const { taikoWikiMap, donderHelperValues } = buildLookupMaps(externalData);
+  const { taikoWikiMap, donderHelperValues, dfcMap } = buildLookupMaps(externalData);
 
   // DonderHelper difficulty name mapping to standard names
   const dhDiffMap: Record<string, "easy" | "normal" | "hard" | "oni" | "ura"> = {
@@ -332,6 +334,13 @@ async function main() {
     // Region from DonderHelper
     const region = dhSong?.Region;
 
+    // DFC difficulty from taiko.wiki diffchart
+    const dfcDifficulty: Record<string, string> = {};
+    for (const diff of ["oni", "ura"] as const) {
+      const dfcRank = dfcMap.get(`${idStr}:${diff}`);
+      if (dfcRank) dfcDifficulty[diff] = dfcRank;
+    }
+
     return {
       id: src.id,
       defaultTitle,
@@ -342,6 +351,7 @@ async function main() {
       bpm,
       platforms,
       region,
+      dfcDifficulty: Object.keys(dfcDifficulty).length > 0 ? dfcDifficulty : undefined,
     };
   });
 
@@ -439,6 +449,9 @@ async function main() {
       }
       if (song.region) {
         newEntry.region = song.region;
+      }
+      if (song.dfcDifficulty) {
+        newEntry.dfcDifficulty = song.dfcDifficulty;
       }
 
       mapping[song.id] = newEntry;
@@ -580,6 +593,9 @@ async function main() {
       }
       if (song.region) {
         entry.region = song.region;
+      }
+      if (song.dfcDifficulty) {
+        entry.dfcDifficulty = song.dfcDifficulty;
       }
 
       mapping[song.id] = entry;

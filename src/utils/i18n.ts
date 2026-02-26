@@ -267,6 +267,9 @@ const resources: Resources = {
     "ui.advSearch.dnGold": "Full Combo",
     "ui.advSearch.dnGrey": "Clear",
     "ui.advSearch.dnWhite": "Other",
+    "ui.advSearch.dfcDifficulty": "★10 DFC Difficulty",
+    "ui.advSearch.dfcCompetence": "Competence",
+    "ui.advSearch.dfcIndividual": "Individual",
   },
   zh: {
     "ui.dataSource": "数据源",
@@ -525,6 +528,9 @@ const resources: Resources = {
     "ui.advSearch.dnGold": "Full Combo",
     "ui.advSearch.dnGrey": "过关",
     "ui.advSearch.dnWhite": "其他",
+    "ui.advSearch.dfcDifficulty": "★10 全良难易度",
+    "ui.advSearch.dfcCompetence": "地力",
+    "ui.advSearch.dfcIndividual": "个人差",
   },
   ja: {
     "ui.dataSource": "データソース",
@@ -784,6 +790,9 @@ const resources: Resources = {
     "ui.advSearch.dnGold": "フルコンボ",
     "ui.advSearch.dnGrey": "クリア",
     "ui.advSearch.dnWhite": "その他",
+    "ui.advSearch.dfcDifficulty": "★10 全良難易度",
+    "ui.advSearch.dfcCompetence": "地力",
+    "ui.advSearch.dfcIndividual": "個人差",
   },
 };
 

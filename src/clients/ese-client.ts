@@ -16,6 +16,7 @@ export interface EseIndexEntry {
   bpm?: { min: number; max: number };
   platforms?: string[];
   region?: Record<string, number>;
+  dfcDifficulty?: Record<string, string>;
 }
 
 export class EseClient {

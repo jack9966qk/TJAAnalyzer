@@ -46,6 +46,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "2": {
@@ -622,6 +625,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iB"
     }
   },
   "16": {
@@ -1255,6 +1261,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "34": {
@@ -1767,6 +1776,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pA+"
     }
   },
   "44": {
@@ -1870,6 +1882,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iE"
     }
   },
   "47": {
@@ -2389,6 +2404,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iD"
     }
   },
   "61": {
@@ -2800,6 +2818,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pB"
     }
   },
   "70": {
@@ -3015,6 +3036,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pE",
+      "ura": "pE"
     }
   },
   "74": {
@@ -3243,6 +3268,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iB"
     }
   },
   "81": {
@@ -3475,6 +3503,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pA+"
     }
   },
   "85": {
@@ -4026,6 +4057,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "95": {
@@ -4100,6 +4134,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iC"
     }
   },
   "96": {
@@ -4753,7 +4790,10 @@
       "min": 130,
       "max": 130
     },
-    "platforms": ["NAC", "NS2", "TDM", "WiiU2", "V", "3DS3", "PLUS", "RC"]
+    "platforms": ["NAC", "NS2", "TDM", "WiiU2", "V", "3DS3", "PLUS", "RC"],
+    "dfcDifficulty": {
+      "oni": "iA+"
+    }
   },
   "111": {
     "esePath": "09 Namco Original/Densetsu no Matsuri/Densetsu no Matsuri.tja",
@@ -5128,6 +5168,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iE"
     }
   },
   "120": {
@@ -5177,6 +5220,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "SS"
     }
   },
   "121": {
@@ -5224,6 +5270,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "122": {
@@ -5557,6 +5606,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "131": {
@@ -5605,6 +5657,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iE"
     }
   },
   "132": {
@@ -5882,6 +5937,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "137": {
@@ -6306,6 +6364,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "149": {
@@ -6604,6 +6665,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pB"
     }
   },
   "155": {
@@ -6734,6 +6798,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iB"
     }
   },
   "157": {
@@ -7035,7 +7102,10 @@
       "min": 266,
       "max": 266
     },
-    "platforms": ["NAC"]
+    "platforms": ["NAC"],
+    "dfcDifficulty": {
+      "ura": "iB"
+    }
   },
   "166": {
     "esePath": "03 Vocaloid/Ninjin Nin/Ninjin Nin.tja",
@@ -7284,6 +7354,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "173": {
@@ -7486,6 +7559,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pB"
     }
   },
   "180": {
@@ -7586,6 +7662,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD",
+      "ura": "pA+"
     }
   },
   "182": {
@@ -7786,6 +7866,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iS"
     }
   },
   "187": {
@@ -8034,6 +8117,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "196": {
@@ -8335,6 +8421,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iA"
     }
   },
   "203": {
@@ -8968,6 +9057,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pA"
     }
   },
   "219": {
@@ -9072,6 +9164,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "221": {
@@ -9178,6 +9273,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pA+"
     }
   },
   "223": {
@@ -9942,6 +10040,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA+"
     }
   },
   "245": {
@@ -10779,6 +10880,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iB"
     }
   },
   "265": {
@@ -10829,6 +10933,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "266": {
@@ -10883,6 +10990,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iD"
     }
   },
   "267": {
@@ -11029,6 +11139,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pB"
     }
   },
   "270": {
@@ -11187,6 +11300,9 @@
       "Oceania": 0,
       "UnitedStates": 0,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "ura": "iC"
     }
   },
   "273": {
@@ -11675,7 +11791,7 @@
       "ALIAS-romaji": "Hatsune Miku no Shoushitsu -Gekijouban-"
     },
     "subtitleList": {
-      "ja": "",
+      "ja": "cosMo@暴走P feat. 初音ミク",
       "en-US": ""
     },
     "courses": {
@@ -11711,6 +11827,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iS"
     }
   },
   "284": {
@@ -11871,6 +11990,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "287": {
@@ -11963,6 +12085,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iF"
     }
   },
   "291": {
@@ -12840,6 +12965,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iA"
     }
   },
   "310": {
@@ -13760,6 +13888,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pC"
     }
   },
   "336": {
@@ -13808,6 +13939,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "SS"
     }
   },
   "337": {
@@ -13929,6 +14063,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "339": {
@@ -14504,7 +14641,7 @@
     "esePath": "03 Vocaloid/EDY -Electrical Dancing Yoga-/EDY -Electrical Dancing Yoga-.tja",
     "candidates": ["03 Vocaloid/EDY -Electrical Dancing Yoga-/EDY -Electrical Dancing Yoga-.tja"],
     "matchType": "exact",
-    "artist": "鏡音リン・鏡音レン, 佐藤たかふみ",
+    "artist": "鏡音リン, 鏡音レン, 佐藤たかふみ",
     "defaultTitle": "EDY ‐エレクトリカルダンシングヨガ‐",
     "titleList": {
       "ja": "EDY ‐エレクトリカルダンシングヨガ‐",
@@ -14534,13 +14671,13 @@
       "min": 132,
       "max": 132
     },
-    "platforms": ["NAC"]
+    "platforms": ["NAC", "NS1", "V", "PLUS", "PTB", "RC"]
   },
   "352": {
     "esePath": "09 Namco Original/Robot Rock ‘n’ roll☆/Robot Rock ‘n’ Roll☆.tja",
     "candidates": ["09 Namco Original/Robot Rock ‘n’ roll☆/Robot Rock ‘n’ Roll☆.tja"],
     "matchType": "exact",
-    "artist": "セガール",
+    "artist": "セガール, 真理絵",
     "defaultTitle": "ロボットロケンロー☆",
     "titleList": {
       "ja": "ロボットロケンロー☆",
@@ -14576,7 +14713,7 @@
       "min": 176,
       "max": 176
     },
-    "platforms": ["NAC", "NS2", "WiiU1", "PLUS", "RC"],
+    "platforms": ["NAC", "DF", "NS2", "WiiU1", "PLUS", "RC"],
     "region": {
       "Japan": 4,
       "Asia": 4,
@@ -14624,7 +14761,7 @@
       "min": 177,
       "max": 177
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "WiiU1", "PLUS"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -14637,7 +14774,7 @@
     "esePath": "09 Namco Original/Saitama 2000/Saitama 2000.tja",
     "candidates": ["09 Namco Original/Saitama 2000/Saitama 2000.tja"],
     "matchType": "exact",
-    "artist": "LindaAI-CUE",
+    "artist": "LindaAI-CUE, 山田ふしぎ",
     "defaultTitle": "さいたま2000",
     "titleList": {
       "ja": "さいたま2000",
@@ -14685,6 +14822,7 @@
       "AC12.5",
       "AC13",
       "AC14",
+      "DF",
       "NS2",
       "NS1",
       "NSRPG",
@@ -14717,7 +14855,7 @@
     "esePath": "09 Namco Original/Mata Saitama 2000/Mata Saitama 2000.tja",
     "candidates": ["09 Namco Original/Mata Saitama 2000/Mata Saitama 2000.tja"],
     "matchType": "exact",
-    "artist": "LindaAI-CUE, LindaAI-CUE",
+    "artist": "LindaAI-CUE",
     "defaultTitle": "またさいたま2000",
     "titleList": {
       "ja": "またさいたま2000",
@@ -14753,13 +14891,16 @@
       "min": 160,
       "max": 240
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "AC14", "DF", "NS2", "NS1", "WiiU2", "Wii4", "PSPDX", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "356": {
@@ -14802,7 +14943,7 @@
       "min": 250,
       "max": 250
     },
-    "platforms": ["NAC", "AC12.5", "AC13", "AC14", "NS1", "Wii2", "Wii4", "PSP2", "PLUS", "RC"],
+    "platforms": ["NAC", "AC12.5", "AC13", "AC14", "DF", "NS2", "NS1", "Wii2", "Wii4", "PSP2", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -14849,10 +14990,26 @@
       }
     },
     "bpm": {
-      "min": 139.66,
-      "max": 139.66
+      "min": 139.7,
+      "max": 139.7
     },
-    "platforms": ["NAC"],
+    "platforms": [
+      "NAC",
+      "AC6",
+      "AC7",
+      "AC14",
+      "NS1",
+      "TDM",
+      "WiiU2",
+      "Wii4",
+      "PS2-4",
+      "PS2TDM",
+      "PSP1",
+      "DS2",
+      "V",
+      "PTB",
+      "RC"
+    ],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -14865,7 +15022,7 @@
     "esePath": "07 Game Music/Opa! Opa! RACER -GMT Mashup-/Opa! Opa! RACER -GMT Mashup-.tja",
     "candidates": ["07 Game Music/Opa! Opa! RACER -GMT Mashup-/Opa! Opa! RACER -GMT Mashup-.tja"],
     "matchType": "fuzzy",
-    "artist": "COSIO(ZUNTATA／TAITO)",
+    "artist": "Hiro, Sampling Masters MEGA, COSIO",
     "defaultTitle": "オパ！オパ！RACER - GMT mashup -",
     "titleList": {
       "ja": "オパ！オパ！RACER - GMT mashup -",
@@ -14900,7 +15057,7 @@
     "esePath": "07 Game Music/RIDGE RACER STEPS -GMT Remix-/RIDGE RACER STEPS -GMT Remix-.tja",
     "candidates": ["01 Pop/S/S.tja", "07 Game Music/RIDGE RACER STEPS -GMT Remix-/RIDGE RACER STEPS -GMT Remix-.tja"],
     "matchType": "fuzzy + llm",
-    "artist": "Yuji Masubuchi(BNSI)",
+    "artist": "細江慎治",
     "defaultTitle": "RIDGE RACER STEPS - GMT remix -",
     "titleList": {
       "ja": "RIDGE RACER STEPS - GMT remix -",
@@ -14968,13 +15125,16 @@
       "min": 224,
       "max": 224
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "Wii5", "V"],
     "region": {
       "Japan": 1,
       "Asia": 1,
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "361": {
@@ -15019,13 +15179,16 @@
       "min": 224,
       "max": 224
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "WiiU1", "Wii4", "V", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iD"
     }
   },
   "362": {
@@ -15066,7 +15229,7 @@
       "min": 130.6,
       "max": 130.6
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "DF", "NS2", "WiiU3", "PS2-5", "3DS2", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -15113,13 +15276,16 @@
       "min": 158,
       "max": 158
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "AC11", "AC12", "AC12.5", "AC13", "AC14", "Wii1", "Wii5", "PSP2", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iE"
     }
   },
   "364": {
@@ -15159,7 +15325,7 @@
       "min": 144,
       "max": 144
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "WiiU3", "PSPDX", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -15208,13 +15374,16 @@
       "min": 104,
       "max": 208
     },
-    "platforms": ["NAC", "AC12.5", "AC14", "NS2", "PS4", "WiiU1", "Wii2", "Wii4", "PLUS", "RC"],
+    "platforms": ["NAC", "AC12.5", "AC14", "DF", "NS2", "PS4", "WiiU1", "Wii2", "Wii4", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pB"
     }
   },
   "366": {
@@ -15262,7 +15431,7 @@
       "min": 129,
       "max": 129
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "AC13", "AC14", "NS1", "WiiU1", "Wii3", "PSP2", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -15312,7 +15481,7 @@
       "min": 160,
       "max": 160
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "DF", "NS2", "WiiU2", "PSPDX", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -15367,7 +15536,7 @@
       "min": 120,
       "max": 120
     },
-    "platforms": ["NAC", "NS2"],
+    "platforms": ["NAC", "DF", "NS2", "NS1", "TDM", "WiiU1", "Wii3", "3DS1", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -15380,7 +15549,7 @@
     "esePath": "09 Namco Original/Senpuu no Mai [Heaven]/Senpuu no Mai [Heaven].tja",
     "candidates": ["09 Namco Original/Senpuu no Mai [Heaven]/Senpuu no Mai [Heaven].tja"],
     "matchType": "exact",
-    "artist": "Tatsh, 彩音",
+    "artist": "世阿弥, 彩音",
     "defaultTitle": "旋風ノ舞【天】",
     "titleList": {
       "ja": "旋風ノ舞【天】",
@@ -15420,20 +15589,24 @@
       "min": 160,
       "max": 160
     },
-    "platforms": ["NAC", "NS2"],
+    "platforms": ["NAC", "AC13", "AC14", "DF", "NS2", "PS4", "WiiU3", "Wii4", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iF",
+      "ura": "iF"
     }
   },
   "372": {
     "esePath": "09 Namco Original/Senpuu no Mai [Earth]/Senpuu no Mai [Earth].tja",
     "candidates": ["09 Namco Original/Senpuu no Mai [Earth]/Senpuu no Mai [Earth].tja"],
     "matchType": "exact",
-    "artist": "Tatsh, 彩音",
+    "artist": "世阿弥, 彩音",
     "defaultTitle": "旋風ノ舞【地】",
     "titleList": {
       "ja": "旋風ノ舞【地】",
@@ -15469,7 +15642,7 @@
       "min": 160,
       "max": 160
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "DF", "NS2", "PS4", "WiiU3", "Wii2", "Wii4", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -15522,7 +15695,7 @@
       "min": 181,
       "max": 181
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "DF", "NS2", "NSRPG", "PS4", "TDM", "WiiU1", "WiiU2", "V", "3DS2", "PLUS", "PTB", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -15569,7 +15742,7 @@
       "min": 222.2,
       "max": 222.2
     },
-    "platforms": ["NAC", "NS2", "NS1", "WiiU2", "PLUS", "RC"],
+    "platforms": ["NAC", "DF", "NS2", "NS1", "WiiU2", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -15619,7 +15792,7 @@
       "min": 185,
       "max": 185
     },
-    "platforms": ["NAC", "NS2"],
+    "platforms": ["NAC", "DF", "NS2", "WiiU1", "PSPDX", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -15668,7 +15841,7 @@
       "min": 80,
       "max": 160
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "AC14", "DF", "NS2", "Wii3", "PSPDX", "3DS2", "PLUS"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -15716,7 +15889,7 @@
       "min": 95,
       "max": 95
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "AC14", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -15762,7 +15935,7 @@
       "min": 173,
       "max": 180
     },
-    "platforms": ["NAC", "NS2"],
+    "platforms": ["NAC", "AC13", "AC14", "DF", "NS2", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 0,
@@ -15808,7 +15981,7 @@
       "min": 124,
       "max": 124
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "3DS2"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -15854,7 +16027,7 @@
       "min": 135,
       "max": 135
     },
-    "platforms": ["NAC", "NS2", "NS1", "NSRPG", "PS4", "WiiU3", "V", "3DS2", "PTB", "RC"],
+    "platforms": ["NAC", "DF", "NS2", "NS1", "NSRPG", "PS4", "WiiU3", "V", "3DS2", "PTB", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -15903,7 +16076,28 @@
       "min": 170,
       "max": 170
     },
-    "platforms": ["NAC"],
+    "platforms": [
+      "NAC",
+      "AC6",
+      "AC7",
+      "AC8",
+      "AC9",
+      "AC11",
+      "AC12",
+      "AC12.5",
+      "DF",
+      "NS2",
+      "PS4",
+      "WiiU3",
+      "Wii1",
+      "PS2-4",
+      "PSP1",
+      "PSPDX",
+      "DS1",
+      "PLUS",
+      "PTB",
+      "RC"
+    ],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -15964,6 +16158,7 @@
       "AC12.5",
       "AC13",
       "AC14",
+      "DF",
       "NS2",
       "Wii1",
       "Wii4",
@@ -15984,7 +16179,7 @@
     "esePath": "07 Game Music/SMOKY THRILL/SMOKY THRILL (AC16).tja",
     "candidates": ["07 Game Music/SMOKY THRILL/SMOKY THRILL (AC16).tja", "07 Game Music/SMOKY THRILL/SMOKY THRILL.tja"],
     "matchType": "fuzzy + llm",
-    "artist": "みすみゆり, 水瀬伊織・三浦あずさ・双海亜美",
+    "artist": "みすみゆり, 水瀬伊織, 三浦あずさ, 双海亜美, 秋月律子",
     "defaultTitle": "SMOKY THRILL",
     "titleList": {
       "ja": "SMOKY THRILL",
@@ -16018,7 +16213,7 @@
       "min": 146,
       "max": 146
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "Wii4", "PSPDX", "IDM"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -16068,13 +16263,16 @@
       "min": 200,
       "max": 200
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "DF", "NS2", "NSRPG", "WiiU2", "V", "3DS2", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pE"
     }
   },
   "389": {
@@ -16118,7 +16316,7 @@
       "min": 134,
       "max": 134
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "AC13", "DF", "NS2", "Wii2", "Wii5", "PTB", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -16168,7 +16366,7 @@
       "min": 144,
       "max": 144
     },
-    "platforms": ["NAC", "AC13", "NS2", "NS1", "Wii2", "Wii5", "PLUS", "PTB", "RC"],
+    "platforms": ["NAC", "AC13", "DF", "NS2", "NS1", "Wii2", "Wii5", "PLUS", "PTB", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -16230,7 +16428,7 @@
     "esePath": "09 Namco Original/Soroban 2000/Soroban 2000.tja",
     "candidates": ["09 Namco Original/Soroban 2000/Soroban 2000.tja"],
     "matchType": "exact",
-    "artist": "LindaAI-CUE, LindaAI-CUE",
+    "artist": "LindaAI-CUE",
     "defaultTitle": "十露盤2000",
     "titleList": {
       "ja": "十露盤2000",
@@ -16267,20 +16465,40 @@
       "min": 170,
       "max": 240
     },
-    "platforms": ["NAC"],
+    "platforms": [
+      "NAC",
+      "AC9",
+      "AC10",
+      "AC11",
+      "AC12",
+      "AC12.5",
+      "AC13",
+      "AC14",
+      "DF",
+      "NS2",
+      "WiiU1",
+      "Wii1",
+      "PS2-7",
+      "PSPDX",
+      "PLUS",
+      "RC"
+    ],
     "region": {
       "Japan": 1,
       "Asia": 1,
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "393": {
     "esePath": "09 Namco Original/Souryuu no Ran/Souryuu no Ran.tja",
     "candidates": ["09 Namco Original/Souryuu no Ran/Souryuu no Ran.tja"],
     "matchType": "exact",
-    "artist": "Tatsh",
+    "artist": "世阿弥",
     "defaultTitle": "双竜ノ乱",
     "titleList": {
       "ja": "双竜ノ乱",
@@ -16317,13 +16535,16 @@
       "min": 320,
       "max": 320
     },
-    "platforms": ["NAC", "NS2", "NS1", "NSRPG", "PS4", "3DS3"],
+    "platforms": ["NAC", "DF", "NS2", "NS1", "NSRPG", "PS4", "3DS3"],
     "region": {
       "Japan": 1,
       "Asia": 1,
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pS"
     }
   },
   "394": {
@@ -16365,7 +16586,7 @@
       "min": 140,
       "max": 140
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "AC14", "DF", "NS2", "NS1", "PS4", "TDM", "WiiU2", "Wii3", "PSPDX", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -16411,7 +16632,7 @@
       "min": 135,
       "max": 135
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "DF", "NS2", "WiiU2", "PSPDX", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -16424,7 +16645,7 @@
     "esePath": "09 Namco Original/super star shooter/super star shooter.tja",
     "candidates": ["09 Namco Original/super star shooter/super star shooter.tja"],
     "matchType": "exact",
-    "artist": "とんCHAN、ショック太郎, blue marble",
+    "artist": "とんCHAN、ショック太郎, blue marble, 武井麻里子",
     "defaultTitle": "super star shooter",
     "titleList": {
       "ja": "super star shooter",
@@ -16457,7 +16678,7 @@
       "min": 170,
       "max": 170
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "DF", "NS2", "NSRPG", "3DS2", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -16503,7 +16724,7 @@
       "min": 138,
       "max": 138
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "AC11", "DF", "NS2", "TDM", "Wii1", "Wii5", "PSPDX", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -16553,7 +16774,7 @@
       "min": 132,
       "max": 132
     },
-    "platforms": ["NAC"],
+    "platforms": ["NAC", "DF", "NS2", "Wii5", "PSPDX", "PLUS", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
@@ -16566,7 +16787,7 @@
     "esePath": "09 Namco Original/Picopico Ruin/Picopico Ruin.tja",
     "candidates": ["09 Namco Original/Picopico Ruin/Picopico Ruin.tja"],
     "matchType": "exact",
-    "artist": "Drop, セイクリッド ルイン × サカモト教授",
+    "artist": "Drop, サカモト教授",
     "defaultTitle": "ピコピコ ルイン",
     "titleList": {
       "ja": "ピコピコ ルイン",
@@ -16606,20 +16827,23 @@
       "min": 186,
       "max": 186
     },
-    "platforms": ["NAC", "3DS3"],
+    "platforms": ["NAC", "DF", "NS2", "3DS3", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iD"
     }
   },
   "400": {
     "esePath": "09 Namco Original/Sacred Ruin/Sacred Ruin.tja",
     "candidates": ["09 Namco Original/Sacred Ruin/Sacred Ruin.tja"],
     "matchType": "exact",
-    "artist": "Drop",
+    "artist": "Drop, 葉月ゆら",
     "defaultTitle": "セイクリッド ルイン",
     "titleList": {
       "ja": "セイクリッド ルイン",
@@ -16660,13 +16884,16 @@
       "min": 186,
       "max": 186
     },
-    "platforms": ["NAC", "3DS2"],
+    "platforms": ["NAC", "NSRPG", "PS4", "WiiU3", "3DS2", "PLUS", "PTB", "RC"],
     "region": {
       "Japan": 1,
       "Asia": 1,
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iD"
     }
   },
   "401": {
@@ -16716,6 +16943,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iS"
     }
   },
   "402": {
@@ -16781,6 +17011,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iB"
     }
   },
   "403": {
@@ -16900,6 +17133,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iE"
     }
   },
   "405": {
@@ -17352,6 +17588,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iF"
     }
   },
   "415": {
@@ -17640,6 +17879,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iF"
     }
   },
   "422": {
@@ -17839,6 +18081,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pD"
     }
   },
   "427": {
@@ -17886,6 +18131,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "428": {
@@ -18542,6 +18790,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA+"
     }
   },
   "442": {
@@ -18588,6 +18839,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "443": {
@@ -18891,6 +19145,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iB"
     }
   },
   "449": {
@@ -18990,6 +19247,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pC"
     }
   },
   "451": {
@@ -19041,6 +19301,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pS"
     }
   },
   "452": {
@@ -19087,6 +19350,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iF"
     }
   },
   "453": {
@@ -19282,6 +19548,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "457": {
@@ -19626,6 +19895,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "SS"
     }
   },
   "465": {
@@ -20165,6 +20437,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "478": {
@@ -20803,6 +21078,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iA"
     }
   },
   "495": {
@@ -20853,6 +21131,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "496": {
@@ -21036,6 +21317,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "500": {
@@ -21240,6 +21524,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pS"
     }
   },
   "504": {
@@ -21291,6 +21578,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iC"
     }
   },
   "505": {
@@ -21641,6 +21931,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iE"
     }
   },
   "514": {
@@ -21885,6 +22178,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iS+"
     }
   },
   "519": {
@@ -21939,6 +22235,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iB"
     }
   },
   "520": {
@@ -21989,6 +22288,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iD"
     }
   },
   "523": {
@@ -22478,6 +22780,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iC"
     }
   },
   "538": {
@@ -22529,6 +22834,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pD"
     }
   },
   "539": {
@@ -23235,6 +23543,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pA"
     }
   },
   "554": {
@@ -23332,6 +23643,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iS"
     }
   },
   "556": {
@@ -23877,6 +24191,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "571": {
@@ -23928,6 +24245,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "572": {
@@ -24072,6 +24392,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iE"
     }
   },
   "575": {
@@ -24122,6 +24445,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pC"
     }
   },
   "576": {
@@ -24223,6 +24549,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "578": {
@@ -24824,6 +25153,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "594": {
@@ -24870,6 +25202,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pC"
     }
   },
   "595": {
@@ -24920,6 +25255,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "596": {
@@ -25754,6 +26092,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "623": {
@@ -25935,6 +26276,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iA"
     }
   },
   "627": {
@@ -25984,6 +26328,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pS+"
     }
   },
   "628": {
@@ -26035,6 +26382,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pA"
     }
   },
   "629": {
@@ -26129,6 +26479,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "631": {
@@ -26277,6 +26630,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "637": {
@@ -26463,6 +26819,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "644": {
@@ -27550,6 +27909,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "675": {
@@ -27698,6 +28060,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "678": {
@@ -27742,11 +28107,11 @@
     },
     "platforms": ["NAC", "NS2", "NS1", "PS4", "PLUS", "PTB"],
     "region": {
-      "Japan": 1,
-      "Asia": 1,
-      "Oceania": 1,
-      "UnitedStates": 1,
-      "China": 1
+      "Japan": 0,
+      "Asia": 0,
+      "Oceania": 0,
+      "UnitedStates": 0,
+      "China": 0
     }
   },
   "680": {
@@ -27849,6 +28214,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pA"
     }
   },
   "684": {
@@ -27949,6 +28317,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA+"
     }
   },
   "686": {
@@ -27996,6 +28367,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iE"
     }
   },
   "687": {
@@ -28151,6 +28525,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pD"
     }
   },
   "693": {
@@ -28298,6 +28675,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iF"
     }
   },
   "697": {
@@ -28346,6 +28726,9 @@
       "Oceania": 0,
       "UnitedStates": 0,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "698": {
@@ -28394,6 +28777,9 @@
       "Oceania": 0,
       "UnitedStates": 0,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "699": {
@@ -28440,6 +28826,9 @@
       "Oceania": 0,
       "UnitedStates": 0,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "oni": "pB"
     }
   },
   "700": {
@@ -28490,6 +28879,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA+",
+      "ura": "iS"
     }
   },
   "701": {
@@ -28592,6 +28985,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pA"
     }
   },
   "703": {
@@ -29016,6 +29412,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "715": {
@@ -29062,6 +29461,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iE"
     }
   },
   "716": {
@@ -29116,6 +29518,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iA+"
     }
   },
   "717": {
@@ -29216,6 +29621,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "720": {
@@ -29267,6 +29675,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "721": {
@@ -29321,6 +29732,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD",
+      "ura": "SS"
     }
   },
   "722": {
@@ -29371,6 +29786,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "723": {
@@ -29422,6 +29840,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pB"
     }
   },
   "724": {
@@ -29471,6 +29892,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iE"
     }
   },
   "725": {
@@ -29721,6 +30145,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iE"
     }
   },
   "732": {
@@ -29864,6 +30291,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iE"
     }
   },
   "735": {
@@ -29916,6 +30346,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iC"
     }
   },
   "736": {
@@ -29970,6 +30403,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iB"
     }
   },
   "737": {
@@ -30020,6 +30456,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "738": {
@@ -30304,6 +30743,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA+"
     }
   },
   "746": {
@@ -30450,6 +30892,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA+"
     }
   },
   "749": {
@@ -30798,6 +31243,9 @@
       "Oceania": 0,
       "UnitedStates": 0,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "757": {
@@ -30844,6 +31292,9 @@
       "Oceania": 0,
       "UnitedStates": 0,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "758": {
@@ -30890,6 +31341,9 @@
       "Oceania": 0,
       "UnitedStates": 0,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "oni": "iA+"
     }
   },
   "759": {
@@ -30937,6 +31391,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "760": {
@@ -30986,6 +31443,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA+"
     }
   },
   "761": {
@@ -31032,6 +31492,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pA"
     }
   },
   "762": {
@@ -31078,6 +31541,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "763": {
@@ -31127,6 +31593,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA+"
     }
   },
   "764": {
@@ -31173,6 +31642,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iS"
     }
   },
   "765": {
@@ -31229,6 +31701,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "SS",
+      "ura": "SS"
     }
   },
   "770": {
@@ -31433,6 +31909,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "775": {
@@ -31488,6 +31967,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pE",
+      "ura": "pE"
     }
   },
   "776": {
@@ -31577,6 +32060,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA+"
     }
   },
   "778": {
@@ -31624,6 +32110,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iS"
     }
   },
   "779": {
@@ -31672,6 +32161,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iF"
     }
   },
   "780": {
@@ -31765,6 +32257,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pA"
     }
   },
   "782": {
@@ -31902,6 +32397,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "785": {
@@ -32002,6 +32500,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "790": {
@@ -32351,6 +32852,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pC"
     }
   },
   "799": {
@@ -32548,6 +33052,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "804": {
@@ -32598,6 +33105,9 @@
       "Oceania": 0,
       "UnitedStates": 0,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "ura": "iB"
     }
   },
   "805": {
@@ -32800,6 +33310,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pB"
     }
   },
   "814": {
@@ -32850,6 +33363,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "815": {
@@ -32899,6 +33415,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "816": {
@@ -32953,6 +33472,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD",
+      "ura": "iS"
     }
   },
   "817": {
@@ -33045,6 +33568,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA+"
     }
   },
   "819": {
@@ -33100,6 +33626,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pB"
     }
   },
   "820": {
@@ -33150,6 +33679,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pA+"
     }
   },
   "821": {
@@ -33401,6 +33933,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA+"
     }
   },
   "828": {
@@ -33507,6 +34042,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pB"
     }
   },
   "833": {
@@ -33554,6 +34092,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "834": {
@@ -33608,6 +34149,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB",
+      "ura": "iS+"
     }
   },
   "835": {
@@ -33642,7 +34187,10 @@
       "min": 138.98,
       "max": 299.19
     },
-    "platforms": ["NAC", "TDM", "PLUS", "RC"]
+    "platforms": ["NAC", "TDM", "PLUS", "RC"],
+    "dfcDifficulty": {
+      "oni": "iB"
+    }
   },
   "842": {
     "esePath": "02 Anime/Gurenge/Gurenge.tja",
@@ -33746,6 +34294,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "844": {
@@ -33842,6 +34393,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iA+"
     }
   },
   "846": {
@@ -33892,6 +34446,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iE"
     }
   },
   "849": {
@@ -33941,6 +34498,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "SS"
     }
   },
   "850": {
@@ -33993,6 +34553,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA+"
     }
   },
   "851": {
@@ -34043,6 +34606,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pB"
     }
   },
   "852": {
@@ -34196,6 +34762,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iE",
+      "ura": "iS+"
     }
   },
   "857": {
@@ -34294,6 +34864,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pS"
     }
   },
   "859": {
@@ -34344,6 +34917,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "860": {
@@ -34393,6 +34969,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pA+"
     }
   },
   "861": {
@@ -34594,6 +35173,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pS"
     }
   },
   "867": {
@@ -34645,6 +35227,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "868": {
@@ -34700,6 +35285,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB",
+      "ura": "pS"
     }
   },
   "869": {
@@ -34750,6 +35339,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pA+"
     }
   },
   "874": {
@@ -34940,6 +35532,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pA"
     }
   },
   "879": {
@@ -34990,6 +35585,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iE"
     }
   },
   "880": {
@@ -35093,6 +35691,9 @@
       "Oceania": 1,
       "UnitedStates": 0,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pC"
     }
   },
   "882": {
@@ -35412,6 +36013,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iS"
     }
   },
   "891": {
@@ -35512,6 +36116,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA+"
     }
   },
   "894": {
@@ -35659,6 +36266,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iS"
     }
   },
   "897": {
@@ -35806,6 +36416,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pB"
     }
   },
   "906": {
@@ -35856,6 +36469,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "907": {
@@ -36452,6 +37068,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iC"
     }
   },
   "921": {
@@ -36749,6 +37368,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "928": {
@@ -36795,6 +37417,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "929": {
@@ -36841,6 +37466,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "930": {
@@ -37077,6 +37705,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "935": {
@@ -37124,6 +37755,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "937": {
@@ -37234,6 +37868,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iD"
     }
   },
   "939": {
@@ -37333,6 +37970,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "941": {
@@ -37466,6 +38106,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "944": {
@@ -37907,6 +38550,9 @@
       "Oceania": 5,
       "UnitedStates": 5,
       "China": 5
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "954": {
@@ -37959,6 +38605,10 @@
       "Oceania": 5,
       "UnitedStates": 5,
       "China": 5
+    },
+    "dfcDifficulty": {
+      "oni": "pC",
+      "ura": "iS+"
     }
   },
   "955": {
@@ -38009,6 +38659,9 @@
       "Oceania": 5,
       "UnitedStates": 5,
       "China": 5
+    },
+    "dfcDifficulty": {
+      "oni": "pA"
     }
   },
   "956": {
@@ -38121,6 +38774,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iE",
+      "ura": "pA"
     }
   },
   "959": {
@@ -38174,6 +38831,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iA"
     }
   },
   "960": {
@@ -38225,6 +38885,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pB",
+      "ura": "SS"
     }
   },
   "961": {
@@ -38272,6 +38936,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "962": {
@@ -38651,6 +39318,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pB"
     }
   },
   "972": {
@@ -38705,6 +39375,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iA+"
     }
   },
   "973": {
@@ -38946,6 +39619,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "978": {
@@ -39095,6 +39771,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "981": {
@@ -39201,6 +39880,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pA"
     }
   },
   "983": {
@@ -39247,6 +39929,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "984": {
@@ -39340,11 +40025,11 @@
     },
     "platforms": ["NAC"],
     "region": {
-      "Japan": 1,
-      "Asia": 1,
-      "Oceania": 1,
-      "UnitedStates": 1,
-      "China": 1
+      "Japan": 0,
+      "Asia": 0,
+      "Oceania": 0,
+      "UnitedStates": 0,
+      "China": 0
     }
   },
   "988": {
@@ -39499,6 +40184,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pA+"
     }
   },
   "991": {
@@ -39599,6 +40287,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "993": {
@@ -39651,6 +40342,10 @@
       "Oceania": 6,
       "UnitedStates": 0,
       "China": 6
+    },
+    "dfcDifficulty": {
+      "oni": "iS",
+      "ura": "SS"
     }
   },
   "994": {
@@ -39900,6 +40595,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA+"
     }
   },
   "1000": {
@@ -40348,6 +41046,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pC",
+      "ura": "pS+"
     }
   },
   "1013": {
@@ -40644,6 +41346,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pD"
     }
   },
   "1021": {
@@ -40745,6 +41450,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iD"
     }
   },
   "1023": {
@@ -40940,6 +41648,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pC"
     }
   },
   "1029": {
@@ -41090,6 +41801,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iA+"
     }
   },
   "1032": {
@@ -41140,6 +41854,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pD"
     }
   },
   "1033": {
@@ -41190,6 +41907,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iD"
     }
   },
   "1034": {
@@ -41293,6 +42013,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pE"
     }
   },
   "1036": {
@@ -41391,6 +42114,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iF"
     }
   },
   "1039": {
@@ -41441,6 +42167,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "1040": {
@@ -41490,6 +42219,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iS+"
     }
   },
   "1041": {
@@ -41542,6 +42274,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA+"
     }
   },
   "1042": {
@@ -41597,6 +42332,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pB",
+      "ura": "pS+"
     }
   },
   "1043": {
@@ -41651,6 +42390,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pB",
+      "ura": "SS"
     }
   },
   "1044": {
@@ -41862,6 +42605,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pC",
+      "ura": "pS+"
     }
   },
   "1049": {
@@ -41912,6 +42659,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "1050": {
@@ -41960,6 +42710,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "1051": {
@@ -42060,6 +42813,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iS"
     }
   },
   "1053": {
@@ -42116,6 +42872,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iC"
     }
   },
   "1054": {
@@ -42568,6 +43327,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pS"
     }
   },
   "1067": {
@@ -42618,6 +43380,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "1068": {
@@ -42666,6 +43431,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "1069": {
@@ -42814,6 +43582,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "1072": {
@@ -42870,6 +43641,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA",
+      "ura": "SS"
     }
   },
   "1073": {
@@ -43174,6 +43949,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iS+"
     }
   },
   "1081": {
@@ -43230,6 +44008,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iB"
     }
   },
   "1082": {
@@ -43440,6 +44221,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "1086": {
@@ -43486,6 +44270,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pA"
     }
   },
   "1090": {
@@ -43790,6 +44577,9 @@
       "Oceania": 2,
       "UnitedStates": 0,
       "China": 2
+    },
+    "dfcDifficulty": {
+      "ura": "pA+"
     }
   },
   "1098": {
@@ -43888,6 +44678,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iS"
     }
   },
   "1100": {
@@ -43939,6 +44732,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pB"
     }
   },
   "1103": {
@@ -44034,6 +44830,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pB"
     }
   },
   "1105": {
@@ -44128,6 +44927,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "1107": {
@@ -44225,6 +45027,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "1109": {
@@ -44274,11 +45079,11 @@
     },
     "platforms": ["NAC"],
     "region": {
-      "Japan": 1,
-      "Asia": 1,
-      "Oceania": 1,
-      "UnitedStates": 1,
-      "China": 1
+      "Japan": -1,
+      "Asia": -1,
+      "Oceania": -1,
+      "UnitedStates": -1,
+      "China": -1
     }
   },
   "1110": {
@@ -44779,6 +45584,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iS"
     }
   },
   "1121": {
@@ -44829,6 +45637,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iE",
+      "ura": "iB"
     }
   },
   "1122": {
@@ -44883,6 +45695,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pS"
     }
   },
   "1124": {
@@ -45079,6 +45894,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pB",
+      "ura": "SS"
     }
   },
   "1130": {
@@ -45288,6 +46107,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iC"
     }
   },
   "1134": {
@@ -45334,6 +46156,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "1135": {
@@ -45690,6 +46515,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iB"
     }
   },
   "1145": {
@@ -45741,6 +46569,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iS"
     }
   },
   "1146": {
@@ -45794,6 +46625,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iC"
     }
   },
   "1147": {
@@ -45840,6 +46674,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "1148": {
@@ -46127,6 +46964,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "1155": {
@@ -46278,6 +47118,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pD"
     }
   },
   "1159": {
@@ -46766,6 +47609,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "ura": "iD"
     }
   },
   "1169": {
@@ -46918,6 +47764,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iC"
     }
   },
   "1172": {
@@ -46966,6 +47815,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "SS"
     }
   },
   "1173": {
@@ -47016,6 +47868,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "1174": {
@@ -47603,6 +48458,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pA"
     }
   },
   "1186": {
@@ -48047,6 +48905,9 @@
       "Oceania": 2,
       "UnitedStates": 0,
       "China": 2
+    },
+    "dfcDifficulty": {
+      "ura": "iS+"
     }
   },
   "1197": {
@@ -48098,6 +48959,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iB"
     }
   },
   "1198": {
@@ -48293,6 +49157,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pB"
     }
   },
   "1202": {
@@ -48922,6 +49789,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iA+"
     }
   },
   "1215": {
@@ -48973,6 +49843,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pS"
     }
   },
   "1216": {
@@ -49024,6 +49897,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB",
+      "ura": "pS+"
     }
   },
   "1217": {
@@ -49225,6 +50102,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pB"
     }
   },
   "1225": {
@@ -49388,6 +50268,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pA+",
+      "ura": "SS"
     }
   },
   "1228": {
@@ -49483,6 +50367,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "1230": {
@@ -49774,6 +50661,9 @@
       "Oceania": 1,
       "UnitedStates": 0,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pA"
     }
   },
   "1236": {
@@ -49822,6 +50712,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pS+"
     }
   },
   "1237": {
@@ -49872,6 +50765,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iA"
     }
   },
   "1240": {
@@ -50262,6 +51158,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA+"
     }
   },
   "1248": {
@@ -50364,6 +51263,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iS+"
     }
   },
   "1250": {
@@ -50655,6 +51557,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "1256": {
@@ -50707,6 +51612,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iA"
     }
   },
   "1257": {
@@ -50747,7 +51655,10 @@
       "min": 220,
       "max": 220
     },
-    "platforms": ["NAC"]
+    "platforms": ["NAC"],
+    "dfcDifficulty": {
+      "oni": "pC"
+    }
   },
   "1258": {
     "esePath": "09 Namco Original/Fly away/Fly away (Nijisanji).tja",
@@ -51015,7 +51926,10 @@
       "min": 220,
       "max": 220
     },
-    "platforms": ["NAC"]
+    "platforms": ["NAC"],
+    "dfcDifficulty": {
+      "ura": "iC"
+    }
   },
   "1265": {
     "esePath": "09 Namco Original/Angel Dream/Angel Dream (Nijisanji).tja",
@@ -51199,6 +52113,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iC"
     }
   },
   "1269": {
@@ -51598,6 +52515,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC",
+      "ura": "iS+"
     }
   },
   "1277": {
@@ -51694,6 +52615,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iS+"
     }
   },
   "1279": {
@@ -51743,6 +52667,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iD"
     }
   },
   "1280": {
@@ -52404,6 +53331,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "1298": {
@@ -52933,6 +53863,10 @@
       "Oceania": 4,
       "UnitedStates": 4,
       "China": 4
+    },
+    "dfcDifficulty": {
+      "oni": "iD",
+      "ura": "pA"
     }
   },
   "1309": {
@@ -52985,6 +53919,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iA+"
     }
   },
   "1310": {
@@ -53035,6 +53972,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pS"
     }
   },
   "1311": {
@@ -53087,6 +54027,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pA+"
     }
   },
   "1312": {
@@ -53372,6 +54315,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pS"
     }
   },
   "1318": {
@@ -53422,6 +54368,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pA"
     }
   },
   "1319": {
@@ -53474,6 +54423,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iS"
     }
   },
   "1320": {
@@ -53524,6 +54476,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iA+"
     }
   },
   "1321": {
@@ -53720,6 +54675,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "1325": {
@@ -53912,6 +54870,9 @@
       "Oceania": 1,
       "UnitedStates": 0,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "1329": {
@@ -53962,6 +54923,9 @@
       "Oceania": 1,
       "UnitedStates": 0,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iS"
     }
   },
   "1330": {
@@ -54384,6 +55348,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "1339": {
@@ -54924,6 +55891,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "SS"
     }
   },
   "1351": {
@@ -54973,6 +55943,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "1352": {
@@ -55166,6 +56139,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "1356": {
@@ -55212,6 +56188,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iE"
     }
   },
   "1357": {
@@ -55263,6 +56242,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "oni": "pE",
+      "ura": "pE"
     }
   },
   "1358": {
@@ -55599,6 +56582,9 @@
       "Oceania": 4,
       "UnitedStates": 4,
       "China": 4
+    },
+    "dfcDifficulty": {
+      "ura": "iA"
     }
   },
   "1365": {
@@ -55745,6 +56731,9 @@
       "Oceania": 4,
       "UnitedStates": 4,
       "China": 4
+    },
+    "dfcDifficulty": {
+      "oni": "iS+"
     }
   },
   "1368": {
@@ -55841,6 +56830,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "oni": "SS"
     }
   },
   "1370": {
@@ -55891,6 +56883,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pD"
     }
   },
   "1371": {
@@ -55942,6 +56937,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iB"
     }
   },
   "1377": {
@@ -55986,7 +56984,7 @@
       "Japan": 1,
       "Asia": 1,
       "Oceania": 1,
-      "UnitedStates": 0,
+      "UnitedStates": 1,
       "China": 1
     }
   },
@@ -56032,7 +57030,7 @@
       "Japan": 1,
       "Asia": 1,
       "Oceania": 1,
-      "UnitedStates": 0,
+      "UnitedStates": 1,
       "China": 1
     }
   },
@@ -56044,10 +57042,12 @@
     "defaultTitle": "Valsqotch",
     "titleList": {
       "ja": "Valsqotch",
-      "zh-CN": "Valsqotch"
+      "zh-CN": "Valsqotch",
+      "en-US": "Valsqotch"
     },
     "subtitleList": {
-      "ja": "owl＊tree feat.chi＊tree 「maimai でらっくす」より"
+      "ja": "owl＊tree feat.chi＊tree 「maimai でらっくす」より",
+      "en-US": "owl * tree feat.chi * tree From \" maimai DX \""
     },
     "courses": {
       "easy": {
@@ -56078,6 +57078,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "1380": {
@@ -56088,10 +57091,12 @@
     "defaultTitle": "Oshama Scramble!",
     "titleList": {
       "ja": "Oshama Scramble!",
-      "zh-CN": "Oshama Scramble!"
+      "zh-CN": "Oshama Scramble!",
+      "en-US": "Oshama Scramble!"
     },
     "subtitleList": {
-      "ja": "t+pazolite 「maimai でらっくす」より"
+      "ja": "t+pazolite 「maimai でらっくす」より",
+      "en-US": "t+pazolite From \" maimai DX \""
     },
     "courses": {
       "easy": {
@@ -56126,6 +57131,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "ura": "iD"
     }
   },
   "1381": {
@@ -56271,6 +57279,9 @@
       "Oceania": 4,
       "UnitedStates": 4,
       "China": 4
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "1384": {
@@ -56317,6 +57328,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "1385": {
@@ -56613,6 +57627,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "ura": "iD"
     }
   },
   "1391": {
@@ -56799,6 +57816,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "oni": "iA"
     }
   },
   "1395": {
@@ -56846,6 +57866,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "oni": "iC"
     }
   },
   "1396": {
@@ -57073,7 +58096,7 @@
       "Japan": 1,
       "Asia": 1,
       "Oceania": 1,
-      "UnitedStates": 0,
+      "UnitedStates": 1,
       "China": 0
     }
   },
@@ -57169,6 +58192,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "oni": "pC"
     }
   },
   "1405": {
@@ -57216,6 +58242,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "oni": "iB"
     }
   },
   "1406": {
@@ -57262,6 +58291,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 0
+    },
+    "dfcDifficulty": {
+      "oni": "iS+"
     }
   },
   "1407": {
@@ -57499,6 +58531,10 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "oni": "pC",
+      "ura": "iS"
     }
   },
   "1412": {
@@ -57551,6 +58587,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "pB"
     }
   },
   "1413": {
@@ -57603,6 +58642,9 @@
       "Oceania": 1,
       "UnitedStates": 1,
       "China": 1
+    },
+    "dfcDifficulty": {
+      "ura": "iA+"
     }
   },
   "1415": {
@@ -57793,6 +58835,10 @@
       "Oceania": 4,
       "UnitedStates": 4,
       "China": 4
+    },
+    "dfcDifficulty": {
+      "oni": "iA",
+      "ura": "SS"
     }
   },
   "1420": {
@@ -57979,7 +59025,7 @@
       "Japan": 1,
       "Asia": 1,
       "Oceania": 1,
-      "UnitedStates": 0,
+      "UnitedStates": 1,
       "China": 0
     }
   },
@@ -58023,9 +59069,9 @@
     "platforms": ["NAC", "DF", "NS2"],
     "region": {
       "Japan": 1,
-      "Asia": 0,
-      "Oceania": 0,
-      "UnitedStates": 0,
+      "Asia": 1,
+      "Oceania": 1,
+      "UnitedStates": 1,
       "China": 0
     }
   },
@@ -58069,9 +59115,9 @@
     "platforms": ["NAC", "DF", "NS2"],
     "region": {
       "Japan": 1,
-      "Asia": 0,
-      "Oceania": 0,
-      "UnitedStates": 0,
+      "Asia": 1,
+      "Oceania": 1,
+      "UnitedStates": 1,
       "China": 0
     }
   },

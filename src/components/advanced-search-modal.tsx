@@ -20,6 +20,7 @@ export interface AdvancedSearchCriteria {
   platform?: string;
   region?: string;
   playdata?: string;
+  dfcDifficulty?: string;
 }
 
 export interface PlaydataContext {
@@ -129,6 +130,14 @@ export function matchesAdvancedCriteria(
     if (dnClass !== criteria.playdata) return false;
   }
 
+  // DFC Difficulty
+  if (criteria.dfcDifficulty) {
+    if (!entry.dfcDifficulty) return false;
+    const diffsToCheck = diffs ?? (["oni", "ura"] as Difficulty[]);
+    const hasDfc = diffsToCheck.some((d) => entry.dfcDifficulty?.[d] === criteria.dfcDifficulty);
+    if (!hasDfc) return false;
+  }
+
   return true;
 }
 
@@ -146,7 +155,8 @@ export function hasAnyCriteria(criteria: AdvancedSearchCriteria): boolean {
     criteria.bpmMax != null ||
     criteria.platform ||
     criteria.region ||
-    criteria.playdata
+    criteria.playdata ||
+    criteria.dfcDifficulty
   );
 }
 
@@ -190,7 +200,47 @@ export function getAdvancedSearchSummary(criteria: AdvancedSearchCriteria): stri
     parts.push(dnLabelMap[criteria.playdata] ?? criteria.playdata);
   }
 
+  if (criteria.dfcDifficulty) {
+    parts.push(dfcDisplayName(criteria.dfcDifficulty));
+  }
+
   return parts.join(" • ");
+}
+
+/** All possible DFC section names in order from hardest to easiest. */
+const DFC_SECTIONS = [
+  "SS",
+  "iS+",
+  "pS+",
+  "iS",
+  "pS",
+  "iA+",
+  "pA+",
+  "iA",
+  "pA",
+  "iB",
+  "pB",
+  "iC",
+  "pC",
+  "iD",
+  "pD",
+  "iE",
+  "pE",
+  "iF",
+] as const;
+
+/** Convert a DFC section code to a user-friendly display name. */
+function dfcDisplayName(code: string): string {
+  // "i" prefix -> Competence, "p" prefix -> Individual, no prefix -> as-is
+  if (code.startsWith("i")) {
+    const rank = code.slice(1);
+    return `${i18n.t("ui.advSearch.dfcCompetence")} ${rank}`;
+  }
+  if (code.startsWith("p")) {
+    const rank = code.slice(1);
+    return `${i18n.t("ui.advSearch.dfcIndividual")} ${rank}`;
+  }
+  return code; // e.g. "SS"
 }
 
 export class AdvancedSearchModal extends HTMLElement {
@@ -255,6 +305,16 @@ export class AdvancedSearchModal extends HTMLElement {
       // biome-ignore lint/suspicious/noExplicitAny: dynamic assignment
       (this.criteria as any)[field] = value;
     }
+
+    // Mutual dependency: DFC sets stars to 10
+    if (field === "dfcDifficulty" && value) {
+      this.criteria.stars = 10;
+    }
+    // Stars changed to non-10 or cleared: clear DFC
+    if (field === "stars" && value !== 10) {
+      delete this.criteria.dfcDifficulty;
+    }
+
     this.renderModal();
   }
 
@@ -301,7 +361,7 @@ export class AdvancedSearchModal extends HTMLElement {
     const noteCountLabel = i18n.t("ui.advSearch.noteCount");
 
     const fieldStyle = "display: flex; align-items: center; gap: 8px; margin-bottom: 12px;";
-    const labelStyle = "min-width: 100px; font-size: 14px; color: var(--text-secondary); flex-shrink: 0;";
+    const labelStyle = "min-width: 120px; font-size: 14px; color: var(--text-secondary); flex-shrink: 0;";
     const inputStyle =
       "flex: 1; padding: 5px 8px; font-size: 14px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-input); color: var(--text-primary); box-sizing: border-box;";
     const numberInputStyle = `${inputStyle} max-width: 80px;`;
@@ -402,6 +462,27 @@ export class AdvancedSearchModal extends HTMLElement {
                   />
                 </div>
               </div>
+            </div>
+
+            {/* DFC Difficulty (only relevant for 10-star) */}
+            <div style={fieldStyle}>
+              <span style={labelStyle}>{i18n.t("ui.advSearch.dfcDifficulty")}</span>
+              <select
+                style={inputStyle}
+                value={c.dfcDifficulty || ""}
+                onchange={(e: Event) =>
+                  this.updateField("dfcDifficulty", (e.target as HTMLSelectElement).value || undefined)
+                }
+              >
+                <option value="" selected={!c.dfcDifficulty}>
+                  {i18n.t("ui.advSearch.any")}
+                </option>
+                {DFC_SECTIONS.map((s) => (
+                  <option value={s} selected={s === c.dfcDifficulty}>
+                    {dfcDisplayName(s)}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* BPM Row */}

@@ -231,4 +231,84 @@ test.describe("Chart List Panel Component", () => {
     // All 3 songs should be visible again
     await expect(page.locator(".ese-result-item")).toHaveCount(3);
   });
+
+  test("Advanced Search DFC Difficulty Filter", async ({ page }) => {
+    // Mock ESE index with 10-star songs that have DFC difficulty data
+    const mockIndex = [
+      {
+        path: "cat1/song_ss.tja",
+        title: "Song SS",
+        courses: { oni: { level: 10, maxCombo: 1000 } },
+        dfcDifficulty: { oni: "SS" },
+      },
+      {
+        path: "cat1/song_ia.tja",
+        title: "Song iA",
+        courses: { oni: { level: 10, maxCombo: 800 } },
+        dfcDifficulty: { oni: "iA" },
+      },
+      {
+        path: "cat1/song_no_dfc.tja",
+        title: "Song No DFC",
+        courses: { oni: { level: 10, maxCombo: 600 } },
+      },
+    ];
+
+    await page.route("**/ese_index.json", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(mockIndex) }),
+    );
+
+    await page.goto("/");
+
+    // Open list tab
+    const dsBody = page.locator("#ds-body");
+    if ((await dsBody.count()) > 0) {
+      const classes = await dsBody.getAttribute("class");
+      if (classes?.includes("collapsed")) {
+        await page.click("#ds-panel-header");
+      }
+    }
+    await page.locator('button[data-mode="list"]').click();
+    await expect(page.locator(".ese-result-item").first()).toBeVisible();
+
+    // All 3 songs should be visible initially
+    await expect(page.locator(".ese-result-item")).toHaveCount(3);
+
+    // Open advanced search modal
+    await page.locator(".adv-search-open-btn").click();
+    await expect(page.locator("#advanced-search-modal.open")).toBeVisible();
+
+    // Select "SS" from the DFC dropdown
+    // The DFC select is after difficulty, stars, so we find it by its label context
+    const dfcSelect = page.locator("#advanced-search-modal.open select").nth(1); // 0=difficulty, 1=DFC
+    await dfcSelect.selectOption("SS");
+
+    // Verify stars was auto-set to 10
+    const starsInput = page.locator('#advanced-search-modal.open input[type="number"]').first();
+    await expect(starsInput).toHaveValue("10");
+
+    // Apply
+    await page.locator("#advanced-search-modal.open").getByText("Apply").click();
+
+    // Only Song SS should remain
+    await expect(page.locator(".ese-result-item")).toHaveCount(1);
+    await expect(page.locator(".ese-result-item").first()).toContainText("Song SS");
+
+    // Re-open advanced search
+    await page.locator(".adv-search-active-bar").click();
+    await expect(page.locator("#advanced-search-modal.open")).toBeVisible();
+
+    // Change stars to 9 (should auto-clear DFC)
+    const starsInput2 = page.locator('#advanced-search-modal.open input[type="number"]').first();
+    await starsInput2.fill("9");
+    await starsInput2.dispatchEvent("input");
+
+    // DFC select should be reset to "Any" (empty value)
+    const dfcSelect2 = page.locator("#advanced-search-modal.open select").nth(1);
+    await expect(dfcSelect2).toHaveValue("");
+
+    // Clear all and restore
+    await page.locator("#advanced-search-modal.open").getByText("Clear All").click();
+    await expect(page.locator(".ese-result-item")).toHaveCount(3);
+  });
 });
