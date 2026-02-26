@@ -6,7 +6,8 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!!**/release", "!!**/dist", "!!**/ts_output", "!!**/assets/heroicons"]
+    "includes": ["**", "!!**/release", "!!**/dist", "!!**/ts_output", "!!**/assets/heroicons"],
+    "maxSize": 2097152
   },
   "formatter": {
     "enabled": true,
