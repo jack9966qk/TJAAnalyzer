@@ -31,6 +31,7 @@ declare global {
       "save-image-button": HtmlTag & SaveImageButtonProps;
       "export-button": HtmlTag & ExportButtonProps;
       "action-button": HtmlTag & ActionButtonProps;
+      "advanced-search-modal": HtmlTag;
     }
   }
 }

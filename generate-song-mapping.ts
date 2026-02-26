@@ -304,7 +304,7 @@ async function main() {
       if (wikiCourse && wikiCourse.level > 0) {
         courses[diff] = { level: wikiCourse.level };
         if (wikiCourse.maxCombo && wikiCourse.maxCombo > 0) {
-          courses[diff]!.maxCombo = wikiCourse.maxCombo;
+          courses[diff].maxCombo = wikiCourse.maxCombo;
         }
       }
     }
@@ -317,7 +317,7 @@ async function main() {
           courses[stdName] = { level: dhDiff.Level };
           const noteCount = dhDiff.NoteCount?.Single?.Normal;
           if (noteCount && noteCount > 0) {
-            courses[stdName]!.maxCombo = noteCount;
+            courses[stdName].maxCombo = noteCount;
           }
         }
       }

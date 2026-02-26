@@ -24,6 +24,7 @@ import "./components/changelog-panel.js";
 import "./components/language-selector.js";
 import "./components/settings-panel.js";
 import "./components/action-button.js";
+import "./components/advanced-search-modal.js";
 import * as Renderer from "tja-renderer";
 
 const { createJudgementKey } = Renderer.Private;

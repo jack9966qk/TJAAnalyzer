@@ -1295,3 +1295,112 @@ h1 {
   margin-top: 2px; /* Visual alignment fix for float */
   white-space: nowrap;
 }
+
+/* Advanced Search */
+.icon-filter {
+  width: 18px;
+  height: 18px;
+  background-color: var(--text-secondary);
+  -webkit-mask: url("/assets/heroicons/optimized/24/outline/adjustments-horizontal.svg") no-repeat center;
+  mask: url("/assets/heroicons/optimized/24/outline/adjustments-horizontal.svg") no-repeat center;
+}
+
+.adv-search-open-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-input);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s;
+}
+
+.adv-search-open-btn:hover {
+  background-color: var(--bg-hover);
+}
+
+.adv-search-open-btn:hover .icon-filter {
+  background-color: var(--text-primary);
+}
+
+.adv-search-active-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background-color: var(--bg-panel-tabs);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 4px;
+  font: inherit;
+  font-size: 0.9em;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    opacity 0.15s,
+    background-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.adv-search-active-bar:hover {
+  background-color: var(--bg-hover);
+}
+
+.adv-search-active-text {
+  flex: 1;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.icon-x-mark {
+  width: 18px;
+  height: 18px;
+  background-color: var(--text-secondary);
+  -webkit-mask: url("/assets/heroicons/optimized/24/outline/x-mark.svg") no-repeat center;
+  mask: url("/assets/heroicons/optimized/24/outline/x-mark.svg") no-repeat center;
+}
+
+.adv-search-clear-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-input);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s;
+}
+
+.adv-search-clear-btn:hover {
+  background-color: var(--bg-hover);
+}
+
+.adv-search-clear-btn:hover .icon-x-mark {
+  background-color: var(--text-primary);
+}
+
+.btn-secondary {
+  background-color: var(--bg-panel-tabs);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 6px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.15s;
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-hover);
+}

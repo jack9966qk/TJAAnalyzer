@@ -1,5 +1,13 @@
 import * as webjsx from "webjsx";
 import "./action-button.js";
+import type { AdvancedSearchCriteria } from "./advanced-search-modal.js";
+import {
+  type AdvancedSearchModal,
+  getAdvancedSearchSummary,
+  hasAnyCriteria,
+  matchesAdvancedCriteria,
+} from "./advanced-search-modal.js";
+import "./advanced-search-modal.js";
 import type { EseIndexEntry } from "../clients/ese-client.js";
 import { refreshChart, updatePageUrl, updateParsedCharts } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
@@ -47,6 +55,10 @@ export class ChartListPanel extends HTMLElement {
   private _leadingMode: PlaydataLeadingMode = PlaydataLeadingMode.None;
   private _trailingMode: PlaydataTrailingMode = PlaydataTrailingMode.None;
   private _settingsChangeHandler: (() => void) | null = null;
+  // Advanced search state
+  private _isAdvancedSearchActive = false;
+  private _advancedCriteria: AdvancedSearchCriteria = {};
+  private _advancedSearchModal: AdvancedSearchModal | null = null;
 
   connectedCallback() {
     this.loadSettings();
@@ -62,6 +74,20 @@ export class ChartListPanel extends HTMLElement {
       this.render();
     };
     window.addEventListener("settings-change", this._settingsChangeHandler);
+
+    // Listen for advanced search events
+    this.addEventListener("advanced-search-apply", ((e: CustomEvent) => {
+      this._advancedCriteria = e.detail.criteria;
+      this._isAdvancedSearchActive = hasAnyCriteria(this._advancedCriteria);
+      this.filterResults();
+      this.render();
+    }) as EventListener);
+    this.addEventListener("advanced-search-clear", (() => {
+      this._advancedCriteria = {};
+      this._isAdvancedSearchActive = false;
+      this.filterResults();
+      this.render();
+    }) as EventListener);
   }
 
   disconnectedCallback() {
@@ -289,22 +315,28 @@ export class ChartListPanel extends HTMLElement {
       return;
     }
 
-    const query = this._searchQuery.toLowerCase();
-    const allResults = query
-      ? eseTree.filter((node) => {
-          return (
-            node.path.toLowerCase().includes(query) ||
-            node.title?.toLowerCase().includes(query) ||
-            node.titleJp?.toLowerCase().includes(query) ||
-            node.titleOfficial?.toLowerCase().includes(query) ||
-            node.titleCn?.toLowerCase().includes(query) ||
-            node.titleKo?.toLowerCase().includes(query) ||
-            node.subtitle?.toLowerCase().includes(query) ||
-            node.subtitleJp?.toLowerCase().includes(query) ||
-            node.artist?.toLowerCase().includes(query)
-          );
-        })
-      : eseTree;
+    let allResults: EseIndexEntry[];
+
+    if (this._isAdvancedSearchActive) {
+      allResults = eseTree.filter((node) => matchesAdvancedCriteria(node, this._advancedCriteria));
+    } else {
+      const query = this._searchQuery.toLowerCase();
+      allResults = query
+        ? eseTree.filter((node) => {
+            return (
+              node.path.toLowerCase().includes(query) ||
+              node.title?.toLowerCase().includes(query) ||
+              node.titleJp?.toLowerCase().includes(query) ||
+              node.titleOfficial?.toLowerCase().includes(query) ||
+              node.titleCn?.toLowerCase().includes(query) ||
+              node.titleKo?.toLowerCase().includes(query) ||
+              node.subtitle?.toLowerCase().includes(query) ||
+              node.subtitleJp?.toLowerCase().includes(query) ||
+              node.artist?.toLowerCase().includes(query)
+            );
+          })
+        : eseTree;
+    }
 
     this._displayResults = allResults.slice(0, 100);
     if (allResults.length > 100) {
@@ -388,18 +420,71 @@ export class ChartListPanel extends HTMLElement {
     const vdom = (
       <div style="display: contents;">
         <div className="control-group">
-          <input
-            type="text"
-            id="ese-search-input"
-            value={this._searchQuery}
-            placeholder={i18n.t("ui.ese.searchPlaceholder")}
-            style="width: 100%; box-sizing: border-box; padding: 5px; font-size: 16px;"
-            autoComplete="off"
-            autoCorrect="off"
-            autoCapitalize="off"
-            spellCheck="false"
-            oninput={this.handleSearchInput.bind(this)}
-          />
+          {this._isAdvancedSearchActive ? (
+            <div style="display: flex; gap: 6px; align-items: stretch; width: 100%; height: 32px; box-sizing: border-box;">
+              <button
+                type="button"
+                className="adv-search-active-bar"
+                style="flex: 1; min-width: 0;"
+                onclick={() => {
+                  if (!this._advancedSearchModal) {
+                    this._advancedSearchModal = this.querySelector("advanced-search-modal") as AdvancedSearchModal;
+                  }
+                  this._advancedSearchModal?.open(this._advancedCriteria);
+                }}
+              >
+                <div className="adv-search-active-text" title={getAdvancedSearchSummary(this._advancedCriteria)}>
+                  <span
+                    className="icon-filter"
+                    style="background-color: var(--text-primary); width: 14px; height: 14px; display: inline-block; vertical-align: middle; margin-right: 6px; margin-top: -2px;"
+                  />
+                  {getAdvancedSearchSummary(this._advancedCriteria)}
+                </div>
+              </button>
+              <button
+                type="button"
+                className="adv-search-clear-btn"
+                onclick={() => {
+                  this._advancedCriteria = {};
+                  this._isAdvancedSearchActive = false;
+                  this.filterResults();
+                  this.render();
+                }}
+                title={i18n.t("ui.advSearch.clearAll")}
+                aria-label={i18n.t("ui.advSearch.clearAll")}
+              >
+                <div className="icon-x-mark" />
+              </button>
+            </div>
+          ) : (
+            <div style="display: flex; gap: 4px; align-items: stretch; width: 100%; height: 32px; box-sizing: border-box;">
+              <button
+                type="button"
+                className="adv-search-open-btn"
+                title={i18n.t("ui.advSearch.open")}
+                onclick={() => {
+                  if (!this._advancedSearchModal) {
+                    this._advancedSearchModal = this.querySelector("advanced-search-modal") as AdvancedSearchModal;
+                  }
+                  this._advancedSearchModal?.open(this._advancedCriteria);
+                }}
+              >
+                <div className="icon-filter" />
+              </button>
+              <input
+                type="text"
+                id="ese-search-input"
+                value={this._searchQuery}
+                placeholder={i18n.t("ui.ese.searchPlaceholder")}
+                style="flex: 1; box-sizing: border-box; padding: 5px; font-size: 16px; margin: 0;"
+                autoComplete="off"
+                autoCorrect="off"
+                autoCapitalize="off"
+                spellCheck="false"
+                oninput={this.handleSearchInput.bind(this)}
+              />
+            </div>
+          )}
         </div>
 
         <div id="ese-results">
@@ -508,6 +593,8 @@ export class ChartListPanel extends HTMLElement {
             {i18n.t("ui.ese.share")}
           </action-button>
         </div>
+
+        <advanced-search-modal />
       </div>
     );
 
