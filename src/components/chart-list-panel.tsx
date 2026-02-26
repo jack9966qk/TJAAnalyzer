@@ -6,6 +6,7 @@ import {
   getAdvancedSearchSummary,
   hasAnyCriteria,
   matchesAdvancedCriteria,
+  type PlaydataContext,
 } from "./advanced-search-modal.js";
 import "./advanced-search-modal.js";
 import type { EseIndexEntry } from "../clients/ese-client.js";
@@ -318,7 +319,13 @@ export class ChartListPanel extends HTMLElement {
     let allResults: EseIndexEntry[];
 
     if (this._isAdvancedSearchActive) {
-      allResults = eseTree.filter((node) => matchesAdvancedCriteria(node, this._advancedCriteria));
+      let playdataContext: PlaydataContext | undefined;
+      if (this._advancedCriteria.playdata && this._songIdToEntriesCache && this._cachedPlaydata) {
+        playdataContext = {
+          getEntry: (path: string) => getPlayEntrySync(path, this._cachedPlaydata, this._songIdToEntriesCache),
+        };
+      }
+      allResults = eseTree.filter((node) => matchesAdvancedCriteria(node, this._advancedCriteria, playdataContext));
     } else {
       const query = this._searchQuery.toLowerCase();
       allResults = query
@@ -430,7 +437,7 @@ export class ChartListPanel extends HTMLElement {
                   if (!this._advancedSearchModal) {
                     this._advancedSearchModal = this.querySelector("advanced-search-modal") as AdvancedSearchModal;
                   }
-                  this._advancedSearchModal?.open(this._advancedCriteria);
+                  this._advancedSearchModal?.open(this._advancedCriteria, hasPlaydata);
                 }}
               >
                 <div className="adv-search-active-text" title={getAdvancedSearchSummary(this._advancedCriteria)}>
@@ -466,7 +473,7 @@ export class ChartListPanel extends HTMLElement {
                   if (!this._advancedSearchModal) {
                     this._advancedSearchModal = this.querySelector("advanced-search-modal") as AdvancedSearchModal;
                   }
-                  this._advancedSearchModal?.open(this._advancedCriteria);
+                  this._advancedSearchModal?.open(this._advancedCriteria, hasPlaydata);
                 }}
               >
                 <div className="icon-filter" />

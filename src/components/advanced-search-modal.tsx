@@ -2,6 +2,8 @@ import * as webjsx from "webjsx";
 import type { EseIndexEntry } from "../clients/ese-client.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
+import type { PlaydataEntry } from "../utils/playdata-parser.js";
+import { getDnStyleCssClass } from "../utils/playdata-status.js";
 
 type Difficulty = "easy" | "normal" | "hard" | "oni" | "ura";
 
@@ -17,6 +19,11 @@ export interface AdvancedSearchCriteria {
   bpmMax?: number;
   platform?: string;
   region?: string;
+  playdata?: string;
+}
+
+export interface PlaydataContext {
+  getEntry: (path: string) => PlaydataEntry | null;
 }
 
 /**
@@ -31,8 +38,13 @@ function getDifficulties(diff: AdvancedSearchCriteria["difficulty"]): Difficulty
 
 /**
  * Pure filtering function: check if an EseIndexEntry matches the given criteria.
+ * When playdata context is provided, also filters by DN-style playdata category.
  */
-export function matchesAdvancedCriteria(entry: EseIndexEntry, criteria: AdvancedSearchCriteria): boolean {
+export function matchesAdvancedCriteria(
+  entry: EseIndexEntry,
+  criteria: AdvancedSearchCriteria,
+  playdataContext?: PlaydataContext,
+): boolean {
   const diffs = getDifficulties(criteria.difficulty);
 
   // Difficulty: entry must have at least one course for the specified difficulty
@@ -109,6 +121,14 @@ export function matchesAdvancedCriteria(entry: EseIndexEntry, criteria: Advanced
     if (regionVal == null || regionVal <= 0) return false;
   }
 
+  // Playdata (DN category)
+  if (criteria.playdata && playdataContext) {
+    const playEntry = playdataContext.getEntry(entry.path);
+    if (!playEntry) return false;
+    const dnClass = getDnStyleCssClass(playEntry);
+    if (dnClass !== criteria.playdata) return false;
+  }
+
   return true;
 }
 
@@ -125,7 +145,8 @@ export function hasAnyCriteria(criteria: AdvancedSearchCriteria): boolean {
     criteria.bpmMin != null ||
     criteria.bpmMax != null ||
     criteria.platform ||
-    criteria.region
+    criteria.region ||
+    criteria.playdata
   );
 }
 
@@ -158,6 +179,17 @@ export function getAdvancedSearchSummary(criteria: AdvancedSearchCriteria): stri
   if (criteria.platform) parts.push(criteria.platform);
   if (criteria.region) parts.push(criteria.region);
 
+  if (criteria.playdata) {
+    const dnLabelMap: Record<string, string> = {
+      "dn-cyan": i18n.t("ui.advSearch.dnCyan"),
+      "dn-green": i18n.t("ui.advSearch.dnGreen"),
+      "dn-gold": i18n.t("ui.advSearch.dnGold"),
+      "dn-grey": i18n.t("ui.advSearch.dnGrey"),
+      "dn-white": i18n.t("ui.advSearch.dnWhite"),
+    };
+    parts.push(dnLabelMap[criteria.playdata] ?? criteria.playdata);
+  }
+
   return parts.join(" • ");
 }
 
@@ -165,6 +197,7 @@ export class AdvancedSearchModal extends HTMLElement {
   private isOpen = false;
   private modalContainer: HTMLDivElement;
   private criteria: AdvancedSearchCriteria = {};
+  private _hasPlaydata = false;
 
   constructor() {
     super();
@@ -179,10 +212,11 @@ export class AdvancedSearchModal extends HTMLElement {
     });
   }
 
-  open(currentCriteria?: AdvancedSearchCriteria) {
+  open(currentCriteria?: AdvancedSearchCriteria, hasPlaydata = false) {
     if (currentCriteria) {
       this.criteria = { ...currentCriteria };
     }
+    this._hasPlaydata = hasPlaydata;
     this.isOpen = true;
     this.renderModal();
   }
@@ -468,6 +502,39 @@ export class AdvancedSearchModal extends HTMLElement {
                       {r}
                     </option>
                   ))}
+                </select>
+              </div>
+            )}
+
+            {/* Playdata (DN Category) */}
+            {this._hasPlaydata && (
+              <div style={fieldStyle}>
+                <span style={labelStyle}>{i18n.t("ui.advSearch.playdata")}</span>
+                <select
+                  style={inputStyle}
+                  value={c.playdata || ""}
+                  onchange={(e: Event) =>
+                    this.updateField("playdata", (e.target as HTMLSelectElement).value || undefined)
+                  }
+                >
+                  <option value="" selected={!c.playdata}>
+                    {i18n.t("ui.advSearch.any")}
+                  </option>
+                  <option value="dn-cyan" selected={c.playdata === "dn-cyan"}>
+                    {i18n.t("ui.advSearch.dnCyan")}
+                  </option>
+                  <option value="dn-green" selected={c.playdata === "dn-green"}>
+                    {i18n.t("ui.advSearch.dnGreen")}
+                  </option>
+                  <option value="dn-gold" selected={c.playdata === "dn-gold"}>
+                    {i18n.t("ui.advSearch.dnGold")}
+                  </option>
+                  <option value="dn-grey" selected={c.playdata === "dn-grey"}>
+                    {i18n.t("ui.advSearch.dnGrey")}
+                  </option>
+                  <option value="dn-white" selected={c.playdata === "dn-white"}>
+                    {i18n.t("ui.advSearch.dnWhite")}
+                  </option>
                 </select>
               </div>
             )}

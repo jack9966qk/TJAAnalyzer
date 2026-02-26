@@ -261,6 +261,12 @@ const resources: Resources = {
     "ui.advSearch.clearAll": "Clear All",
     "ui.advSearch.active": "Advanced search active",
     "ui.advSearch.open": "Advanced Search",
+    "ui.advSearch.playdata": "Playdata",
+    "ui.advSearch.dnCyan": "DFC",
+    "ui.advSearch.dnGreen": "<10 OK",
+    "ui.advSearch.dnGold": "Full Combo",
+    "ui.advSearch.dnGrey": "Clear",
+    "ui.advSearch.dnWhite": "Other",
   },
   zh: {
     "ui.dataSource": "数据源",
@@ -513,6 +519,12 @@ const resources: Resources = {
     "ui.advSearch.clearAll": "全部清除",
     "ui.advSearch.active": "高级搜索已启用",
     "ui.advSearch.open": "高级搜索",
+    "ui.advSearch.playdata": "成绩",
+    "ui.advSearch.dnCyan": "全良",
+    "ui.advSearch.dnGreen": "可<10",
+    "ui.advSearch.dnGold": "Full Combo",
+    "ui.advSearch.dnGrey": "过关",
+    "ui.advSearch.dnWhite": "其他",
   },
   ja: {
     "ui.dataSource": "データソース",
@@ -766,6 +778,12 @@ const resources: Resources = {
     "ui.advSearch.clearAll": "すべてクリア",
     "ui.advSearch.active": "詳細検索が有効",
     "ui.advSearch.open": "詳細検索",
+    "ui.advSearch.playdata": "成績",
+    "ui.advSearch.dnCyan": "全良",
+    "ui.advSearch.dnGreen": "可<10",
+    "ui.advSearch.dnGold": "フルコンボ",
+    "ui.advSearch.dnGrey": "クリア",
+    "ui.advSearch.dnWhite": "その他",
   },
 };
 

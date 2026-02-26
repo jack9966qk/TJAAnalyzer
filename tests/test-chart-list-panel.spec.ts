@@ -140,4 +140,95 @@ test.describe("Chart List Panel Component", () => {
     const itemMixed = page.locator(".ese-result-item").filter({ hasText: "Song Mixed" });
     await expect(itemMixed.locator(".play-status-strip")).toHaveClass(/status-fullcombo/);
   });
+
+  test("Advanced Search Playdata Filter", async ({ page }) => {
+    // Mock song mapping - 3 songs with distinct DN categories
+    const mockMapping = {
+      "200": { esePath: "cat1/song_cyan.tja", defaultTitle: "Song Cyan" },
+      "201": { esePath: "cat1/song_gold.tja", defaultTitle: "Song Gold" },
+      "202": { esePath: "cat1/song_grey.tja", defaultTitle: "Song Grey" },
+    };
+
+    // Mock playdata:
+    //   song_cyan: great=100, good=0, bad=0, crown=3 -> dn-cyan (perfect)
+    //   song_gold: great=90, good=10, bad=0, crown=2 -> dn-gold (FC, good>=10)
+    //   song_grey: great=80, good=15, bad=5, crown=1 -> dn-grey (clear)
+    const mockPlaydata = {
+      version: 2,
+      updatedAt: "2023-01-01",
+      source: "fumen-database",
+      entries: [
+        { songId: "200", difficulty: 4, crown: 3, scoreRank: 6, great: 100, good: 0, bad: 0 },
+        { songId: "201", difficulty: 4, crown: 2, scoreRank: 5, great: 90, good: 10, bad: 0 },
+        { songId: "202", difficulty: 4, crown: 1, scoreRank: 4, great: 80, good: 15, bad: 5 },
+      ],
+    };
+
+    const mockIndex = [
+      { path: "cat1/song_cyan.tja", title: "Song Cyan" },
+      { path: "cat1/song_gold.tja", title: "Song Gold" },
+      { path: "cat1/song_grey.tja", title: "Song Grey" },
+    ];
+
+    await page.route("**/data/song_mapping.json", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(mockMapping) }),
+    );
+    await page.route("**/ese_index.json", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(mockIndex) }),
+    );
+
+    await page.addInitScript((data) => {
+      localStorage.setItem("tja_analyzer_playdata", JSON.stringify(data));
+    }, mockPlaydata);
+
+    await page.goto("/");
+
+    // Open list tab
+    const dsBody = page.locator("#ds-body");
+    if ((await dsBody.count()) > 0) {
+      const classes = await dsBody.getAttribute("class");
+      if (classes?.includes("collapsed")) {
+        await page.click("#ds-panel-header");
+      }
+    }
+    await page.locator('button[data-mode="list"]').click();
+    await expect(page.locator(".ese-result-item").first()).toBeVisible();
+
+    // All 3 songs should be visible initially
+    await expect(page.locator(".ese-result-item")).toHaveCount(3);
+
+    // Open advanced search modal
+    await page.locator(".adv-search-open-btn").click();
+    await expect(page.locator("#advanced-search-modal.open")).toBeVisible();
+
+    // Select "Perfect" (dn-cyan) from the playdata dropdown
+    const playdataSelect = page.locator("#advanced-search-modal.open select").last();
+    await playdataSelect.selectOption("dn-cyan");
+
+    // Apply
+    await page.locator("#advanced-search-modal.open").getByText("Apply").click();
+
+    // Only Song Cyan should remain (dn-cyan = perfect play)
+    await expect(page.locator(".ese-result-item")).toHaveCount(1);
+    await expect(page.locator(".ese-result-item").first()).toContainText("Song Cyan");
+
+    // Re-open advanced search (now shows as active bar)
+    await page.locator(".adv-search-active-bar").click();
+    await expect(page.locator("#advanced-search-modal.open")).toBeVisible();
+
+    // Switch to "Clear" (dn-grey)
+    const playdataSelect2 = page.locator("#advanced-search-modal.open select").last();
+    await playdataSelect2.selectOption("dn-grey");
+    await page.locator("#advanced-search-modal.open").getByText("Apply").click();
+
+    // Only Song Grey should remain
+    await expect(page.locator(".ese-result-item")).toHaveCount(1);
+    await expect(page.locator(".ese-result-item").first()).toContainText("Song Grey");
+
+    // Clear all filters
+    await page.locator(".adv-search-clear-btn").click();
+
+    // All 3 songs should be visible again
+    await expect(page.locator(".ese-result-item")).toHaveCount(3);
+  });
 });
