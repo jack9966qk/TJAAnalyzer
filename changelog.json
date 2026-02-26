@@ -1,5 +1,25 @@
 [
   {
+    "hash": "75bb864",
+    "message": "Update version to 0.9.8.",
+    "date": "2026-02-26"
+  },
+  {
+    "hash": "98646a6",
+    "message": "Allow more flexibility in playdata display. Move the dropdown to settings page.",
+    "date": "2026-02-26"
+  },
+  {
+    "hash": "a8bde96",
+    "message": "Update song mapping format. Incorporate DonderHelper data for more localized titles.",
+    "date": "2026-02-26"
+  },
+  {
+    "hash": "80d5dfe",
+    "message": "Simplify some UI label text.",
+    "date": "2026-02-25"
+  },
+  {
     "hash": "6ad2de5",
     "message": "Update version to 0.9.7.",
     "date": "2026-02-24"
@@ -477,26 +497,6 @@
   {
     "hash": "5483a93",
     "message": "Add a dev mode toggle and move some UI to a tester tab. Add a zoom stats debug label.",
-    "date": "2026-02-01"
-  },
-  {
-    "hash": "2b77bbf",
-    "message": "Fix Tester Panel example button state management.",
-    "date": "2026-02-01"
-  },
-  {
-    "hash": "9c6d7ae",
-    "message": "Add custom style for language selector.",
-    "date": "2026-02-01"
-  },
-  {
-    "hash": "0059b0b",
-    "message": "Use heroicon for modal close button.",
-    "date": "2026-02-01"
-  },
-  {
-    "hash": "6eaf62f",
-    "message": "Apply formatter to song_mapping JSON.",
     "date": "2026-02-01"
   }
 ]
