@@ -364,9 +364,10 @@ test.describe("Chart List Panel Component", () => {
     await dfcSelect.selectOption("iA");
     await page.locator("#advanced-search-modal.open").getByText("Apply").click();
 
-    // Result should have "(Oni (Ura))" suffix
+    // Result should have "(Ura)" suffix
     await expect(page.locator(".ese-result-item")).toHaveCount(1);
-    await expect(page.locator(".ese-result-item").first()).toContainText("Song Both (Oni (Ura))");
+    console.log("ITEM TEXT:", await page.locator(".ese-result-item").first().textContent());
+    await expect(page.locator(".ese-result-item").first()).toContainText("Song Both (Ura)");
   });
 
   test("Difficulty-Specific Playdata Display", async ({ page }) => {
@@ -424,12 +425,12 @@ test.describe("Chart List Panel Component", () => {
     await starsInput.dispatchEvent("input");
     await page.locator("#advanced-search-modal.open").getByText("Apply").click();
 
-    // Only one result actually visible initially but now there should be 2, "Song Diff (Oni)" and "Song Diff (Oni (Ura))"
+    // Only one result actually visible initially but now there should be 2, "Song Diff (Oni)" and "Song Diff (Ura)"
     await expect(page.locator(".ese-result-item")).toHaveCount(2);
 
-    const itemOni = page.locator(".ese-result-item").filter({ hasText: "Song Diff (Oni)" }).first(); // avoid matching (Oni (Ura))
+    const itemOni = page.locator(".ese-result-item").filter({ hasText: "Song Diff (Oni)" }).first(); // avoid matching (Ura)
     // To properly filter just "Song Diff (Oni)" we can use exact matching or class assertion safely
-    const itemUra = page.locator(".ese-result-item").filter({ hasText: "Song Diff (Oni (Ura))" });
+    const itemUra = page.locator(".ese-result-item").filter({ hasText: "Song Diff (Ura)" });
 
     // Verify Oni specific playdata: Perfect
     await expect(itemOni.locator(".play-status-strip")).toHaveClass(/status-perfect/);
@@ -444,6 +445,6 @@ test.describe("Chart List Panel Component", () => {
     await page.locator("#advanced-search-modal.open").getByText("Apply").click();
 
     await expect(page.locator(".ese-result-item")).toHaveCount(1);
-    await expect(page.locator(".ese-result-item").first()).toContainText("Song Diff (Oni (Ura))");
+    await expect(page.locator(".ese-result-item").first()).toContainText("Song Diff (Ura)");
   });
 });

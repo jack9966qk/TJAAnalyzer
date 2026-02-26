@@ -12,7 +12,7 @@ import {
 } from "./advanced-search-modal.js";
 import "./advanced-search-modal.js";
 import type { EseIndexEntry } from "../clients/ese-client.js";
-import { refreshChart, updatePageUrl, updateParsedCharts } from "../controllers/chart-controller.js";
+import { updateBranchSelectorState, updatePageUrl, updateParsedCharts } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import type { Playdata, PlaydataEntry } from "../utils/playdata-parser.js";
@@ -277,7 +277,7 @@ export class ChartListPanel extends HTMLElement {
   }
 
   private getDifficultyLabel(diff: Difficulty): string {
-    const key = diff === "ura" ? "ui.difficulty.edit" : `ui.difficulty.${diff}`;
+    const key = diff === "ura" ? "ui.difficulty.ura" : `ui.difficulty.${diff}`;
     return i18n.t(key);
   }
 
@@ -294,8 +294,6 @@ export class ChartListPanel extends HTMLElement {
       appState.currentEsePath = path;
 
       this.searchQuery = path;
-      this.render();
-
       updateParsedCharts(content);
 
       if (appState.parsedTJACharts) {
@@ -308,11 +306,11 @@ export class ChartListPanel extends HTMLElement {
           if (courseBranchSelect) {
             courseBranchSelect.difficulty = targetDiff;
           }
-          appState.currentChart = appState.parsedTJACharts[targetDiff];
-          refreshChart();
+          updateBranchSelectorState(true);
         }
       }
 
+      this.render();
       this.dispatchStatus("status.chartLoaded");
       updatePageUrl();
     } catch (e) {
@@ -407,9 +405,6 @@ export class ChartListPanel extends HTMLElement {
       const content = await appState.eseClient.getFileContent(node.path);
       appState.loadedTJAContent = content;
       appState.currentEsePath = node.path;
-
-      this.render();
-
       updateParsedCharts(content);
 
       // If a specific difficulty was matched, select it
@@ -417,11 +412,11 @@ export class ChartListPanel extends HTMLElement {
         const diffKey = matchedDifficulty === "ura" ? "edit" : matchedDifficulty;
         if (appState.parsedTJACharts[diffKey] && courseBranchSelect) {
           courseBranchSelect.difficulty = diffKey;
-          appState.currentChart = appState.parsedTJACharts[diffKey];
-          refreshChart();
+          updateBranchSelectorState(true);
         }
       }
 
+      this.render();
       this.dispatchStatus("status.chartLoaded");
       updatePageUrl();
     } catch (e) {

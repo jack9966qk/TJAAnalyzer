@@ -97,6 +97,7 @@ const resources: Resources = {
     "ui.difficulty.hard": "Hard",
     "ui.difficulty.oni": "Oni",
     "ui.difficulty.edit": "Oni (Ura)",
+    "ui.difficulty.ura": "Ura",
 
     "mode.view": "Mode: View",
     "mode.judgements": "Mode: Judgements",
@@ -360,6 +361,7 @@ const resources: Resources = {
     "ui.difficulty.hard": "困难",
     "ui.difficulty.oni": "魔王",
     "ui.difficulty.edit": "魔王（里）",
+    "ui.difficulty.ura": "里",
 
     "mode.view": "模式：查看",
     "mode.judgements": "模式：判定",
@@ -621,6 +623,7 @@ const resources: Resources = {
     "ui.difficulty.hard": "むずかしい",
     "ui.difficulty.oni": "おに",
     "ui.difficulty.edit": "おに（裏）",
+    "ui.difficulty.ura": "裏",
 
     "mode.view": "モード: 表示",
     "mode.judgements": "モード: 判定",
