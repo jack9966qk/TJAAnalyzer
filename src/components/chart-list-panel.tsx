@@ -1,9 +1,11 @@
 import * as webjsx from "webjsx";
 import "./action-button.js";
-import type { AdvancedSearchCriteria } from "./advanced-search-modal.js";
+import type { AdvancedSearchCriteria, Difficulty } from "./advanced-search-modal.js";
 import {
   type AdvancedSearchModal,
+  difficultyToNumber,
   getAdvancedSearchSummary,
+  getMatchedDifficulties,
   hasAnyCriteria,
   matchesAdvancedCriteria,
   type PlaydataContext,
@@ -30,7 +32,9 @@ import {
 import { loadUserProfile } from "../utils/user-profile.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
 
-type DisplayResult = EseIndexEntry | { __truncated: true; path?: never; title?: never; titleJp?: never };
+type DisplayResult =
+  | (EseIndexEntry & { matchedDifficulty?: Difficulty })
+  | { __truncated: true; path?: never; title?: never; titleJp?: never; matchedDifficulty?: never };
 
 import {
   getLocalizedTitle as getSongMappingTitle,
@@ -244,27 +248,37 @@ export class ChartListPanel extends HTMLElement {
    * If showFullPath is enabled, always returns the path.
    * @returns object with text and isTitle flag
    */
-  private getDisplayText(node: EseIndexEntry): { text: string; isTitle: boolean } {
+  private getDisplayText(node: EseIndexEntry, matchedDifficulty?: Difficulty): { text: string; isTitle: boolean } {
     // If user prefers full path, always show path
     if (this._showFullPath) {
-      return { text: node.path, isTitle: false };
+      const text = matchedDifficulty ? `${node.path} (${this.getDifficultyLabel(matchedDifficulty)})` : node.path;
+      return { text, isTitle: false };
     }
 
     const title = this.getLocalizedTitle(node);
 
     // No title available, show path
     if (!title) {
-      return { text: node.path, isTitle: false };
+      const text = matchedDifficulty ? `${node.path} (${this.getDifficultyLabel(matchedDifficulty)})` : node.path;
+      return { text, isTitle: false };
     }
 
-    // Check if this title is shared by multiple paths
-    const pathsWithTitle = this._titleToPathsCache.get(title);
-    if (pathsWithTitle && pathsWithTitle.length > 1) {
-      // Multiple charts have the same title, fall back to path
-      return { text: node.path, isTitle: false };
+    // Check if this title is shared by multiple paths (only when no matchedDifficulty,
+    // since difficulty-specific items are already distinct)
+    if (!matchedDifficulty) {
+      const pathsWithTitle = this._titleToPathsCache.get(title);
+      if (pathsWithTitle && pathsWithTitle.length > 1) {
+        return { text: node.path, isTitle: false };
+      }
     }
 
-    return { text: title, isTitle: true };
+    const text = matchedDifficulty ? `${title} (${this.getDifficultyLabel(matchedDifficulty)})` : title;
+    return { text, isTitle: true };
+  }
+
+  private getDifficultyLabel(diff: Difficulty): string {
+    const key = diff === "ura" ? "ui.difficulty.edit" : `ui.difficulty.${diff}`;
+    return i18n.t(key);
   }
 
   setPendingLoad(path: string, diff: string) {
@@ -316,19 +330,33 @@ export class ChartListPanel extends HTMLElement {
       return;
     }
 
-    let allResults: EseIndexEntry[];
+    let allDisplayResults: DisplayResult[];
 
     if (this._isAdvancedSearchActive) {
       let playdataContext: PlaydataContext | undefined;
-      if (this._advancedCriteria.playdata && this._songIdToEntriesCache && this._cachedPlaydata) {
+      if (this._songIdToEntriesCache && this._cachedPlaydata) {
         playdataContext = {
-          getEntry: (path: string) => getPlayEntrySync(path, this._cachedPlaydata, this._songIdToEntriesCache),
+          getEntry: (path: string, difficultyNum?: number) =>
+            getPlayEntrySync(path, this._cachedPlaydata, this._songIdToEntriesCache, difficultyNum),
         };
       }
-      allResults = eseTree.filter((node) => matchesAdvancedCriteria(node, this._advancedCriteria, playdataContext));
+
+      allDisplayResults = [];
+      for (const node of eseTree) {
+        if (!matchesAdvancedCriteria(node, this._advancedCriteria, playdataContext)) continue;
+
+        const matchedDiffs = getMatchedDifficulties(node, this._advancedCriteria, playdataContext);
+        if (matchedDiffs) {
+          for (const diff of matchedDiffs) {
+            allDisplayResults.push({ ...node, matchedDifficulty: diff });
+          }
+        } else {
+          allDisplayResults.push(node);
+        }
+      }
     } else {
       const query = this._searchQuery.toLowerCase();
-      allResults = query
+      allDisplayResults = query
         ? eseTree.filter((node) => {
             return (
               node.path.toLowerCase().includes(query) ||
@@ -345,8 +373,8 @@ export class ChartListPanel extends HTMLElement {
         : eseTree;
     }
 
-    this._displayResults = allResults.slice(0, 100);
-    if (allResults.length > 100) {
+    this._displayResults = allDisplayResults.slice(0, 100);
+    if (allDisplayResults.length > 100) {
       this._displayResults.push({ __truncated: true });
     }
   }
@@ -372,7 +400,7 @@ export class ChartListPanel extends HTMLElement {
     }
   }
 
-  private async handleResultClick(node: EseIndexEntry) {
+  private async handleResultClick(node: EseIndexEntry, matchedDifficulty?: Difficulty) {
     try {
       this.dispatchStatus("status.loadingChart");
 
@@ -383,6 +411,17 @@ export class ChartListPanel extends HTMLElement {
       this.render();
 
       updateParsedCharts(content);
+
+      // If a specific difficulty was matched, select it
+      if (matchedDifficulty && appState.parsedTJACharts) {
+        const diffKey = matchedDifficulty === "ura" ? "edit" : matchedDifficulty;
+        if (appState.parsedTJACharts[diffKey] && courseBranchSelect) {
+          courseBranchSelect.difficulty = diffKey;
+          appState.currentChart = appState.parsedTJACharts[diffKey];
+          refreshChart();
+        }
+      }
+
       this.dispatchStatus("status.chartLoaded");
       updatePageUrl();
     } catch (e) {
@@ -510,7 +549,8 @@ export class ChartListPanel extends HTMLElement {
 
                 let entry: PlaydataEntry | null = null;
                 if (hasPlaydata && this._songMapping && this._songIdToEntriesCache) {
-                  entry = getPlayEntrySync(node.path, playdata, this._songIdToEntriesCache);
+                  const diffNum = node.matchedDifficulty ? difficultyToNumber[node.matchedDifficulty] : undefined;
+                  entry = getPlayEntrySync(node.path, playdata, this._songIdToEntriesCache, diffNum);
                   if (entry && entry.crown !== Crown.None) {
                     anyItemHasStatus = true;
                   }
@@ -530,8 +570,12 @@ export class ChartListPanel extends HTMLElement {
                 if ("__truncated" in node) {
                   return <div className="ese-result-placeholder">{i18n.t("ui.ese.truncated")}</div>;
                 }
-                const isSelected = appState.currentEsePath === node.path;
-                const { text: displayText, isTitle } = this.getDisplayText(node);
+                const isSelected =
+                  appState.currentEsePath === node.path &&
+                  (!node.matchedDifficulty ||
+                    courseBranchSelect?.difficulty ===
+                      (node.matchedDifficulty === "ura" ? "edit" : node.matchedDifficulty));
+                const { text: displayText, isTitle } = this.getDisplayText(node, node.matchedDifficulty);
                 const textClass = `ese-result-item-text${isTitle ? " display-title" : ""}`;
 
                 // Determine Strip Class
@@ -573,7 +617,7 @@ export class ChartListPanel extends HTMLElement {
                 return (
                   <div
                     className={`ese-result-item ${isSelected ? "selected" : ""}`}
-                    onclick={() => this.handleResultClick(node)}
+                    onclick={() => this.handleResultClick(node, node.matchedDifficulty)}
                   >
                     {showStrip && <div className={`play-status-strip ${stripClass || ""}`}></div>}
                     <div className={textClass}>

@@ -253,6 +253,7 @@ export function getPlayEntrySync(
   esePath: string,
   playdata: Playdata | null | undefined,
   songIdToEntriesCache: Map<string, PlaydataEntry[]> | null,
+  difficultyNum?: number,
 ): PlaydataEntry | null {
   if (!playdata?.entries?.length || !cachedEsePathToId || !songIdToEntriesCache) {
     return null;
@@ -265,10 +266,16 @@ export function getPlayEntrySync(
   }
 
   // Use cached title lookup
-  const entries = songIdToEntriesCache.get(songId);
+  let entries = songIdToEntriesCache.get(songId);
 
   if (!entries || entries.length === 0) {
     return null;
+  }
+
+  // Filter by specific difficulty if requested
+  if (difficultyNum != null) {
+    entries = entries.filter((e) => e.difficulty === difficultyNum);
+    if (entries.length === 0) return null;
   }
 
   return resolveBestEntry(entries);

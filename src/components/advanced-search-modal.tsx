@@ -5,7 +5,18 @@ import { i18n } from "../utils/i18n.js";
 import type { PlaydataEntry } from "../utils/playdata-parser.js";
 import { getDnStyleCssClass } from "../utils/playdata-status.js";
 
-type Difficulty = "easy" | "normal" | "hard" | "oni" | "ura";
+export type Difficulty = "easy" | "normal" | "hard" | "oni" | "ura";
+
+export const ALL_DIFFICULTIES: Difficulty[] = ["easy", "normal", "hard", "oni", "ura"];
+
+/** Maps Difficulty name to the numeric code used in PlaydataEntry. */
+export const difficultyToNumber: Record<Difficulty, number> = {
+  easy: 1,
+  normal: 2,
+  hard: 3,
+  oni: 4,
+  ura: 5,
+};
 
 export interface AdvancedSearchCriteria {
   difficulty?: "any" | Difficulty | "oni/ura";
@@ -24,7 +35,7 @@ export interface AdvancedSearchCriteria {
 }
 
 export interface PlaydataContext {
-  getEntry: (path: string) => PlaydataEntry | null;
+  getEntry: (path: string, difficultyNum?: number) => PlaydataEntry | null;
 }
 
 /**
@@ -35,6 +46,63 @@ function getDifficulties(diff: AdvancedSearchCriteria["difficulty"]): Difficulty
   if (!diff || diff === "any") return null; // null = all
   if (diff === "oni/ura") return ["oni", "ura"];
   return [diff];
+}
+
+/**
+ * Determine which specific difficulties of an entry matched the per-difficulty criteria.
+ * Returns null if no per-difficulty criteria are active (treat as single item).
+ * Returns a Difficulty[] of the matching difficulties when per-difficulty criteria narrow it down.
+ */
+export function getMatchedDifficulties(
+  entry: EseIndexEntry,
+  criteria: AdvancedSearchCriteria,
+  playdataContext?: PlaydataContext,
+): Difficulty[] | null {
+  // Only produce difficulty-specific results when per-difficulty criteria are active
+  const hasPerDiffCriteria =
+    criteria.stars != null ||
+    criteria.noteCountMin != null ||
+    criteria.noteCountMax != null ||
+    criteria.dfcDifficulty ||
+    criteria.playdata;
+  if (!hasPerDiffCriteria) return null;
+
+  const baseDiffs = getDifficulties(criteria.difficulty) ?? ALL_DIFFICULTIES;
+
+  // Start with difficulties that exist on this entry
+  let candidates = baseDiffs.filter((d) => entry.courses?.[d]);
+
+  // Filter by stars
+  if (criteria.stars != null) {
+    candidates = candidates.filter((d) => entry.courses?.[d]?.level === criteria.stars);
+  }
+
+  // Filter by note count
+  if (criteria.noteCountMin != null || criteria.noteCountMax != null) {
+    candidates = candidates.filter((d) => {
+      const combo = entry.courses?.[d]?.maxCombo;
+      if (combo == null) return false;
+      if (criteria.noteCountMin != null && combo < criteria.noteCountMin) return false;
+      if (criteria.noteCountMax != null && combo > criteria.noteCountMax) return false;
+      return true;
+    });
+  }
+
+  // Filter by DFC difficulty
+  if (criteria.dfcDifficulty) {
+    candidates = candidates.filter((d) => entry.dfcDifficulty?.[d] === criteria.dfcDifficulty);
+  }
+
+  // Filter by playdata
+  if (criteria.playdata && playdataContext) {
+    candidates = candidates.filter((d) => {
+      const playEntry = playdataContext.getEntry(entry.path, difficultyToNumber[d]);
+      if (!playEntry) return false;
+      return getDnStyleCssClass(playEntry) === criteria.playdata;
+    });
+  }
+
+  return candidates.length > 0 ? candidates : null;
 }
 
 /**

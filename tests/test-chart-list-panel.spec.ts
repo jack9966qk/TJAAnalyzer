@@ -311,4 +311,139 @@ test.describe("Chart List Panel Component", () => {
     await page.locator("#advanced-search-modal.open").getByText("Clear All").click();
     await expect(page.locator(".ese-result-item")).toHaveCount(3);
   });
+
+  test("Advanced Search Difficulty-Specific Results", async ({ page }) => {
+    // Mock ESE index with a song that has both oni and ura courses, different DFC ratings
+    const mockIndex = [
+      {
+        path: "cat1/song_both.tja",
+        title: "Song Both",
+        courses: {
+          oni: { level: 10, maxCombo: 999 },
+          ura: { level: 10, maxCombo: 1111 },
+        },
+        dfcDifficulty: { oni: "SS", ura: "iA" },
+      },
+    ];
+
+    await page.route("**/ese_index.json", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(mockIndex) }),
+    );
+
+    await page.goto("/");
+
+    // Open list tab
+    const dsBody = page.locator("#ds-body");
+    if ((await dsBody.count()) > 0 && (await dsBody.getAttribute("class"))?.includes("collapsed")) {
+      await page.click("#ds-panel-header");
+    }
+    await page.locator('button[data-mode="list"]').click();
+    await expect(page.locator(".ese-result-item").first()).toBeVisible();
+
+    // With no filter, one result (path or base title)
+    await expect(page.locator(".ese-result-item")).toHaveCount(1);
+    await expect(page.locator(".ese-result-item").first()).toContainText("Song Both");
+    await expect(page.locator(".ese-result-item").first()).not.toContainText("(Oni)");
+
+    // Open advanced search
+    await page.locator(".adv-search-open-btn").click();
+    await expect(page.locator("#advanced-search-modal.open")).toBeVisible();
+
+    // Select DFC SS (which matches only the oni difficulty)
+    const dfcSelect = page.locator("#advanced-search-modal.open select").nth(1);
+    await dfcSelect.selectOption("SS");
+    await page.locator("#advanced-search-modal.open").getByText("Apply").click();
+
+    // Result should have "(Oni)" suffix
+    await expect(page.locator(".ese-result-item")).toHaveCount(1);
+    await expect(page.locator(".ese-result-item").first()).toContainText("Song Both (Oni)");
+
+    // Open advanced search again and switch to DFC iA (which matches only the ura difficulty)
+    await page.locator(".adv-search-active-bar").click();
+    await expect(page.locator("#advanced-search-modal.open")).toBeVisible();
+    await dfcSelect.selectOption("iA");
+    await page.locator("#advanced-search-modal.open").getByText("Apply").click();
+
+    // Result should have "(Oni (Ura))" suffix
+    await expect(page.locator(".ese-result-item")).toHaveCount(1);
+    await expect(page.locator(".ese-result-item").first()).toContainText("Song Both (Oni (Ura))");
+  });
+
+  test("Difficulty-Specific Playdata Display", async ({ page }) => {
+    // Song has two difficulties played: oni (Perfect) and ura (Played/Clear)
+    const mockMapping = {
+      "300": { esePath: "cat1/song_diff.tja", defaultTitle: "Song Diff" },
+    };
+
+    const mockPlaydata = {
+      version: 2,
+      updatedAt: "2023-01-01",
+      source: "fumen-database",
+      entries: [
+        { songId: "300", difficulty: 4, crown: 3, scoreRank: 6, great: 100, good: 0, bad: 0 }, // Oni - Perfect (dn-cyan)
+        { songId: "300", difficulty: 5, crown: 1, scoreRank: 4, great: 80, good: 15, bad: 5 }, // Ura - Clear (dn-grey)
+      ],
+    };
+
+    const mockIndex = [
+      {
+        path: "cat1/song_diff.tja",
+        title: "Song Diff",
+        courses: { oni: { level: 9 }, ura: { level: 9 } },
+      },
+    ];
+
+    await page.route("**/data/song_mapping.json", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(mockMapping) }),
+    );
+    await page.route("**/ese_index.json", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(mockIndex) }),
+    );
+    await page.addInitScript((data) => {
+      localStorage.setItem("tja_analyzer_playdata", JSON.stringify(data));
+    }, mockPlaydata);
+
+    await page.goto("/");
+
+    // Open list tab
+    const dsBody = page.locator("#ds-body");
+    if ((await dsBody.count()) > 0 && (await dsBody.getAttribute("class"))?.includes("collapsed")) {
+      await page.click("#ds-panel-header");
+    }
+    await page.locator('button[data-mode="list"]').click();
+    await expect(page.locator(".ese-result-item").first()).toBeVisible();
+
+    // Without filters, one result showing Played (highest difficulty played or overall best)
+    await expect(page.locator(".ese-result-item")).toHaveCount(1);
+    await expect(page.locator(".ese-result-item").first().locator(".play-status-strip")).toHaveClass(/status-played/);
+
+    // Filter by Stars = 9 (both difficulties match, so both should be shown)
+    await page.locator(".adv-search-open-btn").click();
+    const starsInput = page.locator('#advanced-search-modal.open input[type="number"]').first();
+    await starsInput.fill("9");
+    await starsInput.dispatchEvent("input");
+    await page.locator("#advanced-search-modal.open").getByText("Apply").click();
+
+    // Only one result actually visible initially but now there should be 2, "Song Diff (Oni)" and "Song Diff (Oni (Ura))"
+    await expect(page.locator(".ese-result-item")).toHaveCount(2);
+
+    const itemOni = page.locator(".ese-result-item").filter({ hasText: "Song Diff (Oni)" }).first(); // avoid matching (Oni (Ura))
+    // To properly filter just "Song Diff (Oni)" we can use exact matching or class assertion safely
+    const itemUra = page.locator(".ese-result-item").filter({ hasText: "Song Diff (Oni (Ura))" });
+
+    // Verify Oni specific playdata: Perfect
+    await expect(itemOni.locator(".play-status-strip")).toHaveClass(/status-perfect/);
+
+    // Verify Ura specific playdata: Clear
+    await expect(itemUra.locator(".play-status-strip")).toHaveClass(/status-played/);
+
+    // Verify playdata filter "Clear" only shows Ura
+    await page.locator(".adv-search-active-bar").click();
+    const playdataSelect = page.locator("#advanced-search-modal.open select").last();
+    await playdataSelect.selectOption("dn-grey");
+    await page.locator("#advanced-search-modal.open").getByText("Apply").click();
+
+    await expect(page.locator(".ese-result-item")).toHaveCount(1);
+    await expect(page.locator(".ese-result-item").first()).toContainText("Song Diff (Oni (Ura))");
+  });
 });
