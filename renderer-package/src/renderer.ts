@@ -1454,6 +1454,8 @@ function drawBalloonSegment(
   // The original code was using effectiveInnerBorderColor for head too if selected.
   const effectiveHeadInnerBorderColor = effectiveInnerBorderColor;
 
+  const tailBorderStyles = getBorderStyles(isSelected, borderOuterW, 0, innerBorderColor);
+
   // Draw the tail (body)
   // The tail usually starts a bit after the head, but for simplicity we draw it as a capsule behind the head.
   // However, if we draw it as a capsule, the head will be drawn on top of it.
@@ -1463,13 +1465,13 @@ function drawBalloonSegment(
     startX,
     endX,
     centerY,
-    radius * 0.8,
+    radius * 0.7,
     startCap,
     endCap,
-    effectiveBorderOuterW,
-    effectiveBorderInnerW,
+    tailBorderStyles.outerW,
+    tailBorderStyles.innerW,
     fillColor,
-    effectiveInnerBorderColor,
+    tailBorderStyles.innerColor,
   );
 
   // If this is the start segment, draw the balloon head
