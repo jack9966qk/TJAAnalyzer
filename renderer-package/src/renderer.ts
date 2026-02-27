@@ -248,10 +248,11 @@ function drawChartHeader(
   frame: Frame,
   texts: RenderTexts,
   baseHeight?: number,
+  options?: ViewOptions,
 ): void {
   const { x, y, width, height } = frame;
-  const title = chart.title || "Untitled";
-  const subtitle = chart.subtitle || "";
+  const title = options?.titleOverride ?? (chart.title || "Untitled");
+  const subtitle = options?.subtitleOverride ?? (chart.subtitle || "");
   const startBpm = chart.bpm || 120;
   const level = chart.level || 0;
   const course = chart.course || "Oni";
@@ -1876,7 +1877,7 @@ export function renderLayout(
       width: availableWidth,
       height: headerHeight,
     };
-    drawChartHeader(canvasContext, chart, headerFrame, texts, baseHeaderHeight);
+    drawChartHeader(canvasContext, chart, headerFrame, texts, baseHeaderHeight, options);
   }
 
   const isAllBranches = !!options.showAllBranches && !!chart.branches;

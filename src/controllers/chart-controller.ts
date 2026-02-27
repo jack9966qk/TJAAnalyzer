@@ -4,7 +4,7 @@ import type { SelectOptions } from "../components/select-options.js";
 import { getLocalizedSubtitle, getLocalizedTitle } from "../models/song-mapping.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
-import { preloadSongMapping } from "../utils/playdata-status.js";
+import { getCachedSongMapping, preloadSongMapping } from "../utils/playdata-status.js";
 import { ChartLanguage, loadUserProfile } from "../utils/user-profile.js";
 import { courseBranchSelect, noteStatsDisplay, tjaChart } from "../view/ui-elements.js";
 
@@ -275,16 +275,11 @@ export function refreshChart() {
       };
     }
 
-    tjaChart.chart = appState.currentChart;
-    tjaChart.viewOptions = finalViewOptions;
-    tjaChart.judgements = appState.judgements;
-    tjaChart.texts = texts;
-
-    // Apply language overrides
+    // Apply language overrides synchronously if possible
     if (appState.currentEsePath) {
-      preloadSongMapping().then((mapping) => {
-        // biome-ignore lint/suspicious/noExplicitAny: Object.values lacks accurate type here
-        const mappingEntry = Object.values(mapping).find((entry: any) => entry.esePath === appState.currentEsePath);
+      const mapping = getCachedSongMapping();
+      if (mapping) {
+        const mappingEntry = Object.values(mapping).find((entry) => entry.esePath === appState.currentEsePath);
         if (mappingEntry) {
           const profile = loadUserProfile();
           const preferredTarget = profile.preferredChartLanguage ?? ChartLanguage.Auto;
@@ -293,13 +288,44 @@ export function refreshChart() {
           const locTitle = getLocalizedTitle(mappingEntry, lang);
           const locSubtitle = getLocalizedSubtitle(mappingEntry, lang) ?? appState.currentChart?.subtitle ?? "";
 
-          // Only update if it actually changed and chart still matches current
-          if (tjaChart.chart && (tjaChart.chart.title !== locTitle || tjaChart.chart.subtitle !== locSubtitle)) {
-            tjaChart.chart = { ...tjaChart.chart, title: locTitle, subtitle: locSubtitle };
-          }
+          finalViewOptions = {
+            ...finalViewOptions,
+            titleOverride: locTitle,
+            subtitleOverride: locSubtitle,
+          };
         }
-      });
+      } else {
+        preloadSongMapping().then((loadedMapping) => {
+          const mappingEntry = Object.values(loadedMapping).find((entry) => entry.esePath === appState.currentEsePath);
+          if (mappingEntry) {
+            const profile = loadUserProfile();
+            const preferredTarget = profile.preferredChartLanguage ?? ChartLanguage.Auto;
+            const lang = preferredTarget === ChartLanguage.Auto ? i18n.language : preferredTarget;
+
+            const locTitle = getLocalizedTitle(mappingEntry, lang);
+            const locSubtitle = getLocalizedSubtitle(mappingEntry, lang) ?? appState.currentChart?.subtitle ?? "";
+
+            if (tjaChart.viewOptions) {
+              if (
+                tjaChart.viewOptions.titleOverride !== locTitle ||
+                tjaChart.viewOptions.subtitleOverride !== locSubtitle
+              ) {
+                tjaChart.viewOptions = {
+                  ...tjaChart.viewOptions,
+                  titleOverride: locTitle,
+                  subtitleOverride: locSubtitle,
+                };
+              }
+            }
+          }
+        });
+      }
     }
+
+    tjaChart.chart = appState.currentChart;
+    tjaChart.viewOptions = finalViewOptions;
+    tjaChart.judgements = appState.judgements;
+    tjaChart.texts = texts;
 
     updateLoopControls();
   }

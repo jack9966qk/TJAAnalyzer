@@ -284,6 +284,8 @@ export interface JudgementVisibility {
 }
 
 export interface ViewOptions {
+  titleOverride?: string;
+  subtitleOverride?: string;
   viewMode: "original" | "judgements" | "judgements-underline" | "judgements-text";
   coloringMode: "categorical" | "gradient";
   visibility: JudgementVisibility;

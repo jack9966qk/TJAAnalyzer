@@ -987,7 +987,7 @@ test.describe("UI Logic", () => {
       () => {
         // biome-ignore lint/suspicious/noExplicitAny: internal testing
         const tjaChart = document.getElementById("chart-component") as any;
-        return tjaChart?.chart?.title === "Sample Song (English)";
+        return tjaChart?.viewOptions?.titleOverride === "Sample Song (English)";
       },
       undefined,
       { timeout: 5000 },
@@ -997,7 +997,7 @@ test.describe("UI Logic", () => {
       // biome-ignore lint/suspicious/noExplicitAny: internal testing
       const tjaChart = document.getElementById("chart-component") as any;
       return {
-        title: tjaChart.chart?.title,
+        title: tjaChart.viewOptions?.titleOverride,
       };
     });
 

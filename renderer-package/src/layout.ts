@@ -800,8 +800,11 @@ export function measureHeaderHeight(
   width: number,
   baseHeight: number,
   texts?: RenderTexts,
+  options?: ViewOptions,
 ): number {
-  const { title = "Untitled", subtitle = "", level = 0, course = "Oni", bpm = 120 } = chart;
+  const title = options?.titleOverride ?? chart.title ?? "Untitled";
+  const subtitle = options?.subtitleOverride ?? chart.subtitle ?? "";
+  const { level = 0, course = "Oni", bpm = 120 } = chart;
 
   const titleFontSize = baseHeight * 0.4;
   const subtitleFontSize = baseHeight * 0.25;
@@ -992,7 +995,7 @@ export function createLayout(
   let headerHeight = baseHeaderHeight;
   const ctx = canvas.getContext("2d");
   if (ctx) {
-    headerHeight = measureHeaderHeight(ctx, chart, availableWidth, baseHeaderHeight, texts);
+    headerHeight = measureHeaderHeight(ctx, chart, availableWidth, baseHeaderHeight, texts, options);
   }
 
   const statusFontSize = baseBarWidth * resolved.statusFontSize;
