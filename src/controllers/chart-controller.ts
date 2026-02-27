@@ -1,9 +1,11 @@
 import * as Renderer from "tja-renderer";
 import type { JudgementOptions } from "../components/judgement-options.js";
 import type { SelectOptions } from "../components/select-options.js";
+import { getLocalizedSubtitle, getLocalizedTitle } from "../models/song-mapping.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
-import { loadUserProfile } from "../utils/user-profile.js";
+import { preloadSongMapping } from "../utils/playdata-status.js";
+import { ChartLanguage, loadUserProfile } from "../utils/user-profile.js";
 import { courseBranchSelect, noteStatsDisplay, tjaChart } from "../view/ui-elements.js";
 
 const { LocationMap, parseTJA } = Renderer.Private;
@@ -277,6 +279,27 @@ export function refreshChart() {
     tjaChart.viewOptions = finalViewOptions;
     tjaChart.judgements = appState.judgements;
     tjaChart.texts = texts;
+
+    // Apply language overrides
+    if (appState.currentEsePath) {
+      preloadSongMapping().then((mapping) => {
+        // biome-ignore lint/suspicious/noExplicitAny: Object.values lacks accurate type here
+        const mappingEntry = Object.values(mapping).find((entry: any) => entry.esePath === appState.currentEsePath);
+        if (mappingEntry) {
+          const profile = loadUserProfile();
+          const preferredTarget = profile.preferredChartLanguage ?? ChartLanguage.Auto;
+          const lang = preferredTarget === ChartLanguage.Auto ? i18n.language : preferredTarget;
+
+          const locTitle = getLocalizedTitle(mappingEntry, lang);
+          const locSubtitle = getLocalizedSubtitle(mappingEntry, lang) ?? appState.currentChart?.subtitle ?? "";
+
+          // Only update if it actually changed and chart still matches current
+          if (tjaChart.chart && (tjaChart.chart.title !== locTitle || tjaChart.chart.subtitle !== locSubtitle)) {
+            tjaChart.chart = { ...tjaChart.chart, title: locTitle, subtitle: locSubtitle };
+          }
+        }
+      });
+    }
 
     updateLoopControls();
   }

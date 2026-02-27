@@ -1,6 +1,14 @@
 import type { Playdata } from "./playdata-parser.js";
 import { PlaydataLeadingMode, PlaydataStripMode, PlaydataTrailingMode } from "./playdata-status.js";
 
+export enum ChartLanguage {
+  Auto = "auto",
+  En = "en",
+  Ja = "ja",
+  Zh = "zh",
+  Ko = "ko",
+}
+
 export interface DefaultViewOptions {
   /** Beats per line value, or 'auto' for auto-zoom */
   zoom: number | "auto";
@@ -23,6 +31,8 @@ export interface UserProfile {
   chartListLeadingMode?: PlaydataLeadingMode;
   /** Trailing element mode in chart list */
   chartListTrailingMode?: PlaydataTrailingMode;
+  /** Preferred language for chart title/subtitle/artist info */
+  preferredChartLanguage?: ChartLanguage;
 }
 
 const STORAGE_KEY = "tja_analyzer_profile";
@@ -38,6 +48,7 @@ const DEFAULT_PROFILE: UserProfile = {
   chartListStripMode: PlaydataStripMode.Crown,
   chartListLeadingMode: PlaydataLeadingMode.None,
   chartListTrailingMode: PlaydataTrailingMode.None,
+  preferredChartLanguage: ChartLanguage.Auto,
 };
 
 export function loadUserProfile(): UserProfile {

@@ -271,6 +271,13 @@ const resources: Resources = {
     "ui.advSearch.dfcDifficulty": "★10 DFC Difficulty",
     "ui.advSearch.dfcCompetence": "Competence",
     "ui.advSearch.dfcIndividual": "Individual",
+
+    "ui.settings.chartLanguage": "Chart Info Language",
+    "ui.settings.langAuto": "Auto",
+    "ui.settings.langEn": "English",
+    "ui.settings.langJa": "Japanese",
+    "ui.settings.langZh": "Chinese",
+    "ui.settings.langKo": "Korean",
   },
   zh: {
     "ui.dataSource": "数据源",
@@ -533,6 +540,13 @@ const resources: Resources = {
     "ui.advSearch.dfcDifficulty": "★10 全良难易度",
     "ui.advSearch.dfcCompetence": "地力",
     "ui.advSearch.dfcIndividual": "个人差",
+
+    "ui.settings.chartLanguage": "谱面信息语言",
+    "ui.settings.langAuto": "自动",
+    "ui.settings.langEn": "英语",
+    "ui.settings.langJa": "日语",
+    "ui.settings.langZh": "中文",
+    "ui.settings.langKo": "韩语",
   },
   ja: {
     "ui.dataSource": "データソース",
@@ -796,6 +810,13 @@ const resources: Resources = {
     "ui.advSearch.dfcDifficulty": "★10 全良難易度",
     "ui.advSearch.dfcCompetence": "地力",
     "ui.advSearch.dfcIndividual": "個人差",
+
+    "ui.settings.chartLanguage": "譜面情報の言語",
+    "ui.settings.langAuto": "自動",
+    "ui.settings.langEn": "英語",
+    "ui.settings.langJa": "日本語",
+    "ui.settings.langZh": "中国語",
+    "ui.settings.langKo": "韓国語",
   },
 };
 

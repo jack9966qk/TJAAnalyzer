@@ -14,7 +14,13 @@ import {
   verifyPlaydata,
 } from "../utils/playdata-parser.js";
 import { PlaydataLeadingMode, PlaydataStripMode, PlaydataTrailingMode } from "../utils/playdata-status.js";
-import { clearPlaydata, type DefaultViewOptions, loadUserProfile, saveUserProfile } from "../utils/user-profile.js";
+import {
+  ChartLanguage,
+  clearPlaydata,
+  type DefaultViewOptions,
+  loadUserProfile,
+  saveUserProfile,
+} from "../utils/user-profile.js";
 
 export class SettingsPanel extends HTMLElement {
   private isModalOpen = false;
@@ -33,6 +39,7 @@ export class SettingsPanel extends HTMLElement {
   private defaultViewOptions: DefaultViewOptions | null = null;
   private autoAnnotateOnLoad = false;
   private showFullPathInChartList = false;
+  private preferredChartLanguage: ChartLanguage = ChartLanguage.Auto;
   private stripMode: PlaydataStripMode = PlaydataStripMode.Crown;
   private leadingMode: PlaydataLeadingMode = PlaydataLeadingMode.None;
   private trailingMode: PlaydataTrailingMode = PlaydataTrailingMode.None;
@@ -92,6 +99,7 @@ export class SettingsPanel extends HTMLElement {
     this.defaultViewOptions = profile.defaultViewOptions ?? null;
     this.autoAnnotateOnLoad = profile.autoAnnotateOnLoad ?? false;
     this.showFullPathInChartList = profile.showFullPathInChartList ?? false;
+    this.preferredChartLanguage = profile.preferredChartLanguage ?? ChartLanguage.Auto;
     this.stripMode = profile.chartListStripMode ?? PlaydataStripMode.Crown;
     this.leadingMode = profile.chartListLeadingMode ?? PlaydataLeadingMode.None;
     this.trailingMode = profile.chartListTrailingMode ?? PlaydataTrailingMode.None;
@@ -181,6 +189,14 @@ export class SettingsPanel extends HTMLElement {
     this.showFullPathInChartList = checked;
     saveUserProfile({ showFullPathInChartList: checked });
     window.dispatchEvent(new CustomEvent("settings-change", { detail: { showFullPathInChartList: checked } }));
+    this.renderModal();
+  }
+
+  private handleChartLanguageChange(e: Event) {
+    const val = (e.target as HTMLSelectElement).value as ChartLanguage;
+    this.preferredChartLanguage = val;
+    saveUserProfile({ preferredChartLanguage: val });
+    window.dispatchEvent(new Event("settings-change"));
     this.renderModal();
   }
 
@@ -928,6 +944,28 @@ export class SettingsPanel extends HTMLElement {
               style="margin-right: 10px;"
             />
             {i18n.t("ui.chartList.showFullPath")}
+          </label>
+        </div>
+        <div style="margin-top: 12px; padding: 12px; background: var(--bg-panel); border-radius: 6px; border: 1px solid var(--border-light);">
+          <label style="display: flex; align-items: center; width: 100%; cursor: pointer;">
+            <div style="flex: 1;">{i18n.t("ui.settings.chartLanguage")}</div>
+            <select style="padding: 5px; min-width: 120px;" onchange={this.handleChartLanguageChange.bind(this)}>
+              <option value={ChartLanguage.Auto} selected={this.preferredChartLanguage === ChartLanguage.Auto}>
+                {i18n.t("ui.settings.langAuto")}
+              </option>
+              <option value={ChartLanguage.En} selected={this.preferredChartLanguage === ChartLanguage.En}>
+                {i18n.t("ui.settings.langEn")}
+              </option>
+              <option value={ChartLanguage.Ja} selected={this.preferredChartLanguage === ChartLanguage.Ja}>
+                {i18n.t("ui.settings.langJa")}
+              </option>
+              <option value={ChartLanguage.Zh} selected={this.preferredChartLanguage === ChartLanguage.Zh}>
+                {i18n.t("ui.settings.langZh")}
+              </option>
+              <option value={ChartLanguage.Ko} selected={this.preferredChartLanguage === ChartLanguage.Ko}>
+                {i18n.t("ui.settings.langKo")}
+              </option>
+            </select>
           </label>
         </div>
         <div style="margin-top: 12px; padding: 12px; background: var(--bg-panel); border-radius: 6px; border: 1px solid var(--border-light);">

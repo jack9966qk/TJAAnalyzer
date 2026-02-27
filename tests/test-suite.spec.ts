@@ -892,6 +892,108 @@ test.describe("UI Logic", () => {
     await expect(page.locator(".ese-result-item")).not.toBeVisible();
     await expect(page.locator("#ese-results")).toContainText("No results found");
   });
+
+  test("Chart Info Language Setting changes displayed title", async ({ page }) => {
+    // Mock song_mapping.json to provide language titles
+    await page.route("**/data/song_mapping.json", (route) => {
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          song1: {
+            esePath: "category/sample.tja",
+            defaultTitle: "Sample Song",
+            titleList: {
+              ja: "サンプル曲",
+              "en-US": "Sample Song (English)",
+            },
+            candidates: [],
+            matchType: "manual",
+          },
+        }),
+      });
+    });
+
+    // Mock TJA files
+    await page.route("**/*.tja", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "text/plain; charset=shift_jis",
+        body: "TITLE:Sample Song\nBPM:120\n#START\n1010,\n#END",
+      }),
+    );
+
+    // Mock ESE index
+    await page.route("**/ese_index.json", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([
+          {
+            path: "category/sample.tja",
+            title: "Sample Song",
+            titleJp: "サンプル曲",
+            url: "ese/category/sample.tja",
+            type: "blob",
+            sha: "123",
+          },
+        ]),
+      }),
+    );
+
+    await page.goto("/");
+    await page.reload();
+    await page.waitForTimeout(500);
+
+    // 1. Open Settings
+    const settingsPanel = page.locator("settings-panel");
+    await settingsPanel.evaluate((panel) => {
+      const btn = panel.querySelector(".settings-btn") as HTMLElement;
+      if (btn) btn.click();
+    });
+
+    // Wait for the modal to be visible internally
+    await page.waitForTimeout(500);
+
+    // Wait for the language dropdown to appear (should be inside settings-panel)
+
+    // Change language to English using Playwright native selection
+    const settingsModal = page.locator("#settings-modal");
+    const langSelect = settingsModal.locator("select").filter({ has: page.locator('option[value="auto"]') });
+    await langSelect.selectOption("en");
+
+    await page.waitForTimeout(500);
+
+    // Close settings modal
+    await settingsModal.evaluate((modal) => {
+      const closeBtn = modal.querySelector(".close-btn") as HTMLElement;
+      closeBtn?.click();
+    });
+
+    // 2. Verify List Title changed
+    // In our mock, the English title is "Sample Song (English)"
+    const listPane = page.locator("#tab-list");
+    await expect(listPane).toContainText("Sample Song (English)");
+
+    // 3. Open Chart and Verify Canvas Render
+    await listPane.locator(".ese-result-item", { hasText: "Sample Song (English)" }).click({ force: true });
+
+    // Wait for chart load
+    const canvas = page.locator("#chart-component");
+    await expect(canvas).toBeVisible();
+    await page.waitForTimeout(1000); // Give time for async mapping fetch in controller
+
+    // Verify viewOptions and chart metadata via evaluate
+    const chartTitleInfo = await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: internal testing
+      const tjaChart = document.getElementById("chart-component") as any;
+      return {
+        title: tjaChart.chart?.title,
+      };
+    });
+
+    expect(chartTitleInfo.title).toBe("Sample Song (English)");
+  });
 });
 
 test.describe("Loop Controls Interaction", () => {

@@ -29,7 +29,7 @@ import {
   PlaydataTrailingMode,
   preloadSongMapping,
 } from "../utils/playdata-status.js";
-import { loadUserProfile } from "../utils/user-profile.js";
+import { ChartLanguage, loadUserProfile } from "../utils/user-profile.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
 
 type DisplayResult =
@@ -59,6 +59,7 @@ export class ChartListPanel extends HTMLElement {
   private _stripMode: PlaydataStripMode = PlaydataStripMode.Crown;
   private _leadingMode: PlaydataLeadingMode = PlaydataLeadingMode.None;
   private _trailingMode: PlaydataTrailingMode = PlaydataTrailingMode.None;
+  private _preferredChartLanguage: ChartLanguage = ChartLanguage.Auto;
   private _settingsChangeHandler: (() => void) | null = null;
   // Advanced search state
   private _isAdvancedSearchActive = false;
@@ -73,9 +74,11 @@ export class ChartListPanel extends HTMLElement {
       this.render();
     });
     // Listen to settings changes
-    this._settingsChangeHandler = () => {
+    this._settingsChangeHandler = async () => {
       this.loadSettings();
-      this.refreshPlaydataCaches();
+      await this.refreshPlaydataCaches();
+      this.rebuildTitleCache();
+      this.filterResults();
       this.render();
     };
     window.addEventListener("settings-change", this._settingsChangeHandler);
@@ -107,6 +110,7 @@ export class ChartListPanel extends HTMLElement {
     this._stripMode = profile.chartListStripMode ?? PlaydataStripMode.Crown;
     this._leadingMode = profile.chartListLeadingMode ?? PlaydataLeadingMode.None;
     this._trailingMode = profile.chartListTrailingMode ?? PlaydataTrailingMode.None;
+    this._preferredChartLanguage = profile.preferredChartLanguage ?? ChartLanguage.Auto;
   }
 
   get searchQuery() {
@@ -162,31 +166,35 @@ export class ChartListPanel extends HTMLElement {
   }
 
   private async refreshPlaydataCaches() {
+    let mappingLoaded = false;
+    // Load song mapping if not cached (needed for title localization regardless of playdata)
+    if (!this._songMapping) {
+      this._songMapping = await preloadSongMapping();
+      mappingLoaded = true;
+    }
+
     const profile = loadUserProfile();
     const playdata = profile.playdata;
 
-    // Only refresh if playdata changed
-    if (playdata === this._cachedPlaydata) {
+    // Only refresh if playdata or mapping changed
+    if (playdata === this._cachedPlaydata && !mappingLoaded) {
       return;
     }
 
     this._cachedPlaydata = playdata;
 
     if (!playdata?.entries?.length) {
-      this._songMapping = null;
       this._songIdToEntriesCache = null;
-      return;
+    } else {
+      // Build title lookup cache
+      this._songIdToEntriesCache = buildSongIdToEntriesCache(playdata);
     }
 
-    // Load song mapping if not cached
-    if (!this._songMapping) {
-      this._songMapping = await preloadSongMapping();
+    if (mappingLoaded) {
+      this.rebuildTitleCache();
     }
 
-    // Build title lookup cache
-    this._songIdToEntriesCache = buildSongIdToEntriesCache(playdata);
-
-    // Re-render with status strips
+    // Re-render with status strips and translations
     this.render();
   }
 
@@ -214,7 +222,7 @@ export class ChartListPanel extends HTMLElement {
    * Returns the appropriate title variant or falls back to the base title.
    */
   private getLocalizedTitle(node: EseIndexEntry): string | undefined {
-    const lang = i18n.language;
+    const lang = this._preferredChartLanguage === ChartLanguage.Auto ? i18n.language : this._preferredChartLanguage;
 
     // Check if we have song mapping data for this node
     // To do that efficiently, we need a reverse lookup from path -> SongMappingEntry

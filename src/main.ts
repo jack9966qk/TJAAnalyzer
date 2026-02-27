@@ -322,6 +322,10 @@ function initEventListeners() {
     updateTesterModeVisibility();
   });
 
+  window.addEventListener("settings-change", () => {
+    refreshChart();
+  });
+
   // Listeners for new checkboxes - Moved to judgement-options.ts
 
   // judgementStyleRadios & judgementColoringRadios - Moved to judgement-options.ts
