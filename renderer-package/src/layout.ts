@@ -187,16 +187,16 @@ export function calculateAutoZoomBeats(
   // Bleed Ratio (Bar Extension)
   const resolved = resolveLayoutRatios(layoutRatios);
   const ratioBleed = resolved.noteRadiusSmall * 2;
-  // Note Inner Ratio (for minD check)
-  const ratioInner = resolved.noteRadiusSmall * 2;
+  // Note Full Ratio (for minD check)
+  const ratioFull = resolved.noteRadiusSmall * 2;
 
-  // We need to satisfy: NoteInnerDiameter >= effectiveMinDiameter
-  // NoteInnerDiameter = BaseBarWidth * ratioInner
+  // We need to satisfy: NoteFullDiameter >= effectiveMinDiameter
+  // NoteFullDiameter = BaseBarWidth * ratioFull
   // BaseBarWidth = contentWidth / (Beats/4 + 2 * ratioBleed)
-  // (contentWidth * ratioInner) / (Beats/4 + 2 * ratioBleed) >= minD
-  // contentWidth * ratioInner / minD >= Beats/4 + 2 * ratioBleed
-  // 4 * (contentWidth * ratioInner / minD - 2 * ratioBleed) >= Beats
-  const maxBeatsByDiameter = 4 * ((contentWidth * ratioInner) / effectiveMinDiameter - 2 * ratioBleed);
+  // (contentWidth * ratioFull) / (Beats/4 + 2 * ratioBleed) >= minD
+  // contentWidth * ratioFull / minD >= Beats/4 + 2 * ratioBleed
+  // 4 * (contentWidth * ratioFull / minD - 2 * ratioBleed) >= Beats
+  const maxBeatsByDiameter = 4 * ((contentWidth * ratioFull) / effectiveMinDiameter - 2 * ratioBleed);
 
   // Priority 1: Hard max limit 32
   const maxBeatsStrict = 32;
