@@ -1,4 +1,7 @@
-import type { CourseInfo } from "../../generate-song-mapping.js";
+export interface CourseInfo {
+  level: number;
+  maxCombo?: number;
+}
 
 export interface EseIndexEntry {
   path: string;

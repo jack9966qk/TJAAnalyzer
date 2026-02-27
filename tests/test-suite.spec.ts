@@ -919,7 +919,7 @@ test.describe("UI Logic", () => {
       route.fulfill({
         status: 200,
         contentType: "text/plain; charset=shift_jis",
-        body: "TITLE:Sample Song\nBPM:120\n#START\n1010,\n#END",
+        body: "TITLE:Sample Song\nBPM:120\nCOURSE:Oni\n#START\n1010,\n#END",
       }),
     );
 
@@ -976,14 +976,23 @@ test.describe("UI Logic", () => {
     await expect(listPane).toContainText("Sample Song (English)");
 
     // 3. Open Chart and Verify Canvas Render
-    await listPane.locator(".ese-result-item", { hasText: "Sample Song (English)" }).click({ force: true });
+    await listPane.locator(".ese-result-item", { hasText: "Sample Song (English)" }).click();
 
-    // Wait for chart load
+    // Wait for chart load and title update
     const canvas = page.locator("#chart-component");
     await expect(canvas).toBeVisible();
-    await page.waitForTimeout(1000); // Give time for async mapping fetch in controller
 
-    // Verify viewOptions and chart metadata via evaluate
+    // The mapping fetch is async, wait until the title matches expectation
+    await page.waitForFunction(
+      () => {
+        // biome-ignore lint/suspicious/noExplicitAny: internal testing
+        const tjaChart = document.getElementById("chart-component") as any;
+        return tjaChart?.chart?.title === "Sample Song (English)";
+      },
+      undefined,
+      { timeout: 5000 },
+    );
+
     const chartTitleInfo = await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: internal testing
       const tjaChart = document.getElementById("chart-component") as any;

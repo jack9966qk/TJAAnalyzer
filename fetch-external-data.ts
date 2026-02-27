@@ -112,6 +112,13 @@ const DONDER_HELPER_URL =
   "https://raw.githubusercontent.com/Donder-Helper/DonderHelper/refs/heads/main/Data/songs.json";
 const TAIKO_WIKI_DFC_URL = "https://taiko.wiki/api/v1/diffchart?type=dfc&level=10";
 
+import * as path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const EXTERNAL_DATA_DIR = path.join(__dirname, "data", "external");
+
 export interface ExternalSongData {
   taikoRatingAnalyzerSongs: TaikoRatingAnalyzerSong[];
   taikoWikiSongs: TaikoWikiSong[];
@@ -119,36 +126,77 @@ export interface ExternalSongData {
   dfcSections: TaikoWikiDfcSection[];
 }
 
-export async function fetchExternalSongData(): Promise<ExternalSongData> {
-  console.log(`Fetching songs from taiko-rating-analyzer...`);
-  const songsResp = await fetch(TAIKO_RATING_ANALYZER_URL);
-  if (!songsResp.ok) throw new Error(`Failed to fetch songs: ${songsResp.statusText}`);
-  const taikoRatingAnalyzerSongs = (await songsResp.json()) as TaikoRatingAnalyzerSong[];
+async function fetchOrLoadJson<T>(url: string, filename: string, forceFetchAndSave: boolean): Promise<T> {
+  const filePath = path.join(EXTERNAL_DATA_DIR, filename);
 
-  console.log(`Fetching database from taiko-wiki...`);
-  const dbResp = await fetch(TAIKO_WIKI_DB_URL);
-  if (!dbResp.ok) throw new Error(`Failed to fetch database: ${dbResp.statusText}`);
-  const taikoWikiSongs = (await dbResp.json()) as TaikoWikiSong[];
+  if (!forceFetchAndSave && fs.existsSync(filePath)) {
+    console.log(`Loading ${filename} from local cache...`);
+    const data = fs.readFileSync(filePath, "utf8");
+    return JSON.parse(data) as T;
+  }
 
-  console.log(`Fetching DonderHelper data...`);
-  const dhResp = await fetch(DONDER_HELPER_URL);
-  if (!dhResp.ok) throw new Error(`Failed to fetch DonderHelper data: ${dhResp.statusText}`);
-  const donderHelperData = (await dhResp.json()) as DonderHelperData;
+  console.log(`Fetching from ${url}...`);
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`Failed to fetch ${url}: ${resp.statusText}`);
+  const data = (await resp.json()) as T;
 
-  console.log(`Fetching DFC diffchart from taiko.wiki...`);
+  if (forceFetchAndSave) {
+    if (!fs.existsSync(EXTERNAL_DATA_DIR)) {
+      fs.mkdirSync(EXTERNAL_DATA_DIR, { recursive: true });
+    }
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+    console.log(`Saved ${filename} to local cache.`);
+  }
+
+  return data;
+}
+
+export async function fetchExternalSongData(forceFetchAndSave = false): Promise<ExternalSongData> {
+  const taikoRatingAnalyzerSongs = await fetchOrLoadJson<TaikoRatingAnalyzerSong[]>(
+    TAIKO_RATING_ANALYZER_URL,
+    "taiko_rating_analyzer.json",
+    forceFetchAndSave,
+  );
+
+  const taikoWikiSongs = await fetchOrLoadJson<TaikoWikiSong[]>(
+    TAIKO_WIKI_DB_URL,
+    "taiko_wiki.json",
+    forceFetchAndSave,
+  );
+
+  const donderHelperData = await fetchOrLoadJson<DonderHelperData>(
+    DONDER_HELPER_URL,
+    "donder_helper.json",
+    forceFetchAndSave,
+  );
+
   let dfcSections: TaikoWikiDfcSection[] = [];
   try {
-    const dfcResp = await fetch(TAIKO_WIKI_DFC_URL);
-    if (dfcResp.ok) {
-      const dfcData = (await dfcResp.json()) as TaikoWikiDfcResponse;
+    const filePath = path.join(EXTERNAL_DATA_DIR, "diffchart.json");
+    if (!forceFetchAndSave && fs.existsSync(filePath)) {
+      console.log(`Loading diffchart.json from local cache...`);
+      const cached = fs.readFileSync(filePath, "utf8");
+      const dfcData = JSON.parse(cached) as TaikoWikiDfcResponse;
       dfcSections = dfcData.data.sections;
-      console.log(`Fetched ${dfcSections.length} DFC sections.`);
     } else {
-      console.warn(`Failed to fetch DFC data: ${dfcResp.statusText}`);
+      console.log(`Fetching DFC diffchart from taiko.wiki...`);
+      const dfcResp = await fetch(TAIKO_WIKI_DFC_URL);
+      if (dfcResp.ok) {
+        const dfcData = (await dfcResp.json()) as TaikoWikiDfcResponse;
+        dfcSections = dfcData.data.sections;
+        console.log(`Fetched ${dfcSections.length} DFC sections.`);
+        if (forceFetchAndSave) {
+          if (!fs.existsSync(EXTERNAL_DATA_DIR)) fs.mkdirSync(EXTERNAL_DATA_DIR, { recursive: true });
+          fs.writeFileSync(filePath, JSON.stringify(dfcData, null, 2));
+          console.log(`Saved diffchart.json to local cache.`);
+        }
+      } else {
+        console.warn(`Failed to fetch DFC data: ${dfcResp.statusText}`);
+      }
     }
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
-    console.warn(`Failed to fetch DFC data: ${msg}`);
+    console.warn(`Failed to fetch/load DFC data: ${msg}`);
   }
 
   return { taikoRatingAnalyzerSongs, taikoWikiSongs, donderHelperData, dfcSections };

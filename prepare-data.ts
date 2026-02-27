@@ -1,4 +1,3 @@
-import { execSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as readline from "node:readline";
@@ -9,21 +8,19 @@ import { buildLookupMaps, fetchExternalSongData } from "./fetch-external-data.js
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const ESE_DIR = path.join(__dirname, "public", "ese");
+const API_BASE = "https://ese.tjadataba.se/api/v1";
+const RAW_BASE = "https://ese.tjadataba.se/ESE/ESE/raw/branch/master";
+const TARGET_DIR = path.join(__dirname, "public", "ese");
 const OUTPUT_FILE = path.join(__dirname, "data", "song_mapping.json");
+const EXTERNAL_DIR = path.join(__dirname, "data", "external");
+const TJA_CACHE_FILE = path.join(EXTERNAL_DIR, "tja_cache.json");
 const ENV_FILE = path.join(__dirname, ".env");
 
 // CLI args
 const args = process.argv.slice(2);
 const USE_LLM = args.includes("--resolve-llm");
-const FORCE_REGEN = args.includes("--force");
 
 const LLM_CONCURRENCY = 5;
-
-export interface CourseInfo {
-  level: number;
-  maxCombo?: number;
-}
 
 interface MergedSong {
   id: number;
@@ -31,15 +28,11 @@ interface MergedSong {
   titleList: Record<string, string>;
   subtitleList?: Record<string, string>;
   artist?: string;
-  courses?: Partial<Record<"easy" | "normal" | "hard" | "oni" | "ura", CourseInfo>>;
-  bpm?: { min: number; max: number };
-  platforms?: string[];
-  region?: Record<string, number>;
-  dfcDifficulty?: Record<string, string>;
 }
 
 interface TjaFile {
   relativePath: string;
+  sha: string;
   titleJa: string | null;
   title: string | null;
   subtitleJa: string | null;
@@ -49,14 +42,6 @@ interface TjaFile {
 export interface SongMappingEntry {
   esePath: string;
   defaultTitle: string;
-  titleList?: Record<string, string>;
-  subtitleList?: Record<string, string>;
-  artist?: string;
-  courses?: Partial<Record<"easy" | "normal" | "hard" | "oni" | "ura", CourseInfo>>;
-  bpm?: { min: number; max: number };
-  platforms?: string[];
-  region?: Record<string, number>;
-  dfcDifficulty?: Record<string, string>;
   candidates?: string[];
   matchType?: "exact" | "fuzzy" | "fuzzy + manual" | "fuzzy + llm";
 }
@@ -68,7 +53,6 @@ interface ProcessingItem {
   llmChoiceIndex?: number;
 }
 
-// Load env
 let GEMINI_API_KEY: string | undefined = process.env.GEMINI_API_KEY;
 let genAI: GoogleGenerativeAI | undefined;
 
@@ -104,7 +88,7 @@ function askQuestion(query: string): Promise<string> {
 }
 
 async function resolveWithGemini(targetTitle: string, options: TjaFile[]): Promise<number> {
-  if (!genAI) return -1; // Fallback
+  if (!genAI) return -1;
 
   const optionsText = options
     .map((opt, idx) => {
@@ -147,19 +131,11 @@ Only output the number, nothing else.`;
 function levenshtein(a: string, b: string): number {
   if (a.length === 0) return b.length;
   if (b.length === 0) return a.length;
-
   const matrix: number[][] = [];
-
   let i: number;
-  for (i = 0; i <= b.length; i++) {
-    matrix[i] = [i];
-  }
-
+  for (i = 0; i <= b.length; i++) matrix[i] = [i];
   let j: number;
-  for (j = 0; j <= a.length; j++) {
-    matrix[0][j] = j;
-  }
-
+  for (j = 0; j <= a.length; j++) matrix[0][j] = j;
   for (i = 1; i <= b.length; i++) {
     for (j = 1; j <= a.length; j++) {
       if (b.charAt(i - 1) === a.charAt(j - 1)) {
@@ -169,112 +145,218 @@ function levenshtein(a: string, b: string): number {
       }
     }
   }
-
   return matrix[b.length][a.length];
 }
 
-function getAllFiles(dirPath: string, arrayOfFiles: string[] = []): string[] {
-  if (!fs.existsSync(dirPath)) return arrayOfFiles;
-  const files = fs.readdirSync(dirPath);
-
-  files.forEach((file) => {
-    const fullPath = path.join(dirPath, file);
-    if (fs.statSync(fullPath).isDirectory()) {
-      getAllFiles(fullPath, arrayOfFiles);
-    } else {
-      if (file.toLowerCase().endsWith(".tja")) {
-        arrayOfFiles.push(fullPath);
-      }
-    }
-  });
-  return arrayOfFiles;
+async function fetchJson(url: string) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
+  return await response.json();
 }
 
-function extractMetadata(filePath: string): TjaFile {
-  const content = fs.readFileSync(filePath, "utf8");
+async function downloadFile(nodePath: string) {
+  const encodedPath = nodePath.split("/").map(encodeURIComponent).join("/");
+  const url = `${RAW_BASE}/${encodedPath}`;
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
+  return await response.text();
+}
+
+function extractMetadata(content: string) {
   const lines = content.split(/\r?\n/);
   let title = null;
-  let titleJa = null;
+  let titleJp = null;
   let subtitle = null;
-  let subtitleJa = null;
+  let subtitleJp = null;
 
   for (const line of lines) {
     const trimmed = line.trim();
     if (trimmed.startsWith("TITLE:")) {
       title = trimmed.substring(6).trim();
     } else if (trimmed.startsWith("TITLEJA:")) {
-      titleJa = trimmed.substring(8).trim();
+      titleJp = trimmed.substring(8).trim();
     } else if (trimmed.startsWith("SUBTITLE:")) {
       subtitle = trimmed.substring(9).trim();
+      if (subtitle.startsWith("--")) subtitle = subtitle.substring(2).trim();
     } else if (trimmed.startsWith("SUBTITLEJA:")) {
-      subtitleJa = trimmed.substring(11).trim();
+      subtitleJp = trimmed.substring(11).trim();
+      if (subtitleJp.startsWith("--")) subtitleJp = subtitleJp.substring(2).trim();
     }
 
-    if (title && titleJa && subtitle && subtitleJa) break;
+    if (title && titleJp && subtitle && subtitleJp) break;
+    if (line.startsWith("#START")) break;
+  }
+  return { title, titleJp, subtitle, subtitleJp };
+}
+
+async function syncTjaFiles(): Promise<{
+  files: TjaFile[];
+  commitInfo: { sha: string | null; date: string | null };
+}> {
+  if (!fs.existsSync(TARGET_DIR)) {
+    fs.mkdirSync(TARGET_DIR, { recursive: true });
   }
 
-  const relativePath = path.relative(ESE_DIR, filePath);
-  const normalizedPath = relativePath.split(path.sep).join("/");
+  console.log("Fetching file tree from API...");
+  let allNodes: { path: string; type: string; sha: string; url: string }[] = [];
+  let page = 1;
+  let totalCount = 0;
 
-  return {
-    relativePath: normalizedPath,
-    titleJa,
-    title,
-    subtitleJa,
-    subtitle,
-  };
+  while (true) {
+    process.stdout.write(`\rFetching tree page ${page}...`);
+    const treeUrl = `${API_BASE}/repos/ESE/ESE/git/trees/master?recursive=1&page=${page}`;
+    const data = await fetchJson(treeUrl);
+
+    allNodes = allNodes.concat(data.tree);
+    totalCount = data.total_count;
+
+    if (allNodes.length >= totalCount || data.tree.length === 0) {
+      break;
+    }
+    page++;
+  }
+  console.log(`\nFetched ${allNodes.length} entries (Total: ${totalCount})`);
+
+  const tjaNodes = allNodes.filter((node) => node.type === "blob" && node.path.toLowerCase().endsWith(".tja"));
+  console.log(`Found ${tjaNodes.length} TJA files.`);
+
+  console.log("Fetching commit info...");
+  let commitInfo = { sha: null, date: null };
+  try {
+    const branchData = await fetchJson(`${API_BASE}/repos/ESE/ESE/branches/master`);
+    commitInfo = {
+      sha: branchData.commit.id,
+      date: branchData.commit.timestamp,
+    };
+    console.log(`Latest commit: ${commitInfo.sha} (${commitInfo.date})`);
+  } catch (e: unknown) {
+    console.warn("Failed to fetch commit info:", e instanceof Error ? e.message : String(e));
+  }
+
+  let existingCache: Record<string, TjaFile> = {};
+  if (fs.existsSync(TJA_CACHE_FILE)) {
+    try {
+      const raw = fs.readFileSync(TJA_CACHE_FILE, "utf8");
+      existingCache = JSON.parse(raw);
+    } catch (_e) {
+      console.warn("Failed to read existing TJA cache, starting fresh.");
+    }
+  }
+
+  const newFiles: TjaFile[] = [];
+  const validPaths = new Set<string>();
+  let downloadCount = 0;
+  let skipCount = 0;
+  let processedCount = 0;
+
+  for (const node of tjaNodes) {
+    processedCount++;
+    const progress = Math.round((processedCount / tjaNodes.length) * 100);
+    const targetPath = path.join(TARGET_DIR, node.path);
+    validPaths.add(targetPath);
+
+    const isCached = existingCache[node.path] && existingCache[node.path].sha === node.sha && fs.existsSync(targetPath);
+
+    let tjaMeta = {
+      title: null as string | null,
+      titleJp: null as string | null,
+      subtitle: null as string | null,
+      subtitleJp: null as string | null,
+    };
+
+    if (isCached) {
+      skipCount++;
+      // We still read from disk to ensure metadata extraction is fully up to date with the script logic
+      try {
+        const content = fs.readFileSync(targetPath, "utf8");
+        tjaMeta = extractMetadata(content);
+      } catch (_e) {
+        console.warn(`Failed to read local file for metadata: ${targetPath}`);
+      }
+    } else {
+      downloadCount++;
+      process.stdout.write(`\r[${progress}%] Downloading ${node.path}...`);
+      try {
+        const content = await downloadFile(node.path);
+        fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+        fs.writeFileSync(targetPath, content);
+        tjaMeta = extractMetadata(content);
+      } catch (err: unknown) {
+        console.error(`\nError downloading ${node.path}:`, err instanceof Error ? err.message : String(err));
+        continue;
+      }
+    }
+
+    newFiles.push({
+      relativePath: node.path,
+      sha: node.sha,
+      title: tjaMeta.title,
+      titleJa: tjaMeta.titleJp,
+      subtitle: tjaMeta.subtitle,
+      subtitleJa: tjaMeta.subtitleJp,
+    });
+  }
+
+  process.stdout.write("\n");
+  console.log(`Downloaded: ${downloadCount}, Skipped: ${skipCount}`);
+
+  console.log("Cleaning up orphaned files...");
+  let removedCount = 0;
+
+  function getAllFiles(dirPath: string, arrayOfFiles: string[] = []): string[] {
+    const files = fs.readdirSync(dirPath);
+    files.forEach((file) => {
+      const fullPath = path.join(dirPath, file);
+      if (fs.statSync(fullPath).isDirectory()) {
+        arrayOfFiles = getAllFiles(fullPath, arrayOfFiles);
+      } else {
+        arrayOfFiles.push(fullPath);
+      }
+    });
+    return arrayOfFiles;
+  }
+
+  if (fs.existsSync(TARGET_DIR)) {
+    const currentFiles = getAllFiles(TARGET_DIR);
+    for (const file of currentFiles) {
+      if (!validPaths.has(file)) {
+        fs.unlinkSync(file);
+        removedCount++;
+      }
+    }
+  }
+  console.log(`Removed ${removedCount} orphaned files.`);
+
+  // Save cache
+  const cacheMap: Record<string, TjaFile> = {};
+  for (const f of newFiles) {
+    cacheMap[f.relativePath] = f;
+  }
+  if (!fs.existsSync(EXTERNAL_DIR)) {
+    fs.mkdirSync(EXTERNAL_DIR, { recursive: true });
+  }
+  fs.writeFileSync(TJA_CACHE_FILE, JSON.stringify(cacheMap, null, 2));
+
+  return { files: newFiles, commitInfo };
 }
 
 async function main() {
-  console.log(`Args: ${args.join(" ")}`);
+  console.log(`Step 1: Syncing TJA Files from ESE...`);
+  const { files: tjaFiles, commitInfo } = await syncTjaFiles();
 
-  // Load existing mapping if available and not forced
-  let existingMapping: Record<number, SongMappingEntry> = {};
-  if (!FORCE_REGEN && fs.existsSync(OUTPUT_FILE)) {
-    try {
-      console.log(`Loading existing mapping from ${OUTPUT_FILE}...`);
-      existingMapping = JSON.parse(fs.readFileSync(OUTPUT_FILE, "utf8"));
-    } catch (_e) {
-      console.warn("Failed to load existing mapping, starting fresh.");
-    }
-  }
+  // Save commit info to external cache for build
+  fs.writeFileSync(path.join(EXTERNAL_DIR, "ese_commit.json"), JSON.stringify(commitInfo, null, 2));
 
-  console.log("Step 1: Running fetch-ese...");
-  try {
-    execSync("npm run fetch-ese", { stdio: "inherit" });
-  } catch (e) {
-    console.error("Error running fetch-ese:", e);
-    process.exit(1);
-  }
-
-  console.log(`Step 2: Retrieving song data...`);
-  let externalData: Awaited<ReturnType<typeof fetchExternalSongData>>;
-  try {
-    externalData = await fetchExternalSongData();
-  } catch (e) {
-    console.error("Error fetching song data:", e);
-    process.exit(1);
-  }
-
+  console.log(`Step 2: Retrieving song databases...`);
+  const externalData = await fetchExternalSongData(true);
   const { taikoRatingAnalyzerSongs, donderHelperData } = externalData;
-  const { taikoWikiMap, donderHelperValues, dfcMap } = buildLookupMaps(externalData);
+  const { taikoWikiMap, donderHelperValues } = buildLookupMaps(externalData);
 
-  // DonderHelper difficulty name mapping to standard names
-  const dhDiffMap: Record<string, "easy" | "normal" | "hard" | "oni" | "ura"> = {
-    Easy: "easy",
-    Normal: "normal",
-    Hard: "hard",
-    Extreme: "oni",
-    Hidden: "ura",
-  };
-
-  // Join
   const mergedSongs: MergedSong[] = taikoRatingAnalyzerSongs.map((src) => {
     const idStr = String(src.id);
     const dbSong = taikoWikiMap.get(idStr);
     const dhSong = donderHelperData[src.title] || donderHelperValues.find((d) => d.TitleList?.ja === src.title);
 
-    // Prefer DB title if exists
     const defaultTitle = dbSong?.title || src.title;
     const artist = dbSong?.artists?.join(", ");
 
@@ -298,90 +380,35 @@ async function main() {
       subtitleList = dhSubtitles;
     }
 
-    // Build per-difficulty course info (stars + note count)
-    const courses: MergedSong["courses"] = {};
-    const diffNames = ["easy", "normal", "hard", "oni", "ura"] as const;
-    for (const diff of diffNames) {
-      const wikiCourse = dbSong?.courses?.[diff];
-      if (wikiCourse && wikiCourse.level > 0) {
-        courses[diff] = { level: wikiCourse.level };
-        if (wikiCourse.maxCombo && wikiCourse.maxCombo > 0) {
-          courses[diff].maxCombo = wikiCourse.maxCombo;
-        }
-      }
-    }
-    // Fallback to DonderHelper for missing difficulties
-    if (dhSong?.Difficulties) {
-      for (const [dhName, stdName] of Object.entries(dhDiffMap)) {
-        if (courses[stdName]) continue; // Already have from TaikoWiki
-        const dhDiff = dhSong.Difficulties[dhName as keyof typeof dhSong.Difficulties];
-        if (dhDiff && dhDiff.Level > 0) {
-          courses[stdName] = { level: dhDiff.Level };
-          const noteCount = dhDiff.NoteCount?.Single?.Normal;
-          if (noteCount && noteCount > 0) {
-            courses[stdName].maxCombo = noteCount;
-          }
-        }
-      }
-    }
-
-    // BPM from TaikoWiki
-    const bpm = dbSong?.bpm?.min && dbSong?.bpm?.max ? { min: dbSong.bpm.min, max: dbSong.bpm.max } : undefined;
-
-    // Platforms from TaikoWiki version
-    const platforms = dbSong?.version && dbSong.version.length > 0 ? dbSong.version : undefined;
-
-    // Region from DonderHelper
-    const region = dhSong?.Region;
-
-    // DFC difficulty from taiko.wiki diffchart
-    const dfcDifficulty: Record<string, string> = {};
-    for (const diff of ["oni", "ura"] as const) {
-      const dfcRank = dfcMap.get(`${idStr}:${diff}`);
-      if (dfcRank) dfcDifficulty[diff] = dfcRank;
-    }
-
     return {
       id: src.id,
       defaultTitle,
       titleList,
       subtitleList,
       artist,
-      courses: Object.keys(courses).length > 0 ? courses : undefined,
-      bpm,
-      platforms,
-      region,
-      dfcDifficulty: Object.keys(dfcDifficulty).length > 0 ? dfcDifficulty : undefined,
     };
   });
 
   console.log(`Merged ${mergedSongs.length} songs.`);
 
-  console.log("Step 3: Scanning TJA files in public/ese...");
-  const tjaFilePaths = getAllFiles(ESE_DIR);
-  console.log(`Found ${tjaFilePaths.length} TJA files.`);
-
-  const tjaFiles: TjaFile[] = [];
-  for (const p of tjaFilePaths) {
-    tjaFiles.push(extractMetadata(p));
+  let existingMapping: Record<number, SongMappingEntry> = {};
+  if (fs.existsSync(OUTPUT_FILE)) {
+    try {
+      existingMapping = JSON.parse(fs.readFileSync(OUTPUT_FILE, "utf8"));
+    } catch (_e) {}
   }
 
-  const mapping: Record<number, SongMappingEntry> = {};
-
-  console.log("Step 4: identifying candidates for songs...");
-
-  // Phase 1: Identify Candidates and separate existing vs new
+  console.log("Step 3: identifying candidates for songs...");
   const itemsForResolution: ProcessingItem[] = [];
+  const mapping: Record<number, SongMappingEntry> = {};
 
   for (const song of mergedSongs) {
     const targetTitle = song.defaultTitle;
     let candidates: { file: TjaFile; dist?: number }[] = [];
     let matchType: ProcessingItem["matchType"] = "none";
 
-    // Exact match on TITLEJA
     let matches = tjaFiles.filter((t) => t.titleJa === targetTitle);
     if (matches.length === 0) {
-      // Fallback: Exact match on TITLE
       matches = tjaFiles.filter((t) => t.title === targetTitle);
     }
 
@@ -389,7 +416,6 @@ async function main() {
       candidates = matches.map((m) => ({ file: m }));
       matchType = "exact";
     } else {
-      // Fuzzy match
       const fuzzyCandidates = tjaFiles
         .map((t) => {
           const tJa = t.titleJa || "";
@@ -406,58 +432,22 @@ async function main() {
         .filter((c) => c.dist <= Math.max(3, targetTitle.length * 0.4));
 
       fuzzyCandidates.sort((a, b) => (a.dist || 999) - (b.dist || 999));
-      // Take top 5
       candidates = fuzzyCandidates.slice(0, 5);
-      if (candidates.length > 0) {
-        matchType = "fuzzy";
-      }
+      if (candidates.length > 0) matchType = "fuzzy";
     }
 
     const candidatesList = candidates.map((c) => c.file.relativePath);
-
-    // Check if already exists in mapping
     const existing = existingMapping[song.id];
 
     if (existing) {
-      // Incrementally update: Keep resolution, update metadata and candidates
       const newEntry: SongMappingEntry = {
-        ...existing,
+        esePath: existing.esePath,
         defaultTitle: song.defaultTitle,
-        artist: song.artist || existing.artist,
         candidates: candidatesList,
+        matchType: existing.matchType,
       };
-
-      // Clean up old fields
-      delete (newEntry as unknown as Record<string, unknown>).title;
-      delete (newEntry as unknown as Record<string, unknown>).titlecn;
-      delete (newEntry as unknown as Record<string, unknown>).titleko;
-
-      if (Object.keys(song.titleList).length > 0) {
-        newEntry.titleList = song.titleList;
-      }
-      if (song.subtitleList) {
-        newEntry.subtitleList = song.subtitleList;
-      }
-      if (song.courses) {
-        newEntry.courses = song.courses;
-      }
-      if (song.bpm) {
-        newEntry.bpm = song.bpm;
-      }
-      if (song.platforms) {
-        newEntry.platforms = song.platforms;
-      }
-      if (song.region) {
-        newEntry.region = song.region;
-      }
-      if (song.dfcDifficulty) {
-        newEntry.dfcDifficulty = song.dfcDifficulty;
-      }
-
       mapping[song.id] = newEntry;
-      // We do NOT add this to itemsForResolution
     } else {
-      // New song, needs resolution
       itemsForResolution.push({
         song,
         candidates,
@@ -466,7 +456,6 @@ async function main() {
     }
   }
 
-  // Phase 2: Parallel LLM Resolution
   if (USE_LLM && genAI) {
     const itemsToLLM = itemsForResolution.filter((item) => item.candidates.length > 1);
     console.log(
@@ -478,9 +467,8 @@ async function main() {
 
     const worker = async (_workerId: number) => {
       while (currentIndex < itemsToLLM.length) {
-        const index = currentIndex++; // Atomic in JS single thread event loop
+        const index = currentIndex++;
         const item = itemsToLLM[index];
-
         const choice = await resolveWithGemini(
           item.song.defaultTitle,
           item.candidates.map((c) => c.file),
@@ -501,13 +489,7 @@ async function main() {
     console.log("\nLLM Resolution complete.");
   }
 
-  // Phase 3: Finalize and Manual Fallback for NEW items
-  console.log("\nStep 5: Finalizing mappings for new items...");
-
-  if (itemsForResolution.length === 0) {
-    console.log("No new items to resolve.");
-  }
-
+  console.log("\nStep 4: Finalizing mappings for new items...");
   for (const item of itemsForResolution) {
     const { song, candidates, matchType, llmChoiceIndex } = item;
     const targetTitle = song.defaultTitle;
@@ -515,39 +497,26 @@ async function main() {
 
     let selectedPath: string | null = null;
     let finalMatchType: "exact" | "fuzzy" | "fuzzy + manual" | "fuzzy + llm" | undefined;
-    const candidatesList: string[] = candidates.map((c) => c.file.relativePath);
 
     if (matchType === "none") {
       console.log(`  No matches found.`);
     } else if (candidates.length === 1) {
       console.log(`  Found exact/unique match: ${candidates[0].file.relativePath}`);
       selectedPath = candidates[0].file.relativePath;
-      finalMatchType = matchType; // exact or fuzzy (if unique fuzzy)
+      finalMatchType = matchType;
     } else {
-      // Multiple candidates
-      if (matchType === "exact") {
-        console.log(`  Found ${candidates.length} exact matches.`);
-      } else {
-        console.log(`  Found fuzzy matches.`);
-      }
-
       candidates.forEach((c, idx) => {
         const m = c.file;
         const sub = m.subtitleJa || m.subtitle || "";
-        const distStr = c.dist !== undefined ? `, Dist: ${c.dist}` : "";
-        console.log(`    [${idx + 1}] ${m.relativePath} (TitleJa: ${m.titleJa}${distStr}, Sub: ${sub})`);
+        console.log(`    [${idx + 1}] ${m.relativePath} (TitleJa: ${m.titleJa}, Sub: ${sub})`);
       });
       console.log(`    [0] Skip / None of the above`);
 
       let idx = -1;
-
       if (llmChoiceIndex !== undefined && llmChoiceIndex !== -1) {
         console.log(`  Gemini previously selected: ${llmChoiceIndex}`);
         idx = llmChoiceIndex;
-        // If LLM selected it, we consider it LLM match unless user overrides?
-        if (idx > 0) {
-          finalMatchType = "fuzzy + llm";
-        }
+        if (idx > 0) finalMatchType = "fuzzy + llm";
       }
 
       if (idx === -1) {
@@ -556,9 +525,7 @@ async function main() {
           idx = parseInt(answer, 10);
           if (!Number.isNaN(idx) && idx >= 0 && idx <= candidates.length) break;
         }
-        if (idx > 0) {
-          finalMatchType = "fuzzy + manual";
-        }
+        if (idx > 0) finalMatchType = "fuzzy + manual";
       }
 
       if (idx > 0) {
@@ -567,46 +534,19 @@ async function main() {
     }
 
     if (selectedPath) {
-      const entry: SongMappingEntry = {
+      mapping[song.id] = {
         esePath: selectedPath,
         defaultTitle: song.defaultTitle,
-        candidates: candidatesList,
+        candidates: candidates.map((c) => c.file.relativePath),
         matchType: finalMatchType,
       };
-      if (Object.keys(song.titleList).length > 0) {
-        entry.titleList = song.titleList;
-      }
-      if (song.subtitleList) {
-        entry.subtitleList = song.subtitleList;
-      }
-      if (song.artist) {
-        entry.artist = song.artist;
-      }
-      if (song.courses) {
-        entry.courses = song.courses;
-      }
-      if (song.bpm) {
-        entry.bpm = song.bpm;
-      }
-      if (song.platforms) {
-        entry.platforms = song.platforms;
-      }
-      if (song.region) {
-        entry.region = song.region;
-      }
-      if (song.dfcDifficulty) {
-        entry.dfcDifficulty = song.dfcDifficulty;
-      }
-
-      mapping[song.id] = entry;
       console.log(`  Mapped ${song.id} -> ${selectedPath} (${finalMatchType})`);
     } else {
       console.log(`  Skipped Song ID ${song.id}.`);
     }
   }
 
-  console.log("\nStep 6: Writing output...");
-  // Ensure directory exists
+  console.log("\nStep 5: Writing output...");
   if (!fs.existsSync(path.dirname(OUTPUT_FILE))) {
     fs.mkdirSync(path.dirname(OUTPUT_FILE), { recursive: true });
   }

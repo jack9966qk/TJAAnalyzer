@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test("Reachability Visuals - Forced Branches", async ({ page }) => {
-  await page.goto("http://localhost:8080/chart-only.html");
+  await page.goto("/chart-only.html");
 
   const tjaContent = `
 TITLE:Reachability_Forced_85_85

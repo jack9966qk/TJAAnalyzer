@@ -4,16 +4,16 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "fetch-ese": "node fetch-ese-assets.js",
-    "build": "tsc --noEmit && vite build",
-    "dev": "vite",
+    "prepare-data": "node --loader ts-node/esm prepare-data.ts",
+    "build-data": "node --loader ts-node/esm build-data.ts",
+    "build": "npm run build-data && tsc --noEmit && vite build",
+    "dev": "npm run build-data && vite",
     "start": "vite preview --port 8080",
     "test": "npm run build && node --loader ts-node/esm tests/test-parser.ts && node --loader ts-node/esm tests/test-exporter.ts && playwright test",
     "build:exe": "npm run build && node build-exe.js",
     "start:exe": "npm run build && neu update && neu run",
     "deploy": "npm run build && gh-pages -d dist",
     "format": "biome check --write .",
-    "generate-mapping": "node --loader ts-node/esm generate-song-mapping.ts",
     "release": "./release.sh"
   },
   "devDependencies": {
