@@ -199,11 +199,28 @@ export function drawCapsule(
   borderInnerW: number,
   fillColor: string,
   innerBorderColor: string,
+  drawLeftExt: boolean = false,
+  drawRightExt: boolean = false,
+  overExtendWidth: number = 0,
 ): void {
   // radius is the total outer extent. Borders are drawn as filled shapes
   // from outer to inner for crisp edges (no stroke straddling).
   const innerBorderR = radius - borderOuterW;
   const fillR = radius - borderOuterW - borderInnerW;
+
+  const drawExtension = (exX: number, exW: number, isLeft: boolean) => {
+    const direction = isLeft ? "left" : "right";
+    drawGradientRect(canvasContext, exX, centerY - radius, exW, radius * 2, PALETTE.notes.border.black, direction);
+    drawGradientRect(canvasContext, exX, centerY - innerBorderR, exW, innerBorderR * 2, innerBorderColor, direction);
+    drawGradientRect(canvasContext, exX, centerY - fillR, exW, fillR * 2, fillColor, direction);
+  };
+
+  if (drawLeftExt && overExtendWidth > 0 && !startCap) {
+    drawExtension(startX - overExtendWidth, overExtendWidth, true);
+  }
+  if (drawRightExt && overExtendWidth > 0 && !endCap) {
+    drawExtension(endX, overExtendWidth, false);
+  }
 
   // Helper to trace a closed, filled capsule path at a given radius
   const traceCapsuleFillPath = (r: number) => {
@@ -1392,6 +1409,9 @@ function drawDrumrollSegment(
   viewMode: "original" | "judgements" | "judgements-underline" | "judgements-text",
   _type: string,
   isSelected: boolean = false,
+  drawLeftExt: boolean = false,
+  drawRightExt: boolean = false,
+  overExtendWidth: number = 0,
 ): void {
   let fillColor = PALETTE.notes.drumroll;
   let innerBorderColor = PALETTE.notes.border.white;
@@ -1417,6 +1437,9 @@ function drawDrumrollSegment(
     borderStyles.innerW,
     fillColor,
     borderStyles.innerColor,
+    drawLeftExt,
+    drawRightExt,
+    overExtendWidth,
   );
 }
 
@@ -1434,6 +1457,9 @@ function drawBalloonSegment(
   count: number,
   isKusudama: boolean,
   isSelected: boolean = false,
+  drawLeftExt: boolean = false,
+  drawRightExt: boolean = false,
+  overExtendWidth: number = 0,
 ): void {
   let fillColor = PALETTE.notes.balloon; // Orangeish for balloon body
   let innerBorderColor = PALETTE.notes.border.white;
@@ -1472,6 +1498,9 @@ function drawBalloonSegment(
     tailBorderStyles.innerW,
     fillColor,
     tailBorderStyles.innerColor,
+    drawLeftExt,
+    drawRightExt,
+    overExtendWidth,
   );
 
   // If this is the start segment, draw the balloon head
@@ -1542,6 +1571,8 @@ function drawLongNotes(
     originalNoteIdx: number;
   } | null = null;
 
+  const overExtendWidth = 2 * constants.noteRadiusSmall;
+
   // Iterate all bars
   for (let i = 0; i < virtualBars.length; i++) {
     const bar = virtualBars[i].bar;
@@ -1558,6 +1589,11 @@ function drawLongNotes(
 
     const barX = frame.x;
     const centerY = frame.y + frame.height / 2;
+
+    const hasLeftNeighbor = i > 0 && Math.abs(barFrames[i - 1].y - frame.y) < 1.0;
+    const hasRightNeighbor = i < virtualBars.length - 1 && Math.abs(barFrames[i + 1].y - frame.y) < 1.0;
+    const drawLeftExt = !hasLeftNeighbor;
+    const drawRightExt = !hasRightNeighbor;
 
     let segmentStartIdx = 0;
     let segmentActive = !!currentLongNote;
@@ -1612,6 +1648,9 @@ function drawLongNotes(
                 count,
                 currentLongNote.type === NoteType.Kusudama,
                 isSelected,
+                !hasStartCap && drawLeftExt,
+                !hasEndCap && drawRightExt,
+                overExtendWidth,
               );
             } else {
               // Drumroll
@@ -1627,6 +1666,9 @@ function drawLongNotes(
                 viewMode,
                 currentLongNote.type,
                 isSelected,
+                !hasStartCap && drawLeftExt,
+                !hasEndCap && drawRightExt,
+                overExtendWidth,
               );
             }
           }
@@ -1677,6 +1719,9 @@ function drawLongNotes(
             count,
             currentLongNote.type === NoteType.Kusudama,
             isSelected,
+            !hasStartCap && drawLeftExt,
+            !hasEndCap && drawRightExt,
+            overExtendWidth,
           );
         } else {
           drawDrumrollSegment(
@@ -1691,6 +1736,9 @@ function drawLongNotes(
             viewMode,
             currentLongNote.type,
             isSelected,
+            !hasStartCap && drawLeftExt,
+            !hasEndCap && drawRightExt,
+            overExtendWidth,
           );
         }
       }
