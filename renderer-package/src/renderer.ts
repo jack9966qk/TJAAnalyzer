@@ -1507,10 +1507,10 @@ function drawBalloonSegment(
     // Draw Count
     if (viewMode !== "judgements") {
       canvasContext.fillStyle = PALETTE.text.inverted;
-      canvasContext.font = `bold ${fillR * 1.5}px ${FONT_STACK}`;
+      canvasContext.font = `bold ${radius * 1.25}px ${FONT_STACK}`;
       canvasContext.textAlign = "center";
       canvasContext.textBaseline = "middle";
-      canvasContext.fillText(count.toString(), startX, centerY - fillR * 0.2);
+      canvasContext.fillText(count.toString(), startX, centerY);
     }
   }
 }
