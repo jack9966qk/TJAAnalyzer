@@ -1,5 +1,20 @@
 [
   {
+    "hash": "2f0c53f",
+    "message": "Update version to 0.10.1.",
+    "date": "2026-02-27"
+  },
+  {
+    "hash": "cb77da0",
+    "message": "Change chart list ura label to just Ura instead of Oni(Ura) and fix difficulty-specific selection highlight bugs.",
+    "date": "2026-02-27"
+  },
+  {
+    "hash": "f92c299",
+    "message": "Make chart list items difficulty-aware when using advanced search filters.",
+    "date": "2026-02-27"
+  },
+  {
     "hash": "68e2c8c",
     "message": "Update version to 0.10.0.",
     "date": "2026-02-27"
@@ -483,20 +498,5 @@
     "hash": "865d648",
     "message": "Update icon for the \"exit fullscreen\" button.",
     "date": "2026-02-04"
-  },
-  {
-    "hash": "8d03cc5",
-    "message": "Attempt to fix occasional unresponsive scrolling of fullscreen chart.",
-    "date": "2026-02-04"
-  },
-  {
-    "hash": "fdb3dd3",
-    "message": "Improve chart rendering DPR fallback for large render sizes.",
-    "date": "2026-02-04"
-  },
-  {
-    "hash": "de18f2f",
-    "message": "Update version to 0.8.2.",
-    "date": "2026-02-03"
   }
 ]
