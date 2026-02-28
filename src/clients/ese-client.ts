@@ -68,7 +68,10 @@ export class EseClient {
     try {
       // Path is like "Category/Song.tja"
       // We serve files under "ese/"
-      const encodedPath = path.split("/").map(encodeURIComponent).join("/");
+      const encodedPath = path
+        .split("/")
+        .map((p) => encodeURIComponent(p).replace(/%2B/g, "+"))
+        .join("/");
       const url = `ese/${encodedPath}`;
 
       const response = await fetch(url);
