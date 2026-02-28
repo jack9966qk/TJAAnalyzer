@@ -1,5 +1,45 @@
 [
   {
+    "hash": "9d9b2b2",
+    "message": "Update version to 0.10.3.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "2750537",
+    "message": "Improve advanced search layout under low width.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "6952fb5",
+    "message": "Fix broken tests.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "47b22d1",
+    "message": "Add some padding for the tja-chart message state. Run formatter.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "a004222",
+    "message": "Refactor modal page implementations with a reusable component. Update its vertical layout behavior to behave like a buttom sheet.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "23ce800",
+    "message": "Fix blurry long note extension.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "b00bfa0",
+    "message": "Improve button styling consistency.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "4f7f420",
+    "message": "Improve long note extension drawing so that the fade is more consistent with the remaining of the chart.",
+    "date": "2026-02-28"
+  },
+  {
     "hash": "0615255",
     "message": "Update version to 0.10.2.",
     "date": "2026-02-28"
@@ -458,45 +498,5 @@
     "hash": "e3b7c87",
     "message": "Fix broken test cases.",
     "date": "2026-02-07"
-  },
-  {
-    "hash": "5f3dac5",
-    "message": "Update version to 0.8.5.",
-    "date": "2026-02-07"
-  },
-  {
-    "hash": "8fdb5b5",
-    "message": "Add missing attribution text under renderChart.",
-    "date": "2026-02-07"
-  },
-  {
-    "hash": "04b06aa",
-    "message": "Fix file sharing web fallback.",
-    "date": "2026-02-07"
-  },
-  {
-    "hash": "af4d21e",
-    "message": "Move the save image button and full screen button to a shared chart options footer.",
-    "date": "2026-02-07"
-  },
-  {
-    "hash": "4cb8975",
-    "message": "Disable PWA service worker in development mode.",
-    "date": "2026-02-07"
-  },
-  {
-    "hash": "bd96459",
-    "message": "Remove canvas container padding and use renderer insets instead. Fix minor issues regarding insets in the renderer.",
-    "date": "2026-02-07"
-  },
-  {
-    "hash": "5989894",
-    "message": "Add basic partial rendering functionality. Add toggle to render only the selected notes.",
-    "date": "2026-02-06"
-  },
-  {
-    "hash": "251c33d",
-    "message": "Run formatter.",
-    "date": "2026-02-06"
   }
 ]
