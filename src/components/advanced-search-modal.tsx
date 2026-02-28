@@ -430,8 +430,6 @@ export class AdvancedSearchModal extends HTMLElement {
     const starsLabel = i18n.t("ui.advSearch.stars");
     const noteCountLabel = i18n.t("ui.advSearch.noteCount");
 
-    const fieldStyle = "display: flex; align-items: center; gap: 8px; margin-bottom: 12px;";
-    const labelStyle = "min-width: 120px; font-size: 14px; color: var(--text-secondary); flex-shrink: 0;";
     const inputStyle =
       "flex: 1; padding: 5px 8px; font-size: 14px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-input); color: var(--text-primary); box-sizing: border-box;";
     const numberInputStyle = `${inputStyle} max-width: 80px;`;
@@ -447,8 +445,8 @@ export class AdvancedSearchModal extends HTMLElement {
       >
         <div className="settings-content">
           {/* Title */}
-          <div style={fieldStyle}>
-            <span style={labelStyle}>{i18n.t("ui.advSearch.titleFilter")}</span>
+          <div className="adv-search-field">
+            <span className="adv-search-label">{i18n.t("ui.advSearch.titleFilter")}</span>
             <input
               type="text"
               style={inputStyle}
@@ -463,8 +461,8 @@ export class AdvancedSearchModal extends HTMLElement {
           </div>
 
           {/* Artist */}
-          <div style={fieldStyle}>
-            <span style={labelStyle}>{i18n.t("ui.advSearch.artist")}</span>
+          <div className="adv-search-field">
+            <span className="adv-search-label">{i18n.t("ui.advSearch.artist")}</span>
             <input
               type="text"
               style={inputStyle}
@@ -478,8 +476,8 @@ export class AdvancedSearchModal extends HTMLElement {
           </div>
 
           {/* Subtitle */}
-          <div style={fieldStyle}>
-            <span style={labelStyle}>{i18n.t("ui.advSearch.subtitle")}</span>
+          <div className="adv-search-field">
+            <span className="adv-search-label">{i18n.t("ui.advSearch.subtitle")}</span>
             <input
               type="text"
               style={inputStyle}
@@ -493,11 +491,11 @@ export class AdvancedSearchModal extends HTMLElement {
           </div>
 
           {/* Difficulty & Stars Row */}
-          <div style={fieldStyle}>
-            <span style={labelStyle}>{i18n.t("ui.advSearch.difficulty")}</span>
-            <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
+          <div className="adv-search-field">
+            <span className="adv-search-label">{i18n.t("ui.advSearch.difficulty")}</span>
+            <div style="display: flex; align-items: center; gap: 8px; flex: 1; flex-wrap: wrap;">
               <select
-                style={`${inputStyle} flex: 1;`}
+                style={`${inputStyle} min-width: 100px;`}
                 value={c.difficulty || "any"}
                 onchange={(e: Event) => this.updateField("difficulty", (e.target as HTMLSelectElement).value)}
               >
@@ -507,29 +505,25 @@ export class AdvancedSearchModal extends HTMLElement {
                   </option>
                 ))}
               </select>
-              <div style="display: flex; align-items: center; gap: 8px; flex: 1.2;">
-                <span style="font-size: 14px; color: var(--text-secondary); width: 60px; flex-shrink: 0;">
-                  {starsLabel}
-                </span>
-                <input
-                  type="number"
-                  style={`${numberInputStyle} flex: 1; max-width: none;`}
-                  value={c.stars != null ? String(c.stars) : ""}
-                  min="1"
-                  max="10"
-                  placeholder="1-10"
-                  oninput={(e: Event) => {
-                    const val = (e.target as HTMLInputElement).value;
-                    this.updateField("stars", val ? Number(val) : undefined);
-                  }}
-                />
-              </div>
+              <span style="font-size: 14px; color: var(--text-secondary); flex-shrink: 0;">{starsLabel}</span>
+              <input
+                type="number"
+                style={numberInputStyle}
+                value={c.stars != null ? String(c.stars) : ""}
+                min="1"
+                max="10"
+                placeholder="1-10"
+                oninput={(e: Event) => {
+                  const val = (e.target as HTMLInputElement).value;
+                  this.updateField("stars", val ? Number(val) : undefined);
+                }}
+              />
             </div>
           </div>
 
           {/* DFC Difficulty (only relevant for 10-star) */}
-          <div style={fieldStyle}>
-            <span style={labelStyle}>{i18n.t("ui.advSearch.dfcDifficulty")}</span>
+          <div className="adv-search-field">
+            <span className="adv-search-label">{i18n.t("ui.advSearch.dfcDifficulty")}</span>
             <select
               style={inputStyle}
               value={c.dfcDifficulty || ""}
@@ -549,38 +543,40 @@ export class AdvancedSearchModal extends HTMLElement {
           </div>
 
           {/* BPM Row */}
-          <div style={fieldStyle}>
-            <span style={labelStyle}>{i18n.t("ui.advSearch.bpmMin")}</span>
-            <input
-              type="number"
-              style={numberInputStyle}
-              value={c.bpmMin != null ? String(c.bpmMin) : ""}
-              min="1"
-              placeholder=""
-              oninput={(e: Event) => {
-                const val = (e.target as HTMLInputElement).value;
-                this.updateField("bpmMin", val ? Number(val) : undefined);
-              }}
-            />
-            <span style="font-size: 14px; color: var(--text-secondary); margin-left: 12px; flex-shrink: 0;">
-              {i18n.t("ui.advSearch.bpmMax")}
-            </span>
-            <input
-              type="number"
-              style={numberInputStyle}
-              value={c.bpmMax != null ? String(c.bpmMax) : ""}
-              min="1"
-              placeholder=""
-              oninput={(e: Event) => {
-                const val = (e.target as HTMLInputElement).value;
-                this.updateField("bpmMax", val ? Number(val) : undefined);
-              }}
-            />
+          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
+            <div className="adv-search-field" style="margin-bottom: 0; flex: 1 1 220px;">
+              <span className="adv-search-label">{i18n.t("ui.advSearch.bpmMin")}</span>
+              <input
+                type="number"
+                style={`${inputStyle} min-width: 60px;`}
+                value={c.bpmMin != null ? String(c.bpmMin) : ""}
+                min="1"
+                placeholder=""
+                oninput={(e: Event) => {
+                  const val = (e.target as HTMLInputElement).value;
+                  this.updateField("bpmMin", val ? Number(val) : undefined);
+                }}
+              />
+            </div>
+            <div className="adv-search-field" style="margin-bottom: 0; flex: 1 1 220px;">
+              <span className="adv-search-label">{i18n.t("ui.advSearch.bpmMax")}</span>
+              <input
+                type="number"
+                style={`${inputStyle} min-width: 60px;`}
+                value={c.bpmMax != null ? String(c.bpmMax) : ""}
+                min="1"
+                placeholder=""
+                oninput={(e: Event) => {
+                  const val = (e.target as HTMLInputElement).value;
+                  this.updateField("bpmMax", val ? Number(val) : undefined);
+                }}
+              />
+            </div>
           </div>
 
           {/* Note Count */}
-          <div style={fieldStyle}>
-            <span style={labelStyle}>{noteCountLabel}</span>
+          <div className="adv-search-field">
+            <span className="adv-search-label">{noteCountLabel}</span>
             <div style={rangeStyle}>
               <input
                 type="number"
@@ -610,8 +606,8 @@ export class AdvancedSearchModal extends HTMLElement {
 
           {/* Platform */}
           {platforms.length > 0 && (
-            <div style={fieldStyle}>
-              <span style={labelStyle}>{i18n.t("ui.advSearch.platform")}</span>
+            <div className="adv-search-field">
+              <span className="adv-search-label">{i18n.t("ui.advSearch.platform")}</span>
               <select
                 style={inputStyle}
                 value={c.platform || ""}
@@ -631,8 +627,8 @@ export class AdvancedSearchModal extends HTMLElement {
 
           {/* Region */}
           {regions.length > 0 && (
-            <div style={fieldStyle}>
-              <span style={labelStyle}>{i18n.t("ui.advSearch.region")}</span>
+            <div className="adv-search-field">
+              <span className="adv-search-label">{i18n.t("ui.advSearch.region")}</span>
               <select
                 style={inputStyle}
                 value={c.region || ""}
@@ -650,8 +646,8 @@ export class AdvancedSearchModal extends HTMLElement {
 
           {/* Playdata (DN Category) */}
           {this._hasPlaydata && (
-            <div style={fieldStyle}>
-              <span style={labelStyle}>{i18n.t("ui.advSearch.playdata")}</span>
+            <div className="adv-search-field">
+              <span className="adv-search-label">{i18n.t("ui.advSearch.playdata")}</span>
               <select
                 style={inputStyle}
                 value={c.playdata || ""}
