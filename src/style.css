@@ -314,6 +314,7 @@ button {
   cursor: pointer;
   transition: background-color 0.2s;
   font-weight: 500;
+  font-size: 14px;
 }
 
 button:hover {
@@ -1337,7 +1338,7 @@ h1 {
   color: var(--text-primary);
   border-radius: 4px;
   font: inherit;
-  font-size: 0.9em;
+  font-size: 14px;
   text-align: left;
   cursor: pointer;
   transition:
@@ -1388,19 +1389,4 @@ h1 {
 
 .adv-search-clear-btn:hover .icon-x-mark {
   background-color: var(--text-primary);
-}
-
-.btn-secondary {
-  background-color: var(--bg-panel-tabs);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 6px 16px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.15s;
-}
-
-.btn-secondary:hover {
-  background-color: var(--bg-hover);
 }

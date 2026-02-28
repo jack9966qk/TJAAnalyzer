@@ -626,7 +626,6 @@ export class SettingsPanel extends HTMLElement {
             {appState.isTesterMode && (
               <action-button
                 button-class="btn-secondary"
-                style="font-size: 12px;"
                 success-label={i18n.t("ui.playdata.copied")}
                 error-label={i18n.t("status.exportFailed")}
                 action={() => this.handleCopyUnmatchedCSV()}
@@ -683,7 +682,6 @@ export class SettingsPanel extends HTMLElement {
           )}
           <button
             type="button"
-            style="font-size: 16px; padding: 12px 24px;"
             onclick={this.handleManualImport.bind(this)}
             disabled={!this.manualPasteContent || this.isImporting}
           >
@@ -747,28 +745,13 @@ export class SettingsPanel extends HTMLElement {
           </div>
         </div>
         <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
-          <button
-            type="button"
-            onclick={this.handleExportPlaydata.bind(this)}
-            disabled={this.isExporting}
-            style="font-size: 13px;"
-          >
+          <button type="button" onclick={this.handleExportPlaydata.bind(this)} disabled={this.isExporting}>
             {this.isExporting ? i18n.t("ui.playdata.exporting") : i18n.t("ui.playdata.export")}
           </button>
-          <button
-            type="button"
-            onclick={this.handleExportPlaydataJson.bind(this)}
-            disabled={this.isExporting}
-            style="font-size: 13px;"
-          >
+          <button type="button" onclick={this.handleExportPlaydataJson.bind(this)} disabled={this.isExporting}>
             {this.isExporting ? i18n.t("ui.playdata.exporting") : i18n.t("ui.playdata.exportJson")}
           </button>
-          <button
-            type="button"
-            className="btn-secondary"
-            style="font-size: 13px;"
-            onclick={this.handleClearPlaydata.bind(this)}
-          >
+          <button type="button" className="btn-secondary" onclick={this.handleClearPlaydata.bind(this)}>
             {i18n.t("ui.playdata.clearData")}
           </button>
         </div>
