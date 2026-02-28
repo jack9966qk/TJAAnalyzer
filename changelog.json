@@ -1,5 +1,65 @@
 [
   {
+    "hash": "0615255",
+    "message": "Update version to 0.10.2.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "a87d0a3",
+    "message": "Update the colors of drumroll and ballon notes, and the colors for difficulties.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "dbecbbc",
+    "message": "Attempt (again) to fix dev hot reloading when there is a renderer package change. Update gitignore.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "ad07ed9",
+    "message": "Draw a leading circle for drumroll long notes.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "32f091e",
+    "message": "Fix ESE chart loading for items with \"+\" in the path.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "55d6fa6",
+    "message": "Draw long note extension for line beginning/end.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "805684c",
+    "message": "For auto zoom calculation. Evaluate full note diameter instead of the inner circle.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "6cacebe",
+    "message": "Slight adjustment in ballon number text sizing and positioning.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "9d19798",
+    "message": "Remove the white border from ballon/kasudama trailing capsule.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "c2fd80c",
+    "message": "Update renderer to support title and subtitle override. Make use of these instead of modifying the chart from the app.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "8fa19bd",
+    "message": "Update data preparation and index generation processes for a clearer separation between data that should be tracked and data that is derived in a deterministic way. Fix some test cases.",
+    "date": "2026-02-28"
+  },
+  {
+    "hash": "088a536",
+    "message": "Add a setting for preferred chart title/subtitle language independent from app language.",
+    "date": "2026-02-27"
+  },
+  {
     "hash": "2f0c53f",
     "message": "Update version to 0.10.1.",
     "date": "2026-02-27"
@@ -438,65 +498,5 @@
     "hash": "251c33d",
     "message": "Run formatter.",
     "date": "2026-02-06"
-  },
-  {
-    "hash": "d80d54f",
-    "message": "Add limited horizontal compression to chart title if too long.",
-    "date": "2026-02-06"
-  },
-  {
-    "hash": "4450ee0",
-    "message": "Update version to 0.8.4.",
-    "date": "2026-02-06"
-  },
-  {
-    "hash": "0dd3e8a",
-    "message": "Fix PWA offline support on iOS: use absolute paths, inline Workbox runtime, and add conditional debug info.",
-    "date": "2026-02-06"
-  },
-  {
-    "hash": "160d9cd",
-    "message": "Update outdated test snapshots.",
-    "date": "2026-02-05"
-  },
-  {
-    "hash": "65d2874",
-    "message": "Fix linking of the Neutralino runtime library which was broken since the migration to vite.",
-    "date": "2026-02-05"
-  },
-  {
-    "hash": "df8119e",
-    "message": "Add app version and platform label to about modal.",
-    "date": "2026-02-05"
-  },
-  {
-    "hash": "b24494f",
-    "message": "Add a minimal attribution label to the end of rendered chart.",
-    "date": "2026-02-05"
-  },
-  {
-    "hash": "9e481db",
-    "message": "Run formatter.",
-    "date": "2026-02-04"
-  },
-  {
-    "hash": "661d09f",
-    "message": "Update line wrapping behavior to avoid horizontal scroll in chart list.",
-    "date": "2026-02-04"
-  },
-  {
-    "hash": "5f49442",
-    "message": "Add a minimal loading screen until UI initialization completes.",
-    "date": "2026-02-04"
-  },
-  {
-    "hash": "221fa8f",
-    "message": "Update version to 0.8.3.",
-    "date": "2026-02-04"
-  },
-  {
-    "hash": "865d648",
-    "message": "Update icon for the \"exit fullscreen\" button.",
-    "date": "2026-02-04"
   }
 ]
