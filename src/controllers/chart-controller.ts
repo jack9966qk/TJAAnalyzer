@@ -66,6 +66,9 @@ export function clearJudgements() {
 
 export function updateBranchSelectorState(resetBranch: boolean = false) {
   clearJudgements();
+  if (resetBranch) {
+    appState.annotations = new LocationMap();
+  }
   if (!appState.parsedTJACharts) return;
 
   const selectedDiff = courseBranchSelect.difficulty;
