@@ -39,6 +39,7 @@ export class ModalPage extends HTMLElement {
 
     if (name === "open") {
       this._isOpen = newValue !== null;
+      this.classList.toggle("open", this._isOpen);
       this.updateBodyScroll();
     } else if (name === "title") {
       this._title = newValue || "";
@@ -56,8 +57,10 @@ export class ModalPage extends HTMLElement {
   set open(val: boolean) {
     if (val) {
       this.setAttribute("open", "");
+      this.classList.add("open");
     } else {
       this.removeAttribute("open");
+      this.classList.remove("open");
     }
     this.updateBodyScroll();
   }

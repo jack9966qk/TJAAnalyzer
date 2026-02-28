@@ -965,10 +965,7 @@ test.describe("UI Logic", () => {
     await page.waitForTimeout(500);
 
     // Close settings modal
-    await settingsModal.evaluate((modal) => {
-      const closeBtn = modal.querySelector(".close-btn") as HTMLElement;
-      closeBtn?.click();
-    });
+    await settingsModal.locator(".close-btn").click();
 
     // 2. Verify List Title changed
     // In our mock, the English title is "Sample Song (English)"

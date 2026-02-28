@@ -439,6 +439,7 @@ export class AdvancedSearchModal extends HTMLElement {
 
     const modalVdom = (
       <modal-page
+        id="advanced-search-modal"
         open={this.isOpen || null}
         title={i18n.t("ui.advSearch.title")}
         max-width="500px"

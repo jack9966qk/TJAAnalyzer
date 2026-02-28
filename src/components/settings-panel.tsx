@@ -976,6 +976,7 @@ export class SettingsPanel extends HTMLElement {
 
     const modalVdom = (
       <modal-page
+        id="settings-modal"
         open={this.isModalOpen || null}
         title={this.isImportMode ? i18n.t("ui.playdata.title") : i18n.t("ui.settings")}
         max-width="600px"
