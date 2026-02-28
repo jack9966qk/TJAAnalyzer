@@ -1,4 +1,5 @@
 .gemini/
+.claude/
 node_modules/
 package-lock.json
 dev_instructions/
