@@ -170,7 +170,7 @@ export class JudgementOptions extends HTMLElement {
             className={`section-main ${!this._loopCollapseEnabled ? "disabled-text" : ""}`}
             style={`margin-bottom: 10px; display: ${this._loopCollapseEnabled ? "block" : "none"}`}
           >
-            <label>
+            <label className="checkbox-label">
               <input
                 type="checkbox"
                 id="collapse-loop-checkbox"
@@ -188,7 +188,7 @@ export class JudgementOptions extends HTMLElement {
             id="loop-control-group"
             style={`margin-bottom: 10px; display: ${isLoopCollapsed ? "flex" : "none"};`}
           >
-            <label className="auto-check" style="display: flex; align-items: center; gap: 5px; margin-right: 10px;">
+            <label className="checkbox-label" style="margin-right: 10px;">
               <input
                 type="checkbox"
                 id="loop-auto"
@@ -233,7 +233,7 @@ export class JudgementOptions extends HTMLElement {
           >
             <div className="sub-group">
               <span className="sub-label">{i18n.t("ui.style")}</span>
-              <label>
+              <label className="checkbox-label">
                 <input
                   type="radio"
                   name="judgementStyle"
@@ -243,7 +243,7 @@ export class JudgementOptions extends HTMLElement {
                 />
                 <span>{i18n.t("ui.style.color")}</span>
               </label>
-              <label>
+              <label className="checkbox-label">
                 <input
                   type="radio"
                   name="judgementStyle"
@@ -253,7 +253,7 @@ export class JudgementOptions extends HTMLElement {
                 />
                 <span>{i18n.t("ui.style.underline")}</span>
               </label>
-              <label>
+              <label className="checkbox-label">
                 <input
                   type="radio"
                   name="judgementStyle"
@@ -267,7 +267,7 @@ export class JudgementOptions extends HTMLElement {
 
             <div className="sub-group">
               <span className="sub-label">{i18n.t("ui.coloring")}</span>
-              <label>
+              <label className="checkbox-label">
                 <input
                   type="radio"
                   name="judgementColoring"
@@ -277,7 +277,7 @@ export class JudgementOptions extends HTMLElement {
                 />
                 <span>{i18n.t("ui.coloring.class")}</span>
               </label>
-              <label>
+              <label className="checkbox-label">
                 <input
                   type="radio"
                   name="judgementColoring"
@@ -291,7 +291,7 @@ export class JudgementOptions extends HTMLElement {
 
             <div className="sub-group">
               <span className="sub-label">{i18n.t("ui.filter")}</span>
-              <label>
+              <label className="checkbox-label">
                 <input
                   type="checkbox"
                   id="show-perfect"
@@ -300,7 +300,7 @@ export class JudgementOptions extends HTMLElement {
                 />
                 <span>{i18n.t("judgement.perfect")}</span>
               </label>
-              <label>
+              <label className="checkbox-label">
                 <input
                   type="checkbox"
                   id="show-good"
@@ -309,7 +309,7 @@ export class JudgementOptions extends HTMLElement {
                 />
                 <span>{i18n.t("judgement.good")}</span>
               </label>
-              <label>
+              <label className="checkbox-label">
                 <input
                   type="checkbox"
                   id="show-poor"

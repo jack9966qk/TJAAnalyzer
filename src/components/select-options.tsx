@@ -75,14 +75,14 @@ export class SelectOptions extends HTMLElement {
         </div>
 
         {!hasBranching ? (
-          <label style="display: flex; align-items: center; gap: 5px; width: 100%;">
+          <label className="checkbox-label" style="width: 100%;">
             <input
               type="checkbox"
               checked={appState.displayOnlySelected}
               disabled={!hasSelection}
               onchange={this.handleDisplayOnlySelectedChange.bind(this)}
             />
-            <span style="font-size: 0.9em;">{i18n.t("ui.displayOnlySelected")}</span>
+            <span>{i18n.t("ui.displayOnlySelected")}</span>
           </label>
         ) : null}
 

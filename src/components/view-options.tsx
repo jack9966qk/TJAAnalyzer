@@ -210,14 +210,14 @@ export class ViewOptions extends HTMLElement {
               <button type="button" id="zoom-in-btn" className="tiny-btn" onclick={this.handleZoomIn.bind(this)}>
                 +
               </button>
-              <label style="margin-left: 5px; display: flex; align-items: center; cursor: pointer; user-select: none;">
+              <label className="checkbox-label" style="margin-left: 5px;">
                 <input
                   type="checkbox"
                   id="zoom-auto-checkbox"
                   checked={!!appState.viewOptions.autoZoom}
                   onchange={this.handleAutoZoom.bind(this)}
                 />
-                <span style="margin-left: 4px;">{i18n.t("ui.auto")}</span>
+                <span>{i18n.t("ui.auto")}</span>
               </label>
             </div>
           </div>
@@ -226,7 +226,7 @@ export class ViewOptions extends HTMLElement {
         {/* Stats Section */}
         <div className="option-section border-left">
           <div className="section-main">
-            <label>
+            <label className="checkbox-label">
               <input
                 type="checkbox"
                 id="show-stats-checkbox"

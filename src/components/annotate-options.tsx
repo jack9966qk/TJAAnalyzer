@@ -66,21 +66,21 @@ export class AnnotateOptions extends HTMLElement {
             style="display: flex; align-items: center; justify-content: space-between; gap: 10px;"
           >
             <div style="display: flex; flex-direction: column; gap: 5px;">
-              <label style="display: flex; align-items: center; cursor: pointer;">
+              <label className="checkbox-label">
                 <input
                   type="checkbox"
                   checked={!!appState.viewOptions.showTextInAnnotationMode}
                   onchange={this.handleToggleShowText.bind(this)}
                 />
-                <span style="margin-left: 5px;">{i18n.t("ui.showTextInAnnotationMode")}</span>
+                <span>{i18n.t("ui.showTextInAnnotationMode")}</span>
               </label>
-              <label style="display: flex; align-items: center; cursor: pointer;">
+              <label className="checkbox-label">
                 <input
                   type="checkbox"
                   checked={!!appState.viewOptions.alwaysShowAnnotations}
                   onchange={this.handleToggleAlwaysShow.bind(this)}
                 />
-                <span style="margin-left: 5px;">{i18n.t("ui.alwaysShowAnnotations")}</span>
+                <span>{i18n.t("ui.alwaysShowAnnotations")}</span>
               </label>
             </div>
           </div>
