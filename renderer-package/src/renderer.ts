@@ -1406,6 +1406,7 @@ function drawDrumrollSegment(
   startCap: boolean,
   endCap: boolean,
   borderOuterW: number,
+  borderInnerW: number,
   viewMode: "original" | "judgements" | "judgements-underline" | "judgements-text",
   _type: string,
   isSelected: boolean = false,
@@ -1422,8 +1423,8 @@ function drawDrumrollSegment(
   }
 
   // Handle Selection
-  // Drumrolls ignore the inner border width to retain the total size but show more fill color.
-  const borderStyles = getBorderStyles(isSelected, borderOuterW, 0, innerBorderColor);
+  // Drumrolls ignore the inner border width for the body to retain the total size but show more fill color.
+  const tailBorderStyles = getBorderStyles(isSelected, borderOuterW, 0, innerBorderColor);
 
   drawCapsule(
     canvasContext,
@@ -1433,14 +1434,43 @@ function drawDrumrollSegment(
     radius,
     startCap,
     endCap,
-    borderStyles.outerW,
-    borderStyles.innerW,
+    tailBorderStyles.outerW,
+    tailBorderStyles.innerW,
     fillColor,
-    borderStyles.innerColor,
+    tailBorderStyles.innerColor,
     drawLeftExt,
     drawRightExt,
     overExtendWidth,
   );
+
+  // If this is the start segment, draw the leading circle
+  if (startCap) {
+    const headBorderStyles = getBorderStyles(isSelected, borderOuterW, borderInnerW, innerBorderColor);
+
+    // 1. Outer Border
+    canvasContext.beginPath();
+    canvasContext.arc(startX, centerY, radius, 0, Math.PI * 2);
+    canvasContext.fillStyle = PALETTE.notes.border.black;
+    canvasContext.fill();
+
+    // 2. Inner Border
+    const innerBorderR = radius - headBorderStyles.outerW;
+    if (innerBorderR > 0) {
+      canvasContext.beginPath();
+      canvasContext.arc(startX, centerY, innerBorderR, 0, Math.PI * 2);
+      canvasContext.fillStyle = headBorderStyles.innerColor;
+      canvasContext.fill();
+    }
+
+    // 3. Fill
+    const fillR = innerBorderR - headBorderStyles.innerW;
+    if (fillR > 0) {
+      canvasContext.beginPath();
+      canvasContext.arc(startX, centerY, fillR, 0, Math.PI * 2);
+      canvasContext.fillStyle = fillColor;
+      canvasContext.fill();
+    }
+  }
 }
 
 function drawBalloonSegment(
@@ -1663,6 +1693,7 @@ function drawLongNotes(
                 hasStartCap,
                 hasEndCap,
                 borderOuterW,
+                effectiveBorderInnerW,
                 viewMode,
                 currentLongNote.type,
                 isSelected,
@@ -1733,6 +1764,7 @@ function drawLongNotes(
             hasStartCap,
             hasEndCap,
             borderOuterW,
+            effectiveBorderInnerW,
             viewMode,
             currentLongNote.type,
             isSelected,
