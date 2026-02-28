@@ -635,9 +635,7 @@ export class AdvancedSearchModal extends HTMLElement {
               <select
                 style={inputStyle}
                 value={c.region || ""}
-                onchange={(e: Event) =>
-                  this.updateField("region", (e.target as HTMLSelectElement).value || undefined)
-                }
+                onchange={(e: Event) => this.updateField("region", (e.target as HTMLSelectElement).value || undefined)}
               >
                 <option value="">{i18n.t("ui.advSearch.any")}</option>
                 {regions.map((r) => (

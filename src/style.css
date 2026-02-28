@@ -779,7 +779,7 @@ canvas {
 /* Vertical layout content adjustments */
 .modal.layout-vertical .modal-content {
   width: 100%;
-  max-width: none !important;
+  max-width: none;
   margin: 0;
   border-radius: 12px 12px 0 0;
   border-bottom: none;
@@ -933,7 +933,7 @@ body.horizontal-layout {
 }
 
 body.modal-active {
-  overflow: hidden !important;
+  overflow: hidden;
 }
 
 body.horizontal-layout #app {

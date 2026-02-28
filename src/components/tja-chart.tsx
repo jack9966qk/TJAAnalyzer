@@ -372,12 +372,27 @@ export class TJAChart extends HTMLElement {
 
     const width = this.clientWidth || 800;
 
+    const isHorizontal = document.body.classList.contains("horizontal-layout");
+    // Standard padding we want to enforce within the canvas now
+    let baseInsets: Insets = { top: 20, bottom: 20, left: 20, right: 20 };
+    if (isHorizontal) {
+      baseInsets.left = 35;
+    }
+
+    if (this.isFullscreen) {
+      baseInsets = { ...INSETS };
+    }
+
     // Handle Message State
     if (this._message) {
       this.canvas.classList.add("hidden");
       this.messageContainer.classList.remove("hidden");
 
       this.messageContainer.textContent = this._message.text;
+      this.messageContainer.style.paddingTop = `${baseInsets.top}px`;
+      this.messageContainer.style.paddingBottom = `${baseInsets.bottom}px`;
+      this.messageContainer.style.paddingLeft = `${baseInsets.left}px`;
+      this.messageContainer.style.paddingRight = `${baseInsets.right}px`;
 
       if (this._message.type === "warning") {
         this.messageContainer.style.backgroundColor = PALETTE.ui.warning.background;
@@ -419,17 +434,6 @@ export class TJAChart extends HTMLElement {
       ...this._viewOptions,
       showAttribution: this.isFullscreen,
     };
-
-    const isHorizontal = document.body.classList.contains("horizontal-layout");
-    // Standard padding we want to enforce within the canvas now
-    let baseInsets: Insets = { top: 20, bottom: 20, left: 20, right: 20 };
-    if (isHorizontal) {
-      baseInsets.left = 35;
-    }
-
-    if (this.isFullscreen) {
-      baseInsets = { ...INSETS };
-    }
 
     this.applyAutoZoom(effectiveViewOptions, baseInsets);
 

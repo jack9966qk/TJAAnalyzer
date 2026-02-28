@@ -206,11 +206,7 @@ export class ChangelogPanel extends HTMLElement {
     );
 
     const modalVdom = (
-      <modal-page
-        open={this.isModalOpen || null}
-        title={i18n.t("ui.about")}
-        onclose={this.handleClose.bind(this)}
-      >
+      <modal-page open={this.isModalOpen || null} title={i18n.t("ui.about")} onclose={this.handleClose.bind(this)}>
         <div className="about-content" style="padding: 0 0 10px 0; flex-shrink: 0;">
           <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
             <a

@@ -1,7 +1,7 @@
 import * as webjsx from "webjsx";
-import { i18n } from "../utils/i18n.js";
 import { appState } from "../state/app-state.js";
 import styleUrl from "../style.css?url";
+import { i18n } from "../utils/i18n.js";
 
 export class ModalPage extends HTMLElement {
   private _isOpen = false;

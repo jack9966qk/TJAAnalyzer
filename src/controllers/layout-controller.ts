@@ -1,6 +1,6 @@
+import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { appFooter, chartContainer, controlsContainer, layoutToggleBtn } from "../view/ui-elements.js";
-import { appState } from "../state/app-state.js";
 
 const CONTROLS_WIDTH = 390; // Estimated width for 3 stats columns + padding
 
