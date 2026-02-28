@@ -203,6 +203,7 @@ export function drawCapsule(
   drawLeftExt: boolean = false,
   drawRightExt: boolean = false,
   overExtendWidth: number = 0,
+  dpr: number = 1,
 ): void {
   // radius is the total outer extent. Borders are drawn as filled shapes
   // from outer to inner for crisp edges (no stroke straddling).
@@ -229,6 +230,7 @@ export function drawCapsule(
         { y: centerY - fillR, height: fillR * 2, color: fillColor },
       ],
       direction,
+      dpr,
     );
   };
 
@@ -1435,6 +1437,7 @@ function drawDrumrollSegment(
   drawLeftExt: boolean = false,
   drawRightExt: boolean = false,
   overExtendWidth: number = 0,
+  dpr: number = 1,
 ): void {
   let fillColor = PALETTE.notes.drumroll;
   let innerBorderColor = PALETTE.notes.border.white;
@@ -1463,6 +1466,7 @@ function drawDrumrollSegment(
     drawLeftExt,
     drawRightExt,
     overExtendWidth,
+    dpr,
   );
 
   // If this is the start segment, draw the leading circle
@@ -1512,6 +1516,7 @@ function drawBalloonSegment(
   drawLeftExt: boolean = false,
   drawRightExt: boolean = false,
   overExtendWidth: number = 0,
+  dpr: number = 1,
 ): void {
   let fillColor = PALETTE.notes.balloon; // Orangeish for balloon body
   let innerBorderColor = PALETTE.notes.border.white;
@@ -1553,6 +1558,7 @@ function drawBalloonSegment(
     drawLeftExt,
     drawRightExt,
     overExtendWidth,
+    dpr,
   );
 
   // If this is the start segment, draw the balloon head
@@ -1606,6 +1612,7 @@ function drawLongNotes(
   balloonIndices: LocationMap<number>,
   selection: ViewOptions["selection"] | undefined,
   dirtyRowY?: Set<number>,
+  dpr: number = 1,
 ): void {
   const {
     noteRadiusSmall: rSmall,
@@ -1709,6 +1716,7 @@ function drawLongNotes(
                 !hasStartCap && drawLeftExt,
                 !hasEndCap && drawRightExt,
                 overExtendWidth,
+                dpr,
               );
             } else {
               // Drumroll
@@ -1728,6 +1736,7 @@ function drawLongNotes(
                 !hasStartCap && drawLeftExt,
                 !hasEndCap && drawRightExt,
                 overExtendWidth,
+                dpr,
               );
             }
           }
@@ -1781,6 +1790,7 @@ function drawLongNotes(
             !hasStartCap && drawLeftExt,
             !hasEndCap && drawRightExt,
             overExtendWidth,
+            dpr,
           );
         } else {
           drawDrumrollSegment(
@@ -1799,6 +1809,7 @@ function drawLongNotes(
             !hasStartCap && drawLeftExt,
             !hasEndCap && drawRightExt,
             overExtendWidth,
+            dpr,
           );
         }
       }
@@ -1815,6 +1826,7 @@ function drawAllBranchesNotes(
   _balloonIndices: LocationMap<number>,
   BASE_LANE_HEIGHT: number,
   dirtyRowY?: Set<number>,
+  dpr: number = 1,
 ) {
   const { canvasContext, options, constants } = renderContext;
   if (!chart.branches) return;
@@ -1858,6 +1870,7 @@ function drawAllBranchesNotes(
       calculateBalloonIndices(b.data.bars),
       null,
       dirtyRowY,
+      dpr,
     );
 
     for (let index = branchVirtualBars.length - 1; index >= 0; index--) {
@@ -2032,6 +2045,7 @@ export function renderLayout(
       balloonIndices,
       BASE_LANE_HEIGHT,
       dirtyRowY,
+      effectiveDpr,
     );
   } else {
     // Layer 1.5: Drumrolls and Balloons
@@ -2045,6 +2059,7 @@ export function renderLayout(
       balloonIndices,
       options.selection,
       dirtyRowY,
+      effectiveDpr,
     );
 
     // Layer 2: Notes

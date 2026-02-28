@@ -149,6 +149,7 @@ export function drawStackedGradientRect(
   totalWidth: number,
   layers: { y: number; height: number; color: string }[],
   direction: "left" | "right",
+  dpr: number = 1,
 ) {
   if (layers.length === 0) return;
 
@@ -156,9 +157,12 @@ export function drawStackedGradientRect(
   const maxY = Math.max(...layers.map((l) => l.y + l.height));
   const totalHeight = maxY - minY;
 
-  const offscreen = new OffscreenCanvas(Math.ceil(totalWidth), Math.ceil(totalHeight));
+  const offscreen = new OffscreenCanvas(Math.ceil(totalWidth * dpr), Math.ceil(totalHeight * dpr));
   const offCtx = offscreen.getContext("2d");
   if (!offCtx) return;
+
+  // Scale drawing context to match DPR
+  offCtx.scale(dpr, dpr);
 
   // Draw layers as solid rectangles on the offscreen canvas
   for (const layer of layers) {
@@ -183,8 +187,9 @@ export function drawStackedGradientRect(
   offCtx.fillStyle = grad;
   offCtx.fillRect(0, 0, totalWidth, totalHeight);
 
-  // Draw the composited result onto the main canvas
-  canvasContext.drawImage(offscreen, x, minY);
+  // Draw the composited result onto the main canvas.
+  // We must specify width and height in logical units because the main context is already scaled.
+  canvasContext.drawImage(offscreen, x, minY, totalWidth, totalHeight);
 }
 
 /**
