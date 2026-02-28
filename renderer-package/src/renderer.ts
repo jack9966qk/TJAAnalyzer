@@ -1,6 +1,7 @@
 import {
   drawGradientLine,
   drawGradientRect,
+  drawStackedGradientRect,
   drawTextWithCompression,
   getGradientColor,
   snapForDevicePixel,
@@ -210,9 +211,25 @@ export function drawCapsule(
 
   const drawExtension = (exX: number, exW: number, isLeft: boolean) => {
     const direction = isLeft ? "left" : "right";
-    drawGradientRect(canvasContext, exX, centerY - radius, exW, radius * 2, PALETTE.notes.border.black, direction);
-    drawGradientRect(canvasContext, exX, centerY - innerBorderR, exW, innerBorderR * 2, innerBorderColor, direction);
-    drawGradientRect(canvasContext, exX, centerY - fillR, exW, fillR * 2, fillColor, direction);
+    drawStackedGradientRect(
+      canvasContext,
+      exX,
+      exW,
+      [
+        {
+          y: centerY - radius,
+          height: radius * 2,
+          color: PALETTE.notes.border.black,
+        },
+        {
+          y: centerY - innerBorderR,
+          height: innerBorderR * 2,
+          color: innerBorderColor,
+        },
+        { y: centerY - fillR, height: fillR * 2, color: fillColor },
+      ],
+      direction,
+    );
   };
 
   if (drawLeftExt && overExtendWidth > 0 && !startCap) {
@@ -866,7 +883,12 @@ function drawBarBackgroundWrapper(
   if (gogoTime || (gogoChanges && gogoChanges.length > 0)) {
     const stripHeight = constants.barNumberFontSize + constants.barNumberOffsetY * 2;
     const stripY = frame.y - stripHeight - constants.lineWidthBarBorder / 2;
-    const gogoFrame: Frame = { x: frame.x, y: stripY, width: frame.width, height: stripHeight };
+    const gogoFrame: Frame = {
+      x: frame.x,
+      y: stripY,
+      width: frame.width,
+      height: stripHeight,
+    };
     drawGogoIndicator(
       canvasContext,
       gogoFrame,
@@ -1633,7 +1655,13 @@ function drawLongNotes(
 
       if ([NoteType.Drumroll, NoteType.DrumrollBig, NoteType.Balloon, NoteType.Kusudama].includes(char)) {
         // Start a new long note
-        currentLongNote = { type: char, startBarIdx: i, startNoteIdx: j, originalBarIdx, originalNoteIdx: j };
+        currentLongNote = {
+          type: char,
+          startBarIdx: i,
+          startNoteIdx: j,
+          originalBarIdx,
+          originalNoteIdx: j,
+        };
         segmentActive = true;
         segmentStartIdx = j;
       } else if (char === NoteType.End) {
@@ -1845,7 +1873,11 @@ function drawAllBranchesNotes(
 
       const branchContext: RenderContext = {
         ...renderContext,
-        options: { ...options, annotations: new LocationMap<string>(), selection: null },
+        options: {
+          ...options,
+          annotations: new LocationMap<string>(),
+          selection: null,
+        },
       };
 
       drawBarNotes(

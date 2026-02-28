@@ -139,6 +139,55 @@ export function getGradientColor(delta: number): string {
 }
 
 /**
+ * Draws multiple stacked solid-color rectangles with a single shared gradient fade,
+ * avoiding the visual compositing issue of stacking multiple individual gradient layers.
+ * Each layer is specified as { y, height, color }.
+ */
+export function drawStackedGradientRect(
+  canvasContext: CanvasRenderingContext2D,
+  x: number,
+  totalWidth: number,
+  layers: { y: number; height: number; color: string }[],
+  direction: "left" | "right",
+) {
+  if (layers.length === 0) return;
+
+  const minY = Math.min(...layers.map((l) => l.y));
+  const maxY = Math.max(...layers.map((l) => l.y + l.height));
+  const totalHeight = maxY - minY;
+
+  const offscreen = new OffscreenCanvas(Math.ceil(totalWidth), Math.ceil(totalHeight));
+  const offCtx = offscreen.getContext("2d");
+  if (!offCtx) return;
+
+  // Draw layers as solid rectangles on the offscreen canvas
+  for (const layer of layers) {
+    offCtx.fillStyle = layer.color;
+    offCtx.fillRect(0, layer.y - minY, totalWidth, layer.height);
+  }
+
+  // Apply gradient alpha mask using destination-in
+  const grad = offCtx.createLinearGradient(0, 0, totalWidth, 0);
+  if (direction === "left") {
+    grad.addColorStop(0, "rgba(0,0,0,0)");
+    grad.addColorStop(0.25, "rgba(0,0,0,0.2)");
+    grad.addColorStop(0.5, "rgba(0,0,0,1)");
+    grad.addColorStop(1, "rgba(0,0,0,1)");
+  } else {
+    grad.addColorStop(0, "rgba(0,0,0,1)");
+    grad.addColorStop(0.5, "rgba(0,0,0,1)");
+    grad.addColorStop(0.75, "rgba(0,0,0,0.2)");
+    grad.addColorStop(1, "rgba(0,0,0,0)");
+  }
+  offCtx.globalCompositeOperation = "destination-in";
+  offCtx.fillStyle = grad;
+  offCtx.fillRect(0, 0, totalWidth, totalHeight);
+
+  // Draw the composited result onto the main canvas
+  canvasContext.drawImage(offscreen, x, minY);
+}
+
+/**
  * Snaps a coordinate to the nearest device pixel for crisp rendering of lines with a given width.
  * @param value The logical coordinate to snap
  * @param lineWidth The logical line width
