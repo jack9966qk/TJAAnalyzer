@@ -36,6 +36,7 @@ interface AppState {
   isNeutralinoConnected: boolean;
   swRegistrationError: string | null;
   displayOnlySelected: boolean;
+  isHorizontalLayout: boolean;
 }
 
 export const appState: AppState = {
@@ -74,4 +75,5 @@ export const appState: AppState = {
   isNeutralinoConnected: false,
   swRegistrationError: null,
   displayOnlySelected: false,
+  isHorizontalLayout: false,
 };

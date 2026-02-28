@@ -723,19 +723,32 @@ canvas {
   visibility: hidden;
   opacity: 0;
   position: fixed;
-  z-index: 1000;
+  z-index: 10000; /* Increased to be above everything */
   left: 0;
   top: 0;
   width: 100%;
   height: 100%;
-  overflow: auto;
+  overflow: hidden;
   background-color: var(--modal-overlay);
   transition:
     opacity var(--anim-duration-normal) ease,
     visibility var(--anim-duration-normal) ease;
-  /* Safe area padding for modal scrolling area */
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   box-sizing: border-box;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+.modal.layout-horizontal {
+  padding: max(40px, env(safe-area-inset-top)) 40px max(40px, env(safe-area-inset-bottom)) 40px;
+}
+
+/* Vertical layout (default) - bottom sheet */
+.modal.layout-vertical {
+  justify-content: flex-end;
+  flex-direction: column;
+  padding: 0; /* Let content handle its own padding/safe areas */
 }
 
 .modal.open {
@@ -745,32 +758,48 @@ canvas {
 
 .modal-content {
   background-color: var(--bg-modal-content);
-  margin: 5% auto;
+  margin: auto;
   padding: 0;
   border: 1px solid var(--border-color);
   width: 80%;
   max-width: 800px;
-  max-height: calc(90% - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  max-height: 100%;
   border-radius: 8px;
   box-shadow: 0 4px 8px var(--shadow-color);
   color: var(--text-primary);
   transform: scale(0.95);
-  transition: transform var(--anim-duration-normal) ease;
+  transition:
+    transform var(--anim-duration-normal) ease,
+    opacity var(--anim-duration-normal) ease;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+/* Vertical layout content adjustments */
+.modal.layout-vertical .modal-content {
+  width: 100%;
+  max-width: none !important;
+  margin: 0;
+  border-radius: 12px 12px 0 0;
+  border-bottom: none;
+  max-height: 90%;
+  transform: translateY(100%);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .modal.open .modal-content {
   transform: scale(1);
 }
 
+.modal.layout-vertical.open .modal-content {
+  transform: translateY(0);
+}
+
 .modal-header {
   padding: 15px 20px;
   background-color: var(--bg-panel-header);
   border-bottom: 1px solid var(--border-light);
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -780,6 +809,13 @@ canvas {
   margin: 0;
   font-size: 1.2em;
   color: var(--text-primary);
+}
+
+.modal-scroll-area {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .close-btn {
@@ -894,6 +930,10 @@ canvas {
 /* Horizontal Layout Styles */
 body.horizontal-layout {
   overflow: hidden; /* Prevent body scroll */
+}
+
+body.modal-active {
+  overflow: hidden !important;
 }
 
 body.horizontal-layout #app {

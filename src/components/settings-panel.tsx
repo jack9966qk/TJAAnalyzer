@@ -21,6 +21,7 @@ import {
   loadUserProfile,
   saveUserProfile,
 } from "../utils/user-profile.js";
+import "./modal-page.js";
 
 export class SettingsPanel extends HTMLElement {
   private isModalOpen = false;
@@ -61,11 +62,9 @@ export class SettingsPanel extends HTMLElement {
     this.loadSettings();
     this.render();
     document.body.appendChild(this.modalContainer);
-    this.renderModal();
 
     i18n.onLanguageChange(() => {
       this.render();
-      this.renderModal();
     });
 
     // Check for import parameter in URL
@@ -83,7 +82,7 @@ export class SettingsPanel extends HTMLElement {
       this.isImportMode = true;
       this.isFromBookmarklet = true;
       this.isModalOpen = true;
-      this.renderModal();
+      this.render();
     }
   }
 
@@ -109,7 +108,7 @@ export class SettingsPanel extends HTMLElement {
     this.loadSettings();
     this.isModalOpen = true;
     this.importStatus = { type: "none", message: "" };
-    this.renderModal();
+    this.render();
   }
 
   private handleClose() {
@@ -117,14 +116,14 @@ export class SettingsPanel extends HTMLElement {
     this.isImportMode = false;
     this.isFromBookmarklet = false;
     this.resolutionState = null;
-    this.renderModal();
+    this.render();
   }
 
   private handleDevModeToggle(e: Event) {
     appState.isTesterMode = (e.target as HTMLInputElement).checked;
     saveUserProfile({ isTesterMode: appState.isTesterMode });
     window.dispatchEvent(new Event("dev-mode-change"));
-    this.renderModal();
+    this.render();
   }
 
   private handleFinalizeImport() {
@@ -150,7 +149,7 @@ export class SettingsPanel extends HTMLElement {
       message: i18n.t("ui.playdata.importSuccess", { count: finalPlaydata.entries.length }),
     };
     window.dispatchEvent(new Event("settings-change"));
-    this.renderModal();
+    this.render();
   }
 
   private async handleSaveViewDefaults() {
@@ -166,14 +165,14 @@ export class SettingsPanel extends HTMLElement {
     this.defaultViewOptions = defaults;
     saveUserProfile({ defaultViewOptions: defaults });
     // Status handled by button
-    this.renderModal();
+    this.render();
   }
 
   private async handleClearViewDefaults() {
     this.defaultViewOptions = null;
     saveUserProfile({ defaultViewOptions: null });
     // Status handled by button
-    this.renderModal();
+    this.render();
   }
 
   private handleAutoAnnotateToggle(e: Event) {
@@ -181,7 +180,7 @@ export class SettingsPanel extends HTMLElement {
     this.autoAnnotateOnLoad = checked;
     saveUserProfile({ autoAnnotateOnLoad: checked });
     window.dispatchEvent(new CustomEvent("settings-change", { detail: { autoAnnotateOnLoad: checked } }));
-    this.renderModal();
+    this.render();
   }
 
   private handleShowFullPathToggle(e: Event) {
@@ -189,7 +188,7 @@ export class SettingsPanel extends HTMLElement {
     this.showFullPathInChartList = checked;
     saveUserProfile({ showFullPathInChartList: checked });
     window.dispatchEvent(new CustomEvent("settings-change", { detail: { showFullPathInChartList: checked } }));
-    this.renderModal();
+    this.render();
   }
 
   private handleChartLanguageChange(e: Event) {
@@ -197,7 +196,7 @@ export class SettingsPanel extends HTMLElement {
     this.preferredChartLanguage = val;
     saveUserProfile({ preferredChartLanguage: val });
     window.dispatchEvent(new Event("settings-change"));
-    this.renderModal();
+    this.render();
   }
 
   private handleStripModeChange(e: Event) {
@@ -205,7 +204,7 @@ export class SettingsPanel extends HTMLElement {
     this.stripMode = val;
     saveUserProfile({ chartListStripMode: val });
     window.dispatchEvent(new Event("settings-change"));
-    this.renderModal();
+    this.render();
   }
 
   private handleLeadingModeChange(e: Event) {
@@ -213,7 +212,7 @@ export class SettingsPanel extends HTMLElement {
     this.leadingMode = val;
     saveUserProfile({ chartListLeadingMode: val });
     window.dispatchEvent(new Event("settings-change"));
-    this.renderModal();
+    this.render();
   }
 
   private handleTrailingModeChange(e: Event) {
@@ -221,7 +220,7 @@ export class SettingsPanel extends HTMLElement {
     this.trailingMode = val;
     saveUserProfile({ chartListTrailingMode: val });
     window.dispatchEvent(new Event("settings-change"));
-    this.renderModal();
+    this.render();
   }
 
   private async handleCopyBookmarklet() {
@@ -257,12 +256,12 @@ export class SettingsPanel extends HTMLElement {
 
   private handleShowBookmarklet() {
     this.showBookmarklet = !this.showBookmarklet;
-    this.renderModal();
+    this.render();
   }
 
   private handleGoToImport() {
     this.isImportMode = true;
-    this.renderModal();
+    this.render();
   }
 
   private handleSelectBookmarklet(e: Event) {
@@ -273,11 +272,7 @@ export class SettingsPanel extends HTMLElement {
 
   private handleManualPasteInput(e: Event) {
     this.manualPasteContent = (e.target as HTMLTextAreaElement).value;
-    const vdom = this.isImportMode ? this.renderImportModeContent() : this.renderSettingsContent();
-    const settingsContent = this.modalContainer.querySelector(".settings-content");
-    if (settingsContent) {
-      webjsx.applyDiff(settingsContent, vdom);
-    }
+    this.render();
   }
 
   private async handlePasteEvent(e: ClipboardEvent) {
@@ -300,7 +295,7 @@ export class SettingsPanel extends HTMLElement {
   private async handleManualImport() {
     if (!this.manualPasteContent || this.isImporting) return;
     this.isImporting = true;
-    this.renderModal();
+    this.render();
     await this.processImport(this.manualPasteContent);
     this.isImporting = false;
   }
@@ -312,7 +307,7 @@ export class SettingsPanel extends HTMLElement {
           type: "error",
           message: i18n.t("ui.playdata.importFailed"),
         };
-        this.renderModal();
+        this.render();
         return;
       }
 
@@ -322,7 +317,7 @@ export class SettingsPanel extends HTMLElement {
           type: "error",
           message: i18n.t("ui.playdata.importFailed"),
         };
-        this.renderModal();
+        this.render();
         return;
       }
 
@@ -334,7 +329,7 @@ export class SettingsPanel extends HTMLElement {
           type: "error",
           message: i18n.t("ui.playdata.importFailed"),
         };
-        this.renderModal();
+        this.render();
         return;
       }
 
@@ -351,7 +346,7 @@ export class SettingsPanel extends HTMLElement {
               playdata,
             };
             this.importStatus = { type: "none", message: "" };
-            this.renderModal();
+            this.render();
             return;
           }
 
@@ -398,14 +393,14 @@ export class SettingsPanel extends HTMLElement {
         type: "success",
         message: i18n.t("ui.playdata.importSuccess", { count: playdata.entries.length }),
       };
-      this.renderModal();
+      this.render();
     } catch (err) {
       console.error("Failed to import playdata:", err);
       this.importStatus = {
         type: "error",
         message: i18n.t("ui.playdata.importFailed"),
       };
-      this.renderModal();
+      this.render();
     }
   }
 
@@ -419,7 +414,7 @@ export class SettingsPanel extends HTMLElement {
         type: "error",
         message: `${i18n.t("ui.playdata.importFailed")} ${i18n.t("ui.playdata.pasteManualInstruction")}`,
       };
-      this.renderModal();
+      this.render();
     }
   }
 
@@ -431,7 +426,7 @@ export class SettingsPanel extends HTMLElement {
       message: i18n.t("ui.playdata.cleared"),
     };
     window.dispatchEvent(new Event("settings-change"));
-    this.renderModal();
+    this.render();
   }
 
   private async handleExportPlaydata() {
@@ -441,7 +436,7 @@ export class SettingsPanel extends HTMLElement {
 
     this.isExporting = true;
     this.importStatus = { type: "none", message: "" };
-    this.renderModal();
+    this.render();
 
     try {
       const result = await convertToTaikoRatingAnalyzerFormat(this.playdata);
@@ -451,7 +446,7 @@ export class SettingsPanel extends HTMLElement {
           message: i18n.t("ui.playdata.exportFailed"),
         };
         this.isExporting = false;
-        this.renderModal();
+        this.render();
         return;
       }
 
@@ -472,7 +467,7 @@ export class SettingsPanel extends HTMLElement {
       };
     } finally {
       this.isExporting = false;
-      this.renderModal();
+      this.render();
     }
   }
 
@@ -483,7 +478,7 @@ export class SettingsPanel extends HTMLElement {
 
     this.isExporting = true;
     this.importStatus = { type: "none", message: "" };
-    this.renderModal();
+    this.render();
 
     try {
       const jsonContent = JSON.stringify(this.playdata, null, 2);
@@ -503,54 +498,8 @@ export class SettingsPanel extends HTMLElement {
       };
     } finally {
       this.isExporting = false;
-      this.renderModal();
+      this.render();
     }
-  }
-
-  render() {
-    const vdom = (
-      <button
-        type="button"
-        className="settings-btn"
-        onclick={this.handleOpen.bind(this)}
-        aria-label={i18n.t("ui.settings")}
-        title={i18n.t("ui.settings")}
-      >
-        <div className="icon-settings" />
-      </button>
-    );
-    webjsx.applyDiff(this, vdom);
-  }
-
-  renderModal() {
-    const modalVdom = (
-      <div
-        id="settings-modal"
-        className={`modal ${this.isModalOpen ? "open" : ""}`}
-        onclick={(e: MouseEvent) => {
-          if (e.target === e.currentTarget) this.handleClose();
-        }}
-      >
-        <div className="modal-content" style="max-width: 600px;">
-          <div className="modal-header">
-            <h2>{this.isImportMode ? i18n.t("ui.playdata.title") : i18n.t("ui.settings")}</h2>
-            <button
-              type="button"
-              className="close-btn"
-              onclick={this.handleClose.bind(this)}
-              aria-label={i18n.t("ui.close")}
-            >
-              <div className="modal-close-icon" />
-            </button>
-          </div>
-          <div className="settings-content" style="padding: 20px; overflow-y: auto; flex: 1; min-height: 0;">
-            {this.isImportMode ? this.renderImportModeContent() : this.renderSettingsContent()}
-          </div>
-        </div>
-      </div>
-    );
-
-    webjsx.applyDiff(this.modalContainer, modalVdom);
   }
 
   private async handleCopyUnmatchedCSV() {
@@ -578,7 +527,7 @@ export class SettingsPanel extends HTMLElement {
     }
   }
 
-  renderResolutionUI() {
+  private renderResolutionUI() {
     if (!this.resolutionState) return <div />;
 
     const { result } = this.resolutionState;
@@ -594,7 +543,7 @@ export class SettingsPanel extends HTMLElement {
     const sortedGroups = Array.from(groups.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 
     return (
-      <div style="padding: 20px;">
+      <div style="padding: 0;">
         <h3 style="margin-top: 0;">{i18n.t("ui.playdata.unresolvable")}</h3>
         <div style="margin-bottom: 15px; font-size: 14px; color: var(--text-secondary);">
           The following entries could not be imported because their Song ID was not found in the database.
@@ -647,13 +596,13 @@ export class SettingsPanel extends HTMLElement {
     );
   }
 
-  renderImportModeContent() {
+  private renderImportModeContent() {
     if (this.resolutionState) {
       return this.renderResolutionUI();
     }
 
     return (
-      <div style="text-align: center; padding: 20px;">
+      <div style="text-align: center; padding: 0;">
         <div style="font-size: 16px; margin-bottom: 20px; color: var(--text-primary);">
           {i18n.t(this.isFromBookmarklet ? "ui.playdata.importReady" : "ui.playdata.pasteHereInstruction")}
         </div>
@@ -704,7 +653,7 @@ export class SettingsPanel extends HTMLElement {
     );
   }
 
-  renderSettingsContent() {
+  private renderSettingsContent() {
     const devModeToggle = (
       <div
         className="about-item"
@@ -1010,6 +959,34 @@ export class SettingsPanel extends HTMLElement {
         {devModeToggle}
       </div>
     );
+  }
+
+  render() {
+    const vdom = (
+      <button
+        type="button"
+        className="settings-btn"
+        onclick={this.handleOpen.bind(this)}
+        aria-label={i18n.t("ui.settings")}
+        title={i18n.t("ui.settings")}
+      >
+        <div className="icon-settings" />
+      </button>
+    );
+
+    const modalVdom = (
+      <modal-page
+        open={this.isModalOpen || null}
+        title={this.isImportMode ? i18n.t("ui.playdata.title") : i18n.t("ui.settings")}
+        max-width="600px"
+        onclose={this.handleClose.bind(this)}
+      >
+        {this.isImportMode ? this.renderImportModeContent() : this.renderSettingsContent()}
+      </modal-page>
+    );
+
+    webjsx.applyDiff(this, vdom);
+    webjsx.applyDiff(this.modalContainer, modalVdom);
   }
 }
 

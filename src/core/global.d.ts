@@ -32,6 +32,12 @@ declare global {
       "export-button": HtmlTag & ExportButtonProps;
       "action-button": HtmlTag & ActionButtonProps;
       "advanced-search-modal": HtmlTag;
+      "modal-page": HtmlTag & {
+        open?: boolean | null;
+        title?: string;
+        "max-width"?: string;
+        onclose?: () => void;
+      };
     }
   }
 }

@@ -4,6 +4,7 @@ import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import type { PlaydataEntry } from "../utils/playdata-parser.js";
 import { getDnStyleCssClass } from "../utils/playdata-status.js";
+import "./modal-page.js";
 
 export type Difficulty = "easy" | "normal" | "hard" | "oni" | "ura";
 
@@ -313,21 +314,27 @@ function dfcDisplayName(code: string): string {
 
 export class AdvancedSearchModal extends HTMLElement {
   private isOpen = false;
-  private modalContainer: HTMLDivElement;
   private criteria: AdvancedSearchCriteria = {};
   private _hasPlaydata = false;
+  private modalContainer: HTMLDivElement;
 
   constructor() {
     super();
     this.modalContainer = document.createElement("div");
-    document.body.appendChild(this.modalContainer);
   }
 
   connectedCallback() {
     this.render();
+    document.body.appendChild(this.modalContainer);
     i18n.onLanguageChange(() => {
-      if (this.isOpen) this.renderModal();
+      if (this.isOpen) this.render();
     });
+  }
+
+  disconnectedCallback() {
+    if (this.modalContainer && this.modalContainer.parentNode === document.body) {
+      document.body.removeChild(this.modalContainer);
+    }
   }
 
   open(currentCriteria?: AdvancedSearchCriteria, hasPlaydata = false) {
@@ -336,12 +343,12 @@ export class AdvancedSearchModal extends HTMLElement {
     }
     this._hasPlaydata = hasPlaydata;
     this.isOpen = true;
-    this.renderModal();
+    this.render();
   }
 
   private close() {
     this.isOpen = false;
-    this.renderModal();
+    this.render();
   }
 
   private handleApply() {
@@ -383,7 +390,7 @@ export class AdvancedSearchModal extends HTMLElement {
       delete this.criteria.dfcDifficulty;
     }
 
-    this.renderModal();
+    this.render();
   }
 
   private collectKnownValues(): { platforms: string[]; regions: string[] } {
@@ -407,11 +414,6 @@ export class AdvancedSearchModal extends HTMLElement {
   }
 
   render() {
-    // The trigger button is rendered in chart-list-panel, this component only manages the modal
-    webjsx.applyDiff(this, <span />);
-  }
-
-  renderModal() {
     const { platforms, regions } = this.collectKnownValues();
     const c = this.criteria;
 
@@ -436,273 +438,265 @@ export class AdvancedSearchModal extends HTMLElement {
     const rangeStyle = "display: flex; align-items: center; gap: 6px; flex: 1;";
 
     const modalVdom = (
-      <div
-        id="advanced-search-modal"
-        className={`modal ${this.isOpen ? "open" : ""}`}
-        onclick={(e: MouseEvent) => {
-          if (e.target === e.currentTarget) this.close();
-        }}
+      <modal-page
+        open={this.isOpen || null}
+        title={i18n.t("ui.advSearch.title")}
+        max-width="500px"
+        onclose={this.close.bind(this)}
       >
-        <div className="modal-content" style="max-width: 500px;">
-          <div className="modal-header">
-            <h2>{i18n.t("ui.advSearch.title")}</h2>
-            <button type="button" className="close-btn" onclick={this.close.bind(this)} aria-label={i18n.t("ui.close")}>
-              <div className="modal-close-icon" />
-            </button>
+        <div className="settings-content">
+          {/* Title */}
+          <div style={fieldStyle}>
+            <span style={labelStyle}>{i18n.t("ui.advSearch.titleFilter")}</span>
+            <input
+              type="text"
+              style={inputStyle}
+              value={c.title || ""}
+              placeholder={i18n.t("ui.advSearch.titlePlaceholder")}
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck="false"
+              oninput={(e: Event) => this.updateField("title", (e.target as HTMLInputElement).value)}
+            />
           </div>
-          <div className="settings-content" style="padding: 20px; overflow-y: auto; flex: 1; min-height: 0;">
-            {/* Title */}
-            <div style={fieldStyle}>
-              <span style={labelStyle}>{i18n.t("ui.advSearch.titleFilter")}</span>
-              <input
-                type="text"
-                style={inputStyle}
-                value={c.title || ""}
-                placeholder={i18n.t("ui.advSearch.titlePlaceholder")}
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="off"
-                spellCheck="false"
-                oninput={(e: Event) => this.updateField("title", (e.target as HTMLInputElement).value)}
-              />
-            </div>
 
-            {/* Artist */}
-            <div style={fieldStyle}>
-              <span style={labelStyle}>{i18n.t("ui.advSearch.artist")}</span>
-              <input
-                type="text"
-                style={inputStyle}
-                value={c.artist || ""}
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="off"
-                spellCheck="false"
-                oninput={(e: Event) => this.updateField("artist", (e.target as HTMLInputElement).value)}
-              />
-            </div>
+          {/* Artist */}
+          <div style={fieldStyle}>
+            <span style={labelStyle}>{i18n.t("ui.advSearch.artist")}</span>
+            <input
+              type="text"
+              style={inputStyle}
+              value={c.artist || ""}
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck="false"
+              oninput={(e: Event) => this.updateField("artist", (e.target as HTMLInputElement).value)}
+            />
+          </div>
 
-            {/* Subtitle */}
-            <div style={fieldStyle}>
-              <span style={labelStyle}>{i18n.t("ui.advSearch.subtitle")}</span>
-              <input
-                type="text"
-                style={inputStyle}
-                value={c.subtitle || ""}
-                autoComplete="off"
-                autoCorrect="off"
-                autoCapitalize="off"
-                spellCheck="false"
-                oninput={(e: Event) => this.updateField("subtitle", (e.target as HTMLInputElement).value)}
-              />
-            </div>
+          {/* Subtitle */}
+          <div style={fieldStyle}>
+            <span style={labelStyle}>{i18n.t("ui.advSearch.subtitle")}</span>
+            <input
+              type="text"
+              style={inputStyle}
+              value={c.subtitle || ""}
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck="false"
+              oninput={(e: Event) => this.updateField("subtitle", (e.target as HTMLInputElement).value)}
+            />
+          </div>
 
-            {/* Difficulty & Stars Row */}
-            <div style={fieldStyle}>
-              <span style={labelStyle}>{i18n.t("ui.advSearch.difficulty")}</span>
-              <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
-                <select
-                  style={`${inputStyle} flex: 1;`}
-                  value={c.difficulty || "any"}
-                  onchange={(e: Event) => this.updateField("difficulty", (e.target as HTMLSelectElement).value)}
-                >
-                  {diffOptions.map((o) => (
-                    <option value={o.value} selected={o.value === (c.difficulty || "any")}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-                <div style="display: flex; align-items: center; gap: 8px; flex: 1.2;">
-                  <span style="font-size: 14px; color: var(--text-secondary); width: 60px; flex-shrink: 0;">
-                    {starsLabel}
-                  </span>
-                  <input
-                    type="number"
-                    style={`${numberInputStyle} flex: 1; max-width: none;`}
-                    value={c.stars != null ? String(c.stars) : ""}
-                    min="1"
-                    max="10"
-                    placeholder="1-10"
-                    oninput={(e: Event) => {
-                      const val = (e.target as HTMLInputElement).value;
-                      this.updateField("stars", val ? Number(val) : undefined);
-                    }}
-                  />
-                </div>
+          {/* Difficulty & Stars Row */}
+          <div style={fieldStyle}>
+            <span style={labelStyle}>{i18n.t("ui.advSearch.difficulty")}</span>
+            <div style="display: flex; align-items: center; gap: 16px; flex: 1;">
+              <select
+                style={`${inputStyle} flex: 1;`}
+                value={c.difficulty || "any"}
+                onchange={(e: Event) => this.updateField("difficulty", (e.target as HTMLSelectElement).value)}
+              >
+                {diffOptions.map((o) => (
+                  <option value={o.value} selected={o.value === (c.difficulty || "any")}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+              <div style="display: flex; align-items: center; gap: 8px; flex: 1.2;">
+                <span style="font-size: 14px; color: var(--text-secondary); width: 60px; flex-shrink: 0;">
+                  {starsLabel}
+                </span>
+                <input
+                  type="number"
+                  style={`${numberInputStyle} flex: 1; max-width: none;`}
+                  value={c.stars != null ? String(c.stars) : ""}
+                  min="1"
+                  max="10"
+                  placeholder="1-10"
+                  oninput={(e: Event) => {
+                    const val = (e.target as HTMLInputElement).value;
+                    this.updateField("stars", val ? Number(val) : undefined);
+                  }}
+                />
               </div>
             </div>
+          </div>
 
-            {/* DFC Difficulty (only relevant for 10-star) */}
+          {/* DFC Difficulty (only relevant for 10-star) */}
+          <div style={fieldStyle}>
+            <span style={labelStyle}>{i18n.t("ui.advSearch.dfcDifficulty")}</span>
+            <select
+              style={inputStyle}
+              value={c.dfcDifficulty || ""}
+              onchange={(e: Event) =>
+                this.updateField("dfcDifficulty", (e.target as HTMLSelectElement).value || undefined)
+              }
+            >
+              <option value="" selected={!c.dfcDifficulty}>
+                {i18n.t("ui.advSearch.any")}
+              </option>
+              {DFC_SECTIONS.map((s) => (
+                <option value={s} selected={s === c.dfcDifficulty}>
+                  {dfcDisplayName(s)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* BPM Row */}
+          <div style={fieldStyle}>
+            <span style={labelStyle}>{i18n.t("ui.advSearch.bpmMin")}</span>
+            <input
+              type="number"
+              style={numberInputStyle}
+              value={c.bpmMin != null ? String(c.bpmMin) : ""}
+              min="1"
+              placeholder=""
+              oninput={(e: Event) => {
+                const val = (e.target as HTMLInputElement).value;
+                this.updateField("bpmMin", val ? Number(val) : undefined);
+              }}
+            />
+            <span style="font-size: 14px; color: var(--text-secondary); margin-left: 12px; flex-shrink: 0;">
+              {i18n.t("ui.advSearch.bpmMax")}
+            </span>
+            <input
+              type="number"
+              style={numberInputStyle}
+              value={c.bpmMax != null ? String(c.bpmMax) : ""}
+              min="1"
+              placeholder=""
+              oninput={(e: Event) => {
+                const val = (e.target as HTMLInputElement).value;
+                this.updateField("bpmMax", val ? Number(val) : undefined);
+              }}
+            />
+          </div>
+
+          {/* Note Count */}
+          <div style={fieldStyle}>
+            <span style={labelStyle}>{noteCountLabel}</span>
+            <div style={rangeStyle}>
+              <input
+                type="number"
+                style={numberInputStyle}
+                value={c.noteCountMin != null ? String(c.noteCountMin) : ""}
+                min="0"
+                placeholder={i18n.t("ui.advSearch.min")}
+                oninput={(e: Event) => {
+                  const val = (e.target as HTMLInputElement).value;
+                  this.updateField("noteCountMin", val ? Number(val) : undefined);
+                }}
+              />
+              <span style="color: var(--text-secondary);">–</span>
+              <input
+                type="number"
+                style={numberInputStyle}
+                value={c.noteCountMax != null ? String(c.noteCountMax) : ""}
+                min="0"
+                placeholder={i18n.t("ui.advSearch.max")}
+                oninput={(e: Event) => {
+                  const val = (e.target as HTMLInputElement).value;
+                  this.updateField("noteCountMax", val ? Number(val) : undefined);
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Platform */}
+          {platforms.length > 0 && (
             <div style={fieldStyle}>
-              <span style={labelStyle}>{i18n.t("ui.advSearch.dfcDifficulty")}</span>
+              <span style={labelStyle}>{i18n.t("ui.advSearch.platform")}</span>
               <select
                 style={inputStyle}
-                value={c.dfcDifficulty || ""}
+                value={c.platform || ""}
                 onchange={(e: Event) =>
-                  this.updateField("dfcDifficulty", (e.target as HTMLSelectElement).value || undefined)
+                  this.updateField("platform", (e.target as HTMLSelectElement).value || undefined)
                 }
               >
-                <option value="" selected={!c.dfcDifficulty}>
-                  {i18n.t("ui.advSearch.any")}
-                </option>
-                {DFC_SECTIONS.map((s) => (
-                  <option value={s} selected={s === c.dfcDifficulty}>
-                    {dfcDisplayName(s)}
+                <option value="">{i18n.t("ui.advSearch.any")}</option>
+                {platforms.map((p) => (
+                  <option value={p} selected={p === c.platform}>
+                    {p}
                   </option>
                 ))}
               </select>
             </div>
+          )}
 
-            {/* BPM Row */}
+          {/* Region */}
+          {regions.length > 0 && (
             <div style={fieldStyle}>
-              <span style={labelStyle}>{i18n.t("ui.advSearch.bpmMin")}</span>
-              <input
-                type="number"
-                style={numberInputStyle}
-                value={c.bpmMin != null ? String(c.bpmMin) : ""}
-                min="1"
-                placeholder=""
-                oninput={(e: Event) => {
-                  const val = (e.target as HTMLInputElement).value;
-                  this.updateField("bpmMin", val ? Number(val) : undefined);
-                }}
-              />
-              <span style="font-size: 14px; color: var(--text-secondary); margin-left: 12px; flex-shrink: 0;">
-                {i18n.t("ui.advSearch.bpmMax")}
-              </span>
-              <input
-                type="number"
-                style={numberInputStyle}
-                value={c.bpmMax != null ? String(c.bpmMax) : ""}
-                min="1"
-                placeholder=""
-                oninput={(e: Event) => {
-                  const val = (e.target as HTMLInputElement).value;
-                  this.updateField("bpmMax", val ? Number(val) : undefined);
-                }}
-              />
+              <span style={labelStyle}>{i18n.t("ui.advSearch.region")}</span>
+              <select
+                style={inputStyle}
+                value={c.region || ""}
+                onchange={(e: Event) =>
+                  this.updateField("region", (e.target as HTMLSelectElement).value || undefined)
+                }
+              >
+                <option value="">{i18n.t("ui.advSearch.any")}</option>
+                {regions.map((r) => (
+                  <option value={r} selected={r === c.region}>
+                    {r}
+                  </option>
+                ))}
+              </select>
             </div>
+          )}
 
-            {/* Note Count */}
+          {/* Playdata (DN Category) */}
+          {this._hasPlaydata && (
             <div style={fieldStyle}>
-              <span style={labelStyle}>{noteCountLabel}</span>
-              <div style={rangeStyle}>
-                <input
-                  type="number"
-                  style={numberInputStyle}
-                  value={c.noteCountMin != null ? String(c.noteCountMin) : ""}
-                  min="0"
-                  placeholder={i18n.t("ui.advSearch.min")}
-                  oninput={(e: Event) => {
-                    const val = (e.target as HTMLInputElement).value;
-                    this.updateField("noteCountMin", val ? Number(val) : undefined);
-                  }}
-                />
-                <span style="color: var(--text-secondary);">–</span>
-                <input
-                  type="number"
-                  style={numberInputStyle}
-                  value={c.noteCountMax != null ? String(c.noteCountMax) : ""}
-                  min="0"
-                  placeholder={i18n.t("ui.advSearch.max")}
-                  oninput={(e: Event) => {
-                    const val = (e.target as HTMLInputElement).value;
-                    this.updateField("noteCountMax", val ? Number(val) : undefined);
-                  }}
-                />
-              </div>
+              <span style={labelStyle}>{i18n.t("ui.advSearch.playdata")}</span>
+              <select
+                style={inputStyle}
+                value={c.playdata || ""}
+                onchange={(e: Event) =>
+                  this.updateField("playdata", (e.target as HTMLSelectElement).value || undefined)
+                }
+              >
+                <option value="" selected={!c.playdata}>
+                  {i18n.t("ui.advSearch.any")}
+                </option>
+                <option value="dn-cyan" selected={c.playdata === "dn-cyan"}>
+                  {i18n.t("ui.advSearch.dnCyan")}
+                </option>
+                <option value="dn-green" selected={c.playdata === "dn-green"}>
+                  {i18n.t("ui.advSearch.dnGreen")}
+                </option>
+                <option value="dn-gold" selected={c.playdata === "dn-gold"}>
+                  {i18n.t("ui.advSearch.dnGold")}
+                </option>
+                <option value="dn-grey" selected={c.playdata === "dn-grey"}>
+                  {i18n.t("ui.advSearch.dnGrey")}
+                </option>
+                <option value="dn-white" selected={c.playdata === "dn-white"}>
+                  {i18n.t("ui.advSearch.dnWhite")}
+                </option>
+              </select>
             </div>
+          )}
 
-            {/* Platform */}
-            {platforms.length > 0 && (
-              <div style={fieldStyle}>
-                <span style={labelStyle}>{i18n.t("ui.advSearch.platform")}</span>
-                <select
-                  style={inputStyle}
-                  value={c.platform || ""}
-                  onchange={(e: Event) =>
-                    this.updateField("platform", (e.target as HTMLSelectElement).value || undefined)
-                  }
-                >
-                  <option value="">{i18n.t("ui.advSearch.any")}</option>
-                  {platforms.map((p) => (
-                    <option value={p} selected={p === c.platform}>
-                      {p}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Region */}
-            {regions.length > 0 && (
-              <div style={fieldStyle}>
-                <span style={labelStyle}>{i18n.t("ui.advSearch.region")}</span>
-                <select
-                  style={inputStyle}
-                  value={c.region || ""}
-                  onchange={(e: Event) =>
-                    this.updateField("region", (e.target as HTMLSelectElement).value || undefined)
-                  }
-                >
-                  <option value="">{i18n.t("ui.advSearch.any")}</option>
-                  {regions.map((r) => (
-                    <option value={r} selected={r === c.region}>
-                      {r}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Playdata (DN Category) */}
-            {this._hasPlaydata && (
-              <div style={fieldStyle}>
-                <span style={labelStyle}>{i18n.t("ui.advSearch.playdata")}</span>
-                <select
-                  style={inputStyle}
-                  value={c.playdata || ""}
-                  onchange={(e: Event) =>
-                    this.updateField("playdata", (e.target as HTMLSelectElement).value || undefined)
-                  }
-                >
-                  <option value="" selected={!c.playdata}>
-                    {i18n.t("ui.advSearch.any")}
-                  </option>
-                  <option value="dn-cyan" selected={c.playdata === "dn-cyan"}>
-                    {i18n.t("ui.advSearch.dnCyan")}
-                  </option>
-                  <option value="dn-green" selected={c.playdata === "dn-green"}>
-                    {i18n.t("ui.advSearch.dnGreen")}
-                  </option>
-                  <option value="dn-gold" selected={c.playdata === "dn-gold"}>
-                    {i18n.t("ui.advSearch.dnGold")}
-                  </option>
-                  <option value="dn-grey" selected={c.playdata === "dn-grey"}>
-                    {i18n.t("ui.advSearch.dnGrey")}
-                  </option>
-                  <option value="dn-white" selected={c.playdata === "dn-white"}>
-                    {i18n.t("ui.advSearch.dnWhite")}
-                  </option>
-                </select>
-              </div>
-            )}
-
-            {/* Action buttons */}
-            <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border-lighter);">
-              <button type="button" className="btn-secondary" onclick={this.handleClearAll.bind(this)}>
-                {i18n.t("ui.advSearch.clearAll")}
-              </button>
-              <button type="button" onclick={this.handleApply.bind(this)}>
-                {i18n.t("ui.advSearch.apply")}
-              </button>
-            </div>
+          {/* Action buttons */}
+          <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border-lighter);">
+            <button type="button" className="btn-secondary" onclick={this.handleClearAll.bind(this)}>
+              {i18n.t("ui.advSearch.clearAll")}
+            </button>
+            <button type="button" onclick={this.handleApply.bind(this)}>
+              {i18n.t("ui.advSearch.apply")}
+            </button>
           </div>
         </div>
-      </div>
+      </modal-page>
     );
 
     webjsx.applyDiff(this.modalContainer, modalVdom);
+    webjsx.applyDiff(this, <span />);
   }
 }
 

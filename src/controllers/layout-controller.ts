@@ -1,5 +1,6 @@
 import { i18n } from "../utils/i18n.js";
 import { appFooter, chartContainer, controlsContainer, layoutToggleBtn } from "../view/ui-elements.js";
+import { appState } from "../state/app-state.js";
 
 const CONTROLS_WIDTH = 390; // Estimated width for 3 stats columns + padding
 
@@ -9,6 +10,11 @@ export function updateLayout() {
   const windowWidth = window.innerWidth;
   // If controls width is less than 40% of window width, use horizontal layout
   const shouldUseHorizontal = CONTROLS_WIDTH < windowWidth * 0.4;
+
+  if (appState.isHorizontalLayout !== shouldUseHorizontal) {
+    appState.isHorizontalLayout = shouldUseHorizontal;
+    window.dispatchEvent(new CustomEvent("layout-change", { detail: { isHorizontal: shouldUseHorizontal } }));
+  }
 
   if (shouldUseHorizontal) {
     document.body.classList.add("horizontal-layout");

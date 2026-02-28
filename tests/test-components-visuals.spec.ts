@@ -147,16 +147,13 @@ test.describe("Web Components Visual Regression", () => {
     await expect(component).toBeVisible();
     await expect(component).toHaveScreenshot("changelog-panel-closed.png");
 
-    const btn = component.locator("button");
+    const btn = component.locator("button#changelog-btn");
     if ((await btn.count()) > 0) {
       await btn.click();
-      const modal = page.locator(".modal-content");
-      await expect(modal).toBeVisible();
-      // Wait for content to load
-      await expect(modal).toContainText("Initial commit");
-      await expect(modal).toContainText("ESE Database");
-      await expect(modal).toContainText("ese1234");
-      await expect(modal).toHaveScreenshot("changelog-panel-open.png");
+      await expect(page.getByText("Initial commit")).toBeVisible();
+      await expect(page.getByText("ESE Database")).toBeVisible();
+      await expect(page.getByText("ese1234")).toBeVisible();
+      await expect(page).toHaveScreenshot("changelog-panel-open.png");
     }
   });
 

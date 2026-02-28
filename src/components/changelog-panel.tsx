@@ -1,6 +1,7 @@
 import * as webjsx from "webjsx";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
+import "./modal-page.js";
 
 interface ChangelogItem {
   date: string;
@@ -14,13 +15,12 @@ interface EseCommit {
 }
 
 function getPlatform(): string {
-  if (appState.isNeutralinoConnected) {
-    return "Neutralino";
+  // biome-ignore lint/suspicious/noExplicitAny: Neutralino global
+  const win = window as any;
+  if (typeof win.NL_OS !== "undefined") {
+    return win.NL_OS;
   }
-  if (window.matchMedia("(display-mode: standalone)").matches) {
-    return "PWA";
-  }
-  return "Browser";
+  return "Web";
 }
 
 export class ChangelogPanel extends HTMLElement {
@@ -28,8 +28,8 @@ export class ChangelogPanel extends HTMLElement {
   private isModalOpen = false;
   private changelogData: ChangelogItem[] = [];
   private eseCommit: EseCommit | null = null;
-  private modalContainer: HTMLDivElement;
   private appVersion: string | null = null;
+  private modalContainer: HTMLDivElement;
 
   constructor() {
     super();
@@ -39,17 +39,15 @@ export class ChangelogPanel extends HTMLElement {
   connectedCallback() {
     this.render();
     document.body.appendChild(this.modalContainer);
-    this.renderModal();
 
     i18n.onLanguageChange(() => {
       this.render();
-      this.renderModal();
     });
 
     // Listen for Neutralino ready event to update platform label
     if (window.Neutralino) {
       window.Neutralino.events.on("ready", () => {
-        this.renderModal();
+        this.render();
       });
     }
   }
@@ -62,7 +60,7 @@ export class ChangelogPanel extends HTMLElement {
 
   private handleOpen() {
     this.isModalOpen = true;
-    this.renderModal();
+    this.render();
     if (!this.hasLoaded) {
       this.loadData();
     }
@@ -70,7 +68,7 @@ export class ChangelogPanel extends HTMLElement {
 
   private handleClose() {
     this.isModalOpen = false;
-    this.renderModal();
+    this.render();
   }
 
   private async loadData() {
@@ -115,19 +113,10 @@ export class ChangelogPanel extends HTMLElement {
       console.error("Failed to load data:", e);
       this.changelogData = [];
     }
-    this.renderModal();
+    this.render();
   }
 
   render() {
-    const vdom = (
-      <button type="button" id="changelog-btn" className="text-btn" onclick={this.handleOpen.bind(this)}>
-        {i18n.t("ui.about")}
-      </button>
-    );
-    webjsx.applyDiff(this, vdom);
-  }
-
-  renderModal() {
     const content = !this.hasLoaded ? (
       <div style="padding:10px; color:#666;">{i18n.t("ui.loading")}</div>
     ) : this.changelogData.length === 0 ? (
@@ -210,61 +199,53 @@ export class ChangelogPanel extends HTMLElement {
       </div>
     ) : null;
 
-    const modalVdom = (
-      <div
-        id="changelog-modal"
-        className={`modal ${this.isModalOpen ? "open" : ""}`}
-        onclick={(e: MouseEvent) => {
-          if (e.target === e.currentTarget) this.handleClose();
-        }}
-      >
-        <div className="modal-content">
-          <div className="modal-header">
-            <h2>{i18n.t("ui.about")}</h2>
-            <button
-              type="button"
-              className="close-btn"
-              onclick={this.handleClose.bind(this)}
-              aria-label={i18n.t("ui.close")}
-            >
-              <div className="modal-close-icon" />
-            </button>
-          </div>
-          <div className="about-content" style="padding: 20px 20px 10px 20px; flex-shrink: 0;">
-            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
-              <a
-                href="https://github.com/jack9966qk/TJAAnalyzer/issues/new"
-                target="_blank"
-                rel="noopener"
-                className="about-item"
-                style="display: block; padding: 12px; background: var(--bg-panel-header); border-radius: 6px; color: var(--text-primary); text-decoration: none; border: 1px solid var(--border-light);"
-                onmouseenter={(e: MouseEvent) => {
-                  (e.currentTarget as HTMLElement).style.backgroundColor = "var(--bg-hover)";
-                }}
-                onmouseleave={(e: MouseEvent) => {
-                  (e.currentTarget as HTMLElement).style.backgroundColor = "var(--bg-panel-header)";
-                }}
-              >
-                <div style="font-weight: bold;">{i18n.t("ui.feedback")}</div>
-                <div style="font-size: 0.85em; color: var(--text-secondary); margin-top: 4px;">GitHub Issues</div>
-              </a>
-              {versionInfo}
-              {eseInfo}
-              {pwaDebugInfo}
-            </div>
-
-            <h3 style="margin: 0 0 5px 0; font-size: 1.1em; color: var(--text-primary);">{i18n.t("ui.changelog")}</h3>
-          </div>
-          <div
-            id="changelog-list"
-            style="padding: 0 20px 20px 20px; border-top: 1px solid var(--border-lighter); overflow-y: auto; flex: 1; min-height: 0;"
-          >
-            {content}
-          </div>
-        </div>
-      </div>
+    const vdom = (
+      <button type="button" id="changelog-btn" className="text-btn" onclick={this.handleOpen.bind(this)}>
+        {i18n.t("ui.about")}
+      </button>
     );
 
+    const modalVdom = (
+      <modal-page
+        open={this.isModalOpen || null}
+        title={i18n.t("ui.about")}
+        onclose={this.handleClose.bind(this)}
+      >
+        <div className="about-content" style="padding: 0 0 10px 0; flex-shrink: 0;">
+          <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+            <a
+              href="https://github.com/jack9966qk/TJAAnalyzer/issues/new"
+              target="_blank"
+              rel="noopener"
+              className="about-item"
+              style="display: block; padding: 12px; background: var(--bg-panel-header); border-radius: 6px; color: var(--text-primary); text-decoration: none; border: 1px solid var(--border-light);"
+              onmouseenter={(e: MouseEvent) => {
+                (e.currentTarget as HTMLElement).style.backgroundColor = "var(--bg-hover)";
+              }}
+              onmouseleave={(e: MouseEvent) => {
+                (e.currentTarget as HTMLElement).style.backgroundColor = "var(--bg-panel-header)";
+              }}
+            >
+              <div style="font-weight: bold;">{i18n.t("ui.feedback")}</div>
+              <div style="font-size: 0.85em; color: var(--text-secondary); margin-top: 4px;">GitHub Issues</div>
+            </a>
+            {versionInfo}
+            {eseInfo}
+            {pwaDebugInfo}
+          </div>
+
+          <h3 style="margin: 0 0 5px 0; font-size: 1.1em; color: var(--text-primary);">{i18n.t("ui.changelog")}</h3>
+        </div>
+        <div
+          id="changelog-list"
+          style="padding: 0; border-top: 1px solid var(--border-lighter); overflow-y: auto; flex: 1; min-height: 0;"
+        >
+          {content}
+        </div>
+      </modal-page>
+    );
+
+    webjsx.applyDiff(this, vdom);
     webjsx.applyDiff(this.modalContainer, modalVdom);
   }
 }
