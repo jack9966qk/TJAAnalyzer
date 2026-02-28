@@ -1,5 +1,45 @@
 [
   {
+    "hash": "b29a0e6",
+    "message": "Update version to 0.10.4.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "eb5e5c6",
+    "message": "Slightly adjust radio and checkbox inputs style. Make the style consistent across the app.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "c623d3d",
+    "message": "Clear annotations when chart difficulty changes.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "1f2b91a",
+    "message": "Disable note selection highlighting in exported image when \"display only selected\" is on.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "36e03d5",
+    "message": "Update app font size spcification for more consistent result across platforms. Update chart options mode status label and hide it when the panel is expanded.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "2ca689e",
+    "message": "More adjustment to advanced search layout.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "e439dd7",
+    "message": "Add to renderer a way to attribute TJA file source. Use this for ESE charts in the app.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "075c1b7",
+    "message": "Remove unnecessary spacing below data source panel.",
+    "date": "2026-02-28"
+  },
+  {
     "hash": "9d9b2b2",
     "message": "Update version to 0.10.3.",
     "date": "2026-02-28"
@@ -458,45 +498,5 @@
     "hash": "12bc59b",
     "message": "Update version to 0.8.6.",
     "date": "2026-02-08"
-  },
-  {
-    "hash": "a9cb070",
-    "message": "Update dev server to use port 8082.",
-    "date": "2026-02-08"
-  },
-  {
-    "hash": "e4555c0",
-    "message": "Add basic branch stats display.",
-    "date": "2026-02-08"
-  },
-  {
-    "hash": "83bc5c6",
-    "message": "Delay the display of loading text until 1s since page load.",
-    "date": "2026-02-07"
-  },
-  {
-    "hash": "1229f89",
-    "message": "Use port 8081 for playwright tests to avoid conflict with dev/start.",
-    "date": "2026-02-07"
-  },
-  {
-    "hash": "06ecd58",
-    "message": "Use heroicon for the horizontal controls toggle.",
-    "date": "2026-02-07"
-  },
-  {
-    "hash": "2ca929a",
-    "message": "Update README.",
-    "date": "2026-02-07"
-  },
-  {
-    "hash": "266fc7c",
-    "message": "Reduce code duplication in renderer implementation.",
-    "date": "2026-02-07"
-  },
-  {
-    "hash": "e3b7c87",
-    "message": "Fix broken test cases.",
-    "date": "2026-02-07"
   }
 ]
