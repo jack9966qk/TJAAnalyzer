@@ -88,8 +88,8 @@ export const PALETTE = {
   notes: {
     don: "rgba(255, 77, 77, 1)",
     ka: "rgba(92, 187, 255, 1)",
-    drumroll: "#ff0",
-    balloon: "#ffa500",
+    drumroll: "#efc142",
+    balloon: "#ef8834",
     kusudama: "#ffd700",
     unjudged: "#999",
     border: {
@@ -100,11 +100,11 @@ export const PALETTE = {
     },
   },
   courses: {
-    easy: "#ffa500",
-    normal: "#00aa00",
-    hard: "#555",
-    oni: "#c6006e",
-    edit: "#800080",
+    easy: "#ce4020",
+    normal: "#8ba738",
+    hard: "#4680a7",
+    oni: "#af3488",
+    edit: "#6146d8",
   },
   judgements: {
     perfect: "#ffa500",
