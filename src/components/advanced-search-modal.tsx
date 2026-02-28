@@ -431,9 +431,9 @@ export class AdvancedSearchModal extends HTMLElement {
     const noteCountLabel = i18n.t("ui.advSearch.noteCount");
 
     const inputStyle =
-      "flex: 1; padding: 5px 8px; font-size: 14px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-input); color: var(--text-primary); box-sizing: border-box;";
+      "width: 100%; padding: 5px 8px; font-size: 14px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-input); color: var(--text-primary); box-sizing: border-box;";
     const numberInputStyle = `${inputStyle} max-width: 80px;`;
-    const rangeStyle = "display: flex; align-items: center; gap: 6px; flex: 1;";
+    const rangeStyle = "display: flex; align-items: center; gap: 6px;";
 
     const modalVdom = (
       <modal-page
@@ -490,12 +490,12 @@ export class AdvancedSearchModal extends HTMLElement {
             />
           </div>
 
-          {/* Difficulty & Stars Row */}
-          <div className="adv-search-field">
-            <span className="adv-search-label">{i18n.t("ui.advSearch.difficulty")}</span>
-            <div style="display: flex; align-items: center; gap: 8px; flex: 1; flex-wrap: wrap;">
+          {/* Difficulty & Stars (paired) */}
+          <div className="adv-search-pair">
+            <div className="adv-search-field">
+              <span className="adv-search-label">{i18n.t("ui.advSearch.difficulty")}</span>
               <select
-                style={`${inputStyle} min-width: 100px;`}
+                style={inputStyle}
                 value={c.difficulty || "any"}
                 onchange={(e: Event) => this.updateField("difficulty", (e.target as HTMLSelectElement).value)}
               >
@@ -505,10 +505,12 @@ export class AdvancedSearchModal extends HTMLElement {
                   </option>
                 ))}
               </select>
-              <span style="font-size: 14px; color: var(--text-secondary); flex-shrink: 0;">{starsLabel}</span>
+            </div>
+            <div className="adv-search-field">
+              <span className="adv-search-label">{starsLabel}</span>
               <input
                 type="number"
-                style={numberInputStyle}
+                style={inputStyle}
                 value={c.stars != null ? String(c.stars) : ""}
                 min="1"
                 max="10"
@@ -542,13 +544,13 @@ export class AdvancedSearchModal extends HTMLElement {
             </select>
           </div>
 
-          {/* BPM Row */}
-          <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;">
-            <div className="adv-search-field" style="margin-bottom: 0; flex: 1 1 220px;">
+          {/* BPM (paired) */}
+          <div className="adv-search-pair">
+            <div className="adv-search-field">
               <span className="adv-search-label">{i18n.t("ui.advSearch.bpmMin")}</span>
               <input
                 type="number"
-                style={`${inputStyle} min-width: 60px;`}
+                style={inputStyle}
                 value={c.bpmMin != null ? String(c.bpmMin) : ""}
                 min="1"
                 placeholder=""
@@ -558,11 +560,11 @@ export class AdvancedSearchModal extends HTMLElement {
                 }}
               />
             </div>
-            <div className="adv-search-field" style="margin-bottom: 0; flex: 1 1 220px;">
+            <div className="adv-search-field">
               <span className="adv-search-label">{i18n.t("ui.advSearch.bpmMax")}</span>
               <input
                 type="number"
-                style={`${inputStyle} min-width: 60px;`}
+                style={inputStyle}
                 value={c.bpmMax != null ? String(c.bpmMax) : ""}
                 min="1"
                 placeholder=""

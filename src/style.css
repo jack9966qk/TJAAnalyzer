@@ -825,6 +825,8 @@ modal-page[open] {
 .modal-scroll-area {
   padding: 20px;
   overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
   flex: 1;
   min-height: 0;
 }
@@ -1350,29 +1352,44 @@ h1 {
 
 /* Advanced Search form fields */
 .adv-search-field {
-  display: flex;
+  display: grid;
+  grid-template-columns: 120px 1fr;
   align-items: center;
   gap: 8px;
   margin-bottom: 12px;
 }
 
-.adv-search-label {
-  min-width: 120px;
-  font-size: 14px;
-  color: var(--text-secondary);
-  flex-shrink: 0;
+.adv-search-field > input,
+.adv-search-field > select,
+.adv-search-field > div {
+  min-width: 0;
 }
 
-@media (max-width: 440px) {
-  .adv-search-field {
-    flex-direction: column;
-    align-items: stretch;
-  }
+.adv-search-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
 
-  .adv-search-label {
-    min-width: unset;
-    width: 100%;
-  }
+/* Paired row: two equal-width fields side by side, collapse on narrow widths */
+.adv-search-pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.adv-search-pair .adv-search-field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  margin-bottom: 0;
+}
+
+.adv-search-pair .adv-search-field > input,
+.adv-search-pair .adv-search-field > select {
+  width: 100%;
+  min-width: 0;
 }
 
 /* Advanced Search */
