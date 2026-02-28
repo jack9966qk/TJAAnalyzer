@@ -1025,7 +1025,7 @@ export function createLayout(
 
   let totalHeight = layoutHeight;
   if (options.showAttribution) {
-    totalHeight += constants.statusFontSize * 1.5; // Add some space for attribution
+    totalHeight += constants.statusFontSize * (options.tjaSourceName ? 2.7 : 1.5); // Add some space for attribution
   }
 
   const longNoteSegments = calculateLongNoteSegments(virtualBars, barFrames, constants);

@@ -277,6 +277,11 @@ export function refreshChart() {
 
     // Apply language overrides synchronously if possible
     if (appState.currentEsePath) {
+      finalViewOptions = {
+        ...finalViewOptions,
+        tjaSourceName: "TJADB",
+      };
+
       const mapping = getCachedSongMapping();
       if (mapping) {
         const mappingEntry = Object.values(mapping).find((entry) => entry.esePath === appState.currentEsePath);

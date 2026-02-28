@@ -308,6 +308,7 @@ export interface ViewOptions {
     start: NoteLocation;
     end: NoteLocation;
   };
+  tjaSourceName?: string;
 }
 
 export interface RenderTexts {

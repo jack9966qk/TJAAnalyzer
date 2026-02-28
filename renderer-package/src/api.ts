@@ -34,10 +34,16 @@ export interface RenderOptions {
   dpr?: number;
 
   /**
-   * Whether to display the renderer software attribution text at the bottom.
+   * Whether to display the TJA and renderer software attribution text at the bottom.
    * Default: true
    */
   showAttribution?: boolean;
+
+  /**
+   * Optional source of the TJA file (e.g. "TJADB", "Local").
+   * Displayed in the attribution text if showAttribution is true.
+   */
+  tjaSourceName?: string;
 
   /**
    * Optional partial overrides for the layout ratios.
@@ -96,6 +102,7 @@ export function renderTJAString(tjaContent: string, canvas: HTMLCanvasElement, o
     beatsPerLine: options.beatsPerLine ?? DEFAULT_VIEW_OPTIONS.beatsPerLine,
     showAllBranches: options.showAllBranches ?? false,
     showAttribution: options.showAttribution ?? true,
+    tjaSourceName: options.tjaSourceName,
   };
 
   renderChart(chart, canvas, new JudgementMap(), viewOptions, undefined, options.dpr, options.layoutRatios);

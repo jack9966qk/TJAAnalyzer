@@ -2088,11 +2088,13 @@ export function renderLayout(
     canvasContext.textAlign = "right";
     canvasContext.textBaseline = "bottom";
     const effectivePaddingX = insets?.left ?? INSETS.left;
-    canvasContext.fillText(
-      "TJA renderer by Jack",
-      logicalCanvasWidth - effectivePaddingX,
-      totalHeight - fontSize * 0.8,
-    );
+    const x = logicalCanvasWidth - effectivePaddingX;
+    if (options.tjaSourceName) {
+      canvasContext.fillText(`TJA source: ${options.tjaSourceName}`, x, totalHeight - fontSize * 0.8 - fontSize * 1.2);
+      canvasContext.fillText("TJA renderer by Jack", x, totalHeight - fontSize * 0.8);
+    } else {
+      canvasContext.fillText("TJA renderer by Jack", x, totalHeight - fontSize * 0.8);
+    }
     canvasContext.restore();
   }
 
