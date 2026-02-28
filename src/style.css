@@ -31,6 +31,9 @@
   --status-success-bg: #e8f5e9;
   --status-success-text: #33691e;
 
+  --status-mode-bg: #e3f2fd;
+  --status-mode-text: #1565c0;
+
   --stat-box-bg: #37474f;
   --stat-box-text: #eceff1;
   --stat-label: #b0bec5;
@@ -78,6 +81,9 @@
     --status-success-bg: #1b3320;
     --status-success-text: #81c784;
 
+    --status-mode-bg: #0d2d4a;
+    --status-mode-text: #90caf9;
+
     /* Keep stat box dark/same as it fits dark mode well */
     --stat-box-bg: #37474f;
     --stat-box-text: #eceff1;
@@ -109,6 +115,7 @@
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 1rem;
   margin: 0;
   padding: 0;
   background: var(--bg-body);
@@ -192,6 +199,18 @@ a:visited {
   border-radius: 4px;
 }
 
+#chart-mode-status {
+  margin-left: 10px;
+  font-size: 0.9em;
+  font-weight: 500;
+  color: var(--status-mode-text);
+  background: var(--status-mode-bg);
+  padding: 4px 8px;
+  border-radius: 4px;
+  opacity: 1;
+  transition: opacity var(--anim-duration-fast) ease-out;
+}
+
 .collapse-icon {
   width: 24px;
   height: 24px;
@@ -231,6 +250,10 @@ a:visited {
 
 .panel-body.collapsed .chart-options-footer {
   display: none;
+}
+
+#chart-options-panel:has(#options-body:not(.collapsed)) #chart-mode-status {
+  opacity: 0;
 }
 
 .panel-inner {
@@ -303,6 +326,8 @@ select {
   border-radius: 4px;
   background-color: var(--bg-input);
   color: var(--text-primary);
+  font-size: 1rem;
+  font-family: inherit;
 }
 
 button {
@@ -314,7 +339,8 @@ button {
   cursor: pointer;
   transition: background-color 0.2s;
   font-weight: 500;
-  font-size: 14px;
+  font-size: 0.875rem;
+  font-family: inherit;
 }
 
 button:hover {
@@ -1263,7 +1289,7 @@ h1 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: bold;
   color: #fff; /* Default text color */
   margin-right: 6px;
@@ -1366,7 +1392,7 @@ h1 {
 }
 
 .adv-search-label {
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--text-secondary);
 }
 
@@ -1433,7 +1459,7 @@ h1 {
   color: var(--text-primary);
   border-radius: 4px;
   font: inherit;
-  font-size: 14px;
+  font-size: 0.875rem;
   text-align: left;
   cursor: pointer;
   transition:
