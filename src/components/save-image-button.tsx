@@ -46,11 +46,17 @@ export class SaveImageButton extends HTMLElement {
     const vdom = (
       <action-button
         button-class="control-btn"
+        button-title={i18n.t("ui.exportImage")}
+        button-style="display: flex; align-items: center; justify-content: center; padding: 8px;"
         success-label={i18n.t("status.exportImageSuccess")}
         error-label={i18n.t("status.exportImageFailed")}
         action={() => this.handleClick()}
       >
-        <slot>{i18n.t("ui.exportImage")}</slot>
+        <img
+          src="assets/heroicons/optimized/24/outline/photo.svg"
+          alt={i18n.t("ui.exportImage")}
+          style="width: 20px; height: 20px; filter: brightness(0) invert(1);"
+        />
       </action-button>
     );
 

@@ -39,7 +39,10 @@ function init() {
   const container = document.getElementById("component-container");
   const width = params.get("width");
 
-  if (container && width) {
+  if (container && width === "auto") {
+    container.style.width = "fit-content";
+    container.style.maxWidth = "none";
+  } else if (container && width) {
     container.style.maxWidth = `${width}px`;
   }
 
@@ -53,11 +56,6 @@ function init() {
       // Most are self-contained or use global appState.
 
       container.appendChild(el);
-
-      // For Save Image Button, it needs text content usually
-      if (componentName === "save-image-button") {
-        el.innerText = "Save Image";
-      }
     } catch (e) {
       container.innerHTML = `<div style="color:red">Error creating component: ${e}</div>`;
     }

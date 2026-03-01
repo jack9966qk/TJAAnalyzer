@@ -5,6 +5,7 @@ export interface ActionButtonProps {
   "success-label"?: string;
   "error-label"?: string;
   "button-class"?: string;
+  "button-title"?: string;
   disabled?: boolean;
   action?: () => Promise<void>;
 }
@@ -14,6 +15,8 @@ export class ActionButton extends HTMLElement {
   successLabel = "Success";
   errorLabel = "Error";
   buttonClass = "";
+  buttonTitle = "";
+  buttonStyle = "";
   action?: () => Promise<void>;
 
   // State
@@ -27,7 +30,7 @@ export class ActionButton extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ["success-label", "error-label", "button-class", "disabled"];
+    return ["success-label", "error-label", "button-class", "button-title", "button-style", "disabled"];
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
@@ -39,6 +42,10 @@ export class ActionButton extends HTMLElement {
       this.errorLabel = newValue;
     } else if (name === "button-class") {
       this.buttonClass = newValue;
+    } else if (name === "button-title") {
+      this.buttonTitle = newValue;
+    } else if (name === "button-style") {
+      this.buttonStyle = newValue;
     } else if (name === "disabled") {
       this._disabled = newValue !== null;
     }
@@ -137,10 +144,11 @@ export class ActionButton extends HTMLElement {
     const style = `
       width: 100%;
       height: 100%;
-      transition: opacity 0.15s ease-out, background-color 0.15s; 
-      opacity: ${this.isFading ? "0" : "1"}; 
+      transition: opacity 0.15s ease-out, background-color 0.15s;
+      opacity: ${this.isFading ? "0" : "1"};
       cursor: ${this.status === "idle" && !this.disabled ? "pointer" : "default"};
       box-sizing: border-box; /* Important for width: 100% */
+      ${this.buttonStyle}
     `;
 
     const vdom = (
@@ -150,6 +158,7 @@ export class ActionButton extends HTMLElement {
           type="button"
           className={className}
           disabled={this.disabled || this.status !== "idle"}
+          title={this.buttonTitle || undefined}
           style={style}
           onclick={() => {
             if (this.action) {
@@ -157,7 +166,7 @@ export class ActionButton extends HTMLElement {
             }
           }}
         >
-          <span style={showSlot ? "" : "display: none;"}>
+          <span style={showSlot ? "display: contents;" : "display: none;"}>
             <slot></slot>
           </span>
           {!showSlot && message}

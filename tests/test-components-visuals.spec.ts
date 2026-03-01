@@ -160,9 +160,8 @@ test.describe("Web Components Visual Regression", () => {
   });
 
   test("Save Image Button", async ({ page }) => {
-    await page.goto("/component-test.html?component=save-image-button&width=200");
-    const component = page.locator("save-image-button");
-    const btn = component.locator("button"); // Playwright pierces Shadow DOM by default
+    await page.goto("/component-test.html?component=save-image-button&width=auto");
+    const btn = page.locator("save-image-button").locator("button");
     await expect(btn).toBeVisible();
     await expect(btn).toHaveScreenshot("save-image-button.png");
   });

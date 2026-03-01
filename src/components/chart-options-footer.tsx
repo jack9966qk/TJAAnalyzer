@@ -77,7 +77,7 @@ export class ChartOptionsFooter extends HTMLElement {
     const vdom = (
       <div style="display: contents;">
         <div style="display: flex; align-items: center;">
-          <save-image-button id="export-image-footer-btn">{i18n.t("ui.exportImage")}</save-image-button>
+          <save-image-button id="export-image-footer-btn"></save-image-button>
         </div>
 
         <div style="display: flex; align-items: center;">

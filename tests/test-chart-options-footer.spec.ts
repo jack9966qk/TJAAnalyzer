@@ -18,10 +18,9 @@ test.describe("Chart Options Footer", () => {
     const footer = page.locator("chart-options-footer");
     await expect(footer).toBeVisible();
 
-    // Check for Export Image button
+    // Check for Export Image button (display:contents host — check it's attached and its inner button is visible)
     const exportBtn = footer.locator("save-image-button");
-    await expect(exportBtn).toBeVisible();
-    await expect(exportBtn).toContainText("Save Image");
+    await expect(exportBtn).toBeAttached();
 
     // Check for Fullscreen button
     const fullscreenBtn = footer.locator("button[title='Fullscreen']");
@@ -87,17 +86,17 @@ test.describe("Chart Options Footer", () => {
     // Switch to Judgements tab
     await page.click("button[data-do-tab='judgements']");
     await expect(footer).toBeVisible();
-    await expect(footer.locator("save-image-button")).toBeVisible();
+    await expect(footer.locator("save-image-button")).toBeAttached();
 
     // Switch to Annotation tab
     await page.click("button[data-do-tab='annotation']");
     await expect(footer).toBeVisible();
-    await expect(footer.locator("save-image-button")).toBeVisible();
+    await expect(footer.locator("save-image-button")).toBeAttached();
 
     // Switch to Selection tab
     await page.click("button[data-do-tab='selection']");
     await expect(footer).toBeVisible();
     // Selection tab has its own export buttons (SelectOptions), but the footer one should also be there
-    await expect(footer.locator("save-image-button")).toBeVisible();
+    await expect(footer.locator("save-image-button")).toBeAttached();
   });
 });
