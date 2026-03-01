@@ -12,7 +12,12 @@ import {
 } from "./advanced-search-modal.js";
 import "./advanced-search-modal.js";
 import type { EseIndexEntry } from "../clients/ese-client.js";
-import { updateChartSelection, updatePageUrl, updateParsedCharts } from "../controllers/chart-controller.js";
+import {
+  saveUrlState,
+  updateChartSelection,
+  updatePageUrl,
+  updateParsedCharts,
+} from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import {
@@ -346,6 +351,7 @@ export class ChartListPanel extends HTMLElement {
     if (url.toString() !== window.location.href) {
       window.history.replaceState(null, "", url.toString());
     }
+    saveUrlState();
   }
 
   private loadSearchFromUrl() {

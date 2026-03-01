@@ -12,6 +12,43 @@ const { LocationMap, parseTJA } = Renderer.Private;
 type HitInfo = Renderer.Private.HitInfo;
 type RenderTexts = Renderer.Private.RenderTexts;
 
+const URL_STATE_KEY = "tja_analyzer_url_state";
+
+/**
+ * Persist the current URL query string to localStorage so it can be
+ * restored when the PWA is relaunched (iOS resets the URL on relaunch).
+ */
+export function saveUrlState() {
+  try {
+    const search = window.location.search;
+    if (search) {
+      localStorage.setItem(URL_STATE_KEY, search);
+    } else {
+      localStorage.removeItem(URL_STATE_KEY);
+    }
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+/**
+ * On startup, restore the saved URL query string if the current URL has none.
+ * This handles PWA relaunches where the URL is reset to the base path.
+ */
+export function restoreUrlState() {
+  if (window.location.search) return;
+  try {
+    const saved = localStorage.getItem(URL_STATE_KEY);
+    if (saved) {
+      const url = new URL(window.location.href);
+      url.search = saved;
+      window.history.replaceState(null, "", url.toString());
+    }
+  } catch {
+    // Ignore storage errors
+  }
+}
+
 /**
  * Updates the page URL to reflect the currently loaded ESE chart and difficulty.
  * Uses replaceState to avoid polluting the browser history.
@@ -53,6 +90,7 @@ export function updatePageUrl() {
   if (url.toString() !== window.location.href) {
     window.history.replaceState(null, "", url.toString());
   }
+  saveUrlState();
 }
 
 export function updateStatsComponent(hit: HitInfo | null) {

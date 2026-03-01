@@ -39,6 +39,7 @@ type RendererViewOptions = Renderer.Private.ViewOptions;
 
 import {
   refreshChart,
+  restoreUrlState,
   updateChartSelection,
   updateCollapseLoopState,
   updatePageUrl,
@@ -651,6 +652,7 @@ function initJudgementClient() {
 }
 
 function initLoad() {
+  restoreUrlState();
   updateStatus("status.ready");
   updateUIText(); // Initialize text
 
