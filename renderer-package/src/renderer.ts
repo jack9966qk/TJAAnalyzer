@@ -1434,6 +1434,7 @@ function drawDrumrollSegment(
   viewMode: "original" | "judgements" | "judgements-underline" | "judgements-text",
   _type: string,
   isSelected: boolean = false,
+  isHovered: boolean = false,
   drawLeftExt: boolean = false,
   drawRightExt: boolean = false,
   overExtendWidth: number = 0,
@@ -1445,6 +1446,10 @@ function drawDrumrollSegment(
   if (viewMode === "judgements") {
     fillColor = PALETTE.notes.unjudged;
     innerBorderColor = PALETTE.notes.border.grey;
+  }
+
+  if (!isSelected && isHovered) {
+    innerBorderColor = PALETTE.notes.border.yellow;
   }
 
   // Handle Selection
@@ -1513,6 +1518,7 @@ function drawBalloonSegment(
   count: number,
   isKusudama: boolean,
   isSelected: boolean = false,
+  isHovered: boolean = false,
   drawLeftExt: boolean = false,
   drawRightExt: boolean = false,
   overExtendWidth: number = 0,
@@ -1524,6 +1530,10 @@ function drawBalloonSegment(
   if (viewMode === "judgements") {
     fillColor = PALETTE.notes.unjudged;
     innerBorderColor = PALETTE.notes.border.grey;
+  }
+
+  if (!isSelected && isHovered) {
+    innerBorderColor = PALETTE.notes.border.yellow;
   }
 
   // Handle Selection
@@ -1613,6 +1623,8 @@ function drawLongNotes(
   selection: ViewOptions["selection"] | undefined,
   dirtyRowY?: Set<number>,
   dpr: number = 1,
+  hoveredNote?: ViewOptions["hoveredNote"],
+  branch?: BranchName,
 ): void {
   const {
     noteRadiusSmall: rSmall,
@@ -1690,6 +1702,12 @@ function drawLongNotes(
             selection || null,
           );
 
+          const isHovered =
+            !!hoveredNote &&
+            hoveredNote.barIndex === currentLongNote.originalBarIdx &&
+            hoveredNote.charIndex === currentLongNote.originalNoteIdx &&
+            hoveredNote.branch === branch;
+
           if (isDirty) {
             if (currentLongNote.type === NoteType.Balloon || currentLongNote.type === NoteType.Kusudama) {
               // Balloon
@@ -1713,6 +1731,7 @@ function drawLongNotes(
                 count,
                 currentLongNote.type === NoteType.Kusudama,
                 isSelected,
+                isHovered,
                 !hasStartCap && drawLeftExt,
                 !hasEndCap && drawRightExt,
                 overExtendWidth,
@@ -1733,6 +1752,7 @@ function drawLongNotes(
                 viewMode,
                 currentLongNote.type,
                 isSelected,
+                isHovered,
                 !hasStartCap && drawLeftExt,
                 !hasEndCap && drawRightExt,
                 overExtendWidth,
@@ -1765,6 +1785,12 @@ function drawLongNotes(
         selection || null,
       );
 
+      const isHovered =
+        !!hoveredNote &&
+        hoveredNote.barIndex === currentLongNote.originalBarIdx &&
+        hoveredNote.charIndex === currentLongNote.originalNoteIdx &&
+        hoveredNote.branch === branch;
+
       if (isDirty) {
         if (currentLongNote.type === NoteType.Balloon || currentLongNote.type === NoteType.Kusudama) {
           const balloonIdx = balloonIndices.get({
@@ -1787,6 +1813,7 @@ function drawLongNotes(
             count,
             currentLongNote.type === NoteType.Kusudama,
             isSelected,
+            isHovered,
             !hasStartCap && drawLeftExt,
             !hasEndCap && drawRightExt,
             overExtendWidth,
@@ -1806,6 +1833,7 @@ function drawLongNotes(
             viewMode,
             currentLongNote.type,
             isSelected,
+            isHovered,
             !hasStartCap && drawLeftExt,
             !hasEndCap && drawRightExt,
             overExtendWidth,
@@ -1871,6 +1899,8 @@ function drawAllBranchesNotes(
       null,
       dirtyRowY,
       dpr,
+      options.hoveredNote,
+      b.type,
     );
 
     for (let index = branchVirtualBars.length - 1; index >= 0; index--) {
@@ -2060,6 +2090,8 @@ export function renderLayout(
       options.selection,
       dirtyRowY,
       effectiveDpr,
+      options.hoveredNote,
+      chart.branchType,
     );
 
     // Layer 2: Notes
