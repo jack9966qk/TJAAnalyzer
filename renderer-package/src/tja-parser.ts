@@ -80,6 +80,11 @@ export interface ParsedChart {
   branches?: {
     [key in BranchName]?: ParsedChart;
   };
+
+  // Player sides (for STYLE:Double)
+  playerSides?: {
+    [key: string]: ParsedChart;
+  };
 }
 
 interface ParserState {
@@ -146,8 +151,10 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
   const courseHeaders: Record<string, Record<string, string>> = {};
 
   let currentCourse: string | null = null;
+  let currentPlayerSide: string | null = null;
   let isParsingChart: boolean = false;
   const globalHeader: Record<string, string> = {};
+  const courseStyleMap: Record<string, number> = {};
 
   // First pass: extract raw chart data for each course and headers
   for (let line of lines) {
@@ -156,14 +163,35 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
 
     if (line.startsWith("COURSE:")) {
       currentCourse = line.substring(7).trim();
-      courses[currentCourse.toLowerCase()] = [];
-      courseHeaders[currentCourse.toLowerCase()] = {};
+      const courseKey = currentCourse.toLowerCase();
+      if (!courses[courseKey]) {
+        courses[courseKey] = [];
+        courseHeaders[courseKey] = {};
+      }
       isParsingChart = false;
+      currentPlayerSide = null;
     } else if (line.startsWith("#START")) {
       isParsingChart = true;
+      // Check for player-side suffix (e.g., #START P1, #START P2)
+      const suffix = line.substring(6).trim().toUpperCase();
+      if (suffix && currentCourse) {
+        currentPlayerSide = suffix.toLowerCase();
+        const courseKey = currentCourse.toLowerCase();
+        const sideKey = `${courseKey}__${currentPlayerSide}`;
+        if (!courses[sideKey]) {
+          courses[sideKey] = [];
+          courseHeaders[sideKey] = { ...courseHeaders[courseKey], COURSE: currentCourse };
+        }
+      } else {
+        currentPlayerSide = null;
+      }
     } else if (line.startsWith("#END")) {
       isParsingChart = false;
-      currentCourse = null;
+      // Keep currentCourse if we were in a player-side block (P2 follows P1 under the same course)
+      if (!currentPlayerSide) {
+        currentCourse = null;
+      }
+      currentPlayerSide = null;
     } else if (isParsingChart && currentCourse) {
       // Remove comments
       const commentIndex: number = line.indexOf("//");
@@ -172,7 +200,12 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
       }
 
       if (line) {
-        courses[currentCourse.toLowerCase()].push(line);
+        if (currentPlayerSide) {
+          const sideKey = `${currentCourse.toLowerCase()}__${currentPlayerSide}`;
+          courses[sideKey].push(line);
+        } else {
+          courses[currentCourse.toLowerCase()].push(line);
+        }
       }
     } else if (!isParsingChart) {
       // Header parsing
@@ -180,6 +213,19 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
       if (parts.length >= 2) {
         const key = parts[0].trim().toUpperCase();
         const val = parts.slice(1).join(":").trim(); // Handle colons in value
+
+        // Track STYLE header for player-side detection
+        if (key === "STYLE" && currentCourse) {
+          const styleVal = val.toLowerCase();
+          let styleNum = 1;
+          if (styleVal === "2" || styleVal === "double" || styleVal === "couple") {
+            styleNum = 2;
+          } else if (!Number.isNaN(parseInt(styleVal, 10))) {
+            styleNum = parseInt(styleVal, 10);
+          }
+          courseStyleMap[currentCourse.toLowerCase()] = styleNum;
+        }
+
         if (currentCourse) {
           courseHeaders[currentCourse.toLowerCase()][key] = val;
         } else {
@@ -497,6 +543,51 @@ export function parseTJA(content: string): Record<string, ParsedChart> {
 
       parsedCourses[courseName] = normalChart;
     }
+  }
+
+  // Assemble player-side charts: merge __p1/__p2 keys into their base course
+  const sideKeyPattern = /^(.+)__([a-z0-9]+)$/;
+  const baseCoursesSeen = new Set<string>();
+  const sideKeysToRemove: string[] = [];
+
+  for (const key of Object.keys(parsedCourses)) {
+    const match = key.match(sideKeyPattern);
+    if (match) {
+      const baseCourse = match[1];
+      baseCoursesSeen.add(baseCourse);
+      sideKeysToRemove.push(key);
+    }
+  }
+
+  for (const baseCourse of baseCoursesSeen) {
+    const sides: Record<string, ParsedChart> = {};
+
+    // If the base course has its own chart data (single-player version), include it as "single"
+    const existingBase = parsedCourses[baseCourse];
+    if (existingBase && existingBase.bars.length > 0) {
+      sides.single = existingBase;
+    }
+
+    for (const key of Object.keys(parsedCourses)) {
+      const match = key.match(sideKeyPattern);
+      if (match && match[1] === baseCourse) {
+        sides[match[2]] = parsedCourses[key];
+      }
+    }
+
+    const sideNames = Object.keys(sides).sort();
+    if (sideNames.length > 0) {
+      // Default to "single" if it exists, otherwise first side (p1)
+      const defaultSide = sides.single || sides[sideNames[0]];
+      parsedCourses[baseCourse] = {
+        ...defaultSide,
+        playerSides: sides,
+      };
+    }
+  }
+
+  for (const key of sideKeysToRemove) {
+    delete parsedCourses[key];
   }
 
   return parsedCourses;

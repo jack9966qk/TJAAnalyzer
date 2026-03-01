@@ -39,10 +39,11 @@ type RendererViewOptions = Renderer.Private.ViewOptions;
 
 import {
   refreshChart,
-  updateBranchSelectorState,
+  updateChartSelection,
   updateCollapseLoopState,
   updatePageUrl,
   updateParsedCharts,
+  updatePlayerSideOptions,
   updateSelectionUI,
   updateStatsComponent,
 } from "./controllers/chart-controller.js";
@@ -538,12 +539,17 @@ function initEventListeners() {
   });
 
   courseBranchSelect.addEventListener("difficulty-change", () => {
-    updateBranchSelectorState(true);
+    updatePlayerSideOptions();
+    updateChartSelection(true);
     updatePageUrl();
   });
 
   courseBranchSelect.addEventListener("branch-change", () => {
-    updateBranchSelectorState(false);
+    updateChartSelection(false);
+  });
+
+  courseBranchSelect.addEventListener("player-side-change", () => {
+    updateChartSelection(true);
   });
 
   // ESE Share Button handled by ChartListPanel

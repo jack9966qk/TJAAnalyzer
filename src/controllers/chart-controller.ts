@@ -64,7 +64,20 @@ export function clearJudgements() {
   updateStatsComponent(appState.selectedNoteHitInfo);
 }
 
-export function updateBranchSelectorState(resetBranch: boolean = false) {
+export function updatePlayerSideOptions() {
+  if (!appState.parsedTJACharts) return;
+
+  const selectedDiff = courseBranchSelect.difficulty;
+  const rootChart = appState.parsedTJACharts[selectedDiff];
+
+  if (rootChart?.playerSides) {
+    courseBranchSelect.setPlayerSideOptions(Object.keys(rootChart.playerSides));
+  } else {
+    courseBranchSelect.clearPlayerSideOptions();
+  }
+}
+
+export function updateChartSelection(resetBranch: boolean = false) {
   clearJudgements();
   if (resetBranch) {
     appState.annotations = new LocationMap();
@@ -72,9 +85,15 @@ export function updateBranchSelectorState(resetBranch: boolean = false) {
   if (!appState.parsedTJACharts) return;
 
   const selectedDiff = courseBranchSelect.difficulty;
-  const rootChart = appState.parsedTJACharts[selectedDiff];
+  let rootChart = appState.parsedTJACharts[selectedDiff];
 
   if (!rootChart) return;
+
+  // Resolve player side
+  if (rootChart.playerSides) {
+    const side = courseBranchSelect.playerSide;
+    rootChart = rootChart.playerSides[side] || rootChart;
+  }
 
   if (rootChart.branches) {
     courseBranchSelect.setBranchVisibility(true);
@@ -137,6 +156,7 @@ export function updateParsedCharts(content: string, fromStream = false) {
   appState.annotations = new LocationMap();
 
   courseBranchSelect.clearDifficultyOptions();
+  courseBranchSelect.clearPlayerSideOptions();
 
   const difficulties = Object.keys(appState.parsedTJACharts);
 
@@ -152,7 +172,8 @@ export function updateParsedCharts(content: string, fromStream = false) {
   if (!appState.parsedTJACharts[defaultDifficulty]) defaultDifficulty = difficulties[0];
 
   courseBranchSelect.difficulty = defaultDifficulty;
-  updateBranchSelectorState(true);
+  updatePlayerSideOptions();
+  updateChartSelection(true);
 
   if (appState.activeDataSourceMode === "stream") {
     courseBranchSelect.hide();
@@ -234,7 +255,11 @@ export function refreshChart() {
     const isJudgementMode = appState.viewOptions.viewMode.startsWith("judgements");
     // Check if branching UI is active/visible as a proxy for "chart has branching"
     const selectedDiff = courseBranchSelect.difficulty;
-    const rootChart = appState.parsedTJACharts?.[selectedDiff];
+    let rootChart = appState.parsedTJACharts?.[selectedDiff];
+    if (rootChart?.playerSides) {
+      const side = courseBranchSelect.playerSide;
+      rootChart = rootChart.playerSides[side] || rootChart;
+    }
     const hasBranching = rootChart?.branches;
 
     if (isJudgementMode && hasBranching) {

@@ -83,6 +83,11 @@ const resources: Resources = {
     "branch.master": "Master Chart",
     "branch.all": "All Branches",
 
+    "ui.playerSide": "Player Side:",
+    "playerSide.single": "Single",
+    "playerSide.p1": "Player 1 / Left",
+    "playerSide.p2": "Player 2 / Right",
+
     "ui.tab.view": "View",
     "ui.tab.judgements": "Judgements",
     "ui.tab.select": "Select",
@@ -355,6 +360,11 @@ const resources: Resources = {
     "branch.master": "达人谱面",
     "branch.all": "全部分歧",
 
+    "ui.playerSide": "玩家侧：",
+    "playerSide.single": "单人",
+    "playerSide.p1": "1P / 左",
+    "playerSide.p2": "2P / 右",
+
     "ui.tab.view": "视图",
     "ui.tab.judgements": "判定",
     "ui.tab.select": "选择",
@@ -623,6 +633,11 @@ const resources: Resources = {
     "branch.expert": "玄人譜面",
     "branch.master": "達人譜面",
     "branch.all": "全分岐",
+
+    "ui.playerSide": "プレイヤー:",
+    "playerSide.single": "1人用",
+    "playerSide.p1": "1P / 左",
+    "playerSide.p2": "2P / 右",
 
     "ui.tab.view": "表示",
     "ui.tab.judgements": "判定",
