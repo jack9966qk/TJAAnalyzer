@@ -546,10 +546,10 @@ export class SettingsPanel extends HTMLElement {
 
     return (
       <div style="padding: 0;">
-        <h3 style="margin-top: 0;">{i18n.t("ui.playdata.unresolvable")}</h3>
-        <div style="margin-bottom: 15px; font-size: 14px; color: var(--text-secondary);">
+        <h3>{i18n.t("ui.playdata.unresolvable")}</h3>
+        <p className="section-description">
           The following entries could not be imported because their Song ID was not found in the database.
-        </div>
+        </p>
 
         {sortedGroups.length > 0 ? (
           <div style="margin-bottom: 20px;">
@@ -710,10 +710,8 @@ export class SettingsPanel extends HTMLElement {
 
     const playdataSection = (
       <div style="margin-top: 20px;">
-        <h3 style="margin: 0 0 12px 0; font-size: 16px;">{i18n.t("ui.playdata.title")}</h3>
-        <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
-          {i18n.t("ui.playdata.instructions")}
-        </div>
+        <h3>{i18n.t("ui.playdata.title")}</h3>
+        <p className="section-description">{i18n.t("ui.playdata.instructions")}</p>
         <ol style="font-size: 14px; margin: 0 0 12px 0; padding-left: 20px; line-height: 1.8;">
           <li>{i18n.t("ui.playdata.step1")}</li>
           <li>{i18n.t("ui.playdata.step2")}</li>
@@ -780,10 +778,8 @@ export class SettingsPanel extends HTMLElement {
 
     const viewDefaultsSection = (
       <div>
-        <h3 style="margin: 0 0 12px 0; font-size: 16px;">{i18n.t("ui.viewDefaults.title")}</h3>
-        <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
-          {i18n.t("ui.viewDefaults.desc")}
-        </div>
+        <h3>{i18n.t("ui.viewDefaults.title")}</h3>
+        <p className="section-description">{i18n.t("ui.viewDefaults.desc")}</p>
 
         {this.defaultViewOptions ? (
           <div style="margin-bottom: 12px; padding: 12px; background: var(--bg-panel); border-radius: 6px; border: 1px solid var(--border-light); font-size: 14px;">
@@ -833,10 +829,8 @@ export class SettingsPanel extends HTMLElement {
     // Auto-Annotate Section
     const autoAnnotateSection = (
       <div style="margin-top: 20px;">
-        <h3 style="margin: 0 0 12px 0; font-size: 16px;">{i18n.t("ui.autoAnnotate.title")}</h3>
-        <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
-          {i18n.t("ui.autoAnnotate.desc")}
-        </div>
+        <h3>{i18n.t("ui.autoAnnotate.title")}</h3>
+        <p className="section-description">{i18n.t("ui.autoAnnotate.desc")}</p>
         <div
           className="about-item"
           style="padding: 12px; background: var(--bg-panel-header); border-radius: 6px; border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;"
@@ -856,10 +850,8 @@ export class SettingsPanel extends HTMLElement {
     // Chart List Display Section
     const chartListSection = (
       <div style="margin-top: 20px;">
-        <h3 style="margin: 0 0 12px 0; font-size: 16px;">{i18n.t("ui.chartList.title")}</h3>
-        <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
-          {i18n.t("ui.chartList.showFullPathDesc")}
-        </div>
+        <h3>{i18n.t("ui.chartList.title")}</h3>
+        <p className="section-description">{i18n.t("ui.chartList.showFullPathDesc")}</p>
         <div
           className="about-item"
           style="padding: 12px; background: var(--bg-panel-header); border-radius: 6px; border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;"

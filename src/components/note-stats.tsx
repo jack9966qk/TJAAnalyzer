@@ -2,8 +2,7 @@ import * as Renderer from "tja-renderer";
 import * as webjsx from "webjsx";
 import { i18n } from "../utils/i18n.js";
 
-const { getGradientColor, JUDGEABLE_NOTES, JudgementMap, JudgementType, NoteType, PALETTE, RENDERABLE_NOTES } =
-  Renderer.Private;
+const { getGradientColor, JUDGEABLE_NOTES, JudgementMap, JudgementType, PALETTE, RENDERABLE_NOTES } = Renderer.Private;
 
 type HitInfo = Renderer.Private.HitInfo;
 type JudgementMap<T> = Renderer.Private.JudgementMap<T>;
@@ -61,20 +60,6 @@ export class NoteStatsDisplay extends HTMLElement {
     return val % 1 === 0 ? val.toFixed(1) : val.toFixed(2);
   }
 
-  private getNoteName(char: string): string {
-    const map: Record<string, string> = {
-      [NoteType.Don]: "don",
-      [NoteType.Ka]: "ka",
-      [NoteType.DonBig]: "DON",
-      [NoteType.KaBig]: "KA",
-      [NoteType.Drumroll]: "roll",
-      [NoteType.DrumrollBig]: "ROLL",
-      [NoteType.Balloon]: "balloon",
-      [NoteType.Kusudama]: "Kusudama",
-    };
-    return map[char] || "unknown";
-  }
-
   private formatGap(gap: number): string {
     const commonDenominators = [4, 8, 12, 16, 24, 32, 48, 64];
     for (const d of commonDenominators) {
@@ -93,7 +78,7 @@ export class NoteStatsDisplay extends HTMLElement {
     chart: Renderer.Private.ParsedChart,
     currentBarIdx: number,
     currentCharIdx: number,
-  ): string | null {
+  ): { formatted: string; raw: number } | null {
     const currentBar = chart.bars[currentBarIdx];
     const currentTotal = currentBar.length;
     // Get measure ratio, default to 1.0 if not present
@@ -103,8 +88,8 @@ export class NoteStatsDisplay extends HTMLElement {
       if (RENDERABLE_NOTES.includes(currentBar[i])) {
         const prevPos = i / currentTotal;
         const curPos = currentCharIdx / currentTotal;
-        const diff = curPos - prevPos;
-        return this.formatGap(diff * currentRatio);
+        const raw = (curPos - prevPos) * currentRatio;
+        return { formatted: this.formatGap(raw), raw };
       }
     }
 
@@ -129,7 +114,7 @@ export class NoteStatsDisplay extends HTMLElement {
           const totalGap = accumulatedGap + distInPrev * prevRatio;
 
           if (totalGap <= 1.0 + 0.0001) {
-            return this.formatGap(totalGap);
+            return { formatted: this.formatGap(totalGap), raw: totalGap };
           } else {
             return null;
           }
@@ -376,7 +361,14 @@ export class NoteStatsDisplay extends HTMLElement {
     let gap = def;
     if (hit && targetChart) {
       const g = this.getGapInfo(targetChart, hit.originalBarIndex, hit.charIndex);
-      if (g) gap = g;
+      if (g) {
+        if (hit.bpm > 0) {
+          const seconds = (g.raw * (240 / hit.bpm)).toFixed(3);
+          gap = `${g.formatted} (${seconds}s)`;
+        } else {
+          gap = g.formatted;
+        }
+      }
     }
 
     // Branch Stats Logic
@@ -446,6 +438,10 @@ export class NoteStatsDisplay extends HTMLElement {
                 min-width: 90px;
                 box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             }
+            .stat-box-wide {
+                flex-basis: 208px;
+                min-width: 208px;
+            }
             .stat-label {
                 font-size: 0.7em;
                 color: var(--stat-label, #b0bec5);
@@ -488,7 +484,7 @@ export class NoteStatsDisplay extends HTMLElement {
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-                min-height: 4.5em; 
+                min-height: 4.5em;
             }
             .branch-row {
                 display: flex;
@@ -507,8 +503,10 @@ export class NoteStatsDisplay extends HTMLElement {
             }
             `}</style>
         <div id="container">
-          {StatBox(i18n.t("stats.type"), hit ? this.getNoteName(hit.type) : def)}
-          {StatBox(i18n.t("stats.gap"), gap)}
+          <div className="stat-box stat-box-wide">
+            <div className="stat-label">{i18n.t("stats.gap")}</div>
+            <div className="stat-value">{gap}</div>
+          </div>
           {StatBox(i18n.t("stats.bpm"), hit ? this.formatBPM(hit.bpm) : def)}
           {StatBox(i18n.t("stats.hs"), hit ? this.formatHS(hit.scroll) : def)}
           {StatBox(i18n.t("stats.seenBpm"), hit ? this.formatBPM(hit.bpm * hit.scroll) : def)}

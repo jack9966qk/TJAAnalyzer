@@ -158,12 +158,7 @@ export class JudgementOptions extends HTMLElement {
       <div style="display: contents;">
         <div className="option-section">
           {/* Warning Message */}
-          <div
-            className="description-text"
-            style={`color: #666; font-style: italic; margin-bottom: 10px; display: ${isStreamActive ? "none" : "block"};`}
-          >
-            {i18n.t("ui.judgement.notActive")}
-          </div>
+          {!isStreamActive && <p style="font-style: italic;">{i18n.t("ui.judgement.notActive")}</p>}
 
           {/* Collapse Loops Checkbox */}
           <div

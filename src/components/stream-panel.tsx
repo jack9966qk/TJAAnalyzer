@@ -57,9 +57,7 @@ export class StreamPanel extends HTMLElement {
     const vdom = (
       <div>
         <div className="option-section">
-          <h4 data-i18n="ui.stream.remote" style="margin: 0 0 10px 0; font-size: 1em;">
-            {i18n.t("ui.stream.remote")}
-          </h4>
+          <h4 data-i18n="ui.stream.remote">{i18n.t("ui.stream.remote")}</h4>
           <p data-i18n="ui.stream.desc" style="margin-bottom: 10px;">
             {/* Use HTML string injection safely if possible, but webjsx supports children */}
             Connect to an external program that broadcasts currently played chart and judgement events. For{" "}
@@ -69,25 +67,17 @@ export class StreamPanel extends HTMLElement {
             or above, turn on "Game Event Broadcasting" in settings.
           </p>
           <div className="control-group">
-            <label>
-              <span data-i18n="ui.stream.host">{i18n.t("ui.stream.host")}</span>
-              <input
-                type="text"
-                id="host-input"
-                value={this._host}
-                oninput={this.handleHostInput.bind(this)}
-                style="margin-left: 5px;"
-              />
+            <label className="sub-group">
+              <span className="sub-label" style="min-width: auto;" data-i18n="ui.stream.host">
+                {i18n.t("ui.stream.host")}
+              </span>
+              <input type="text" id="host-input" value={this._host} oninput={this.handleHostInput.bind(this)} />
             </label>
-            <label>
-              <span data-i18n="ui.stream.port">{i18n.t("ui.stream.port")}</span>
-              <input
-                type="number"
-                id="port-input"
-                value={this._port}
-                oninput={this.handlePortInput.bind(this)}
-                style="margin-left: 5px;"
-              />
+            <label className="sub-group">
+              <span className="sub-label" style="min-width: auto;" data-i18n="ui.stream.port">
+                {i18n.t("ui.stream.port")}
+              </span>
+              <input type="number" id="port-input" value={this._port} oninput={this.handlePortInput.bind(this)} />
             </label>
             <button
               type="button"

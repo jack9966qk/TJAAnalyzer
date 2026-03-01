@@ -174,7 +174,9 @@ export class ViewOptions extends HTMLElement {
       testerStats = (
         <div className="option-section border-left">
           <div className="section-main" style="flex-direction: column; align-items: flex-start; gap: 2px;">
-            <div style="font-weight: bold; font-size: 0.8em; color: #666;">{i18n.t("ui.tab.tester")}</div>
+            <div style="font-weight: bold; font-size: 0.8em; color: var(--text-secondary);">
+              {i18n.t("ui.tab.tester")}
+            </div>
             <div style="font-size: 0.8em; font-family: monospace;">W: {width}px</div>
             <div style="font-size: 0.8em; font-family: monospace;">Bars: {barsPerRow.toFixed(2)}</div>
             <div style="font-size: 0.8em; font-family: monospace;">Note Ø: {noteDiameter.toFixed(1)}px</div>
@@ -191,7 +193,7 @@ export class ViewOptions extends HTMLElement {
         {/* Zoom Section */}
         <div className="option-section">
           <div className="section-main">
-            <span className="sub-label" style="min-width: auto; margin-right: 10px;">
+            <span className="sub-label" style="min-width: auto;">
               {i18n.t("ui.zoom")}
             </span>
             <div className="zoom-controls" style="display: flex; align-items: center; gap: 5px;">

@@ -85,7 +85,9 @@ export class AnnotateOptions extends HTMLElement {
             </div>
           </div>
         </div>
-        <p style="font-size: 0.9em; color: #666; margin-top: 5px; margin-bottom: 0;">{i18n.t("ui.annotation.desc")}</p>
+        <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 5px; margin-bottom: 0;">
+          {i18n.t("ui.annotation.desc")}
+        </p>
       </div>
     );
     webjsx.applyDiff(this, vdom);

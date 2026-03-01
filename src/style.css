@@ -141,8 +141,9 @@ h1 {
 }
 
 h4 {
-  color: var(--text-secondary);
-  margin: 10px 0;
+  color: var(--text-primary);
+  margin: 0 0 10px 0;
+  font-size: 1em;
 }
 
 a {
@@ -447,7 +448,26 @@ button:disabled {
 
 .sub-label {
   color: var(--text-tertiary);
+  font-weight: normal;
   min-width: 60px;
+}
+
+.option-section p {
+  margin: 0 0 10px 0;
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+.modal-scroll-area h3 {
+  margin: 0 0 12px 0;
+  font-size: 1.1em;
+  color: var(--text-primary);
+}
+
+.section-description {
+  font-size: 0.9em;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
 }
 
 /* Loop Controls */

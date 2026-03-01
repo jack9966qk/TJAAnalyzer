@@ -82,12 +82,8 @@ export class TesterPanel extends HTMLElement {
     const vdom = (
       <div>
         <div className="option-section">
-          <h4 data-i18n="ui.tab.example" style="margin: 0 0 10px 0; font-size: 1em;">
-            {i18n.t("ui.tab.example")}
-          </h4>
-          <p data-i18n="ui.example.desc" style="margin-bottom: 10px;">
-            {i18n.t("ui.example.desc")}
-          </p>
+          <h4 data-i18n="ui.tab.example">{i18n.t("ui.tab.example")}</h4>
+          <p data-i18n="ui.example.desc">{i18n.t("ui.example.desc")}</p>
           <button
             type="button"
             id="load-example-btn"
@@ -100,13 +96,12 @@ export class TesterPanel extends HTMLElement {
           </button>
         </div>
 
-        <div className="option-section" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
-          <h4 data-i18n="ui.stream.test" style="margin: 0 0 10px 0; font-size: 1em;">
-            {i18n.t("ui.stream.test")}
-          </h4>
-          <p data-i18n="ui.test.desc" style="margin-bottom: 10px;">
-            {i18n.t("ui.test.desc")}
-          </p>
+        <div
+          className="option-section"
+          style="margin-top: 20px; border-top: 1px solid var(--border-lighter); padding-top: 15px;"
+        >
+          <h4 data-i18n="ui.stream.test">{i18n.t("ui.stream.test")}</h4>
+          <p data-i18n="ui.test.desc">{i18n.t("ui.test.desc")}</p>
           <button
             type="button"
             id="test-stream-btn"

@@ -87,32 +87,36 @@ export class SelectOptions extends HTMLElement {
         ) : null}
 
         <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 15px;">
-          <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
-            <span style="font-size: 0.9em;">{i18n.t("ui.export.loops")}</span>
+          <label className="sub-group" style="white-space: nowrap;">
+            <span className="sub-label" style="min-width: auto;">
+              {i18n.t("ui.export.loops")}
+            </span>
             <input
               type="number"
               id="export-loop-count"
               value={this.exportLoopCount.toString()}
               min="1"
-              style="width: 50px; padding: 4px;"
+              style="width: 70px;"
               oninput={this.handleLoopChange.bind(this)}
             />
           </label>
-          <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
-            <span style="font-size: 0.9em;">{i18n.t("ui.export.gap")}</span>
+          <label className="sub-group" style="white-space: nowrap;">
+            <span className="sub-label" style="min-width: auto;">
+              {i18n.t("ui.export.gap")}
+            </span>
             <input
               type="number"
               id="export-gap-count"
               value={this.exportGapCount.toString()}
               min="0"
-              style="width: 50px; padding: 4px;"
+              style="width: 70px;"
               oninput={this.handleGapChange.bind(this)}
             />
           </label>
         </div>
 
         <label style="display: flex; flex-direction: column; width: 100%; gap: 5px;">
-          <span style="font-size: 0.9em;">{i18n.t("ui.export.chartName")}</span>
+          <span className="sub-label">{i18n.t("ui.export.chartName")}</span>
           <input
             type="text"
             id="export-chart-name"
