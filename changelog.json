@@ -1,5 +1,40 @@
 [
   {
+    "hash": "26c50c5",
+    "message": "Update version to 0.10.6.",
+    "date": "2026-03-02"
+  },
+  {
+    "hash": "55e9a55",
+    "message": "Attempt to preserve app state for the PWA version.",
+    "date": "2026-03-02"
+  },
+  {
+    "hash": "07b8824",
+    "message": "Update URL scheme to support search parameters. Use this to preserve search state by dynamically updating the current URL.",
+    "date": "2026-03-02"
+  },
+  {
+    "hash": "95e0489",
+    "message": "Add a subheading and divider for the selection export section.",
+    "date": "2026-03-02"
+  },
+  {
+    "hash": "e250aaa",
+    "message": "Improve styling consistency of text input elements. Make sure it has enough font size to avoid zooming on tap on iOS.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "f805ddc",
+    "message": "Support selection of charts with different player sides by extending the parser and app UI.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "dc96ca3",
+    "message": "Slight adjustment to wiki hyperlink style on hover.",
+    "date": "2026-03-01"
+  },
+  {
     "hash": "8dd89a5",
     "message": "Update version to 0.10.5.",
     "date": "2026-03-01"
@@ -463,40 +498,5 @@
     "hash": "be8028c",
     "message": "Update playdata importer to allow users to manually address some unmatched entires where a fuzzy match is available.",
     "date": "2026-02-10"
-  },
-  {
-    "hash": "d4ea942",
-    "message": "Update README with a high level version history.",
-    "date": "2026-02-09"
-  },
-  {
-    "hash": "0802f36",
-    "message": "Update version as 0.9.1.",
-    "date": "2026-02-09"
-  },
-  {
-    "hash": "ad7844b",
-    "message": "Display chart list items with titles instead of full path where appropriate. Add a button to export play data as JSON.",
-    "date": "2026-02-09"
-  },
-  {
-    "hash": "7ac0253",
-    "message": "Unify the behavior of button click feedback by adding a reusable component.",
-    "date": "2026-02-09"
-  },
-  {
-    "hash": "9e3e4d2",
-    "message": "Move dev mode toggle to the end of settings page.",
-    "date": "2026-02-08"
-  },
-  {
-    "hash": "cb37a9a",
-    "message": "Display a strip among chart list items to indicate playdata status.",
-    "date": "2026-02-08"
-  },
-  {
-    "hash": "4020ad5",
-    "message": "Update page URL when rendered ESE chart changes.",
-    "date": "2026-02-08"
   }
 ]
