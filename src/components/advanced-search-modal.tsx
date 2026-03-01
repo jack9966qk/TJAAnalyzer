@@ -430,11 +430,6 @@ export class AdvancedSearchModal extends HTMLElement {
     const starsLabel = i18n.t("ui.advSearch.stars");
     const noteCountLabel = i18n.t("ui.advSearch.noteCount");
 
-    const inputStyle =
-      "width: 100%; padding: 5px 8px; font-size: 14px; border: 1px solid var(--border-color); border-radius: 4px; background: var(--bg-input); color: var(--text-primary); box-sizing: border-box;";
-    const numberInputStyle = `${inputStyle} max-width: 80px;`;
-    const rangeStyle = "display: flex; align-items: center; gap: 6px;";
-
     const modalVdom = (
       <modal-page
         id="advanced-search-modal"
@@ -449,7 +444,6 @@ export class AdvancedSearchModal extends HTMLElement {
             <span className="adv-search-label">{i18n.t("ui.advSearch.titleFilter")}</span>
             <input
               type="text"
-              style={inputStyle}
               value={c.title || ""}
               placeholder={i18n.t("ui.advSearch.titlePlaceholder")}
               autoComplete="off"
@@ -465,7 +459,6 @@ export class AdvancedSearchModal extends HTMLElement {
             <span className="adv-search-label">{i18n.t("ui.advSearch.artist")}</span>
             <input
               type="text"
-              style={inputStyle}
               value={c.artist || ""}
               autoComplete="off"
               autoCorrect="off"
@@ -480,7 +473,6 @@ export class AdvancedSearchModal extends HTMLElement {
             <span className="adv-search-label">{i18n.t("ui.advSearch.subtitle")}</span>
             <input
               type="text"
-              style={inputStyle}
               value={c.subtitle || ""}
               autoComplete="off"
               autoCorrect="off"
@@ -495,7 +487,6 @@ export class AdvancedSearchModal extends HTMLElement {
             <div className="adv-search-field">
               <span className="adv-search-label">{i18n.t("ui.advSearch.difficulty")}</span>
               <select
-                style={inputStyle}
                 value={c.difficulty || "any"}
                 onchange={(e: Event) => this.updateField("difficulty", (e.target as HTMLSelectElement).value)}
               >
@@ -510,7 +501,6 @@ export class AdvancedSearchModal extends HTMLElement {
               <span className="adv-search-label">{starsLabel}</span>
               <input
                 type="number"
-                style={inputStyle}
                 value={c.stars != null ? String(c.stars) : ""}
                 min="1"
                 max="10"
@@ -527,7 +517,6 @@ export class AdvancedSearchModal extends HTMLElement {
           <div className="adv-search-field">
             <span className="adv-search-label">{i18n.t("ui.advSearch.dfcDifficulty")}</span>
             <select
-              style={inputStyle}
               value={c.dfcDifficulty || ""}
               onchange={(e: Event) =>
                 this.updateField("dfcDifficulty", (e.target as HTMLSelectElement).value || undefined)
@@ -550,7 +539,6 @@ export class AdvancedSearchModal extends HTMLElement {
               <span className="adv-search-label">{i18n.t("ui.advSearch.bpmMin")}</span>
               <input
                 type="number"
-                style={inputStyle}
                 value={c.bpmMin != null ? String(c.bpmMin) : ""}
                 min="1"
                 placeholder=""
@@ -564,7 +552,6 @@ export class AdvancedSearchModal extends HTMLElement {
               <span className="adv-search-label">{i18n.t("ui.advSearch.bpmMax")}</span>
               <input
                 type="number"
-                style={inputStyle}
                 value={c.bpmMax != null ? String(c.bpmMax) : ""}
                 min="1"
                 placeholder=""
@@ -579,10 +566,9 @@ export class AdvancedSearchModal extends HTMLElement {
           {/* Note Count */}
           <div className="adv-search-field">
             <span className="adv-search-label">{noteCountLabel}</span>
-            <div style={rangeStyle}>
+            <div className="adv-search-range">
               <input
                 type="number"
-                style={numberInputStyle}
                 value={c.noteCountMin != null ? String(c.noteCountMin) : ""}
                 min="0"
                 placeholder={i18n.t("ui.advSearch.min")}
@@ -594,7 +580,6 @@ export class AdvancedSearchModal extends HTMLElement {
               <span style="color: var(--text-secondary);">–</span>
               <input
                 type="number"
-                style={numberInputStyle}
                 value={c.noteCountMax != null ? String(c.noteCountMax) : ""}
                 min="0"
                 placeholder={i18n.t("ui.advSearch.max")}
@@ -611,7 +596,6 @@ export class AdvancedSearchModal extends HTMLElement {
             <div className="adv-search-field">
               <span className="adv-search-label">{i18n.t("ui.advSearch.platform")}</span>
               <select
-                style={inputStyle}
                 value={c.platform || ""}
                 onchange={(e: Event) =>
                   this.updateField("platform", (e.target as HTMLSelectElement).value || undefined)
@@ -632,7 +616,6 @@ export class AdvancedSearchModal extends HTMLElement {
             <div className="adv-search-field">
               <span className="adv-search-label">{i18n.t("ui.advSearch.region")}</span>
               <select
-                style={inputStyle}
                 value={c.region || ""}
                 onchange={(e: Event) => this.updateField("region", (e.target as HTMLSelectElement).value || undefined)}
               >
@@ -651,7 +634,6 @@ export class AdvancedSearchModal extends HTMLElement {
             <div className="adv-search-field">
               <span className="adv-search-label">{i18n.t("ui.advSearch.playdata")}</span>
               <select
-                style={inputStyle}
                 value={c.playdata || ""}
                 onchange={(e: Event) =>
                   this.updateField("playdata", (e.target as HTMLSelectElement).value || undefined)

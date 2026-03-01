@@ -525,7 +525,6 @@ export class ChartListPanel extends HTMLElement {
                 id="ese-search-input"
                 value={this._searchQuery}
                 placeholder={i18n.t("ui.ese.searchPlaceholder")}
-                style="flex: 1; box-sizing: border-box; padding: 5px; font-size: 16px; margin: 0;"
                 autoComplete="off"
                 autoCorrect="off"
                 autoCapitalize="off"
