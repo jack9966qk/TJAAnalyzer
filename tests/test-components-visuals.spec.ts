@@ -78,7 +78,7 @@ test.describe("Web Components Visual Regression", () => {
     const component = page.locator("select-options");
 
     await page.evaluate(() => {
-      // Mock branched chart
+      // Mock branched chart showing all branches
       // biome-ignore lint/suspicious/noExplicitAny: Mocking global objects
       (window as any).appState.currentChart = {
         branches: {
@@ -87,6 +87,8 @@ test.describe("Web Components Visual Regression", () => {
           master: {},
         },
       };
+      // biome-ignore lint/suspicious/noExplicitAny: Mocking global objects
+      (window as any).appState.viewOptions.showAllBranches = true;
 
       // Trigger render
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element

@@ -58,8 +58,6 @@ export class SelectOptions extends HTMLElement {
     const hasNeutralino = appState.isNeutralinoConnected;
     const hasWebFS = !!window.showDirectoryPicker;
     const canSelectDir = hasNeutralino || hasWebFS;
-    const hasBranching = !!appState.currentChart?.branches;
-
     const vdom = (
       <div className="control-group" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
         <div style="display: flex; width: 100%;">
@@ -74,7 +72,7 @@ export class SelectOptions extends HTMLElement {
           </button>
         </div>
 
-        {!hasBranching ? (
+        {!appState.viewOptions.showAllBranches ? (
           <label className="checkbox-label" style="width: 100%;">
             <input
               type="checkbox"

@@ -267,7 +267,7 @@ export function refreshChart() {
     appState.viewOptions.isAnnotationMode = mode === "annotation";
 
     let finalViewOptions = appState.viewOptions;
-    if (appState.displayOnlySelected && appState.viewOptions.selection && !hasBranching) {
+    if (appState.displayOnlySelected && appState.viewOptions.selection && !appState.viewOptions.showAllBranches) {
       finalViewOptions = {
         ...appState.viewOptions,
         range: {
