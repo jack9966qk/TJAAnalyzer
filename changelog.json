@@ -1,5 +1,55 @@
 [
   {
+    "hash": "8dd89a5",
+    "message": "Update version to 0.10.5.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "ebf40e7",
+    "message": "Update song_mapping.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "babc5a4",
+    "message": "Include Wiki URLs when processing external data. Add Wiki links to the app as a dropdown button.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "775b70f",
+    "message": "Replace text with icon for the export image button.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "aeb6710",
+    "message": "Support \"display only selected\" for branching charts when a single branch is selected.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "462dba0",
+    "message": "Update tests and snapshots for recent change.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "f48f599",
+    "message": "Further simplify the chart options status panel.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "a78f375",
+    "message": "Remove note type stat panel, extend the gap stat panel to include gap in seconds. Improve consistency of labels across the app.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "a36d801",
+    "message": "Basic support for rating.taiko.wiki playdata import.",
+    "date": "2026-03-01"
+  },
+  {
+    "hash": "7d830a9",
+    "message": "Update long notes rendering so that it has the same hover style as the other notes.",
+    "date": "2026-03-01"
+  },
+  {
     "hash": "b29a0e6",
     "message": "Update version to 0.10.4.",
     "date": "2026-03-01"
@@ -447,56 +497,6 @@
   {
     "hash": "4020ad5",
     "message": "Update page URL when rendered ESE chart changes.",
-    "date": "2026-02-08"
-  },
-  {
-    "hash": "2799339",
-    "message": "Allow saving default view options and triggerig auto annotation on chart load.",
-    "date": "2026-02-08"
-  },
-  {
-    "hash": "431778b",
-    "message": "Fix a few broken tests.",
-    "date": "2026-02-08"
-  },
-  {
-    "hash": "55261ea",
-    "message": "Update version to 0.9.0.",
-    "date": "2026-02-08"
-  },
-  {
-    "hash": "47b72ea",
-    "message": "Support searching by CN/KR title and by artist.",
-    "date": "2026-02-08"
-  },
-  {
-    "hash": "f5cd20a",
-    "message": "Update playdata import flow to work around iOS limitations. Make modal pages respect safe areas.",
-    "date": "2026-02-08"
-  },
-  {
-    "hash": "a6c40e6",
-    "message": "Support exporting playdata to taiko-rating-analyzer format.",
-    "date": "2026-02-08"
-  },
-  {
-    "hash": "adf183e",
-    "message": "Support parsing and importing of fumen-database playdata through a bookmarklet.",
-    "date": "2026-02-08"
-  },
-  {
-    "hash": "022db9f",
-    "message": "Create a local persistent user profile and use it to store tester mode status.",
-    "date": "2026-02-08"
-  },
-  {
-    "hash": "a1f7bdd",
-    "message": "Add a settings modal page, move the developer mode toggle there.",
-    "date": "2026-02-08"
-  },
-  {
-    "hash": "12bc59b",
-    "message": "Update version to 0.8.6.",
     "date": "2026-02-08"
   }
 ]
