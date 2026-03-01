@@ -201,7 +201,6 @@ a:visited {
 }
 
 #chart-mode-status {
-  margin-left: 10px;
   font-size: 0.9em;
   font-weight: 500;
   color: var(--status-mode-text);

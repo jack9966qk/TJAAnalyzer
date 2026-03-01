@@ -99,10 +99,10 @@ const resources: Resources = {
     "ui.difficulty.edit": "Oni (Ura)",
     "ui.difficulty.ura": "Ura",
 
-    "mode.view": "Mode: View",
-    "mode.judgements": "Mode: Judgements",
-    "mode.selection": "Mode: Selection",
-    "mode.annotation": "Mode: Annotation",
+    "mode.view": "View",
+    "mode.judgements": "Judgements",
+    "mode.selection": "Select",
+    "mode.annotation": "Annotate",
 
     "status.initializing": "Initializing...",
     "status.ready": "Ready",
@@ -370,10 +370,10 @@ const resources: Resources = {
     "ui.difficulty.edit": "魔王（里）",
     "ui.difficulty.ura": "里",
 
-    "mode.view": "模式：查看",
-    "mode.judgements": "模式：判定",
-    "mode.selection": "模式：选择",
-    "mode.annotation": "模式：标注",
+    "mode.view": "视图",
+    "mode.judgements": "判定",
+    "mode.selection": "选择",
+    "mode.annotation": "标注",
 
     "status.initializing": "初始化中...",
     "status.ready": "就绪",
@@ -639,10 +639,10 @@ const resources: Resources = {
     "ui.difficulty.edit": "おに（裏）",
     "ui.difficulty.ura": "裏",
 
-    "mode.view": "モード: 表示",
-    "mode.judgements": "モード: 判定",
-    "mode.selection": "モード: 選択",
-    "mode.annotation": "モード: 注釈",
+    "mode.view": "表示",
+    "mode.judgements": "判定",
+    "mode.selection": "選択",
+    "mode.annotation": "注釈",
 
     "status.initializing": "初期化中...",
     "status.ready": "準備完了",
