@@ -42,6 +42,27 @@ import {
   type SongMappingEntry,
 } from "../models/song-mapping.js";
 
+const SEARCH_PARAMS = [
+  "q",
+  "adv_diff",
+  "adv_title",
+  "adv_artist",
+  "adv_subtitle",
+  "adv_stars",
+  "adv_ncmin",
+  "adv_ncmax",
+  "adv_bpmmin",
+  "adv_bpmmax",
+  "adv_platform",
+  "adv_region",
+  "adv_playdata",
+  "adv_dfc",
+];
+
+function clearSearchParams(url: URL) {
+  for (const p of SEARCH_PARAMS) url.searchParams.delete(p);
+}
+
 export class ChartListPanel extends HTMLElement {
   private _searchQuery = "";
   private _displayResults: DisplayResult[] = [];
@@ -88,12 +109,14 @@ export class ChartListPanel extends HTMLElement {
       this._advancedCriteria = e.detail.criteria;
       this._isAdvancedSearchActive = hasAnyCriteria(this._advancedCriteria);
       this.filterResults();
+      this.updateSearchUrl();
       this.render();
     }) as EventListener);
     this.addEventListener("advanced-search-clear", (() => {
       this._advancedCriteria = {};
       this._isAdvancedSearchActive = false;
       this.filterResults();
+      this.updateSearchUrl();
       this.render();
     }) as EventListener);
   }
@@ -120,6 +143,7 @@ export class ChartListPanel extends HTMLElement {
   set searchQuery(val: string) {
     this._searchQuery = val;
     this.filterResults();
+    this.updateSearchUrl();
     this.render();
   }
 
@@ -138,6 +162,7 @@ export class ChartListPanel extends HTMLElement {
           appState.eseTree = tree;
           this.dispatchStatus("status.eseReady");
           this.rebuildTitleCache();
+          this.loadSearchFromUrl();
           this.filterResults();
           this.render();
 
@@ -157,6 +182,8 @@ export class ChartListPanel extends HTMLElement {
         });
     } else {
       this.rebuildTitleCache();
+      this.loadSearchFromUrl();
+      this.filterResults();
       if (this._pendingEseLoad) {
         this.loadEseFromUrl(this._pendingEseLoad.path, this._pendingEseLoad.diff);
         this._pendingEseLoad = null;
@@ -293,6 +320,75 @@ export class ChartListPanel extends HTMLElement {
     this._pendingEseLoad = { path, diff };
   }
 
+  private updateSearchUrl() {
+    const url = new URL(window.location.href);
+    clearSearchParams(url);
+
+    if (this._isAdvancedSearchActive) {
+      const c = this._advancedCriteria;
+      if (c.difficulty && c.difficulty !== "any") url.searchParams.set("adv_diff", c.difficulty);
+      if (c.title) url.searchParams.set("adv_title", c.title);
+      if (c.artist) url.searchParams.set("adv_artist", c.artist);
+      if (c.subtitle) url.searchParams.set("adv_subtitle", c.subtitle);
+      if (c.stars != null) url.searchParams.set("adv_stars", String(c.stars));
+      if (c.noteCountMin != null) url.searchParams.set("adv_ncmin", String(c.noteCountMin));
+      if (c.noteCountMax != null) url.searchParams.set("adv_ncmax", String(c.noteCountMax));
+      if (c.bpmMin != null) url.searchParams.set("adv_bpmmin", String(c.bpmMin));
+      if (c.bpmMax != null) url.searchParams.set("adv_bpmmax", String(c.bpmMax));
+      if (c.platform) url.searchParams.set("adv_platform", c.platform);
+      if (c.region) url.searchParams.set("adv_region", c.region);
+      if (c.playdata) url.searchParams.set("adv_playdata", c.playdata);
+      if (c.dfcDifficulty) url.searchParams.set("adv_dfc", c.dfcDifficulty);
+    } else if (this._searchQuery) {
+      url.searchParams.set("q", this._searchQuery);
+    }
+
+    if (url.toString() !== window.location.href) {
+      window.history.replaceState(null, "", url.toString());
+    }
+  }
+
+  private loadSearchFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+
+    const hasAdvanced = [...params.keys()].some((k) => k.startsWith("adv_"));
+    if (hasAdvanced) {
+      const criteria: AdvancedSearchCriteria = {};
+      const diff = params.get("adv_diff");
+      if (diff) criteria.difficulty = diff as AdvancedSearchCriteria["difficulty"];
+      const title = params.get("adv_title");
+      if (title) criteria.title = title;
+      const artist = params.get("adv_artist");
+      if (artist) criteria.artist = artist;
+      const subtitle = params.get("adv_subtitle");
+      if (subtitle) criteria.subtitle = subtitle;
+      const stars = params.get("adv_stars");
+      if (stars) criteria.stars = Number(stars);
+      const ncmin = params.get("adv_ncmin");
+      if (ncmin) criteria.noteCountMin = Number(ncmin);
+      const ncmax = params.get("adv_ncmax");
+      if (ncmax) criteria.noteCountMax = Number(ncmax);
+      const bpmmin = params.get("adv_bpmmin");
+      if (bpmmin) criteria.bpmMin = Number(bpmmin);
+      const bpmmax = params.get("adv_bpmmax");
+      if (bpmmax) criteria.bpmMax = Number(bpmmax);
+      const platform = params.get("adv_platform");
+      if (platform) criteria.platform = platform;
+      const region = params.get("adv_region");
+      if (region) criteria.region = region;
+      const playdata = params.get("adv_playdata");
+      if (playdata) criteria.playdata = playdata;
+      const dfc = params.get("adv_dfc");
+      if (dfc) criteria.dfcDifficulty = dfc;
+
+      this._advancedCriteria = criteria;
+      this._isAdvancedSearchActive = hasAnyCriteria(criteria);
+    } else {
+      const q = params.get("q");
+      if (q) this._searchQuery = q;
+    }
+  }
+
   async loadEseFromUrl(path: string, diff: string) {
     try {
       this.dispatchStatus("status.loadingChart");
@@ -301,7 +397,10 @@ export class ChartListPanel extends HTMLElement {
       appState.loadedTJAContent = content;
       appState.currentEsePath = path;
 
-      this.searchQuery = path;
+      // Only set search query to path if no search state is active
+      if (!this._isAdvancedSearchActive && !this._searchQuery) {
+        this._searchQuery = path;
+      }
       updateParsedCharts(content);
 
       if (appState.parsedTJACharts) {
@@ -397,6 +496,8 @@ export class ChartListPanel extends HTMLElement {
     const url = new URL(window.location.href);
     url.searchParams.set("ese", appState.currentEsePath);
     url.searchParams.set("diff", diff);
+    // Exclude search state from shared URL
+    clearSearchParams(url);
 
     try {
       await navigator.clipboard.writeText(url.toString());
@@ -497,6 +598,7 @@ export class ChartListPanel extends HTMLElement {
                   this._advancedCriteria = {};
                   this._isAdvancedSearchActive = false;
                   this.filterResults();
+                  this.updateSearchUrl();
                   this.render();
                 }}
                 title={i18n.t("ui.advSearch.clearAll")}
