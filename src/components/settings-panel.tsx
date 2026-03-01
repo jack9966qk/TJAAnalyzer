@@ -2,18 +2,19 @@ import * as webjsx from "webjsx";
 import "./action-button.js";
 import { appState } from "../state/app-state.js";
 import { shareFile } from "../utils/file-share.js";
+import { parseFumenDatabaseHtml } from "../utils/fumen-database-parser.js";
 import { i18n } from "../utils/i18n.js";
+import { PlaydataLeadingMode, PlaydataStripMode, PlaydataTrailingMode } from "../utils/playdata-status.js";
 import {
   convertToTaikoRatingAnalyzerFormat,
   type FumenDatabasePlaydata,
   getPlaydataStats,
   type Playdata,
   type PlaydataEntry,
-  parseFumenDatabaseHtml,
   type UnmatchedEntry,
   verifyPlaydata,
-} from "../utils/playdata-parser.js";
-import { PlaydataLeadingMode, PlaydataStripMode, PlaydataTrailingMode } from "../utils/playdata-status.js";
+} from "../utils/playdata-types.js";
+import { parseTaikoWikiRatingHtml } from "../utils/taiko-wiki-parser.js";
 import {
   ChartLanguage,
   clearPlaydata,
@@ -321,8 +322,9 @@ export class SettingsPanel extends HTMLElement {
         return;
       }
 
-      // Parse the HTML
-      const playdata = parseFumenDatabaseHtml(text);
+      // Parse the HTML — detect source by presence of kit.start / scoreData
+      const isTaikoWiki = text.includes("kit.start") && text.includes("scoreData");
+      const playdata = isTaikoWiki ? parseTaikoWikiRatingHtml(text) : parseFumenDatabaseHtml(text);
 
       if (playdata.entries.length === 0) {
         this.importStatus = {
@@ -660,11 +662,7 @@ export class SettingsPanel extends HTMLElement {
         style="padding: 12px; background: var(--bg-panel-header); border-radius: 6px; border: 1px solid var(--border-light); display: flex; align-items: center; justify-content: space-between;"
       >
         <label className="checkbox-label" style="width: 100%;">
-          <input
-            type="checkbox"
-            checked={appState.isTesterMode}
-            onchange={this.handleDevModeToggle.bind(this)}
-          />
+          <input type="checkbox" checked={appState.isTesterMode} onchange={this.handleDevModeToggle.bind(this)} />
           {i18n.t("ui.devMode")}
         </label>
       </div>

@@ -1,5 +1,5 @@
-import type { Playdata } from "./playdata-parser.js";
 import { PlaydataLeadingMode, PlaydataStripMode, PlaydataTrailingMode } from "./playdata-status.js";
+import type { Playdata } from "./playdata-types.js";
 
 export enum ChartLanguage {
   Auto = "auto",

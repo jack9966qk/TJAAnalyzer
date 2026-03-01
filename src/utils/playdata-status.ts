@@ -1,6 +1,6 @@
 // Utility functions for determining playdata status for chart list items
 
-import { Crown, type Playdata, type PlaydataEntry, ScoreRank } from "./playdata-parser.js";
+import { Crown, type Playdata, type PlaydataEntry, ScoreRank } from "./playdata-types.js";
 
 export enum PlaydataStripMode {
   None = "none",

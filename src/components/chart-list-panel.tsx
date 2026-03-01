@@ -15,8 +15,6 @@ import type { EseIndexEntry } from "../clients/ese-client.js";
 import { updateBranchSelectorState, updatePageUrl, updateParsedCharts } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
-import type { Playdata, PlaydataEntry } from "../utils/playdata-parser.js";
-import { Crown } from "../utils/playdata-parser.js";
 import {
   buildSongIdToEntriesCache,
   getCrownCssClass,
@@ -29,6 +27,8 @@ import {
   PlaydataTrailingMode,
   preloadSongMapping,
 } from "../utils/playdata-status.js";
+import type { Playdata, PlaydataEntry } from "../utils/playdata-types.js";
+import { Crown } from "../utils/playdata-types.js";
 import { ChartLanguage, loadUserProfile } from "../utils/user-profile.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
 

@@ -2,8 +2,8 @@ import * as webjsx from "webjsx";
 import type { EseIndexEntry } from "../clients/ese-client.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
-import type { PlaydataEntry } from "../utils/playdata-parser.js";
 import { getDnStyleCssClass } from "../utils/playdata-status.js";
+import type { PlaydataEntry } from "../utils/playdata-types.js";
 import "./modal-page.js";
 
 export type Difficulty = "easy" | "normal" | "hard" | "oni" | "ura";

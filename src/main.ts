@@ -24,6 +24,9 @@ import "./components/changelog-panel.js";
 import "./components/language-selector.js";
 import "./components/settings-panel.js";
 import "./components/action-button.js";
+import { parseFumenDatabaseHtml } from "./utils/fumen-database-parser.js";
+import { parseTaikoWikiRatingHtml } from "./utils/taiko-wiki-parser.js";
+
 import "./components/advanced-search-modal.js";
 import * as Renderer from "tja-renderer";
 
@@ -779,5 +782,8 @@ window.setViewOptions = (opts: Partial<RendererViewOptions>) => {
   appState.viewOptions = { ...appState.viewOptions, ...opts };
   refreshChart();
 };
+
+window.parseFumenDatabaseHtml = parseFumenDatabaseHtml;
+window.parseTaikoWikiRatingHtml = parseTaikoWikiRatingHtml;
 
 init();

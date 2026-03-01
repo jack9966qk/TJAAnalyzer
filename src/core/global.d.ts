@@ -3,6 +3,7 @@ import type { ViewOptions, JudgementMap, JudgementValue, JudgementKey, LocationM
 import type { ExportButtonProps } from "../components/export-button.tsx";
 import type { SaveImageButtonProps } from "../components/save-image-button.tsx";
 import type { ActionButtonProps } from "../components/action-button.tsx";
+import type { FumenDatabasePlaydata } from "../utils/playdata-types.ts";
 
 declare global {
   interface Window {
@@ -17,6 +18,8 @@ declare global {
     loadTJAContent: (content: string) => void;
     setViewOptions: (opts: Partial<ViewOptions>) => void;
     showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>;
+    parseFumenDatabaseHtml: (html: string) => FumenDatabasePlaydata;
+    parseTaikoWikiRatingHtml: (html: string) => FumenDatabasePlaydata;
   }
 }
 
