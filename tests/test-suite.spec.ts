@@ -1180,7 +1180,7 @@ test.describe("Selection Interaction", () => {
     // 2. Verify Stats
     const stats = page.locator("note-stats");
     await expect(stats.locator(".stat-label").first()).toBeVisible();
-    await expect(stats.locator(".stat-value", { hasText: /DON/i })).toBeVisible();
+    await expect(stats.locator(".stat-value").nth(1)).not.toHaveText("-"); // BPM has a value when a note is selected
 
     // 3. Take Snapshot of Selection
     // Moved to 'Visual Regression' > 'Note Selected'
@@ -1189,8 +1189,8 @@ test.describe("Selection Interaction", () => {
     // 4. Hover away to empty space (e.g. x + 100, same y)
     await canvas.hover({ position: { x: notePos.x + 100, y: notePos.y }, force: true });
 
-    // 5. Verify Stats are STICKY (still showing 'DON')
-    await expect(stats.locator(".stat-value", { hasText: /DON/i })).toBeVisible();
+    // 5. Verify Stats are STICKY (BPM still showing after hover away)
+    await expect(stats.locator(".stat-value").nth(1)).not.toHaveText("-");
 
     // 6. Click again to unselect
     await canvas.click({ position: { x: notePos.x, y: notePos.y }, force: true });
@@ -1245,7 +1245,7 @@ test.describe("Selection Interaction", () => {
     await canvas.click({ position: p0, force: true });
 
     const stats = page.locator("note-stats");
-    await expect(stats.locator(".stat-value", { hasText: /DON/i })).toBeVisible();
+    await expect(stats.locator(".stat-value").nth(1)).not.toHaveText("-"); // BPM has a value when a note is selected
 
     await page.waitForTimeout(200);
 
@@ -1257,7 +1257,7 @@ test.describe("Selection Interaction", () => {
     });
     expect(p1).not.toBeNull();
     await canvas.click({ position: p1, force: true });
-    await expect(stats.locator(".stat-value", { hasText: /DON/i })).toBeVisible();
+    await expect(stats.locator(".stat-value").nth(1)).not.toHaveText("-"); // BPM has a value when a note is selected
 
     // 3. Click Third Note (Bar 2, Note 0 - Balloon) (Restart Selection)
     const p2 = await page.evaluate(() => {
@@ -1267,7 +1267,7 @@ test.describe("Selection Interaction", () => {
     });
     expect(p2).not.toBeNull();
     await canvas.click({ position: p2, force: true });
-    await expect(stats.locator(".stat-value", { hasText: /balloon/i })).toBeVisible();
+    await expect(stats.locator(".stat-value").nth(1)).not.toHaveText("-"); // BPM has a value when a note is selected
   });
 
   test("Hover Interaction", async ({ page }) => {

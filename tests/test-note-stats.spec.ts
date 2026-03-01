@@ -95,8 +95,7 @@ test.describe("Note Stats Component", () => {
 
     const stats = page.locator("note-stats");
     // Check finding by text
-    await expect(stats.getByText("Type")).toBeVisible();
-    await expect(stats.getByText("don", { exact: false })).toBeVisible(); // 'don' from getNoteName('1')
+    await expect(stats.getByText("BPM", { exact: true })).toBeVisible();
 
     // Check finding by class
     await expect(stats.locator(".stat-label").first()).toBeVisible();

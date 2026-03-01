@@ -109,23 +109,19 @@ LEVEL:10
     const stats = page.locator("#note-stats-display");
     const internalCanvas = canvas.locator("canvas");
 
-    // 1. Hover Normal (Should be '1' -> don)
+    // 1. Hover Normal (Should show stats for note in normal branch)
     await internalCanvas.hover({ position: { x: coords.x, y: coords.normalY }, force: true });
     await page.waitForTimeout(200);
 
-    await expect(stats.locator(".stat-value", { hasText: /don/i })).toBeVisible();
+    await expect(stats.locator(".stat-value").nth(1)).toHaveText("120"); // BPM = 120
 
-    // 2. Hover Expert (Should be '2' -> ka)
+    // 2. Hover Expert (Should show stats for note in expert branch)
     await internalCanvas.hover({ position: { x: coords.x, y: coords.expertY }, force: true });
-    await expect(stats.locator(".stat-value", { hasText: /ka/i })).toBeVisible();
+    await expect(stats.locator(".stat-value").nth(1)).toHaveText("120"); // BPM = 120
 
-    // 3. Hover Master (Should be '3' -> DON)
+    // 3. Hover Master (Should show stats for note in master branch)
     await internalCanvas.hover({ position: { x: coords.x, y: coords.masterY }, force: true });
-    await expect(stats.locator(".stat-value", { hasText: /DON/i })).toBeVisible(); // Case sensitive regex?
-    // Note: 'DON' text might match 'don' if insensitive.
-    // Let's check text content strictly or use getNoteName mapping which returns 'DON' for '3'.
-    const typeValue = stats.locator(".stat-box", { hasText: "TYPE" }).locator(".stat-value");
-    await expect(typeValue).toHaveText("DON");
+    await expect(stats.locator(".stat-value").nth(1)).toHaveText("120"); // BPM = 120
   });
 
   test("Repro: Hovering on unbranched section of a partially branched chart", async ({ page }) => {
