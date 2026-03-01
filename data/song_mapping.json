@@ -2153,6 +2153,16 @@
     "candidates": ["09 Namco Original/Taiko Love!/Taiko Love!.tja"],
     "matchType": "exact"
   },
+  "416": {
+    "esePath": "05 Variety/Help me, ERINNNNNN!!/Help me, ERINNNNNN!!.tja",
+    "defaultTitle": "Help me, ERINNNNNN!!",
+    "candidates": [
+      "05 Variety/Help me, ERINNNNNN!! -Cranky Remix-/Help me, ERINNNNNN!! -Cranky Remix-.tja",
+      "05 Variety/Help me, ERINNNNNN!! Sachiko Kobayashi Ver/Help me, ERINNNNNN!! Sachiko Kobayashi Ver.tja",
+      "05 Variety/Help me, ERINNNNNN!!/Help me, ERINNNNNN!!.tja"
+    ],
+    "matchType": "fuzzy + llm"
+  },
   "417": {
     "esePath": "05 Variety/Grip and Break Down!! -Tatsujin Edit-/Grip and Break Down!! -Tatsujin Edit-.tja",
     "defaultTitle": "Grip & Break down !! -達人Edit.-",
