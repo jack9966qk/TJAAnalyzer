@@ -1597,6 +1597,8 @@ h1 {
 
 .wiki-option:hover {
   background-color: var(--bg-hover);
+  text-decoration: none;
+  color: var(--text-primary);
 }
 
 .icon-external-link {
