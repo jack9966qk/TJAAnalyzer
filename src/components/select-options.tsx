@@ -84,6 +84,10 @@ export class SelectOptions extends HTMLElement {
           </label>
         ) : null}
 
+        <div style="width: 100%; border-top: 1px solid var(--border-lighter); padding-top: 10px;">
+          <h4 style="margin: 0;">{i18n.t("ui.export")}</h4>
+        </div>
+
         <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 15px;">
           <label className="sub-group" style="white-space: nowrap;">
             <span className="sub-label" style="min-width: auto;">
