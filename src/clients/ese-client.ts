@@ -1,6 +1,8 @@
 export interface CourseInfo {
   level: number;
   maxCombo?: number;
+  url?: string;
+  urlKo?: string;
 }
 
 export interface EseIndexEntry {

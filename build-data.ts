@@ -14,6 +14,8 @@ const INDEX_FILE = path.join(__dirname, "public", "ese_index.json");
 interface CourseInfo {
   level: number;
   maxCombo?: number;
+  url?: string;
+  urlKo?: string;
 }
 
 interface MergedSong {
@@ -119,13 +121,18 @@ async function main() {
     }
     if (dhSong?.Difficulties) {
       for (const [dhName, stdName] of Object.entries(dhDiffMap)) {
-        if (courses[stdName]) continue;
         const dhDiff = dhSong.Difficulties[dhName as keyof typeof dhSong.Difficulties];
-        if (dhDiff && dhDiff.Level > 0) {
-          courses[stdName] = { level: dhDiff.Level };
-          const noteCount = dhDiff.NoteCount?.Single?.Normal;
-          if (noteCount && noteCount > 0) {
-            courses[stdName].maxCombo = noteCount;
+        if (dhDiff) {
+          if (!courses[stdName] && dhDiff.Level > 0) {
+            courses[stdName] = { level: dhDiff.Level };
+            const noteCount = dhDiff.NoteCount?.Single?.Normal;
+            if (noteCount && noteCount > 0) {
+              courses[stdName].maxCombo = noteCount;
+            }
+          }
+          if (courses[stdName]) {
+            if (dhDiff.Url) courses[stdName].url = dhDiff.Url;
+            if (dhDiff.UrlKo) courses[stdName].urlKo = dhDiff.UrlKo;
           }
         }
       }

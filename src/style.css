@@ -1532,3 +1532,77 @@ h1 {
 .adv-search-clear-btn:hover .icon-x-mark {
   background-color: var(--text-primary);
 }
+
+.wiki-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: var(--bg-input);
+  cursor: pointer;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  font-size: 0.9em;
+  transition: background-color 0.2s;
+  box-sizing: border-box;
+  height: 38px;
+}
+
+.wiki-btn:hover {
+  background-color: var(--bg-hover);
+}
+
+.wiki-btn.active {
+  background-color: var(--border-color);
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.wiki-dropdown {
+  background-color: var(--bg-modal-content);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  box-shadow: 0 4px 8px var(--shadow-color);
+  z-index: 1000;
+  min-width: auto;
+  display: flex;
+  flex-direction: column;
+  animation: dropdownFadeIn 0.15s ease-out forwards;
+}
+
+.wiki-option {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  padding: 10px 16px;
+  cursor: pointer;
+  color: var(--text-primary);
+  font-size: 0.9em;
+  text-decoration: none;
+  transition: background-color 0.1s;
+  white-space: nowrap;
+}
+
+.wiki-option:hover {
+  background-color: var(--bg-hover);
+}
+
+.icon-external-link {
+  width: 16px;
+  height: 16px;
+  background-color: var(--text-primary);
+  -webkit-mask: url("/assets/heroicons/optimized/24/outline/arrow-top-right-on-square.svg") no-repeat center;
+  mask: url("/assets/heroicons/optimized/24/outline/arrow-top-right-on-square.svg") no-repeat center;
+}
