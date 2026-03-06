@@ -53,6 +53,7 @@ export const appState: AppState = {
     annotations: new LocationMap(),
     showTextInAnnotationMode: false,
     alwaysShowAnnotations: false,
+    autoAnnotateMode: "partial",
     autoZoom: false,
     hideUnreachableBranches: true,
   },

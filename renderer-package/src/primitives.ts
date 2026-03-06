@@ -305,6 +305,7 @@ export interface ViewOptions {
   alwaysShowAnnotations?: boolean;
   handAlternationThreshold?: number;
   handResetThreshold?: number;
+  autoAnnotateMode?: "full" | "partial";
   showAttribution?: boolean;
   range?: {
     start: NoteLocation;

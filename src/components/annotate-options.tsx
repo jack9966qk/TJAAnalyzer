@@ -65,6 +65,13 @@ export class AnnotateOptions extends HTMLElement {
     this.render();
   }
 
+  private handleModeChange(e: Event) {
+    const target = e.target as HTMLSelectElement;
+    appState.viewOptions.autoAnnotateMode = target.value as "full" | "partial";
+    refreshChart();
+    this.render();
+  }
+
   render() {
     const altVal = appState.viewOptions.handAlternationThreshold ?? Infinity;
     let altIdx = this.ALT_THRESHOLDS.indexOf(altVal);
@@ -73,6 +80,10 @@ export class AnnotateOptions extends HTMLElement {
     const resetVal = appState.viewOptions.handResetThreshold ?? 0;
     let resetIdx = this.RESET_THRESHOLDS.indexOf(resetVal);
     if (resetIdx === -1) resetIdx = 0;
+
+    const mode = appState.viewOptions.autoAnnotateMode || "partial";
+    const isPartialSelected = (mode === "partial") as boolean | undefined;
+    const isFullSelected = (mode === "full") as boolean | undefined;
 
     const vdom = (
       <div className="control-group" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
@@ -139,6 +150,25 @@ export class AnnotateOptions extends HTMLElement {
               changeCallback={(v: number) => this.handleResetChange(v)}
             ></stepper-control>
           </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+          <span style="font-size: 0.9em; color: var(--text-secondary);">
+            {i18n.t("ui.autoAnnotateMode") || "Apply to:"}
+          </span>
+          <select
+            className="control-select"
+            style="width: 120px;"
+            value={mode}
+            onchange={this.handleModeChange.bind(this)}
+          >
+            <option value="partial" selected={isPartialSelected}>
+              {i18n.t("ui.autoAnnotateMode.partial") || "Some notes"}
+            </option>
+            <option value="full" selected={isFullSelected}>
+              {i18n.t("ui.autoAnnotateMode.full") || "All notes"}
+            </option>
+          </select>
         </div>
 
         <div style="display: flex; width: 100%;">

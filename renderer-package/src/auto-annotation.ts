@@ -164,6 +164,7 @@ export function generateAutoAnnotations(
   existingAnnotations: LocationMap<string>,
   alternationThresholdMeasure: number = Infinity,
   resetThresholdMeasure: number = 0,
+  mode: "full" | "partial" = "partial",
 ): LocationMap<string> {
   const annotations = new LocationMap(existingAnnotations);
   // Auto-annotation explicit placement follows user configuration
@@ -171,6 +172,22 @@ export function generateAutoAnnotations(
   const { segments } = extractNotesAndSegments(chart);
 
   const toAnnotate = new LocationMap<boolean>();
+
+  if (mode === "full") {
+    for (const seg of segments) {
+      for (const note of seg.notes) {
+        toAnnotate.set(note.id, true);
+      }
+    }
+
+    for (const [id] of toAnnotate) {
+      const hand = inferred.get(id);
+      if (hand) {
+        annotations.set(id, hand);
+      }
+    }
+    return annotations;
+  }
 
   for (const seg of segments) {
     if (seg.notes.length === 0) continue;
