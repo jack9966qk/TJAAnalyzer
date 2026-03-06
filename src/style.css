@@ -5,7 +5,7 @@
   --anim-duration-slow: 0.35s;
 
   /* Light Mode (Default) */
-  --bg-body: #e0e0e0;
+  --bg-body: #f0f0f0;
   --bg-app: #fff;
   --bg-panel-header: #f5f5f5;
   --bg-panel-tabs: #eee;
@@ -41,7 +41,7 @@
   --canvas-container-bg: #fafafa;
   --canvas-bg: #fafafa;
 
-  --shadow-color: rgba(0, 0, 0, 0.1);
+  --shadow-color: rgba(0, 0, 0, 0.08);
   --modal-overlay: rgba(0, 0, 0, 0.4);
 
   --error-bg: #ffcdd2;
@@ -55,7 +55,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-body: #121212;
+    --bg-body: #1a1a1a;
     --bg-app: #1e1e1e;
     --bg-panel-header: #252525;
     --bg-panel-tabs: #2c2c2c;
@@ -92,7 +92,7 @@
     --canvas-container-bg: #1e1e1e;
     --canvas-bg: #1e1e1e;
 
-    --shadow-color: rgba(0, 0, 0, 0.5);
+    --shadow-color: rgba(0, 0, 0, 0.4);
     --modal-overlay: rgba(0, 0, 0, 0.6);
 
     --error-bg: #5c0000;
@@ -124,11 +124,11 @@ body {
 
 #app {
   max-width: 1000px;
-  margin: 20px auto;
-  background: var(--bg-app);
+  margin: 0 auto;
+  background: var(--bg-body);
   padding: 0;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px var(--shadow-color);
+  border-radius: 0;
+  box-shadow: none;
 }
 
 h1 {
@@ -162,10 +162,12 @@ a:visited {
 
 /* Data Source Panel */
 #data-source-panel {
-  margin: 0 20px 0 20px;
+  margin: 0 12px 0 12px;
   border: 1px solid var(--border-color);
   border-radius: 6px;
   overflow: hidden;
+  background-color: var(--bg-app);
+  box-shadow: 0 2px 4px var(--shadow-color);
 }
 
 .panel-header {
@@ -368,16 +370,18 @@ button:disabled {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: var(--bg-app);
-  padding: 10px 20px;
-  border-bottom: 1px solid var(--border-light);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Keep slight shadow in light mode, transparent in dark if needed or just low opacity */
+  background: var(--bg-body);
+  padding: 10px 12px;
+  border-bottom: none;
+  box-shadow: 0 4px 4px -2px var(--shadow-color);
 }
 
 .options-panel {
   border: 1px solid var(--border-color);
   border-radius: 6px;
   overflow: hidden;
+  background-color: var(--bg-app);
+  box-shadow: 0 2px 4px var(--shadow-color);
 }
 
 .options-header {
@@ -575,6 +579,7 @@ button:disabled {
   max-height: 0;
   margin-top: 0;
   margin-bottom: 0;
+  padding-bottom: 0;
   pointer-events: none;
 }
 
@@ -1056,17 +1061,20 @@ body.horizontal-layout #controls-container {
   overflow-x: hidden;
   border-right: 1px solid var(--border-light);
   flex-shrink: 0;
-  background: var(--bg-app);
+  background: var(--bg-body);
   transition: width 0.3s ease;
   /* Width will be set by JS */
   position: relative;
   z-index: 10;
+  border-radius: 0;
+  box-shadow: 2px 0 4px var(--shadow-color);
 }
 
 body.horizontal-layout #sticky-header {
   position: static;
   border-bottom: none;
   padding-bottom: 20px;
+  box-shadow: none;
 }
 
 body.horizontal-layout #controls-container > * {
@@ -1132,13 +1140,15 @@ body.horizontal-layout.controls-collapsed #layout-toggle-btn {
   top: env(safe-area-inset-top);
   /* Revert to standard padding */
   padding-top: 10px;
-  padding-left: max(20px, env(safe-area-inset-left));
-  padding-right: max(20px, env(safe-area-inset-right));
+  padding-bottom: 10px;
+  padding-left: max(12px, env(safe-area-inset-left));
+  padding-right: max(12px, env(safe-area-inset-right));
 }
 
 #data-source-panel {
-  margin-left: max(20px, env(safe-area-inset-left));
-  margin-right: max(20px, env(safe-area-inset-right));
+  margin-left: max(12px, env(safe-area-inset-left));
+  margin-right: max(12px, env(safe-area-inset-right));
+  margin-bottom: 0;
 }
 
 .canvas-container {

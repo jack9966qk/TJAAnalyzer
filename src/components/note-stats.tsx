@@ -419,13 +419,13 @@ export class NoteStatsDisplay extends HTMLElement {
                 flex-wrap: wrap;
                 gap: 10px;
                 padding: 10px;
-                background-color: var(--bg-panel-header, #f5f5f5);
+                background-color: var(--bg-app);
                 align-items: center;
                 justify-content: center;
-                border: 1px solid var(--border-lighter, #e0e0e0);
-                margin-top: 10px;
+                border: 1px solid var(--border-color, #e0e0e0);
                 border-radius: 6px;
                 box-sizing: border-box;
+                box-shadow: 0 2px 4px var(--shadow-color);
             }
             .stat-box {
                 background-color: var(--stat-box-bg, #37474f);
