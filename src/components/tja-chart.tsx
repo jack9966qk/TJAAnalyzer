@@ -608,7 +608,12 @@ export class TJAChart extends HTMLElement {
   autoAnnotate() {
     if (!this._chart) return;
     const currentAnnotations = this._viewOptions?.annotations || new LocationMap();
-    const newAnnotations = generateAutoAnnotations(this._chart, currentAnnotations);
+    const newAnnotations = generateAutoAnnotations(
+      this._chart,
+      currentAnnotations,
+      this._viewOptions?.handAlternationThreshold,
+      this._viewOptions?.handResetThreshold,
+    );
 
     this.dispatchEvent(
       new CustomEvent("annotations-change", {

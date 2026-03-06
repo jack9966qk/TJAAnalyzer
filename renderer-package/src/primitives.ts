@@ -303,6 +303,8 @@ export interface ViewOptions {
   isAnnotationMode?: boolean;
   showTextInAnnotationMode?: boolean;
   alwaysShowAnnotations?: boolean;
+  handAlternationThreshold?: number;
+  handResetThreshold?: number;
   showAttribution?: boolean;
   range?: {
     start: NoteLocation;

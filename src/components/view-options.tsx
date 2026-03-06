@@ -179,6 +179,7 @@ export class ViewOptions extends HTMLElement {
             </span>
             <div className="zoom-controls" style="display: flex; align-items: center; gap: 5px;">
               <stepper-control
+                id="zoom-stepper"
                 value={appState.viewOptions.beatsPerLine}
                 baseline={16}
                 min={4}

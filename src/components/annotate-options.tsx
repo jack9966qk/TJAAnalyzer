@@ -4,10 +4,25 @@ import { refreshChart } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { tjaChart } from "../view/ui-elements.js";
+import "./stepper-control.js";
 
 const { LocationMap } = Renderer.Private;
 
 export class AnnotateOptions extends HTMLElement {
+  private readonly ALT_THRESHOLDS = [1 / 32, 1 / 16, 1 / 12, 1 / 8, 1 / 4, 1, 2, 4, Infinity];
+  private readonly RESET_THRESHOLDS = [0, 1 / 32, 1 / 16, 1 / 12, 1 / 8, 1 / 4, 1, 2, 4, Infinity];
+
+  private formatThreshold(val: number): string {
+    if (val === Infinity) return "∞";
+    if (val === 0) return "0";
+    if (val === 1 / 32) return "1/32";
+    if (val === 1 / 16) return "1/16";
+    if (val === 1 / 12) return "1/12";
+    if (val === 1 / 8) return "1/8";
+    if (val === 1 / 4) return "1/4";
+    return val.toString();
+  }
+
   connectedCallback() {
     this.style.display = "block";
     this.render();
@@ -38,7 +53,27 @@ export class AnnotateOptions extends HTMLElement {
     refreshChart();
   }
 
+  private handleAltChange(index: number) {
+    appState.viewOptions.handAlternationThreshold = this.ALT_THRESHOLDS[Math.floor(index)];
+    refreshChart();
+    this.render();
+  }
+
+  private handleResetChange(index: number) {
+    appState.viewOptions.handResetThreshold = this.RESET_THRESHOLDS[Math.floor(index)];
+    refreshChart();
+    this.render();
+  }
+
   render() {
+    const altVal = appState.viewOptions.handAlternationThreshold ?? Infinity;
+    let altIdx = this.ALT_THRESHOLDS.indexOf(altVal);
+    if (altIdx === -1) altIdx = this.ALT_THRESHOLDS.length - 1;
+
+    const resetVal = appState.viewOptions.handResetThreshold ?? 0;
+    let resetIdx = this.RESET_THRESHOLDS.indexOf(resetVal);
+    if (resetIdx === -1) resetIdx = 0;
+
     const vdom = (
       <div style="display: contents;">
         <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 5px;">
@@ -61,6 +96,41 @@ export class AnnotateOptions extends HTMLElement {
               {i18n.t("ui.clearAnnotations")}
             </button>
           </div>
+
+          <div
+            className="control-group"
+            style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;"
+          >
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+              <span style="font-size: 0.9em; color: var(--text-secondary);">
+                {i18n.t("ui.handAlternationThreshold") || "Alternation gap:"}
+              </span>
+              <stepper-control
+                value={altIdx}
+                min={0}
+                max={this.ALT_THRESHOLDS.length - 1}
+                step={1}
+                baseline={this.ALT_THRESHOLDS.length - 1}
+                format={(v: number) => this.formatThreshold(this.ALT_THRESHOLDS[v])}
+                changeCallback={(v: number) => this.handleAltChange(v)}
+              ></stepper-control>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+              <span style="font-size: 0.9em; color: var(--text-secondary);">
+                {i18n.t("ui.handResetThreshold") || "Reset gap:"}
+              </span>
+              <stepper-control
+                value={resetIdx}
+                min={0}
+                max={this.RESET_THRESHOLDS.length - 1}
+                step={1}
+                baseline={0}
+                format={(v: number) => this.formatThreshold(this.RESET_THRESHOLDS[v])}
+                changeCallback={(v: number) => this.handleResetChange(v)}
+              ></stepper-control>
+            </div>
+          </div>
+
           <div
             className="control-group"
             style="display: flex; align-items: center; justify-content: space-between; gap: 10px;"

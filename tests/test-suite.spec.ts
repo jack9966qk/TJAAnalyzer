@@ -1107,7 +1107,7 @@ test.describe("Zoom Controls", () => {
     }
     await page.waitForTimeout(1000);
 
-    const stepper = page.locator("stepper-control");
+    const stepper = page.locator("view-options stepper-control").first();
     const zoomOutBtn = stepper.locator(".tiny-btn").nth(0);
     const zoomResetBtn = stepper.locator(".tiny-btn").nth(1);
     const zoomInBtn = stepper.locator(".tiny-btn").nth(2);

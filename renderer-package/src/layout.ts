@@ -1049,7 +1049,7 @@ export function createLayout(
     }
   });
 
-  const inferredHands = calculateInferredHands(bars, options.annotations);
+  const inferredHands = calculateInferredHands(chart, options.annotations, Infinity, 0);
 
   // Adjust for device pixel ratio for sharp rendering
   const dpr = customDpr !== undefined ? customDpr : window.devicePixelRatio || 1;
