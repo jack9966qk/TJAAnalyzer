@@ -1107,10 +1107,11 @@ test.describe("Zoom Controls", () => {
     }
     await page.waitForTimeout(1000);
 
-    const zoomOutBtn = page.locator("#zoom-out-btn");
-    const zoomInBtn = page.locator("#zoom-in-btn");
-    const zoomResetBtn = page.locator("#zoom-reset-btn");
-    await zoomResetBtn.waitFor({ state: "attached" });
+    const stepper = page.locator("stepper-control");
+    const zoomOutBtn = stepper.locator(".tiny-btn").nth(0);
+    const zoomResetBtn = stepper.locator(".tiny-btn").nth(1);
+    const zoomInBtn = stepper.locator(".tiny-btn").nth(2);
+    await stepper.waitFor({ state: "attached" });
 
     // Initial State
     await expect(zoomResetBtn).toHaveText("100%");

@@ -3,6 +3,7 @@ import type { ViewOptions, JudgementMap, JudgementValue, JudgementKey, LocationM
 import type { ExportButtonProps } from "../components/export-button.tsx";
 import type { SaveImageButtonProps } from "../components/save-image-button.tsx";
 import type { ActionButtonProps } from "../components/action-button.tsx";
+import type { StepperControlProps } from "../components/stepper-control.tsx";
 import type { FumenDatabasePlaydata } from "../utils/playdata-types.ts";
 
 declare global {
@@ -34,6 +35,7 @@ declare global {
       "save-image-button": HtmlTag & SaveImageButtonProps;
       "export-button": HtmlTag & ExportButtonProps;
       "action-button": HtmlTag & ActionButtonProps;
+      "stepper-control": HtmlTag & StepperControlProps;
       "advanced-search-modal": HtmlTag;
       "modal-page": HtmlTag & {
         open?: boolean | null;

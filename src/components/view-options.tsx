@@ -4,6 +4,7 @@ import { refreshChart } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { noteStatsDisplay } from "../view/ui-elements.js";
+import "./stepper-control.js";
 
 const { INSETS, LAYOUT_RATIOS } = Renderer.Private;
 
@@ -76,28 +77,10 @@ export class ViewOptions extends HTMLElement {
     }
   }
 
-  private handleZoomOut() {
+  private handleZoomChange(beatsPerLine: number) {
     appState.viewOptions.autoZoom = false;
-    if (appState.viewOptions.beatsPerLine < 32) {
-      appState.viewOptions.beatsPerLine += 2;
-      refreshChart();
-      this.render();
-    }
-  }
-
-  private handleZoomIn() {
-    appState.viewOptions.autoZoom = false;
-    if (appState.viewOptions.beatsPerLine > 4) {
-      appState.viewOptions.beatsPerLine -= 2;
-      refreshChart();
-      this.render();
-    }
-  }
-
-  private handleZoomReset() {
-    appState.viewOptions.autoZoom = false;
-    if (appState.viewOptions.beatsPerLine !== 16) {
-      appState.viewOptions.beatsPerLine = 16;
+    if (appState.viewOptions.beatsPerLine !== beatsPerLine) {
+      appState.viewOptions.beatsPerLine = beatsPerLine;
       refreshChart();
       this.render();
     }
@@ -147,8 +130,6 @@ export class ViewOptions extends HTMLElement {
   }
 
   render() {
-    const percent = Math.round((16 / appState.viewOptions.beatsPerLine) * 100);
-
     // Apply styles to host
     this.style.display = "flex";
     this.style.gap = "20px";
@@ -197,21 +178,15 @@ export class ViewOptions extends HTMLElement {
               {i18n.t("ui.zoom")}
             </span>
             <div className="zoom-controls" style="display: flex; align-items: center; gap: 5px;">
-              <button type="button" id="zoom-out-btn" className="tiny-btn" onclick={this.handleZoomOut.bind(this)}>
-                -
-              </button>
-              <button
-                type="button"
-                id="zoom-reset-btn"
-                className="tiny-btn"
-                style="font-family: 'Consolas', monospace; min-width: 50px;"
-                onclick={this.handleZoomReset.bind(this)}
-              >
-                {percent}%
-              </button>
-              <button type="button" id="zoom-in-btn" className="tiny-btn" onclick={this.handleZoomIn.bind(this)}>
-                +
-              </button>
+              <stepper-control
+                value={appState.viewOptions.beatsPerLine}
+                baseline={16}
+                min={4}
+                max={32}
+                step={-2}
+                format={(v: number) => `${Math.round((16 / v) * 100)}%`}
+                changeCallback={this.handleZoomChange.bind(this)}
+              />
               <label className="checkbox-label" style="margin-left: 5px;">
                 <input
                   type="checkbox"

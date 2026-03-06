@@ -510,9 +510,34 @@ button:disabled {
   color: var(--text-tertiary);
 }
 
-#zoom-out-btn,
-#zoom-in-btn {
-  min-width: 30px;
+.zoom-btn-group {
+  display: flex;
+  align-items: stretch;
+}
+
+.zoom-btn-group .tiny-btn {
+  font-size: 0.9em;
+  padding: 3px 8px;
+  border-radius: 0;
+  border-right-width: 0;
+}
+
+.zoom-btn-group .tiny-btn:first-child {
+  border-radius: 4px 0 0 4px;
+}
+
+.zoom-btn-group .tiny-btn:last-child {
+  border-radius: 0 4px 4px 0;
+  border-right-width: 1px;
+}
+
+.zoom-btn-group .tiny-btn:first-child,
+.zoom-btn-group .tiny-btn:last-child {
+  min-width: 28px;
+}
+
+.zoom-btn-group .tiny-btn:not(:first-child):not(:last-child) {
+  min-width: 54px;
 }
 
 .disabled-text {

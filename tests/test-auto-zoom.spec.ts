@@ -17,9 +17,10 @@ test.describe("Auto Zoom Feature", () => {
     }
 
     const zoomAutoCheckbox = page.locator("#zoom-auto-checkbox");
-    const zoomResetBtn = page.locator("#zoom-reset-btn");
-    const zoomInBtn = page.locator("#zoom-in-btn");
-    const zoomOutBtn = page.locator("#zoom-out-btn");
+    const stepper = page.locator("stepper-control");
+    const zoomOutBtn = stepper.locator(".tiny-btn").nth(0);
+    const zoomResetBtn = stepper.locator(".tiny-btn").nth(1);
+    const zoomInBtn = stepper.locator(".tiny-btn").nth(2);
 
     await expect(zoomAutoCheckbox).toBeVisible();
     await expect(zoomAutoCheckbox).not.toBeChecked();
