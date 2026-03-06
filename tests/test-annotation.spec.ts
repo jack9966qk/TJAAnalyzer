@@ -235,4 +235,79 @@ LEVEL:10
     // Should NOT show 'L'
     await expect(canvas).toHaveScreenshot("annotation-hidden-when-inactive.png");
   });
+
+  test("Separator Annotation Rendering", async ({ page }) => {
+    await page.evaluate(() => {
+      const tja = `TITLE:Separator Test
+BPM:120
+COURSE:Oni
+LEVEL:10
+#START
+1010101010101010,
+#END`;
+      window.loadChart(tja, "oni");
+      const map = new window.LocationMap();
+      map.set({ barIndex: 0, charIndex: 2 }, "|");
+      map.set({ barIndex: 0, charIndex: 8 }, "|");
+      window.setOptions({
+        viewMode: "original",
+        coloringMode: "categorical",
+        visibility: { perfect: true, good: true, poor: true },
+        collapsedLoop: false,
+        beatsPerLine: 16,
+        selection: null,
+        annotations: map,
+        isAnnotationMode: true,
+        showAllBranches: false,
+        annotationToolType: "separator",
+      });
+    });
+
+    const canvas = page.locator("#chart-component");
+    await expect(canvas).toHaveScreenshot("separator-annotation-render.png");
+  });
+
+  test("Separator Annotation Click Cycle", async ({ page }) => {
+    await page.evaluate(() => {
+      const tja = `TITLE:Separator Click Test
+BPM:120
+COURSE:Oni
+LEVEL:10
+#START
+1000100010001000,
+#END`;
+      window.loadChart(tja, "oni");
+      window.setOptions({
+        viewMode: "original",
+        coloringMode: "categorical",
+        visibility: { perfect: true, good: true, poor: true },
+        collapsedLoop: false,
+        beatsPerLine: 16,
+        selection: null,
+        annotations: new window.LocationMap(),
+        isAnnotationMode: true,
+        showAllBranches: false,
+        annotationToolType: "separator",
+      });
+    });
+
+    const canvas = page.locator("#chart-component");
+    await expect(canvas).toBeVisible();
+
+    const notePos = await page.evaluate(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element method
+      const chart = document.getElementById("chart-component") as any;
+      return chart.getNoteCoordinates(0, 0);
+    });
+
+    if (!notePos) throw new Error("Note not found");
+
+    // Click to add separator
+    await canvas.click({ position: notePos });
+    await expect(canvas).toHaveScreenshot("separator-click-on.png");
+
+    // Click again to remove separator
+    await canvas.click({ position: notePos });
+    await expect(canvas).toHaveScreenshot("separator-click-off.png");
+  });
 });

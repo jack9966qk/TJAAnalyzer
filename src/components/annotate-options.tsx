@@ -65,6 +65,13 @@ export class AnnotateOptions extends HTMLElement {
     this.render();
   }
 
+  private handleToolTypeChange(e: Event) {
+    const target = e.target as HTMLSelectElement;
+    appState.viewOptions.annotationToolType = target.value as "hand" | "separator";
+    refreshChart();
+    this.render();
+  }
+
   private handleModeChange(e: Event) {
     const target = e.target as HTMLSelectElement;
     appState.viewOptions.autoAnnotateMode = target.value as "full" | "partial";
@@ -84,10 +91,31 @@ export class AnnotateOptions extends HTMLElement {
     const mode = appState.viewOptions.autoAnnotateMode || "partial";
     const isPartialSelected = (mode === "partial") as boolean | undefined;
     const isFullSelected = (mode === "full") as boolean | undefined;
+    const toolType = appState.viewOptions.annotationToolType || "hand";
+    const isHandTool = toolType === "hand";
+    const isSeparatorTool = toolType === "separator";
+    const descKey = isHandTool ? "ui.annotation.desc" : "ui.annotation.desc.separator";
 
     const vdom = (
       <div className="control-group" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
-        <p className="tab-description">{i18n.t("ui.annotation.desc")}</p>
+        <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+          <span style="font-size: 0.9em; color: var(--text-secondary);">{i18n.t("ui.annotationToolType")}</span>
+          <select
+            className="control-select"
+            style="width: 140px;"
+            value={toolType}
+            onchange={this.handleToolTypeChange.bind(this)}
+          >
+            <option value="hand" selected={isHandTool as boolean | undefined}>
+              {i18n.t("ui.annotationToolType.hand")}
+            </option>
+            <option value="separator" selected={isSeparatorTool as boolean | undefined}>
+              {i18n.t("ui.annotationToolType.separator")}
+            </option>
+          </select>
+        </div>
+
+        <p className="tab-description">{i18n.t(descKey)}</p>
         <div style="display: flex; width: 100%;">
           <button
             type="button"
@@ -119,68 +147,72 @@ export class AnnotateOptions extends HTMLElement {
           </label>
         </div>
 
-        <div style="width: 100%; border-top: 1px solid var(--border-lighter); padding-top: 5px;"></div>
+        {isHandTool ? (
+          <>
+            <div style="width: 100%; border-top: 1px solid var(--border-lighter); padding-top: 5px;"></div>
 
-        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; width: 100%;">
-          <div style="display: flex; flex-direction: column; gap: 5px;">
-            <span style="font-size: 0.9em; color: var(--text-secondary);">
-              {i18n.t("ui.handAlternationThreshold") || "Alternation gap:"}
-            </span>
-            <stepper-control
-              value={altIdx}
-              min={0}
-              max={this.ALT_THRESHOLDS.length - 1}
-              step={1}
-              baseline={this.ALT_THRESHOLDS.length - 1}
-              format={(v: number) => this.formatThreshold(this.ALT_THRESHOLDS[v])}
-              changeCallback={(v: number) => this.handleAltChange(v)}
-            ></stepper-control>
-          </div>
-          <div style="display: flex; flex-direction: column; gap: 5px;">
-            <span style="font-size: 0.9em; color: var(--text-secondary);">
-              {i18n.t("ui.handResetThreshold") || "Reset gap:"}
-            </span>
-            <stepper-control
-              value={resetIdx}
-              min={0}
-              max={this.RESET_THRESHOLDS.length - 1}
-              step={1}
-              baseline={0}
-              format={(v: number) => this.formatThreshold(this.RESET_THRESHOLDS[v])}
-              changeCallback={(v: number) => this.handleResetChange(v)}
-            ></stepper-control>
-          </div>
-        </div>
+            <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; width: 100%;">
+              <div style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 0.9em; color: var(--text-secondary);">
+                  {i18n.t("ui.handAlternationThreshold") || "Alternation gap:"}
+                </span>
+                <stepper-control
+                  value={altIdx}
+                  min={0}
+                  max={this.ALT_THRESHOLDS.length - 1}
+                  step={1}
+                  baseline={this.ALT_THRESHOLDS.length - 1}
+                  format={(v: number) => this.formatThreshold(this.ALT_THRESHOLDS[v])}
+                  changeCallback={(v: number) => this.handleAltChange(v)}
+                ></stepper-control>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 5px;">
+                <span style="font-size: 0.9em; color: var(--text-secondary);">
+                  {i18n.t("ui.handResetThreshold") || "Reset gap:"}
+                </span>
+                <stepper-control
+                  value={resetIdx}
+                  min={0}
+                  max={this.RESET_THRESHOLDS.length - 1}
+                  step={1}
+                  baseline={0}
+                  format={(v: number) => this.formatThreshold(this.RESET_THRESHOLDS[v])}
+                  changeCallback={(v: number) => this.handleResetChange(v)}
+                ></stepper-control>
+              </div>
+            </div>
 
-        <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
-          <span style="font-size: 0.9em; color: var(--text-secondary);">
-            {i18n.t("ui.autoAnnotateMode") || "Apply to:"}
-          </span>
-          <select
-            className="control-select"
-            style="width: 120px;"
-            value={mode}
-            onchange={this.handleModeChange.bind(this)}
-          >
-            <option value="partial" selected={isPartialSelected}>
-              {i18n.t("ui.autoAnnotateMode.partial") || "Some notes"}
-            </option>
-            <option value="full" selected={isFullSelected}>
-              {i18n.t("ui.autoAnnotateMode.full") || "All notes"}
-            </option>
-          </select>
-        </div>
+            <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+              <span style="font-size: 0.9em; color: var(--text-secondary);">
+                {i18n.t("ui.autoAnnotateMode") || "Apply to:"}
+              </span>
+              <select
+                className="control-select"
+                style="width: 120px;"
+                value={mode}
+                onchange={this.handleModeChange.bind(this)}
+              >
+                <option value="partial" selected={isPartialSelected}>
+                  {i18n.t("ui.autoAnnotateMode.partial") || "Some notes"}
+                </option>
+                <option value="full" selected={isFullSelected}>
+                  {i18n.t("ui.autoAnnotateMode.full") || "All notes"}
+                </option>
+              </select>
+            </div>
 
-        <div style="display: flex; width: 100%;">
-          <button
-            type="button"
-            id="auto-annotate-btn"
-            className="control-btn"
-            onclick={this.handleAutoAnnotate.bind(this)}
-          >
-            {i18n.t("ui.autoAnnotate")}
-          </button>
-        </div>
+            <div style="display: flex; width: 100%;">
+              <button
+                type="button"
+                id="auto-annotate-btn"
+                className="control-btn"
+                onclick={this.handleAutoAnnotate.bind(this)}
+              >
+                {i18n.t("ui.autoAnnotate")}
+              </button>
+            </div>
+          </>
+        ) : null}
       </div>
     );
     webjsx.applyDiff(this, vdom);

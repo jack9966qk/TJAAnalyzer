@@ -575,15 +575,28 @@ export class TJAChart extends HTMLElement {
     if (this._viewOptions.isAnnotationMode) {
       if (hit && JUDGEABLE_NOTES.includes(hit.type)) {
         const noteId = { barIndex: hit.originalBarIndex, charIndex: hit.charIndex };
-        // Clone is not strictly necessary for mutation if we just update the map instance in place,
-        // but for safety/reactivity we might want to clone.
-        // However, LocationMap copy constructor handles it.
         const annotations = new LocationMap(this._viewOptions.annotations);
         const current = annotations.get(noteId);
+        const toolType = this._viewOptions.annotationToolType || "hand";
 
-        if (!current) annotations.set(noteId, "L");
-        else if (current === "L") annotations.set(noteId, "R");
-        else annotations.delete(noteId);
+        const hasSep = current ? current.includes("|") : false;
+        const hand = current ? current.replace("|", "") : "";
+
+        if (toolType === "separator") {
+          // Toggle separator, preserve hand annotation
+          const newVal = hasSep ? hand : (hand ? hand + "|" : "|");
+          if (newVal) annotations.set(noteId, newVal);
+          else annotations.delete(noteId);
+        } else {
+          // Cycle hand annotation L -> R -> clear, preserve separator
+          let newHand: string;
+          if (!hand) newHand = "L";
+          else if (hand === "L") newHand = "R";
+          else newHand = "";
+          const newVal = newHand + (hasSep ? "|" : "");
+          if (newVal) annotations.set(noteId, newVal);
+          else annotations.delete(noteId);
+        }
 
         this.dispatchEvent(
           new CustomEvent("annotations-change", {

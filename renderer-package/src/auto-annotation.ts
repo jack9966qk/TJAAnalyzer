@@ -127,29 +127,29 @@ export function calculateInferredHands(
       for (const note of seg.notes) {
         const currentInferred = "R";
         inferred.set(note.id, currentInferred);
-        const annotation = annotations?.get(note.id);
-        lastHand = annotation ? annotation : currentInferred;
+        const annotation = annotations?.get(note.id)?.replace("|", "");
+        lastHand = annotation || currentInferred;
       }
     } else if (shouldReset) {
       let currentInferred = "R";
       inferred.set(seg.notes[0].id, currentInferred);
-      let annotation = annotations?.get(seg.notes[0].id);
-      lastHand = annotation ? annotation : currentInferred;
+      let annotation = annotations?.get(seg.notes[0].id)?.replace("|", "");
+      lastHand = annotation || currentInferred;
 
       for (let i = 1; i < seg.notes.length; i++) {
         const note = seg.notes[i];
         currentInferred = lastHand === "R" ? "L" : "R";
         inferred.set(note.id, currentInferred);
-        annotation = annotations?.get(note.id);
-        lastHand = annotation ? annotation : currentInferred;
+        annotation = annotations?.get(note.id)?.replace("|", "");
+        lastHand = annotation || currentInferred;
       }
     } else {
       for (const note of seg.notes) {
         const currentInferred = lastHand === "R" ? "L" : "R";
         inferred.set(note.id, currentInferred);
 
-        const annotation = annotations?.get(note.id);
-        lastHand = annotation ? annotation : currentInferred;
+        const annotation = annotations?.get(note.id)?.replace("|", "");
+        lastHand = annotation || currentInferred;
       }
     }
 

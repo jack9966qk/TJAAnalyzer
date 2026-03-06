@@ -76,6 +76,7 @@ export const PALETTE = {
     annotation: {
       match: "#000",
       mismatch: "#f00",
+      separator: "#000",
     },
     warning: {
       background: "#fff0f0",
@@ -905,6 +906,12 @@ function drawBarBackgroundWrapper(
 
   // Draw Backgrounds based on Branch Layout
   const branches: BranchName[] = [BranchName.Normal, BranchName.Expert, BranchName.Master];
+
+  const showBarDetails =
+    options.isAnnotationMode || options.alwaysShowAnnotations ? !!options.showTextInAnnotationMode : true;
+  // Hide beat grid lines when annotation mode hides bar details
+  const bgBeatWidth = showBarDetails ? effectiveBeatWidth : 0;
+
   for (const b of branches) {
     const branchInfo = layout.branches[b];
     if (branchInfo?.visible) {
@@ -923,14 +930,11 @@ function drawBarBackgroundWrapper(
         !hasLeftNeighbor,
         !hasRightNeighbor,
         overExtendWidth,
-        effectiveBeatWidth,
+        bgBeatWidth,
         dpr,
       );
     }
   }
-
-  const showText =
-    options.isAnnotationMode || options.alwaysShowAnnotations ? !!options.showTextInAnnotationMode : true;
 
   const isHovered =
     !!options.hoveredNote &&
@@ -938,7 +942,7 @@ function drawBarBackgroundWrapper(
     options.hoveredNote.charIndex === -1;
 
   if (isBranchStart) {
-    const topY = showText ? frame.y - constants.barNumberOffsetY - 3 * constants.statusFontSize : frame.y;
+    const topY = showBarDetails ? frame.y - constants.barNumberOffsetY - 3 * constants.statusFontSize : frame.y;
     // Hover highlight: Black outline
     if (isHovered) {
       canvasContext.save();
@@ -974,7 +978,7 @@ function drawBarBackgroundWrapper(
     constants.statusFontSize,
     constants.barNumberOffsetY,
     isBranchStart,
-    showText,
+    showBarDetails,
     dpr,
     isFirstBar,
     prevParams,
@@ -993,7 +997,7 @@ function drawBarBackgroundWrapper(
     noteCount,
     isFirstBar,
     constants.lineWidthBarBorder,
-    showText,
+    showBarDetails,
     dpr,
     prevParams,
     prevNoteCount,
@@ -1279,7 +1283,7 @@ function drawBarNotes(
   currentBranch?: BranchName,
   effectiveBarIndex?: number,
 ): void {
-  const { canvasContext, options, judgements, texts, constants, inferredHands, locToJudgementKey } = renderContext;
+  const { canvasContext, options, judgements, texts, constants, locToJudgementKey } = renderContext;
   const {
     noteRadiusSmall: rSmall,
     noteRadiusBig: rBig,
@@ -1389,35 +1393,71 @@ function drawBarNotes(
       canvasContext.arc(noteX, centerY, fillR, 0, Math.PI * 2);
       canvasContext.fillStyle = color;
       canvasContext.fill();
+    }
+  }
+}
 
-      // Annotation Rendering
-      if ((options.isAnnotationMode || options.alwaysShowAnnotations) && options.annotations && isJudgeable(noteChar)) {
-        const noteId = { barIndex: originalBarIndex, charIndex: i };
-        const annotation = options.annotations.get(noteId);
-        if (annotation) {
-          let textColor = PALETTE.ui.annotation.match;
-          if (inferredHands) {
-            const inferred = inferredHands.get(noteId);
-            if (inferred && inferred !== annotation) {
-              textColor = PALETTE.ui.annotation.mismatch;
-            }
-          }
+function drawBarAnnotations(
+  renderContext: RenderContext,
+  bar: NoteType[],
+  frame: Frame,
+  originalBarIndex: number,
+): void {
+  const { canvasContext, options, constants, inferredHands } = renderContext;
+  const { noteRadiusSmall: rSmall, noteRadiusBig: rBig } = constants;
 
-          canvasContext.save();
-          // Larger size
-          canvasContext.font = `bold ${rBig * 1.5}px ${FONT_STACK}`;
-          canvasContext.fillStyle = textColor;
-          canvasContext.textAlign = "center";
-          canvasContext.textBaseline = "bottom";
+  if (!(options.isAnnotationMode || options.alwaysShowAnnotations) || !options.annotations) return;
 
-          // Position at the top of the bar, similar to bar numbers
-          const textY = frame.y;
+  const noteCount = bar.length;
+  if (noteCount === 0) return;
+  const { x, width } = frame;
+  const noteStep = width / noteCount;
 
-          canvasContext.fillText(annotation, noteX, textY);
-          canvasContext.restore();
-        }
+  // Pass 1: Draw separator lines (above notes, below L/R text)
+  for (let i = 0; i < bar.length; i++) {
+    if (!isJudgeable(bar[i])) continue;
+    const noteId = { barIndex: originalBarIndex, charIndex: i };
+    const annotation = options.annotations.get(noteId);
+    if (!annotation || !annotation.includes("|")) continue;
+    const noteX = x + i * noteStep;
+    canvasContext.save();
+    const sepX = noteX - rSmall * 0.75;
+    const slantOffset = rSmall * 0.2;
+    const overshoot = rSmall * 0.5;
+    const sepTop = frame.y - overshoot;
+    const sepBottom = frame.y + frame.height + overshoot;
+    canvasContext.strokeStyle = PALETTE.ui.annotation.separator;
+    canvasContext.lineWidth = Math.max(2, rSmall * 0.25);
+    canvasContext.beginPath();
+    canvasContext.moveTo(sepX + slantOffset, sepTop);
+    canvasContext.lineTo(sepX - slantOffset, sepBottom);
+    canvasContext.stroke();
+    canvasContext.restore();
+  }
+
+  // Pass 2: Draw L/R text (above separators)
+  for (let i = 0; i < bar.length; i++) {
+    if (!isJudgeable(bar[i])) continue;
+    const noteId = { barIndex: originalBarIndex, charIndex: i };
+    const annotation = options.annotations.get(noteId);
+    const hand = annotation ? annotation.replace("|", "") : "";
+    if (!hand) continue;
+    const noteX = x + i * noteStep;
+    let textColor = PALETTE.ui.annotation.match;
+    if (inferredHands) {
+      const inferred = inferredHands.get(noteId);
+      if (inferred && inferred !== hand) {
+        textColor = PALETTE.ui.annotation.mismatch;
       }
     }
+    canvasContext.save();
+    canvasContext.font = `bold ${rBig * 1.5}px ${FONT_STACK}`;
+    canvasContext.fillStyle = textColor;
+    canvasContext.textAlign = "center";
+    canvasContext.textBaseline = "bottom";
+    const textY = frame.y;
+    canvasContext.fillText(hand, noteX, textY);
+    canvasContext.restore();
   }
 }
 
@@ -1932,6 +1972,7 @@ function drawAllBranchesNotes(
         b.type as BranchName,
         info.effectiveBarIndex,
       );
+      drawBarAnnotations(branchContext, info.bar, frame, info.originalIndex);
     }
   });
 }
@@ -2109,6 +2150,15 @@ export function renderLayout(
         chart.branchType,
         info.effectiveBarIndex,
       );
+    }
+
+    // Layer 3: Annotations (above all notes)
+    for (let index = virtualBars.length - 1; index >= 0; index--) {
+      const info = virtualBars[index];
+      const frame = barFrames[index];
+      if (dirtyRowY && !dirtyRowY.has(frame.y)) continue;
+
+      drawBarAnnotations(renderContext, info.bar, frame, info.originalIndex);
     }
   }
 

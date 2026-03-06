@@ -306,6 +306,7 @@ export interface ViewOptions {
   handAlternationThreshold?: number;
   handResetThreshold?: number;
   autoAnnotateMode?: "full" | "partial";
+  annotationToolType?: "hand" | "separator";
   showAttribution?: boolean;
   range?: {
     start: NoteLocation;
