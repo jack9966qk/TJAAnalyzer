@@ -457,6 +457,13 @@ button:disabled {
   font-size: 0.9em;
 }
 
+.tab-description {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.9em;
+  font-style: italic;
+}
+
 .modal-scroll-area h3 {
   margin: 0 0 12px 0;
   font-size: 1.1em;

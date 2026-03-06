@@ -75,89 +75,82 @@ export class AnnotateOptions extends HTMLElement {
     if (resetIdx === -1) resetIdx = 0;
 
     const vdom = (
-      <div style="display: contents;">
-        <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 5px;">
-          <div className="control-group" style="display: flex; align-items: center; gap: 10px;">
-            <button
-              type="button"
-              id="auto-annotate-btn"
-              className="control-btn"
-              onclick={this.handleAutoAnnotate.bind(this)}
-            >
-              {i18n.t("ui.autoAnnotate")}
-            </button>
-            <button
-              type="button"
-              id="clear-annotations-btn"
-              className="control-btn"
-              style="background-color: var(--bg-panel-tabs); color: var(--text-primary); border: 1px solid var(--border-color);"
-              onclick={this.handleClearAnnotations.bind(this)}
-            >
-              {i18n.t("ui.clearAnnotations")}
-            </button>
-          </div>
-
-          <div
-            className="control-group"
-            style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;"
+      <div className="control-group" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
+        <p className="tab-description">{i18n.t("ui.annotation.desc")}</p>
+        <div style="display: flex; width: 100%;">
+          <button
+            type="button"
+            id="clear-annotations-btn"
+            className="control-btn"
+            style="background-color: var(--bg-panel-tabs); color: var(--text-primary); border: 1px solid var(--border-color);"
+            onclick={this.handleClearAnnotations.bind(this)}
           >
-            <div style="display: flex; flex-direction: column; gap: 5px;">
-              <span style="font-size: 0.9em; color: var(--text-secondary);">
-                {i18n.t("ui.handAlternationThreshold") || "Alternation gap:"}
-              </span>
-              <stepper-control
-                value={altIdx}
-                min={0}
-                max={this.ALT_THRESHOLDS.length - 1}
-                step={1}
-                baseline={this.ALT_THRESHOLDS.length - 1}
-                format={(v: number) => this.formatThreshold(this.ALT_THRESHOLDS[v])}
-                changeCallback={(v: number) => this.handleAltChange(v)}
-              ></stepper-control>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 5px;">
-              <span style="font-size: 0.9em; color: var(--text-secondary);">
-                {i18n.t("ui.handResetThreshold") || "Reset gap:"}
-              </span>
-              <stepper-control
-                value={resetIdx}
-                min={0}
-                max={this.RESET_THRESHOLDS.length - 1}
-                step={1}
-                baseline={0}
-                format={(v: number) => this.formatThreshold(this.RESET_THRESHOLDS[v])}
-                changeCallback={(v: number) => this.handleResetChange(v)}
-              ></stepper-control>
-            </div>
-          </div>
+            {i18n.t("ui.clearAnnotations")}
+          </button>
+        </div>
 
-          <div
-            className="control-group"
-            style="display: flex; align-items: center; justify-content: space-between; gap: 10px;"
-          >
-            <div style="display: flex; flex-direction: column; gap: 5px;">
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={!!appState.viewOptions.showTextInAnnotationMode}
-                  onchange={this.handleToggleShowText.bind(this)}
-                />
-                <span>{i18n.t("ui.showTextInAnnotationMode")}</span>
-              </label>
-              <label className="checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={!!appState.viewOptions.alwaysShowAnnotations}
-                  onchange={this.handleToggleAlwaysShow.bind(this)}
-                />
-                <span>{i18n.t("ui.alwaysShowAnnotations")}</span>
-              </label>
-            </div>
+        <div style="display: flex; flex-direction: column; gap: 5px;">
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={!!appState.viewOptions.showTextInAnnotationMode}
+              onchange={this.handleToggleShowText.bind(this)}
+            />
+            <span>{i18n.t("ui.showTextInAnnotationMode")}</span>
+          </label>
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={!!appState.viewOptions.alwaysShowAnnotations}
+              onchange={this.handleToggleAlwaysShow.bind(this)}
+            />
+            <span>{i18n.t("ui.alwaysShowAnnotations")}</span>
+          </label>
+        </div>
+
+        <div style="width: 100%; border-top: 1px solid var(--border-lighter); padding-top: 5px;"></div>
+
+        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; width: 100%;">
+          <div style="display: flex; flex-direction: column; gap: 5px;">
+            <span style="font-size: 0.9em; color: var(--text-secondary);">
+              {i18n.t("ui.handAlternationThreshold") || "Alternation gap:"}
+            </span>
+            <stepper-control
+              value={altIdx}
+              min={0}
+              max={this.ALT_THRESHOLDS.length - 1}
+              step={1}
+              baseline={this.ALT_THRESHOLDS.length - 1}
+              format={(v: number) => this.formatThreshold(this.ALT_THRESHOLDS[v])}
+              changeCallback={(v: number) => this.handleAltChange(v)}
+            ></stepper-control>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 5px;">
+            <span style="font-size: 0.9em; color: var(--text-secondary);">
+              {i18n.t("ui.handResetThreshold") || "Reset gap:"}
+            </span>
+            <stepper-control
+              value={resetIdx}
+              min={0}
+              max={this.RESET_THRESHOLDS.length - 1}
+              step={1}
+              baseline={0}
+              format={(v: number) => this.formatThreshold(this.RESET_THRESHOLDS[v])}
+              changeCallback={(v: number) => this.handleResetChange(v)}
+            ></stepper-control>
           </div>
         </div>
-        <p style="font-size: 0.9em; color: var(--text-secondary); margin-top: 5px; margin-bottom: 0;">
-          {i18n.t("ui.annotation.desc")}
-        </p>
+
+        <div style="display: flex; width: 100%;">
+          <button
+            type="button"
+            id="auto-annotate-btn"
+            className="control-btn"
+            onclick={this.handleAutoAnnotate.bind(this)}
+          >
+            {i18n.t("ui.autoAnnotate")}
+          </button>
+        </div>
       </div>
     );
     webjsx.applyDiff(this, vdom);
