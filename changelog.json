@@ -1,5 +1,55 @@
 [
   {
+    "hash": "4a14b27",
+    "message": "Update version to 0.11.0.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "3db73b3",
+    "message": "Update the layout of the two steppers in annotation tab to make them two separate rows.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "dac36c2",
+    "message": "Update annotation tool selection UI to a custom segmented control element. Fix annotation click handling from previous commit.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "74afb2d",
+    "message": "Refactor chart annotation definitions and usage, replacing string with custom types. Add a missing snapshot change.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "6b12e4e",
+    "message": "Support a note separator annotation type. Allow switching between separator and hand annotation types, and adding/removing the separtor by clicking on the notes.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "c27c10f",
+    "message": "Reduce panels horiztonal padding. Adjust panel and page background colors. Adjust spacing between panels and remove unnecessary top/bottom padding in vertical layout.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "148efea",
+    "message": "Add an option to auto annotate all notes.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "8075900",
+    "message": "Update the layout of the annotate tab content to be more consistent with other tabs.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "b308552",
+    "message": "Allow customizing hand inference during auto annotation to accomodate different hand alternation styles.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "8914b90",
+    "message": "Slightly update the style of the zoom stepper controls, and make a reusable component from it.",
+    "date": "2026-03-07"
+  },
+  {
     "hash": "26c50c5",
     "message": "Update version to 0.10.6.",
     "date": "2026-03-02"
@@ -448,55 +498,5 @@
     "hash": "1d8d5af",
     "message": "Add UI tests for playdata display in chart list.",
     "date": "2026-02-13"
-  },
-  {
-    "hash": "44a394e",
-    "message": "Slight improvement in chart list playdata styling.",
-    "date": "2026-02-12"
-  },
-  {
-    "hash": "711df51",
-    "message": "Add a few display modes to show playdata along with the chart list.",
-    "date": "2026-02-12"
-  },
-  {
-    "hash": "cd48125",
-    "message": "Make sure chart list labels are aligned regardless of the playdata strip status.",
-    "date": "2026-02-12"
-  },
-  {
-    "hash": "0c07c01",
-    "message": "Update version as 0.9.2.",
-    "date": "2026-02-11"
-  },
-  {
-    "hash": "d71ea4f",
-    "message": "Update chart list to use crown status from playdata for the strip color.",
-    "date": "2026-02-11"
-  },
-  {
-    "hash": "3d4a376",
-    "message": "Update playdata importer to identify songs by ID instead of title. Remove the manual resolution UI.",
-    "date": "2026-02-11"
-  },
-  {
-    "hash": "9c3c9bc",
-    "message": "Extend fumen-database parsing to include song ID, crown and score rank.",
-    "date": "2026-02-11"
-  },
-  {
-    "hash": "29d085f",
-    "message": "Store playdata with song ID instead of titles from Fumen Database. Add versioning to the stored playdata. Fix an issue where chart list UI for playdata can be outdated.",
-    "date": "2026-02-11"
-  },
-  {
-    "hash": "6009484",
-    "message": "Improve title resolution during playdata import.",
-    "date": "2026-02-10"
-  },
-  {
-    "hash": "be8028c",
-    "message": "Update playdata importer to allow users to manually address some unmatched entires where a fuzzy match is available.",
-    "date": "2026-02-10"
   }
 ]
