@@ -3,8 +3,8 @@
   "short_name": "TJA Analyzer",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#f0f0f0",
+  "theme_color": "#f0f0f0",
   "icons": [
     {
       "src": "icon_simple.png",

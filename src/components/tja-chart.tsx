@@ -44,6 +44,23 @@ interface VendorDocument extends Document {
 
 type AppViewOptions = ViewOptions & { autoZoom?: boolean };
 
+function getSafeAreaInsets(): Insets {
+  const div = document.createElement("div");
+  div.style.padding = "env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)";
+  div.style.position = "absolute";
+  div.style.visibility = "hidden";
+  document.body.appendChild(div);
+  const computed = getComputedStyle(div);
+  const insets = {
+    top: parseFloat(computed.paddingTop) || 0,
+    right: parseFloat(computed.paddingRight) || 0,
+    bottom: parseFloat(computed.paddingBottom) || 0,
+    left: parseFloat(computed.paddingLeft) || 0,
+  };
+  document.body.removeChild(div);
+  return insets;
+}
+
 export interface ChartClickEventDetail {
   x: number;
   y: number;
@@ -123,11 +140,7 @@ export class TJAChart extends HTMLElement {
                 -webkit-overflow-scrolling: touch;
                 overscroll-behavior: contain;
                 background-color: var(--canvas-container-bg, #fafafa);
-                padding-top: env(safe-area-inset-top);
-                padding-left: env(safe-area-inset-left);
-                padding-right: env(safe-area-inset-right);
-                padding-bottom: max(20px, env(safe-area-inset-bottom));
-                transition: padding var(--anim-duration-normal) ease, background-color var(--anim-duration-normal) ease;
+                transition: background-color var(--anim-duration-normal) ease;
             }
             :host(.pseudo-fullscreen) {
                 position: fixed;
@@ -344,6 +357,17 @@ export class TJAChart extends HTMLElement {
     return isNativeFullscreen || this.classList.contains("pseudo-fullscreen");
   }
 
+  private updateThemeColor(isFullscreen: boolean) {
+    const lightMeta = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: light)"]');
+    const darkMeta = document.querySelector('meta[name="theme-color"][media="(prefers-color-scheme: dark)"]');
+    if (lightMeta) {
+      lightMeta.setAttribute("content", isFullscreen ? "#fafafa" : "#f0f0f0");
+    }
+    if (darkMeta) {
+      darkMeta.setAttribute("content", isFullscreen ? "#1e1e1e" : "#1a1a1a");
+    }
+  }
+
   private applyAutoZoom(viewOptions: AppViewOptions, insets: Insets = INSETS) {
     if (!viewOptions.autoZoom) return;
     // Use logical width (CSS pixels) for calculation
@@ -374,6 +398,8 @@ export class TJAChart extends HTMLElement {
     this._renderTask = null;
     if (!this.isConnected || !this.canvas) return;
 
+    this.updateThemeColor(this.isFullscreen);
+
     const width = this.clientWidth || 800;
 
     const isHorizontal = document.body.classList.contains("horizontal-layout");
@@ -384,7 +410,13 @@ export class TJAChart extends HTMLElement {
     }
 
     if (this.isFullscreen) {
-      baseInsets = { ...INSETS };
+      const safeArea = getSafeAreaInsets();
+      baseInsets = {
+        top: Math.max(INSETS.top, safeArea.top + 10),
+        bottom: Math.max(INSETS.bottom, safeArea.bottom + 10),
+        left: Math.max(INSETS.left, safeArea.left + 10),
+        right: Math.max(INSETS.right, safeArea.right + 10),
+      };
     }
 
     // Handle Message State

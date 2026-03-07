@@ -1155,7 +1155,7 @@ body.horizontal-layout.controls-collapsed #layout-toggle-btn {
   left: 0;
   right: 0;
   height: env(safe-area-inset-top);
-  background-color: var(--bg-app);
+  background-color: var(--bg-body);
   z-index: 200; /* Above everything including sticky header */
   pointer-events: none; /* Let clicks pass through if height is 0 */
 }
@@ -1199,7 +1199,7 @@ body.horizontal-layout .canvas-container {
   align-items: center;
   padding-right: max(20px, env(safe-area-inset-right));
   padding-left: env(safe-area-inset-left); /* Ensure header title doesn't hit notch if left aligned */
-  padding-top: max(20px, env(safe-area-inset-top)); /* Clear status bar/safe area */
+  padding-top: calc(20px + env(safe-area-inset-top)); /* Clear status bar/safe area */
   padding-bottom: 20px; /* Restore spacing below header */
 }
 
@@ -1219,7 +1219,7 @@ h1 {
 
 @media all and (display-mode: standalone) {
   body {
-    background-color: var(--bg-app); /* Match app bg to avoid gaps */
+    background-color: var(--bg-body); /* Match page background */
   }
 
   #app {
