@@ -5,6 +5,7 @@ import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { tjaChart } from "../view/ui-elements.js";
 import "./action-button.js";
+import type { ModalPage } from "./modal-page.js";
 import "./stepper-control.js";
 
 const { LocationMap } = Renderer.Private;
@@ -12,6 +13,14 @@ const { LocationMap } = Renderer.Private;
 export class AnnotateOptions extends HTMLElement {
   private readonly ALT_THRESHOLDS = [1 / 32, 1 / 16, 1 / 12, 1 / 8, 1 / 4, 1, 2, 4, Infinity];
   private readonly RESET_THRESHOLDS = [0, 1 / 32, 1 / 16, 1 / 12, 1 / 8, 1 / 4, 1, 2, 4, Infinity];
+
+  private _isConfigModalOpen = false;
+  private _modalContainer: HTMLDivElement;
+
+  constructor() {
+    super();
+    this._modalContainer = document.createElement("div");
+  }
 
   private formatThreshold(val: number): string {
     if (val === Infinity) return "∞";
@@ -29,6 +38,7 @@ export class AnnotateOptions extends HTMLElement {
   connectedCallback() {
     this.style.display = "block";
     this.render();
+    document.body.appendChild(this._modalContainer);
     // Listen for language changes
     i18n.onLanguageChange(() => this.render());
     if (tjaChart) {
@@ -39,6 +49,9 @@ export class AnnotateOptions extends HTMLElement {
   disconnectedCallback() {
     if (tjaChart) {
       tjaChart.removeEventListener("annotations-change", this.handleAnnotationsChange);
+    }
+    if (this._modalContainer.parentNode === document.body) {
+      document.body.removeChild(this._modalContainer);
     }
   }
 
@@ -88,6 +101,16 @@ export class AnnotateOptions extends HTMLElement {
     const target = e.target as HTMLSelectElement;
     appState.viewOptions.autoAnnotateMode = target.value as "full" | "partial";
     refreshChart();
+    this.render();
+  }
+
+  private openConfigModal() {
+    this._isConfigModalOpen = true;
+    this.render();
+  }
+
+  private closeConfigModal() {
+    this._isConfigModalOpen = false;
     this.render();
   }
 
@@ -160,64 +183,87 @@ export class AnnotateOptions extends HTMLElement {
 
         <div style="width: 100%; border-top: 1px solid var(--border-lighter); padding-top: 5px;"></div>
 
-        <div style="display: flex; flex-direction: column; gap: 5px; width: 100%;">
-          <div className="section-main">
-            <span className="sub-label" style="min-width: auto;">
-              {i18n.t("ui.handAlternationThreshold")}
-            </span>
-            <stepper-control
-              value={altIdx}
-              min={0}
-              max={this.ALT_THRESHOLDS.length - 1}
-              step={1}
-              baseline={this.ALT_THRESHOLDS.length - 1}
-              format={(v: number) => this.formatThreshold(this.ALT_THRESHOLDS[v])}
-              changeCallback={(v: number) => this.handleAltChange(v)}
-            ></stepper-control>
-          </div>
-          <div className="section-main">
-            <span className="sub-label" style="min-width: auto;">
-              {i18n.t("ui.handResetThreshold")}
-            </span>
-            <stepper-control
-              value={resetIdx}
-              min={0}
-              max={this.RESET_THRESHOLDS.length - 1}
-              step={1}
-              baseline={0}
-              format={(v: number) => this.formatThreshold(this.RESET_THRESHOLDS[v])}
-              changeCallback={(v: number) => this.handleResetChange(v)}
-            ></stepper-control>
-          </div>
-        </div>
-
-        <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
-          <span style="font-size: 0.9em; color: var(--text-secondary);">
-            {i18n.t("ui.autoAnnotateMode") || "Apply to:"}
-          </span>
-          <select
-            className="control-select"
-            style="width: 120px;"
-            value={mode}
-            onchange={this.handleModeChange.bind(this)}
-          >
-            <option value="partial" selected={isPartialSelected}>
-              {i18n.t("ui.autoAnnotateMode.partial") || "Some notes"}
-            </option>
-            <option value="full" selected={isFullSelected}>
-              {i18n.t("ui.autoAnnotateMode.full") || "All notes"}
-            </option>
-          </select>
-        </div>
-
-        <div style="display: flex; width: 100%;">
+        <div style="display: flex; gap: 8px; width: 100%;">
           <action-button id="auto-annotate-btn" button-variant="primary" action={async () => this.handleAutoAnnotate()}>
             {i18n.t("ui.autoAnnotate")}
+          </action-button>
+          <action-button
+            id="auto-annotate-customize-btn"
+            button-variant="secondary"
+            action={async () => this.openConfigModal()}
+          >
+            {i18n.t("ui.autoAnnotateCustomize")}
           </action-button>
         </div>
       </div>
     );
     webjsx.applyDiff(this, vdom);
+
+    const customizeBtn = this.querySelector("#auto-annotate-customize-btn");
+    const modalVdom = (
+      <modal-page
+        id="auto-annotate-settings-modal"
+        open={this._isConfigModalOpen || null}
+        title={i18n.t("ui.autoAnnotateSettings")}
+        max-width="400px"
+        onclose={this.closeConfigModal.bind(this)}
+      >
+        <div className="settings-content">
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <div className="section-main">
+              <span className="sub-label" style="min-width: auto;">
+                {i18n.t("ui.handAlternationThreshold")}
+              </span>
+              <stepper-control
+                value={altIdx}
+                min={0}
+                max={this.ALT_THRESHOLDS.length - 1}
+                step={1}
+                baseline={this.ALT_THRESHOLDS.length - 1}
+                format={(v: number) => this.formatThreshold(this.ALT_THRESHOLDS[v])}
+                changeCallback={(v: number) => this.handleAltChange(v)}
+              ></stepper-control>
+            </div>
+            <div className="section-main">
+              <span className="sub-label" style="min-width: auto;">
+                {i18n.t("ui.handResetThreshold")}
+              </span>
+              <stepper-control
+                value={resetIdx}
+                min={0}
+                max={this.RESET_THRESHOLDS.length - 1}
+                step={1}
+                baseline={0}
+                format={(v: number) => this.formatThreshold(this.RESET_THRESHOLDS[v])}
+                changeCallback={(v: number) => this.handleResetChange(v)}
+              ></stepper-control>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 0.9em; color: var(--text-secondary);">
+                {i18n.t("ui.autoAnnotateMode") || "Apply to:"}
+              </span>
+              <select
+                className="control-select"
+                style="width: 120px;"
+                value={mode}
+                onchange={this.handleModeChange.bind(this)}
+              >
+                <option value="partial" selected={isPartialSelected}>
+                  {i18n.t("ui.autoAnnotateMode.partial") || "Some notes"}
+                </option>
+                <option value="full" selected={isFullSelected}>
+                  {i18n.t("ui.autoAnnotateMode.full") || "All notes"}
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </modal-page>
+    );
+    webjsx.applyDiff(this._modalContainer, modalVdom);
+
+    const modalEl = this._modalContainer.firstElementChild as ModalPage | null;
+    modalEl?.setAnchor(customizeBtn ?? null);
   }
 }
 

@@ -8,6 +8,7 @@ export class ModalPage extends HTMLElement {
   private _title = "";
   private _maxWidth = "800px";
   private _isHorizontal = appState.isHorizontalLayout;
+  private _anchorElement: Element | null = null;
   private _layoutHandler = (e: Event) => {
     this._isHorizontal = (e as CustomEvent).detail.isHorizontal;
     this.render();
@@ -90,6 +91,46 @@ export class ModalPage extends HTMLElement {
     this.setAttribute("max-width", val);
   }
 
+  setAnchor(el: Element | null) {
+    this._anchorElement = el;
+    if (this._isOpen) this.render();
+  }
+
+  private computeAnchoredContentStyle(): string {
+    if (!this._isHorizontal || !this._anchorElement) return "";
+
+    const anchor = this._anchorElement.getBoundingClientRect();
+    const gap = 8;
+    const margin = 16;
+    const viewportW = window.innerWidth;
+    const viewportH = window.innerHeight;
+
+    // Parse max-width (e.g. "400px") for horizontal clamping
+    const maxWidthPx = Number.parseInt(this._maxWidth, 10) || 400;
+    const approxWidth = Math.min(maxWidthPx, viewportW - 2 * margin);
+
+    const spaceBelow = viewportH - anchor.bottom - gap - margin;
+    const spaceAbove = anchor.top - gap - margin;
+
+    // Align left edge with anchor, clamped so content stays in viewport
+    let left = anchor.left;
+    if (left + approxWidth > viewportW - margin) {
+      left = viewportW - margin - approxWidth;
+    }
+    left = Math.max(margin, left);
+
+    if (spaceBelow >= spaceAbove) {
+      // Place below anchor
+      const top = anchor.bottom + gap;
+      const maxHeight = Math.max(50, spaceBelow);
+      return `position: fixed; top: ${top}px; bottom: auto; left: ${left}px; margin: 0; max-height: ${maxHeight}px;`;
+    }
+    // Place above anchor — bottom of modal sits just above anchor
+    const bottom = viewportH - anchor.top + gap;
+    const maxHeight = Math.max(50, spaceAbove);
+    return `position: fixed; top: auto; bottom: ${bottom}px; left: ${left}px; margin: 0; max-height: ${maxHeight}px;`;
+  }
+
   private handleClose() {
     this.dispatchEvent(
       new CustomEvent("close", {
@@ -106,15 +147,22 @@ export class ModalPage extends HTMLElement {
   }
 
   render() {
+    const isAnchored = this._isHorizontal && this._anchorElement != null;
     const layoutClass = this._isHorizontal ? "layout-horizontal" : "layout-vertical";
+    const anchoredClass = isAnchored ? " anchored" : "";
+    const anchoredContentStyle = this.computeAnchoredContentStyle();
+
     const vdom = (
       <div
         id="modal-root"
-        className={`modal ${this._isOpen ? "open" : ""} ${layoutClass}`}
+        className={`modal ${this._isOpen ? "open" : ""} ${layoutClass}${anchoredClass}`}
         onclick={this.handleOverlayClick.bind(this)}
       >
         <link rel="stylesheet" href={styleUrl} />
-        <div className="modal-content" style={`max-width: ${this._maxWidth}`}>
+        <div
+          className="modal-content"
+          style={`max-width: ${this._maxWidth}${anchoredContentStyle ? `; ${anchoredContentStyle}` : ""}`}
+        >
           <div className="modal-header">
             <h2>{this._title}</h2>
             <button

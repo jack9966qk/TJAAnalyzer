@@ -872,6 +872,16 @@ modal-page[open] {
   padding: max(40px, env(safe-area-inset-top)) 40px max(40px, env(safe-area-inset-bottom)) 40px;
 }
 
+/* Anchored modal: content positioned near anchor, no scale animation */
+.modal.anchored .modal-content {
+  transform: none;
+  box-shadow: 0 4px 16px var(--shadow-color);
+}
+
+.modal.anchored.open .modal-content {
+  transform: none;
+}
+
 /* Vertical layout (default) - bottom sheet */
 .modal.layout-vertical {
   justify-content: flex-end;

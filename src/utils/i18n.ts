@@ -292,6 +292,9 @@ const resources: Resources = {
     "ui.settings.langJa": "Japanese",
     "ui.settings.langZh": "Chinese",
     "ui.settings.langKo": "Korean",
+
+    "ui.autoAnnotateSettings": "Auto Annotate Settings",
+    "ui.autoAnnotateCustomize": "Customize...",
   },
   zh: {
     "ui.dataSource": "数据源",
@@ -575,6 +578,9 @@ const resources: Resources = {
     "ui.settings.langJa": "日语",
     "ui.settings.langZh": "中文",
     "ui.settings.langKo": "韩语",
+
+    "ui.autoAnnotateSettings": "自动标注设置",
+    "ui.autoAnnotateCustomize": "自定义...",
   },
   ja: {
     "ui.dataSource": "データソース",
@@ -859,6 +865,9 @@ const resources: Resources = {
     "ui.settings.langJa": "日本語",
     "ui.settings.langZh": "中国語",
     "ui.settings.langKo": "韓国語",
+
+    "ui.autoAnnotateSettings": "自動注釈設定",
+    "ui.autoAnnotateCustomize": "カスタマイズ...",
   },
 };
 
