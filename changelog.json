@@ -1,5 +1,35 @@
 [
   {
+    "hash": "90bf125",
+    "message": "Update version to 0.11.2.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "4dc3bc5",
+    "message": "Fix status message style in action button when there is a split dropdown button.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "4ab8a1e",
+    "message": "Add an advanced search option to filter by a BPM range.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "3889b75",
+    "message": "Fix some test failures.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "863ede2",
+    "message": "Extend the modal page for a variant that anchors at a given element. Update annotation tab to display auto annotation settings in a modal page.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "a5b63c2",
+    "message": "Update action button to support both a primary action and a dropdown menu. Use this for the \"share current chart\" button to allow sharing with search options. Fix top/bottom inset of the rendered chart.",
+    "date": "2026-03-07"
+  },
+  {
     "hash": "617015f",
     "message": "Update version to 0.11.1.",
     "date": "2026-03-07"
@@ -468,35 +498,5 @@
     "hash": "ff87636",
     "message": "Prioritize branching indicator (yellow line) over BPM/HS change indicator (grey line) when both happen at the same time.",
     "date": "2026-02-14"
-  },
-  {
-    "hash": "f57b1bc",
-    "message": "Update branching stats panel width and indicate unreachable expert/master branches.",
-    "date": "2026-02-14"
-  },
-  {
-    "hash": "2fdeb80",
-    "message": "Automatically hide unreachable branches on the rendered chart. Improve connection between unbranched bars and single branch bars.",
-    "date": "2026-02-14"
-  },
-  {
-    "hash": "f5a525f",
-    "message": "Update outdated snapshots.",
-    "date": "2026-02-14"
-  },
-  {
-    "hash": "e5b3f29",
-    "message": "Fix branch condition parsing with unpaired BRANCHSTART/BRANCHEND commands.",
-    "date": "2026-02-13"
-  },
-  {
-    "hash": "6104d80",
-    "message": "Run formatter.",
-    "date": "2026-02-13"
-  },
-  {
-    "hash": "ab6268d",
-    "message": "Fix incorrect notes parsing by EXAM commands.",
-    "date": "2026-02-13"
   }
 ]
