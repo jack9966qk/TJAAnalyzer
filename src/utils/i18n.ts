@@ -181,7 +181,8 @@ const resources: Resources = {
     "ui.playdata.step1": "Copy the bookmarklet below and create a browser bookmark with it",
     "ui.playdata.step2": "Open your profile page on fumen-database.com",
     "ui.playdata.step3": "Click the bookmark while on your fumen-database profile page",
-    "ui.playdata.step4": "Return here and paste from clipboard to import",
+    "ui.playdata.step4":
+      "The app will open and import automatically. If using a PWA or desktop app, return here and paste manually.",
     "ui.playdata.copyBookmarklet": "Copy Bookmarklet",
     "ui.playdata.copied": "Copied",
     "ui.playdata.pasteImport": "Paste from Clipboard",
@@ -205,6 +206,12 @@ const resources: Resources = {
     "ui.playdata.bookmarkletInstructions": "Tap the text below to select all, then copy:",
     "ui.playdata.pasteManualInstruction": "If clipboard import fails, paste manually below:",
     "ui.playdata.pasteHereInstruction": "Paste HTML content from fumen-database below:",
+    "ui.playdata.pwaDesktopNotice":
+      "Note: If using a PWA or desktop app, the link may not open automatically. Return here and paste the clipboard content manually.",
+    "ui.playdata.bookmarkletConnecting":
+      "Importing automatically from the bookmarklet. You can also paste manually below.",
+    "ui.playdata.importSuccessPwaReminder":
+      "If you also use a PWA or desktop app, switch to it and paste from clipboard to import there as well.",
     "ui.playdata.import": "Import",
     "ui.playdata.importing": "Importing...",
     "ui.playdata.goToImport": "Import Playdata",
@@ -470,7 +477,7 @@ const resources: Resources = {
     "ui.playdata.step1": "复制下方的书签代码，创建一个新书签并粘贴为内容",
     "ui.playdata.step2": "在 fumen-database.com 打开您的个人页面",
     "ui.playdata.step3": "在 fumen-database 个人页面时点击该书签",
-    "ui.playdata.step4": '返回此页面，点击"从剪贴板粘贴"导入',
+    "ui.playdata.step4": "应用将自动打开并导入数据。如果使用 PWA 或桌面版，请手动返回此处粘贴。",
     "ui.playdata.copyBookmarklet": "复制书签代码",
     "ui.playdata.copied": "已复制",
     "ui.playdata.pasteImport": "从剪贴板粘贴",
@@ -494,6 +501,10 @@ const resources: Resources = {
     "ui.playdata.bookmarkletInstructions": "点击下方文字全选，然后复制：",
     "ui.playdata.pasteManualInstruction": "如果剪贴板导入失败，请下方手动粘贴：",
     "ui.playdata.pasteHereInstruction": "在下方粘贴 fumen-database 的 HTML 内容：",
+    "ui.playdata.pwaDesktopNotice":
+      "注意：如果使用 PWA 或桌面版，链接可能无法自动打开。请手动返回此处并粘贴剪贴板内容。",
+    "ui.playdata.bookmarkletConnecting": "正在从书签自动导入，您也可以在下方手动粘贴。",
+    "ui.playdata.importSuccessPwaReminder": "如果您同时使用 PWA 或桌面版，请切换到该应用并从剪贴板粘贴以在那里导入。",
     "ui.playdata.import": "导入",
     "ui.playdata.importing": "导入中...",
     "ui.playdata.goToImport": "导入成绩数据",
@@ -757,7 +768,8 @@ const resources: Resources = {
     "ui.playdata.step1": "下のブックマークレットをコピーしてブックマークとして作成",
     "ui.playdata.step2": "fumen-database.com でプロフィールページを開く",
     "ui.playdata.step3": "fumen-database のプロフィールページでそのブックマークをクリック",
-    "ui.playdata.step4": "ここに戻り、クリップボードからインポート",
+    "ui.playdata.step4":
+      "アプリが自動で開きインポートされます。PWAまたはデスクトップ版の場合は、手動で戻って貼り付けてください。",
     "ui.playdata.copyBookmarklet": "ブックマークレットをコピー",
     "ui.playdata.copied": "コピーしました",
     "ui.playdata.pasteImport": "クリップボードから貼り付け",
@@ -781,6 +793,12 @@ const resources: Resources = {
     "ui.playdata.bookmarkletInstructions": "下のテキストをタップして全選択し、コピーしてください：",
     "ui.playdata.pasteManualInstruction": "クリップボードから読み取れない場合、以下に貼り付けてください：",
     "ui.playdata.pasteHereInstruction": "fumen-database の HTML を以下に貼り付けてください：",
+    "ui.playdata.pwaDesktopNotice":
+      "注意：PWAまたはデスクトップ版を使用している場合、リンクが自動で開かないことがあります。手動で戻り、クリップボードの内容を貼り付けてください。",
+    "ui.playdata.bookmarkletConnecting":
+      "ブックマークレットから自動インポート中です。以下に手動で貼り付けることもできます。",
+    "ui.playdata.importSuccessPwaReminder":
+      "PWAまたはデスクトップ版も使用している場合は、そちらに切り替えてクリップボードから貼り付けてインポートしてください。",
     "ui.playdata.import": "インポート",
     "ui.playdata.importing": "インポート中...",
     "ui.playdata.goToImport": "プレイデータをインポート",

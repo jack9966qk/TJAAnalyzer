@@ -33,6 +33,9 @@ export class SettingsPanel extends HTMLElement {
   private playdata: Playdata | null = null;
   private isImportMode = false;
   private isFromBookmarklet = false;
+  private isListeningForMessage = false;
+  private messageHandler: ((e: MessageEvent) => void) | null = null;
+  private messageTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private isExporting = false;
   private isImporting = false;
   private manualPasteContent = "";
@@ -74,16 +77,65 @@ export class SettingsPanel extends HTMLElement {
 
   private checkImportParameter() {
     const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get("import") === "playdata") {
-      // Clear the URL parameter without reload
-      const newUrl = window.location.pathname + window.location.hash;
-      window.history.replaceState({}, document.title, newUrl);
+    if (urlParams.get("import") !== "playdata") return;
 
-      // Open modal in import mode (from bookmarklet)
-      this.isImportMode = true;
-      this.isFromBookmarklet = true;
-      this.isModalOpen = true;
+    // Clear the URL parameter without reload
+    const newUrl = window.location.pathname + window.location.hash;
+    window.history.replaceState({}, document.title, newUrl);
+
+    this.isImportMode = true;
+    this.isModalOpen = true;
+
+    if (window.opener) {
+      // Opened by the bookmarklet — set up postMessage channel so the app
+      // can receive the raw HTML and parse it with existing parser code.
+      this.isListeningForMessage = true;
       this.render();
+      this.setupOpenerMessageListener();
+    } else {
+      // No opener (e.g. PWA or desktop): fall back to manual clipboard paste.
+      this.isFromBookmarklet = true;
+      this.render();
+    }
+  }
+
+  private setupOpenerMessageListener() {
+    // Signal to the bookmarklet page that we are ready to receive the HTML.
+    // Use '*' as target origin because we don't know which site the bookmarklet ran on.
+    window.opener.postMessage({ type: "tja-importer-ready" }, "*");
+
+    const handler = async (e: MessageEvent) => {
+      // Only accept the response from the window that opened us.
+      if (e.source !== window.opener || e.data?.type !== "tja-playdata-html" || typeof e.data.html !== "string") return;
+      this.cleanupMessageListener();
+      this.isListeningForMessage = false;
+      this.isImporting = true;
+      this.render();
+      await this.processImport(e.data.html);
+      this.isImporting = false;
+      this.render();
+    };
+
+    // Timeout: if no message arrives within 30 s, fall back to manual paste UI.
+    this.messageTimeoutId = setTimeout(() => {
+      this.cleanupMessageListener();
+      this.isListeningForMessage = false;
+      this.isFromBookmarklet = true;
+      this.render();
+    }, 30000);
+
+    this.messageHandler = handler;
+    window.addEventListener("message", handler);
+  }
+
+  private cleanupMessageListener() {
+    if (this.messageHandler) {
+      window.removeEventListener("message", this.messageHandler);
+      this.messageHandler = null;
+    }
+    if (this.messageTimeoutId !== null) {
+      clearTimeout(this.messageTimeoutId);
+      this.messageTimeoutId = null;
     }
   }
 
@@ -113,9 +165,11 @@ export class SettingsPanel extends HTMLElement {
   }
 
   private handleClose() {
+    this.cleanupMessageListener();
     this.isModalOpen = false;
     this.isImportMode = false;
     this.isFromBookmarklet = false;
+    this.isListeningForMessage = false;
     this.resolutionState = null;
     this.render();
   }
@@ -237,15 +291,25 @@ export class SettingsPanel extends HTMLElement {
     // Get the app URL (production or current origin for dev)
     const appUrl = window.location.origin + window.location.pathname;
 
-    // Create a bookmarklet that copies the current page HTML to clipboard
-    // and opens the app with import parameter
+    // The bookmarklet:
+    // 1. Opens the app window synchronously (required on iOS Safari — window.open must be
+    //    called directly from a user gesture, not inside an async callback).
+    // 2. Also copies the raw HTML to clipboard as a fallback for PWA/desktop users
+    //    who cannot receive the postMessage (e.g. iOS PWA opens in a separate context).
+    // 3. Listens for a 'tja-importer-ready' signal from the app, then sends the HTML
+    //    via postMessage so the app can parse it with its own parser code.
     const bookmarkletScript = `
 (function(){
   var html = document.documentElement.outerHTML;
-  navigator.clipboard.writeText(html).then(function() {
-    window.open('${appUrl}?import=playdata', '_blank');
-  }).catch(function(err) {
-    alert('Could not copy to clipboard. Please check browser permissions.');
+  var appWin = window.open('${appUrl}?import=playdata', '_blank');
+  navigator.clipboard.writeText(html).catch(function(){});
+  if (!appWin) return;
+  var done = false;
+  window.addEventListener('message', function handler(e) {
+    if (done || e.source !== appWin || !e.data || e.data.type !== 'tja-importer-ready') return;
+    done = true;
+    window.removeEventListener('message', handler);
+    appWin.postMessage({type:'tja-playdata-html',html:html}, e.origin);
   });
 })();
 `
@@ -603,41 +667,53 @@ export class SettingsPanel extends HTMLElement {
       return this.renderResolutionUI();
     }
 
+    const instructionKey = this.isListeningForMessage
+      ? "ui.playdata.bookmarkletConnecting"
+      : this.isFromBookmarklet
+        ? "ui.playdata.importReady"
+        : "ui.playdata.pasteHereInstruction";
+
     return (
       <div style="text-align: center; padding: 0;">
-        <div style="font-size: 16px; margin-bottom: 20px; color: var(--text-primary);">
-          {i18n.t(this.isFromBookmarklet ? "ui.playdata.importReady" : "ui.playdata.pasteHereInstruction")}
-        </div>
+        <div style="font-size: 16px; margin-bottom: 20px; color: var(--text-primary);">{i18n.t(instructionKey)}</div>
 
-        <div style="margin-bottom: 15px;">
-          <textarea
-            placeholder={i18n.t("ui.playdata.pasteInstructions")}
-            style="width: 100%; height: 120px; font-size: 14px; padding: 12px; border: 2px dashed var(--border-light); border-radius: 8px; background: var(--bg-panel); color: var(--text-primary); resize: vertical; box-sizing: border-box;"
-            oninput={this.handleManualPasteInput.bind(this)}
-            onpaste={this.handlePasteEvent.bind(this)}
-            value={this.manualPasteContent}
-            disabled={this.isImporting}
-          />
-        </div>
+        {this.importStatus.type !== "success" && (
+          <>
+            <div style="margin-bottom: 15px;">
+              <textarea
+                placeholder={i18n.t("ui.playdata.pasteInstructions")}
+                style="width: 100%; height: 120px; font-size: 14px; padding: 12px; border: 2px dashed var(--border-light); border-radius: 8px; background: var(--bg-panel); color: var(--text-primary); resize: vertical; box-sizing: border-box;"
+                oninput={this.handleManualPasteInput.bind(this)}
+                onpaste={this.handlePasteEvent.bind(this)}
+                value={this.manualPasteContent}
+                disabled={this.isImporting}
+              />
+            </div>
 
-        <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
-          {!this.isIOS() && (
-            <action-button
-              button-variant="secondary"
-              disabled={this.isImporting}
-              action={async () => this.handlePasteImport()}
-            >
-              {i18n.t("ui.playdata.pasteImport")}
-            </action-button>
-          )}
-          <action-button
-            button-variant="primary"
-            disabled={!this.manualPasteContent || this.isImporting}
-            action={async () => this.handleManualImport()}
-          >
-            {this.isImporting ? i18n.t("ui.playdata.importing") : i18n.t("ui.playdata.import")}
-          </action-button>
-        </div>
+            <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+              {!this.isIOS() && (
+                <action-button
+                  button-variant="secondary"
+                  disabled={this.isImporting}
+                  action={async () => this.handlePasteImport()}
+                >
+                  {i18n.t("ui.playdata.pasteImport")}
+                </action-button>
+              )}
+              <action-button
+                button-variant="primary"
+                disabled={!this.manualPasteContent || this.isImporting}
+                action={async () => this.handleManualImport()}
+              >
+                {this.isImporting ? i18n.t("ui.playdata.importing") : i18n.t("ui.playdata.import")}
+              </action-button>
+            </div>
+
+            <div style="margin-top: 15px; font-size: 13px; color: var(--text-secondary);">
+              {i18n.t("ui.playdata.pwaDesktopNotice")}
+            </div>
+          </>
+        )}
 
         {this.importStatus.type !== "none" && (
           <div
@@ -650,8 +726,20 @@ export class SettingsPanel extends HTMLElement {
             {this.importStatus.message}
           </div>
         )}
+
+        {this.importStatus.type === "success" && !this.isStandaloneOrDesktop() && (
+          <div style="margin-top: 10px; font-size: 13px; color: var(--text-secondary);">
+            {i18n.t("ui.playdata.importSuccessPwaReminder")}
+          </div>
+        )}
       </div>
     );
+  }
+
+  private isStandaloneOrDesktop(): boolean {
+    // biome-ignore lint/suspicious/noExplicitAny: NL_OS is a Neutralino global
+    if (typeof (window as any).NL_OS !== "undefined") return true;
+    return window.matchMedia("(display-mode: standalone)").matches;
   }
 
   private renderSettingsContent() {
