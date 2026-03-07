@@ -1,4 +1,12 @@
-import { JUDGEABLE_NOTES, LocationMap, type NoteLocation, NoteType } from "./primitives.js";
+import {
+  type Annotation,
+  annotationHand,
+  HandType,
+  JUDGEABLE_NOTES,
+  LocationMap,
+  type NoteLocation,
+  NoteType,
+} from "./primitives.js";
 import type { ParsedChart } from "./tja-parser.js";
 
 export interface NoteTiming {
@@ -81,18 +89,18 @@ export function extractNotesAndSegments(chart: ParsedChart): { notes: NoteTiming
 
 export function calculateInferredHands(
   chart: ParsedChart,
-  annotations: LocationMap<string> | undefined,
+  annotations: LocationMap<Annotation> | undefined,
   alternationThresholdMeasure: number = Infinity,
   resetThresholdMeasure: number = 0,
-): LocationMap<string> {
-  const inferred = new LocationMap<string>();
+): LocationMap<HandType> {
+  const inferred = new LocationMap<HandType>();
 
   const alternationThreshold = alternationThresholdMeasure * 4;
   const resetThreshold = resetThresholdMeasure === 0 ? Infinity : resetThresholdMeasure * 4;
 
   const { segments } = extractNotesAndSegments(chart);
 
-  let lastHand = "L"; // Ensure first note gets R
+  let lastHand: HandType = HandType.L; // Ensure first note gets R
   let currentEndSearchBar = 0;
   let currentEndSearchChar = 0;
   let previousNoteBeat = -Infinity;
@@ -125,31 +133,26 @@ export function calculateInferredHands(
 
     if (gapInternal > alternationThreshold + 0.0001) {
       for (const note of seg.notes) {
-        const currentInferred = "R";
+        const currentInferred = HandType.R;
         inferred.set(note.id, currentInferred);
-        const annotation = annotations?.get(note.id)?.replace("|", "");
-        lastHand = annotation || currentInferred;
+        lastHand = annotationHand(annotations?.get(note.id)) ?? currentInferred;
       }
     } else if (shouldReset) {
-      let currentInferred = "R";
+      let currentInferred = HandType.R;
       inferred.set(seg.notes[0].id, currentInferred);
-      let annotation = annotations?.get(seg.notes[0].id)?.replace("|", "");
-      lastHand = annotation || currentInferred;
+      lastHand = annotationHand(annotations?.get(seg.notes[0].id)) ?? currentInferred;
 
       for (let i = 1; i < seg.notes.length; i++) {
         const note = seg.notes[i];
-        currentInferred = lastHand === "R" ? "L" : "R";
+        currentInferred = lastHand === HandType.R ? HandType.L : HandType.R;
         inferred.set(note.id, currentInferred);
-        annotation = annotations?.get(note.id)?.replace("|", "");
-        lastHand = annotation || currentInferred;
+        lastHand = annotationHand(annotations?.get(note.id)) ?? currentInferred;
       }
     } else {
       for (const note of seg.notes) {
-        const currentInferred = lastHand === "R" ? "L" : "R";
+        const currentInferred: HandType = lastHand === HandType.R ? HandType.L : HandType.R;
         inferred.set(note.id, currentInferred);
-
-        const annotation = annotations?.get(note.id)?.replace("|", "");
-        lastHand = annotation || currentInferred;
+        lastHand = annotationHand(annotations?.get(note.id)) ?? currentInferred;
       }
     }
 
@@ -161,11 +164,11 @@ export function calculateInferredHands(
 
 export function generateAutoAnnotations(
   chart: ParsedChart,
-  existingAnnotations: LocationMap<string>,
+  existingAnnotations: LocationMap<Annotation>,
   alternationThresholdMeasure: number = Infinity,
   resetThresholdMeasure: number = 0,
   mode: "full" | "partial" = "partial",
-): LocationMap<string> {
+): LocationMap<Annotation> {
   const annotations = new LocationMap(existingAnnotations);
   // Auto-annotation explicit placement follows user configuration
   const inferred = calculateInferredHands(chart, annotations, alternationThresholdMeasure, resetThresholdMeasure);
@@ -183,7 +186,8 @@ export function generateAutoAnnotations(
     for (const [id] of toAnnotate) {
       const hand = inferred.get(id);
       if (hand) {
-        annotations.set(id, hand);
+        const existing = annotations.get(id);
+        annotations.set(id, { hand, separator: existing?.separator });
       }
     }
     return annotations;
@@ -223,7 +227,8 @@ export function generateAutoAnnotations(
   for (const [id] of toAnnotate) {
     const hand = inferred.get(id);
     if (hand) {
-      annotations.set(id, hand);
+      const existing = annotations.get(id);
+      annotations.set(id, { hand, separator: existing?.separator });
     }
   }
 

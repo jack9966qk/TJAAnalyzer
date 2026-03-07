@@ -26,9 +26,13 @@ import {
   type RenderConstants,
 } from "./layout.js";
 import {
+  type Annotation,
+  annotationHand,
+  annotationHasSeparator,
   BranchName,
   DEFAULT_TEXTS,
   DEFAULT_VIEW_OPTIONS,
+  HandType,
   isJudgeable,
   type JudgementKey,
   JudgementMap,
@@ -56,8 +60,8 @@ export {
   type Insets,
   type LayoutRatios,
 };
-export { BranchName, DEFAULT_TEXTS, DEFAULT_VIEW_OPTIONS, JudgementType, LocationMap, NoteType };
-export type { JudgementKey, JudgementMap, JudgementValue, RenderTexts, ViewMode, ViewOptions };
+export { BranchName, DEFAULT_TEXTS, DEFAULT_VIEW_OPTIONS, HandType, JudgementType, LocationMap, NoteType };
+export type { Annotation, JudgementKey, JudgementMap, JudgementValue, RenderTexts, ViewMode, ViewOptions };
 
 export const PALETTE = {
   background: "#d4d4d4ff",
@@ -136,7 +140,7 @@ export interface RenderContext {
   judgements: JudgementMap<JudgementValue>;
   texts: RenderTexts;
   constants: RenderConstants;
-  inferredHands?: LocationMap<string>;
+  inferredHands?: LocationMap<HandType>;
   locToJudgementKey?: LocationMap<JudgementKey>;
 }
 
@@ -1418,7 +1422,7 @@ function drawBarAnnotations(
     if (!isJudgeable(bar[i])) continue;
     const noteId = { barIndex: originalBarIndex, charIndex: i };
     const annotation = options.annotations.get(noteId);
-    if (!annotation || !annotation.includes("|")) continue;
+    if (!annotationHasSeparator(annotation)) continue;
     const noteX = x + i * noteStep;
     canvasContext.save();
     const sepX = noteX - rSmall * 0.75;
@@ -1439,8 +1443,7 @@ function drawBarAnnotations(
   for (let i = 0; i < bar.length; i++) {
     if (!isJudgeable(bar[i])) continue;
     const noteId = { barIndex: originalBarIndex, charIndex: i };
-    const annotation = options.annotations.get(noteId);
-    const hand = annotation ? annotation.replace("|", "") : "";
+    const hand = annotationHand(options.annotations.get(noteId));
     if (!hand) continue;
     const noteX = x + i * noteStep;
     let textColor = PALETTE.ui.annotation.match;
@@ -1958,7 +1961,7 @@ function drawAllBranchesNotes(
         ...renderContext,
         options: {
           ...options,
-          annotations: new LocationMap<string>(),
+          annotations: new LocationMap<Annotation>(),
           selection: null,
         },
       };

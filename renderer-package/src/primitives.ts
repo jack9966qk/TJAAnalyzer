@@ -260,6 +260,37 @@ export function toNoteType(char: string): NoteType {
   }
 }
 
+export enum HandType {
+  L = "L",
+  R = "R",
+}
+
+export interface Annotation {
+  hand?: HandType;
+  separator?: boolean;
+}
+
+export function annotationHand(a: Annotation | undefined): HandType | undefined {
+  return a?.hand;
+}
+
+export function annotationHasSeparator(a: Annotation | undefined): boolean {
+  return !!a?.separator;
+}
+
+export function annotationWithHand(a: Annotation | undefined, hand: HandType | undefined): Annotation | undefined {
+  const sep = a?.separator ?? false;
+  if (!hand && !sep) return undefined;
+  return { hand, separator: sep || undefined };
+}
+
+export function annotationToggleSeparator(a: Annotation | undefined): Annotation | undefined {
+  const hand = a?.hand;
+  const newSep = !a?.separator;
+  if (!hand && !newSep) return undefined;
+  return { hand, separator: newSep || undefined };
+}
+
 export enum JudgementType {
   Perfect = "perfect",
   Great = "great",
@@ -299,7 +330,7 @@ export interface ViewOptions {
     end: NoteLocation | null;
   } | null;
   hoveredNote?: (NoteLocation & { branch?: BranchName }) | null;
-  annotations?: LocationMap<string>;
+  annotations?: LocationMap<Annotation>;
   isAnnotationMode?: boolean;
   showTextInAnnotationMode?: boolean;
   alwaysShowAnnotations?: boolean;

@@ -3,11 +3,15 @@ import * as webjsx from "webjsx";
 import { appState } from "../state/app-state.js";
 
 const {
+  annotationHand,
+  annotationToggleSeparator,
+  annotationWithHand,
   calculateAutoZoomBeats,
   createLayout,
   generateAutoAnnotations,
   getChartElementAt,
   getNotePosition,
+  HandType,
   INSETS,
   JUDGEABLE_NOTES,
   JudgementMap,
@@ -579,21 +583,19 @@ export class TJAChart extends HTMLElement {
         const current = annotations.get(noteId);
         const toolType = this._viewOptions.annotationToolType || "hand";
 
-        const hasSep = current ? current.includes("|") : false;
-        const hand = current ? current.replace("|", "") : "";
-
         if (toolType === "separator") {
           // Toggle separator, preserve hand annotation
-          const newVal = hasSep ? hand : (hand ? hand + "|" : "|");
+          const newVal = annotationToggleSeparator(current);
           if (newVal) annotations.set(noteId, newVal);
           else annotations.delete(noteId);
         } else {
           // Cycle hand annotation L -> R -> clear, preserve separator
-          let newHand: string;
-          if (!hand) newHand = "L";
-          else if (hand === "L") newHand = "R";
-          else newHand = "";
-          const newVal = newHand + (hasSep ? "|" : "");
+          const currentHand = annotationHand(current);
+          let newHand: typeof HandType.L | typeof HandType.R | undefined;
+          if (!currentHand) newHand = HandType.L;
+          else if (currentHand === HandType.L) newHand = HandType.R;
+          else newHand = undefined;
+          const newVal = annotationWithHand(current, newHand);
           if (newVal) annotations.set(noteId, newVal);
           else annotations.delete(noteId);
         }

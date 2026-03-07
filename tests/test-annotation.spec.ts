@@ -204,7 +204,7 @@ LEVEL:10
 #END`;
       window.loadChart(tja, "oni");
       const map = new window.LocationMap();
-      map.set({ barIndex: 0, charIndex: 0 }, "L");
+      map.set({ barIndex: 0, charIndex: 0 }, { hand: "L" });
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
       (window as any).testOptions = {
         viewMode: "original",
@@ -247,8 +247,8 @@ LEVEL:10
 #END`;
       window.loadChart(tja, "oni");
       const map = new window.LocationMap();
-      map.set({ barIndex: 0, charIndex: 2 }, "|");
-      map.set({ barIndex: 0, charIndex: 8 }, "|");
+      map.set({ barIndex: 0, charIndex: 2 }, { separator: true });
+      map.set({ barIndex: 0, charIndex: 8 }, { separator: true });
       window.setOptions({
         viewMode: "original",
         coloringMode: "categorical",

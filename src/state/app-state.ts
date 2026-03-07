@@ -24,7 +24,7 @@ interface AppState {
   hasReceivedGameStart: boolean;
   selectedNoteHitInfo: HitInfo | null;
   selectedBranchHitInfo: HitInfo | null;
-  annotations: LocationMap<string>;
+  annotations: LocationMap<Renderer.Private.Annotation>;
   eseClient: EseClient;
   eseTree: EseIndexEntry[] | null;
   judgementClient: JudgementClient;

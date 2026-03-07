@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { calculateInferredHands } from "../renderer-package/src/auto-annotation.js";
-import { LocationMap, NoteType } from "../renderer-package/src/primitives.js";
+import { type Annotation, HandType, LocationMap, NoteType } from "../renderer-package/src/primitives.js";
 import type { ParsedChart } from "../renderer-package/src/tja-parser.js";
 
 function parseSampleText(text: string): { chart: ParsedChart; expectedLabels: string } {
@@ -148,7 +148,7 @@ r rlr r rlrlrlr
 `;
 
 function testConfiguration(chart: ParsedChart, expectedLabels: string, altThreshold: number, resetThreshold: number) {
-  const annotations = new LocationMap<string>();
+  const annotations = new LocationMap<Annotation>();
   const inferred = calculateInferredHands(chart, annotations, altThreshold, resetThreshold);
 
   let actualResult = "";
@@ -160,7 +160,7 @@ function testConfiguration(chart: ParsedChart, expectedLabels: string, altThresh
       const char = bar[j];
       if (char !== NoteType.None) {
         const hand = inferred.get({ barIndex: i, charIndex: j });
-        line += hand === "R" ? "r" : "l";
+        line += hand === HandType.R ? "r" : "l";
       } else {
         line += " ";
       }

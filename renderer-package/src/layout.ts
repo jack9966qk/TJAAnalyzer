@@ -1,6 +1,7 @@
 import { calculateInferredHands } from "./auto-annotation.js";
 import {
   BranchName,
+  type HandType,
   isJudgeable,
   type JudgementKey,
   JudgementMap,
@@ -141,7 +142,7 @@ export interface ChartLayout {
   totalHeight: number;
   globalBarStartIndices: number[];
   balloonIndices: LocationMap<number>;
-  inferredHands: LocationMap<string>;
+  inferredHands: LocationMap<HandType>;
   logicalCanvasWidth: number;
   dpr: number;
   headerHeight: number;
