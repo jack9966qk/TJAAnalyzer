@@ -354,6 +354,10 @@ button:hover {
   background-color: var(--primary-hover);
 }
 
+button:active:not(:disabled) {
+  filter: brightness(0.88);
+}
+
 button:disabled {
   background-color: var(--primary-disabled);
   cursor: not-allowed;
@@ -368,6 +372,22 @@ button:disabled {
 
 .btn-secondary:hover {
   background-color: var(--bg-hover);
+}
+
+.btn-secondary:disabled {
+  color: white;
+}
+
+.btn-secondary:disabled:hover {
+  background-color: var(--primary-disabled);
+}
+
+/* Icon Button Variant */
+.btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
 }
 
 /* Sticky Header & Stats */
@@ -1634,6 +1654,18 @@ h1 {
   background-color: var(--border-color);
 }
 
+.wiki-dropdown {
+  position: fixed;
+  background-color: var(--bg-modal-content);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  box-shadow: 0 4px 8px var(--shadow-color);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  animation: dropdownFadeIn 0.15s ease-out forwards;
+}
+
 @keyframes dropdownFadeIn {
   from {
     opacity: 0;
@@ -1645,30 +1677,21 @@ h1 {
   }
 }
 
-.wiki-dropdown {
-  background-color: var(--bg-modal-content);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  box-shadow: 0 4px 8px var(--shadow-color);
-  z-index: 1000;
-  min-width: auto;
-  display: flex;
-  flex-direction: column;
-  animation: dropdownFadeIn 0.15s ease-out forwards;
-}
-
 .wiki-option {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
-  gap: 6px;
+  justify-content: space-between;
+  gap: 10px;
   padding: 10px 16px;
-  cursor: pointer;
   color: var(--text-primary);
   font-size: 0.9em;
   text-decoration: none;
-  transition: background-color 0.1s;
   white-space: nowrap;
+  transition: background-color 0.1s;
+}
+
+.wiki-option:visited {
+  color: var(--text-primary);
 }
 
 .wiki-option:hover {

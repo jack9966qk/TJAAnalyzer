@@ -253,7 +253,7 @@ export class ExportButton extends HTMLElement {
 
     const vdom = (
       <action-button
-        button-class="control-btn"
+        button-variant="primary"
         success-label={i18n.t("status.exportSuccess")}
         error-label={i18n.t("status.exportFailed")}
         disabled={this.disabled}

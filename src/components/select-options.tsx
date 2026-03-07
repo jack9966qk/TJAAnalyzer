@@ -2,6 +2,7 @@ import * as webjsx from "webjsx";
 import { refreshChart } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
+import "./action-button.js";
 import "./export-button.js";
 
 export class SelectOptions extends HTMLElement {
@@ -61,15 +62,14 @@ export class SelectOptions extends HTMLElement {
     const vdom = (
       <div className="control-group" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
         <div style="display: flex; width: 100%;">
-          <button
-            type="button"
+          <action-button
             id="clear-selection-btn"
-            className="control-btn"
-            onclick={this.handleClearSelection.bind(this)}
+            button-variant="secondary"
             disabled={!hasSelection}
+            action={async () => this.handleClearSelection()}
           >
             {i18n.t("ui.clearSelection")}
-          </button>
+          </action-button>
         </div>
 
         {!appState.viewOptions.showAllBranches ? (

@@ -2,6 +2,7 @@ import * as webjsx from "webjsx";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
+import "./action-button.js";
 import "./save-image-button.js";
 
 interface VendorFullScreenElement extends HTMLElement {
@@ -33,7 +34,6 @@ export class ChartOptionsFooter extends HTMLElement {
       }
     }
   };
-
   private handleScroll = () => {
     if (this.wikiDropdownVisible) {
       this.wikiDropdownVisible = false;
@@ -43,7 +43,6 @@ export class ChartOptionsFooter extends HTMLElement {
 
   connectedCallback() {
     this.render();
-    // Listen for language changes
     i18n.onLanguageChange(() => this.render());
     window.addEventListener("status-change", this.handleStatusChange);
     window.addEventListener("difficulty-change", this.handleDifficultyChange);
@@ -64,16 +63,13 @@ export class ChartOptionsFooter extends HTMLElement {
     this.render();
 
     if (this.wikiDropdownVisible) {
-      // Position the dropdown fixed to viewport so it escapes overflow:hidden
       requestAnimationFrame(() => {
         const btn = this.querySelector(".wiki-btn") as HTMLElement;
         const dropdown = this.querySelector(".wiki-dropdown") as HTMLElement;
         if (btn && dropdown) {
           const rect = btn.getBoundingClientRect();
-          dropdown.style.position = "fixed";
           dropdown.style.top = `${rect.bottom + 4}px`;
           dropdown.style.left = `${rect.left}px`;
-          // Reset bottom/min-width from CSS if needed, though our CSS sets them
         }
       });
     }
@@ -103,11 +99,9 @@ export class ChartOptionsFooter extends HTMLElement {
 
         if (requestPromise) {
           requestPromise.catch((_err: Error) => {
-            // Fallback to pseudo fullscreen if native fails (common on mobile)
             chart.classList.add("pseudo-fullscreen");
           });
         } else {
-          // Fallback immediately if API not present
           chart.classList.add("pseudo-fullscreen");
         }
       } else {
@@ -126,7 +120,6 @@ export class ChartOptionsFooter extends HTMLElement {
   }
 
   render() {
-    // Apply styles to host
     this.classList.add("chart-options-footer");
 
     let wikiUrl: string | undefined;
@@ -164,13 +157,31 @@ export class ChartOptionsFooter extends HTMLElement {
               {this.wikiDropdownVisible && (
                 <div className="wiki-dropdown">
                   {wikiUrl && (
-                    <a href={wikiUrl} target="_blank" rel="noopener noreferrer" className="wiki-option">
+                    <a
+                      href={wikiUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="wiki-option"
+                      onclick={() => {
+                        this.wikiDropdownVisible = false;
+                        this.render();
+                      }}
+                    >
                       WikiWiki
                       <div className="icon-external-link" />
                     </a>
                   )}
                   {wikiUrlKo && (
-                    <a href={wikiUrlKo} target="_blank" rel="noopener noreferrer" className="wiki-option">
+                    <a
+                      href={wikiUrlKo}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="wiki-option"
+                      onclick={() => {
+                        this.wikiDropdownVisible = false;
+                        this.render();
+                      }}
+                    >
                       taiko.wiki
                       <div className="icon-external-link" />
                     </a>
@@ -182,19 +193,17 @@ export class ChartOptionsFooter extends HTMLElement {
         </div>
 
         <div style="display: flex; align-items: center;">
-          <button
-            type="button"
-            className="control-btn"
-            onclick={this.handleFullscreen.bind(this)}
-            title={i18n.t("ui.fullscreen")}
-            style="display: flex; align-items: center; justify-content: center; padding: 8px;"
+          <action-button
+            button-size="icon"
+            button-title={i18n.t("ui.fullscreen")}
+            action={async () => this.handleFullscreen()}
           >
             <img
               src="assets/heroicons/optimized/24/outline/arrows-pointing-out.svg"
               alt="Fullscreen"
               style="width: 20px; height: 20px; filter: brightness(0) invert(1);"
             />
-          </button>
+          </action-button>
         </div>
       </div>
     );

@@ -576,7 +576,7 @@ export class SettingsPanel extends HTMLElement {
           <div>
             {appState.isTesterMode && (
               <action-button
-                button-class="btn-secondary"
+                button-variant="secondary"
                 success-label={i18n.t("ui.playdata.copied")}
                 error-label={i18n.t("status.exportFailed")}
                 action={() => this.handleCopyUnmatchedCSV()}
@@ -586,12 +586,12 @@ export class SettingsPanel extends HTMLElement {
             )}
           </div>
           <div style="display: flex; gap: 10px;">
-            <button type="button" className="btn-secondary" onclick={this.handleClose.bind(this)}>
+            <action-button button-variant="secondary" action={async () => this.handleClose()}>
               {i18n.t("ui.cancel")}
-            </button>
-            <button type="button" onclick={this.handleFinalizeImport.bind(this)}>
+            </action-button>
+            <action-button button-variant="primary" action={async () => this.handleFinalizeImport()}>
               {i18n.t("ui.playdata.finalizeImport")}
-            </button>
+            </action-button>
           </div>
         </div>
       </div>
@@ -622,22 +622,21 @@ export class SettingsPanel extends HTMLElement {
 
         <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
           {!this.isIOS() && (
-            <button
-              type="button"
-              className="btn-secondary"
-              onclick={this.handlePasteImport.bind(this)}
+            <action-button
+              button-variant="secondary"
               disabled={this.isImporting}
+              action={async () => this.handlePasteImport()}
             >
               {i18n.t("ui.playdata.pasteImport")}
-            </button>
+            </action-button>
           )}
-          <button
-            type="button"
-            onclick={this.handleManualImport.bind(this)}
+          <action-button
+            button-variant="primary"
             disabled={!this.manualPasteContent || this.isImporting}
+            action={async () => this.handleManualImport()}
           >
             {this.isImporting ? i18n.t("ui.playdata.importing") : i18n.t("ui.playdata.import")}
-          </button>
+          </action-button>
         </div>
 
         {this.importStatus.type !== "none" && (
@@ -691,15 +690,23 @@ export class SettingsPanel extends HTMLElement {
           </div>
         </div>
         <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
-          <button type="button" onclick={this.handleExportPlaydata.bind(this)} disabled={this.isExporting}>
+          <action-button
+            button-variant="primary"
+            disabled={this.isExporting}
+            action={async () => this.handleExportPlaydata()}
+          >
             {this.isExporting ? i18n.t("ui.playdata.exporting") : i18n.t("ui.playdata.export")}
-          </button>
-          <button type="button" onclick={this.handleExportPlaydataJson.bind(this)} disabled={this.isExporting}>
+          </action-button>
+          <action-button
+            button-variant="primary"
+            disabled={this.isExporting}
+            action={async () => this.handleExportPlaydataJson()}
+          >
             {this.isExporting ? i18n.t("ui.playdata.exporting") : i18n.t("ui.playdata.exportJson")}
-          </button>
-          <button type="button" className="btn-secondary" onclick={this.handleClearPlaydata.bind(this)}>
+          </action-button>
+          <action-button button-variant="secondary" action={async () => this.handleClearPlaydata()}>
             {i18n.t("ui.playdata.clearData")}
-          </button>
+          </action-button>
         </div>
       </div>
     ) : (
@@ -720,12 +727,12 @@ export class SettingsPanel extends HTMLElement {
         </ol>
 
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-          <button type="button" onclick={this.handleShowBookmarklet.bind(this)}>
+          <action-button button-variant="primary" action={async () => this.handleShowBookmarklet()}>
             {this.showBookmarklet ? i18n.t("ui.playdata.hideBookmarklet") : i18n.t("ui.playdata.showBookmarklet")}
-          </button>
-          <button type="button" onclick={this.handleGoToImport.bind(this)}>
+          </action-button>
+          <action-button button-variant="primary" action={async () => this.handleGoToImport()}>
             {i18n.t("ui.playdata.goToImport")}
-          </button>
+          </action-button>
         </div>
 
         {this.showBookmarklet && (
@@ -816,7 +823,7 @@ export class SettingsPanel extends HTMLElement {
               style="flex: 1;"
               success-label={i18n.t("ui.viewDefaults.cleared")}
               error-label={i18n.t("status.exportFailed")}
-              button-class="btn-secondary"
+              button-variant="secondary"
               action={() => this.handleClearViewDefaults()}
             >
               {i18n.t("ui.viewDefaults.clear")}

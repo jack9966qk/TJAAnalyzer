@@ -45,9 +45,8 @@ export class SaveImageButton extends HTMLElement {
   render() {
     const vdom = (
       <action-button
-        button-class="control-btn"
+        button-size="icon"
         button-title={i18n.t("ui.exportImage")}
-        button-style="display: flex; align-items: center; justify-content: center; padding: 8px;"
         success-label={i18n.t("status.exportImageSuccess")}
         error-label={i18n.t("status.exportImageFailed")}
         action={() => this.handleClick()}

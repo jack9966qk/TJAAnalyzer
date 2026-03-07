@@ -4,6 +4,7 @@ import { refreshChart } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { tjaChart } from "../view/ui-elements.js";
+import "./action-button.js";
 import "./stepper-control.js";
 
 const { LocationMap } = Renderer.Private;
@@ -23,11 +24,22 @@ export class AnnotateOptions extends HTMLElement {
     return val.toString();
   }
 
+  private handleAnnotationsChange = () => setTimeout(() => this.render(), 0);
+
   connectedCallback() {
     this.style.display = "block";
     this.render();
     // Listen for language changes
     i18n.onLanguageChange(() => this.render());
+    if (tjaChart) {
+      tjaChart.addEventListener("annotations-change", this.handleAnnotationsChange);
+    }
+  }
+
+  disconnectedCallback() {
+    if (tjaChart) {
+      tjaChart.removeEventListener("annotations-change", this.handleAnnotationsChange);
+    }
   }
 
   private handleAutoAnnotate() {
@@ -39,6 +51,7 @@ export class AnnotateOptions extends HTMLElement {
   private handleClearAnnotations() {
     appState.annotations = new LocationMap();
     refreshChart();
+    this.render();
   }
 
   private handleToggleShowText(e: Event) {
@@ -116,15 +129,14 @@ export class AnnotateOptions extends HTMLElement {
 
         <p className="tab-description">{i18n.t(descKey)}</p>
         <div style="display: flex; width: 100%;">
-          <button
-            type="button"
+          <action-button
             id="clear-annotations-btn"
-            className="control-btn"
-            style="background-color: var(--bg-panel-tabs); color: var(--text-primary); border: 1px solid var(--border-color);"
-            onclick={this.handleClearAnnotations.bind(this)}
+            button-variant="secondary"
+            disabled={appState.annotations.size === 0}
+            action={async () => this.handleClearAnnotations()}
           >
             {i18n.t("ui.clearAnnotations")}
-          </button>
+          </action-button>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 5px;">
@@ -199,14 +211,9 @@ export class AnnotateOptions extends HTMLElement {
         </div>
 
         <div style="display: flex; width: 100%;">
-          <button
-            type="button"
-            id="auto-annotate-btn"
-            className="control-btn"
-            onclick={this.handleAutoAnnotate.bind(this)}
-          >
+          <action-button id="auto-annotate-btn" button-variant="primary" action={async () => this.handleAutoAnnotate()}>
             {i18n.t("ui.autoAnnotate")}
-          </button>
+          </action-button>
         </div>
       </div>
     );

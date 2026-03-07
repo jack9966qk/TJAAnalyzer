@@ -4,7 +4,8 @@ import styleUrl from "../style.css?url";
 export interface ActionButtonProps {
   "success-label"?: string;
   "error-label"?: string;
-  "button-class"?: string;
+  "button-variant"?: "primary" | "secondary";
+  "button-size"?: "normal" | "icon";
   "button-title"?: string;
   disabled?: boolean;
   action?: () => Promise<void>;
@@ -12,11 +13,11 @@ export interface ActionButtonProps {
 
 export class ActionButton extends HTMLElement {
   // Attributes
-  successLabel = "Success";
-  errorLabel = "Error";
-  buttonClass = "";
+  successLabel = "";
+  errorLabel = "";
+  buttonVariant: "primary" | "secondary" = "primary";
+  buttonSize: "normal" | "icon" = "normal";
   buttonTitle = "";
-  buttonStyle = "";
   action?: () => Promise<void>;
 
   // State
@@ -30,22 +31,22 @@ export class ActionButton extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ["success-label", "error-label", "button-class", "button-title", "button-style", "disabled"];
+    return ["success-label", "error-label", "button-variant", "button-size", "button-title", "disabled"];
   }
 
   attributeChangedCallback(name: string, oldValue: string, newValue: string) {
     if (oldValue === newValue) return;
 
     if (name === "success-label") {
-      this.successLabel = newValue;
+      this.successLabel = newValue ?? "";
     } else if (name === "error-label") {
-      this.errorLabel = newValue;
-    } else if (name === "button-class") {
-      this.buttonClass = newValue;
+      this.errorLabel = newValue ?? "";
+    } else if (name === "button-variant") {
+      this.buttonVariant = (newValue as "primary" | "secondary") ?? "primary";
+    } else if (name === "button-size") {
+      this.buttonSize = (newValue as "normal" | "icon") ?? "normal";
     } else if (name === "button-title") {
-      this.buttonTitle = newValue;
-    } else if (name === "button-style") {
-      this.buttonStyle = newValue;
+      this.buttonTitle = newValue ?? "";
     } else if (name === "disabled") {
       this._disabled = newValue !== null;
     }
@@ -73,7 +74,6 @@ export class ActionButton extends HTMLElement {
   public async runAction(action: () => Promise<void>) {
     if (this.disabled || this.status !== "idle") return;
 
-    // Use transitionToResult directly, handling potential errors from action
     await this.transitionToResult(async () => {
       await action();
       return "success";
@@ -86,9 +86,13 @@ export class ActionButton extends HTMLElement {
   }
 
   private async transitionToResult(action: () => Promise<"success" | "error">) {
-    this.isFading = true;
-    this.render();
-    await new Promise((r) => setTimeout(r, 150)); // Wait for fade out
+    const hasFeedback = !!(this.successLabel || this.errorLabel);
+
+    if (hasFeedback) {
+      this.isFading = true;
+      this.render();
+      await new Promise((r) => setTimeout(r, 150)); // Wait for fade out
+    }
 
     // Perform action
     let result: "success" | "error" | "idle" = "idle";
@@ -103,8 +107,21 @@ export class ActionButton extends HTMLElement {
       }
     }
 
-    this.status = result as "success" | "error" | "idle";
+    if (!hasFeedback) {
+      return;
+    }
 
+    // Show status only when there's a label for this result
+    const hasLabel = (result === "success" && this.successLabel) || (result === "error" && this.errorLabel);
+
+    if (!hasLabel) {
+      this.status = "idle";
+      this.isFading = false;
+      this.render();
+      return;
+    }
+
+    this.status = result as "success" | "error" | "idle";
     this.isFading = false;
     this.render();
 
@@ -122,19 +139,25 @@ export class ActionButton extends HTMLElement {
   }
 
   render() {
-    let className = this.buttonClass || "";
-
+    let className = "";
     let showSlot = true;
     let message = "";
 
-    if (this.status === "success") {
+    if (this.status === "success" && this.successLabel) {
       className = "status-message success";
       message = this.successLabel;
       showSlot = false;
-    } else if (this.status === "error") {
+    } else if (this.status === "error" && this.errorLabel) {
       className = "status-message error";
       message = this.errorLabel;
       showSlot = false;
+    } else {
+      if (this.buttonVariant === "secondary") {
+        className = "btn-secondary";
+      }
+      if (this.buttonSize === "icon") {
+        className = className ? `${className} btn-icon` : "btn-icon";
+      }
     }
 
     if (this.isFading) {
@@ -147,8 +170,7 @@ export class ActionButton extends HTMLElement {
       transition: opacity 0.15s ease-out, background-color 0.15s;
       opacity: ${this.isFading ? "0" : "1"};
       cursor: ${this.status === "idle" && !this.disabled ? "pointer" : "default"};
-      box-sizing: border-box; /* Important for width: 100% */
-      ${this.buttonStyle}
+      box-sizing: border-box;
     `;
 
     const vdom = (
