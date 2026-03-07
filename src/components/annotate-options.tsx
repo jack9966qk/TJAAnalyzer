@@ -148,10 +148,10 @@ export class AnnotateOptions extends HTMLElement {
 
         <div style="width: 100%; border-top: 1px solid var(--border-lighter); padding-top: 5px;"></div>
 
-        <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; width: 100%;">
-          <div style="display: flex; flex-direction: column; gap: 5px;">
-            <span style="font-size: 0.9em; color: var(--text-secondary);">
-              {i18n.t("ui.handAlternationThreshold") || "Alternation gap:"}
+        <div style="display: flex; flex-direction: column; gap: 5px; width: 100%;">
+          <div className="section-main">
+            <span className="sub-label" style="min-width: auto;">
+              {i18n.t("ui.handAlternationThreshold")}
             </span>
             <stepper-control
               value={altIdx}
@@ -163,9 +163,9 @@ export class AnnotateOptions extends HTMLElement {
               changeCallback={(v: number) => this.handleAltChange(v)}
             ></stepper-control>
           </div>
-          <div style="display: flex; flex-direction: column; gap: 5px;">
-            <span style="font-size: 0.9em; color: var(--text-secondary);">
-              {i18n.t("ui.handResetThreshold") || "Reset gap:"}
+          <div className="section-main">
+            <span className="sub-label" style="min-width: auto;">
+              {i18n.t("ui.handResetThreshold")}
             </span>
             <stepper-control
               value={resetIdx}
