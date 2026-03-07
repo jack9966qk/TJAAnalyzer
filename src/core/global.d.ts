@@ -13,6 +13,12 @@ declare global {
     setOptions: (options: Partial<ViewOptions>) => void;
     autoAnnotate: () => void;
     setJudgements: (newJudgements: JudgementMap<JudgementValue>) => void;
+    getLayoutInfo: () => {
+      offsetY: number;
+      headerHeight: number;
+      insets: { top: number; bottom: number; left: number; right: number };
+      constants: { statusFontSize: number; barNumberOffsetY: number };
+    } | null;
     createJudgementKey: (char: string, ordinal: number) => JudgementKey;
     LocationMap: typeof LocationMap;
     JudgementMap: typeof JudgementMap;

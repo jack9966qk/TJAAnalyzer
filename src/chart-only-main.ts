@@ -58,6 +58,20 @@ tjaChart.addEventListener("annotations-change", (e: Event) => {
   }
 });
 
+window.getLayoutInfo = () => {
+  const layout = tjaChart.layout;
+  if (!layout) return null;
+  return {
+    offsetY: layout.offsetY,
+    headerHeight: layout.headerHeight,
+    insets: { ...layout.insets },
+    constants: {
+      statusFontSize: layout.constants.statusFontSize,
+      barNumberOffsetY: layout.constants.barNumberOffsetY,
+    },
+  };
+};
+
 window.autoAnnotate = () => {
   tjaChart.autoAnnotate();
 };

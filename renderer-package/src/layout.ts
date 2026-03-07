@@ -1004,7 +1004,7 @@ export function createLayout(
   const annotationHeight = barNumberOffsetY + 3 * statusFontSize;
 
   const gap = Math.max(effectiveInsets.top, annotationHeight);
-  const offsetY = effectiveInsets.top + headerHeight + gap;
+  const offsetY = headerHeight + gap;
 
   const { bars } = chart;
   const globalBarStartIndices = calculateGlobalBarStartIndices(bars);

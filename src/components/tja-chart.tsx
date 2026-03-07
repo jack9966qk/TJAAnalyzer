@@ -46,7 +46,8 @@ type AppViewOptions = ViewOptions & { autoZoom?: boolean };
 
 function getSafeAreaInsets(): Insets {
   const div = document.createElement("div");
-  div.style.padding = "env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)";
+  div.style.padding =
+    "env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)";
   div.style.position = "absolute";
   div.style.visibility = "hidden";
   document.body.appendChild(div);
@@ -84,6 +85,10 @@ export class TJAChart extends HTMLElement {
   private _pendingFullRender: boolean = true;
   private _chartChanged: boolean = false;
   private _layout: ChartLayout | null = null;
+
+  get layout(): ChartLayout | null {
+    return this._layout;
+  }
   private _renderedJudgements: JudgementMap<JudgementValue> = new JudgementMap();
 
   constructor() {

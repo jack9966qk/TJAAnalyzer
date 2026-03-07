@@ -1,4 +1,5 @@
 import * as webjsx from "webjsx";
+import type { DropdownItem } from "./action-button.js";
 import "./action-button.js";
 import type { AdvancedSearchCriteria, Difficulty } from "./advanced-search-modal.js";
 import {
@@ -513,6 +514,34 @@ export class ChartListPanel extends HTMLElement {
     }
   }
 
+  private getShareDropdownItems(): DropdownItem[] {
+    const hasSearch = this._searchQuery || this._isAdvancedSearchActive;
+    if (!hasSearch) return [];
+    return [
+      {
+        label: i18n.t("ui.ese.shareWithSearch"),
+        action: () => this.handleShareWithSearch(),
+      },
+    ];
+  }
+
+  private async handleShareWithSearch() {
+    if (!appState.currentEsePath) return;
+
+    const diff = courseBranchSelect?.difficulty || "oni";
+    const url = new URL(window.location.href);
+    url.searchParams.set("ese", appState.currentEsePath);
+    url.searchParams.set("diff", diff);
+    // Keep search state in URL
+
+    try {
+      await navigator.clipboard.writeText(url.toString());
+    } catch (e) {
+      console.error("Failed to copy link:", e);
+      throw e;
+    }
+  }
+
   private async handleResultClick(node: EseIndexEntry, matchedDifficulty?: Difficulty) {
     try {
       this.dispatchStatus("status.loadingChart");
@@ -750,6 +779,7 @@ export class ChartListPanel extends HTMLElement {
             error-label={i18n.t("status.exportFailed")}
             disabled={!showShare}
             action={() => this.handleShare()}
+            dropdownItems={this.getShareDropdownItems()}
           >
             {i18n.t("ui.ese.share")}
           </action-button>
