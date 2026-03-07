@@ -255,18 +255,63 @@ export class ActionButton extends HTMLElement {
       box-sizing: border-box;
     `;
 
-    const vdom = hasSplit ? (
-      <div>
-        <link rel="stylesheet" href={styleUrl} />
-        <div
-          className={`split-btn-container${className ? ` ${className}` : ""}`}
-          style={`${baseStyle} width: 100%; height: 100%;`}
-        >
+    const vdom =
+      hasSplit && showSlot ? (
+        <div>
+          <link rel="stylesheet" href={styleUrl} />
+          <div
+            className={`split-btn-container${className ? ` ${className}` : ""}`}
+            style={`${baseStyle} width: 100%; height: 100%;`}
+          >
+            <button
+              type="button"
+              className={`split-btn-primary${this.buttonVariant === "secondary" ? " btn-secondary" : ""}`}
+              disabled={this.disabled || this.status !== "idle"}
+              title={this.buttonTitle || undefined}
+              onclick={() => {
+                if (this.action) {
+                  this.runAction(this.action);
+                }
+              }}
+            >
+              <span style={showSlot ? "display: contents;" : "display: none;"}>
+                <slot></slot>
+              </span>
+              {!showSlot && message}
+            </button>
+            <div className="split-btn-divider" />
+            <button
+              type="button"
+              className={`split-btn-dropdown${this.buttonVariant === "secondary" ? " btn-secondary" : ""}${this.dropdownVisible ? " active" : ""}`}
+              disabled={this.disabled || this.status !== "idle"}
+              onclick={(e: Event) => this.toggleDropdown(e)}
+            >
+              <div className="icon-chevron-down-small" />
+            </button>
+          </div>
+          {this.dropdownVisible && (
+            <div className="split-dropdown-menu">
+              {this.dropdownItems.map((item) => (
+                <button
+                  type="button"
+                  className="split-dropdown-option"
+                  onclick={() => this.handleDropdownItemClick(item)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div>
+          <link rel="stylesheet" href={styleUrl} />
           <button
             type="button"
-            className={`split-btn-primary${this.buttonVariant === "secondary" ? " btn-secondary" : ""}`}
+            className={className}
             disabled={this.disabled || this.status !== "idle"}
             title={this.buttonTitle || undefined}
+            style={`${baseStyle} width: 100%; height: 100%;`}
             onclick={() => {
               if (this.action) {
                 this.runAction(this.action);
@@ -278,52 +323,8 @@ export class ActionButton extends HTMLElement {
             </span>
             {!showSlot && message}
           </button>
-          <div className="split-btn-divider" />
-          <button
-            type="button"
-            className={`split-btn-dropdown${this.buttonVariant === "secondary" ? " btn-secondary" : ""}${this.dropdownVisible ? " active" : ""}`}
-            disabled={this.disabled || this.status !== "idle"}
-            onclick={(e: Event) => this.toggleDropdown(e)}
-          >
-            <div className="icon-chevron-down-small" />
-          </button>
         </div>
-        {this.dropdownVisible && (
-          <div className="split-dropdown-menu">
-            {this.dropdownItems.map((item) => (
-              <button
-                type="button"
-                className="split-dropdown-option"
-                onclick={() => this.handleDropdownItemClick(item)}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-    ) : (
-      <div>
-        <link rel="stylesheet" href={styleUrl} />
-        <button
-          type="button"
-          className={className}
-          disabled={this.disabled || this.status !== "idle"}
-          title={this.buttonTitle || undefined}
-          style={`${baseStyle} width: 100%; height: 100%;`}
-          onclick={() => {
-            if (this.action) {
-              this.runAction(this.action);
-            }
-          }}
-        >
-          <span style={showSlot ? "display: contents;" : "display: none;"}>
-            <slot></slot>
-          </span>
-          {!showSlot && message}
-        </button>
-      </div>
-    );
+      );
 
     if (this.shadowRoot) {
       webjsx.applyDiff(this.shadowRoot, vdom);

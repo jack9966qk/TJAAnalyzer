@@ -1725,6 +1725,7 @@ h1 {
   align-items: stretch;
   border-radius: 4px;
   overflow: hidden;
+  border: 1px solid transparent;
 }
 
 .split-btn-primary {
