@@ -60,7 +60,23 @@ export {
   type Insets,
   type LayoutRatios,
 };
-export { BranchName, DEFAULT_TEXTS, DEFAULT_VIEW_OPTIONS, HandType, JudgementType, LocationMap, NoteType };
+export {
+  annotationHand,
+  annotationHasSeparator,
+  BranchName,
+  DEFAULT_TEXTS,
+  DEFAULT_VIEW_OPTIONS,
+  HandType,
+  isJudgeable,
+  JudgementType,
+  LocationMap,
+  NoteType,
+};
+export {
+  annotationToggleSeparator,
+  annotationWithHand,
+  JUDGEABLE_NOTES,
+} from "./primitives.js";
 export type { Annotation, JudgementKey, JudgementMap, JudgementValue, RenderTexts, ViewMode, ViewOptions };
 
 export const PALETTE = {

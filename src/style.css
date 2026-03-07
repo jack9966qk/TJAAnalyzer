@@ -1679,3 +1679,44 @@ h1 {
   -webkit-mask: url("/assets/heroicons/optimized/24/outline/arrow-top-right-on-square.svg") no-repeat center;
   mask: url("/assets/heroicons/optimized/24/outline/arrow-top-right-on-square.svg") no-repeat center;
 }
+
+.segmented-control {
+  display: inline-flex;
+  position: relative;
+  background-color: var(--bg-panel-tabs);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 0;
+  border: 1px solid var(--border-lighter);
+}
+
+.segmented-control-option {
+  position: relative;
+  z-index: 1;
+  padding: 5px 14px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    color var(--anim-duration-fast) ease,
+    background-color var(--anim-duration-fast) ease,
+    box-shadow var(--anim-duration-fast) ease;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.segmented-control-option:hover:not(.active) {
+  background-color: var(--bg-hover);
+}
+
+.segmented-control-option.active {
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  font-weight: 600;
+}
