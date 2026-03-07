@@ -28,23 +28,17 @@ test.describe("Content Inset", () => {
     await page.waitForTimeout(100);
   });
 
-  test("offsetY equals headerHeight plus gap (not double-counting insets)", async ({ page }) => {
+  test("offsetY equals insets.top plus headerHeight plus annotationHeight", async ({ page }) => {
     const info = await page.evaluate(() => window.getLayoutInfo());
     expect(info).not.toBeNull();
     if (!info) return;
 
     const annotationHeight = info.constants.barNumberOffsetY + 3 * info.constants.statusFontSize;
-    const gap = Math.max(info.insets.top, annotationHeight);
-    const expectedOffsetY = info.headerHeight + gap;
+    // gap is exactly annotationHeight (not affected by insets), providing space for bar info above the first bar
+    const expectedOffsetY = info.insets.top + info.headerHeight + annotationHeight;
 
-    // offsetY must be exactly headerHeight + gap (not headerHeight + insets.top + gap)
+    // offsetY must include insets.top to position below header, plus annotationHeight for bar info spacing
     expect(info.offsetY).toBeCloseTo(expectedOffsetY, 1);
-
-    // Sanity check: the double-counted value would differ by insets.top
-    const buggyOffsetY = info.headerHeight + info.insets.top + gap;
-    if (info.insets.top > 0) {
-      expect(info.offsetY).not.toBeCloseTo(buggyOffsetY, 1);
-    }
   });
 
   test("Content inset visual regression", async ({ page }) => {

@@ -1003,8 +1003,8 @@ export function createLayout(
   const barNumberOffsetY = baseBarWidth * resolved.barNumberOffsetY;
   const annotationHeight = barNumberOffsetY + 3 * statusFontSize;
 
-  const gap = Math.max(effectiveInsets.top, annotationHeight);
-  const offsetY = headerHeight + gap;
+  const gap = annotationHeight;
+  const offsetY = baseInsets.top + headerHeight + gap;
 
   const { bars } = chart;
   const globalBarStartIndices = calculateGlobalBarStartIndices(bars);
