@@ -1,5 +1,25 @@
 [
   {
+    "hash": "617015f",
+    "message": "Update version to 0.11.1.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "49827c2",
+    "message": "Apply page background color to status bar area for PWA. Let full screeen rendered chart fill the entire screen.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "8cda50a",
+    "message": "Consolidate button implementations across the app. Slightly adjust some styles.",
+    "date": "2026-03-07"
+  },
+  {
+    "hash": "45889bf",
+    "message": "Keep font size consistent on iOS potriat and landscape modes.",
+    "date": "2026-03-07"
+  },
+  {
     "hash": "4a14b27",
     "message": "Update version to 0.11.0.",
     "date": "2026-03-07"
@@ -477,26 +497,6 @@
   {
     "hash": "ab6268d",
     "message": "Fix incorrect notes parsing by EXAM commands.",
-    "date": "2026-02-13"
-  },
-  {
-    "hash": "ecfb087",
-    "message": "Add basic support for the NEXTSONG command in Dan charts.",
-    "date": "2026-02-13"
-  },
-  {
-    "hash": "dea4676",
-    "message": "Update version to 0.9.3.",
-    "date": "2026-02-13"
-  },
-  {
-    "hash": "7409751",
-    "message": "Add a label to the playdata display dropdown, add localization, and move the share chart button below the list.",
-    "date": "2026-02-13"
-  },
-  {
-    "hash": "1d8d5af",
-    "message": "Add UI tests for playdata display in chart list.",
     "date": "2026-02-13"
   }
 ]
