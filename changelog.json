@@ -1,5 +1,20 @@
 [
   {
+    "hash": "b326553",
+    "message": "Update version to 0.11.3.",
+    "date": "2026-03-08"
+  },
+  {
+    "hash": "3f86cad",
+    "message": "Fix missing spacing between rendered chart header and the first bar.",
+    "date": "2026-03-08"
+  },
+  {
+    "hash": "c386be9",
+    "message": "Impove import process to skip the manual paste of HTML when importing to the web version of the app.",
+    "date": "2026-03-08"
+  },
+  {
     "hash": "90bf125",
     "message": "Update version to 0.11.2.",
     "date": "2026-03-07"
@@ -483,20 +498,5 @@
     "hash": "03282e5",
     "message": "Separate more clearly public and private API in the renderer package. Update app to use package dependency.",
     "date": "2026-02-16"
-  },
-  {
-    "hash": "335dbef",
-    "message": "Refactor renderer.ts into smaller components.",
-    "date": "2026-02-16"
-  },
-  {
-    "hash": "8f44c5e",
-    "message": "Update version to 0.9.4.",
-    "date": "2026-02-14"
-  },
-  {
-    "hash": "ff87636",
-    "message": "Prioritize branching indicator (yellow line) over BPM/HS change indicator (grey line) when both happen at the same time.",
-    "date": "2026-02-14"
   }
 ]
