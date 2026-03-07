@@ -77,6 +77,8 @@ export function updatePageUrl() {
       "adv_ncmax",
       "adv_bpmmin",
       "adv_bpmmax",
+      "adv_bpmrangemin",
+      "adv_bpmrangemax",
       "adv_platform",
       "adv_region",
       "adv_playdata",

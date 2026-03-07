@@ -29,6 +29,8 @@ export interface AdvancedSearchCriteria {
   noteCountMax?: number;
   bpmMin?: number;
   bpmMax?: number;
+  bpmRangeMin?: number;
+  bpmRangeMax?: number;
   platform?: string;
   region?: string;
   playdata?: string;
@@ -180,6 +182,14 @@ export function matchesAdvancedCriteria(
     if (!entry.bpm || entry.bpm.min > criteria.bpmMax) return false;
   }
 
+  // BPM: requested overlap range -> song must overlap with [bpmRangeMin, bpmRangeMax]
+  if (criteria.bpmRangeMin != null || criteria.bpmRangeMax != null) {
+    if (!entry.bpm) return false;
+    const lo = criteria.bpmRangeMin ?? -Infinity;
+    const hi = criteria.bpmRangeMax ?? Infinity;
+    if (entry.bpm.max < lo || entry.bpm.min > hi) return false;
+  }
+
   // Platform
   if (criteria.platform) {
     if (!entry.platforms?.includes(criteria.platform)) return false;
@@ -222,6 +232,8 @@ export function hasAnyCriteria(criteria: AdvancedSearchCriteria): boolean {
     criteria.noteCountMax != null ||
     criteria.bpmMin != null ||
     criteria.bpmMax != null ||
+    criteria.bpmRangeMin != null ||
+    criteria.bpmRangeMax != null ||
     criteria.platform ||
     criteria.region ||
     criteria.playdata ||
@@ -254,6 +266,11 @@ export function getAdvancedSearchSummary(criteria: AdvancedSearchCriteria): stri
 
   if (criteria.bpmMin != null) parts.push(`BPM≥${criteria.bpmMin}`);
   if (criteria.bpmMax != null) parts.push(`BPM≤${criteria.bpmMax}`);
+  if (criteria.bpmRangeMin != null || criteria.bpmRangeMax != null) {
+    const min = criteria.bpmRangeMin ?? "0";
+    const max = criteria.bpmRangeMax ?? "∞";
+    parts.push(`BPM:${min}-${max}`);
+  }
 
   if (criteria.platform) parts.push(criteria.platform);
   if (criteria.region) parts.push(criteria.region);
@@ -558,6 +575,34 @@ export class AdvancedSearchModal extends HTMLElement {
                 oninput={(e: Event) => {
                   const val = (e.target as HTMLInputElement).value;
                   this.updateField("bpmMax", val ? Number(val) : undefined);
+                }}
+              />
+            </div>
+          </div>
+
+          {/* BPM Overlap Range */}
+          <div className="adv-search-field">
+            <span className="adv-search-label">{i18n.t("ui.advSearch.bpmBetween")}</span>
+            <div className="adv-search-range">
+              <input
+                type="number"
+                value={c.bpmRangeMin != null ? String(c.bpmRangeMin) : ""}
+                min="1"
+                placeholder={i18n.t("ui.advSearch.min")}
+                oninput={(e: Event) => {
+                  const val = (e.target as HTMLInputElement).value;
+                  this.updateField("bpmRangeMin", val ? Number(val) : undefined);
+                }}
+              />
+              <span style="color: var(--text-secondary);">–</span>
+              <input
+                type="number"
+                value={c.bpmRangeMax != null ? String(c.bpmRangeMax) : ""}
+                min="1"
+                placeholder={i18n.t("ui.advSearch.max")}
+                oninput={(e: Event) => {
+                  const val = (e.target as HTMLInputElement).value;
+                  this.updateField("bpmRangeMax", val ? Number(val) : undefined);
                 }}
               />
             </div>

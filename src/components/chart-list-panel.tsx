@@ -59,6 +59,8 @@ const SEARCH_PARAMS = [
   "adv_ncmax",
   "adv_bpmmin",
   "adv_bpmmax",
+  "adv_bpmrangemin",
+  "adv_bpmrangemax",
   "adv_platform",
   "adv_region",
   "adv_playdata",
@@ -341,6 +343,8 @@ export class ChartListPanel extends HTMLElement {
       if (c.noteCountMax != null) url.searchParams.set("adv_ncmax", String(c.noteCountMax));
       if (c.bpmMin != null) url.searchParams.set("adv_bpmmin", String(c.bpmMin));
       if (c.bpmMax != null) url.searchParams.set("adv_bpmmax", String(c.bpmMax));
+      if (c.bpmRangeMin != null) url.searchParams.set("adv_bpmrangemin", String(c.bpmRangeMin));
+      if (c.bpmRangeMax != null) url.searchParams.set("adv_bpmrangemax", String(c.bpmRangeMax));
       if (c.platform) url.searchParams.set("adv_platform", c.platform);
       if (c.region) url.searchParams.set("adv_region", c.region);
       if (c.playdata) url.searchParams.set("adv_playdata", c.playdata);
@@ -379,6 +383,11 @@ export class ChartListPanel extends HTMLElement {
       if (bpmmin) criteria.bpmMin = Number(bpmmin);
       const bpmmax = params.get("adv_bpmmax");
       if (bpmmax) criteria.bpmMax = Number(bpmmax);
+      const bpmrangemin = params.get("adv_bpmrangemin");
+      if (bpmrangemin) criteria.bpmRangeMin = Number(bpmrangemin);
+      const bpmrangemax = params.get("adv_bpmrangemax");
+      if (bpmrangemax) criteria.bpmRangeMax = Number(bpmrangemax);
+
       const platform = params.get("adv_platform");
       if (platform) criteria.platform = platform;
       const region = params.get("adv_region");
