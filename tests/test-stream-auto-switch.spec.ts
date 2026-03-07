@@ -7,7 +7,7 @@ test.describe("Stream Auto Switch Tab", () => {
     // Enable Tester Mode (now in Settings panel)
     await page.click(".settings-btn");
     await page.click("text=Developer Mode");
-    await page.click(".close-btn");
+    await page.locator("#settings-modal .close-btn").click();
 
     // Open Data Source Panel if collapsed
     const dsBody = page.locator("#ds-body");
