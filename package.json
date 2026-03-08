@@ -16,7 +16,8 @@
     "start:exe": "npm run build && neu update && neu run",
     "deploy": "npm run build && gh-pages -d dist",
     "format": "biome check --write .",
-    "release": "./release.sh"
+    "release": "./release.sh",
+    "release-data": "./release-data.sh"
   },
   "devDependencies": {
     "@biomejs/biome": "2.3.11",
