@@ -2,8 +2,8 @@ import * as webjsx from "webjsx";
 import "./action-button.js";
 import { appState } from "../state/app-state.js";
 import { shareFile } from "../utils/file-share.js";
-import { parseFumenDatabaseHtml } from "../utils/fumen-database-parser.js";
 import { i18n } from "../utils/i18n.js";
+import { type ImportResult, processImport } from "../utils/playdata-import.js";
 import { PlaydataLeadingMode, PlaydataStripMode, PlaydataTrailingMode } from "../utils/playdata-status.js";
 import {
   convertToTaikoRatingAnalyzerFormat,
@@ -12,10 +12,8 @@ import {
   type Playdata,
   type PlaydataEntry,
   type UnmatchedEntry,
-  verifyPlaydata,
 } from "../utils/playdata-types.js";
 import { startupLog } from "../utils/startup-log.js";
-import { parseTaikoWikiRatingHtml } from "../utils/taiko-wiki-parser.js";
 import {
   ChartLanguage,
   clearPlaydata,
@@ -114,9 +112,8 @@ export class SettingsPanel extends HTMLElement {
       this.isListeningForMessage = false;
       this.isImporting = true;
       this.render();
-      await this.processImport(e.data.html);
+      this.handleImportResult(await processImport(e.data.html));
       this.isImporting = false;
-      this.render();
     };
 
     // Timeout: if no message arrives within 30 s, fall back to manual paste UI.
@@ -360,123 +357,44 @@ export class SettingsPanel extends HTMLElement {
     );
   }
 
+  private handleImportResult(result: ImportResult) {
+    if (result.type === "invalid") {
+      this.importStatus = { type: "error", message: i18n.t("ui.playdata.importFailed") };
+      this.render();
+      return;
+    }
+
+    if (result.type === "unmatched") {
+      this.resolutionState = { result: result.result, playdata: result.rawPlaydata };
+      this.importStatus = { type: "none", message: "" };
+      this.render();
+      return;
+    }
+
+    // success
+    saveUserProfile({ playdata: result.playdata });
+    this.playdata = result.playdata;
+    this.manualPasteContent = "";
+    window.dispatchEvent(new Event("settings-change"));
+    this.importStatus = {
+      type: "success",
+      message: i18n.t("ui.playdata.importSuccess", { count: result.parsedCount }),
+    };
+    this.render();
+  }
+
   private async handleManualImport() {
     if (!this.manualPasteContent || this.isImporting) return;
     this.isImporting = true;
     this.render();
-    await this.processImport(this.manualPasteContent);
+    this.handleImportResult(await processImport(this.manualPasteContent));
     this.isImporting = false;
-  }
-
-  private async processImport(text: string) {
-    try {
-      if (!text || text.length < 100) {
-        this.importStatus = {
-          type: "error",
-          message: i18n.t("ui.playdata.importFailed"),
-        };
-        this.render();
-        return;
-      }
-
-      // Check if it looks like HTML
-      if (!text.includes("<html") && !text.includes("<div")) {
-        this.importStatus = {
-          type: "error",
-          message: i18n.t("ui.playdata.importFailed"),
-        };
-        this.render();
-        return;
-      }
-
-      // Parse the HTML — detect source by presence of kit.start / scoreData
-      const isTaikoWiki = text.includes("kit.start") && text.includes("scoreData");
-      const playdata = isTaikoWiki ? parseTaikoWikiRatingHtml(text) : parseFumenDatabaseHtml(text);
-
-      if (playdata.entries.length === 0) {
-        this.importStatus = {
-          type: "error",
-          message: i18n.t("ui.playdata.importFailed"),
-        };
-        this.render();
-        return;
-      }
-
-      // Fetch song mapping for verification
-      try {
-        const response = await fetch("./data/song_mapping.json");
-        if (response.ok) {
-          const songMapping = await response.json();
-          const verification = verifyPlaydata(playdata, songMapping);
-
-          if (verification.unmatched.length > 0) {
-            this.resolutionState = {
-              result: verification,
-              playdata,
-            };
-            this.importStatus = { type: "none", message: "" };
-            this.render();
-            return;
-          }
-
-          const finalPlaydata: Playdata = {
-            version: 2,
-            entries: verification.matched,
-            updatedAt: playdata.updatedAt,
-            source: playdata.source,
-          };
-
-          // Save to profile
-          saveUserProfile({ playdata: finalPlaydata });
-          this.playdata = finalPlaydata;
-          window.dispatchEvent(new Event("settings-change"));
-        } else {
-          // If song mapping fails, save the parsed data without songId
-          const finalPlaydata: Playdata = {
-            version: 2,
-            entries: [], // No matched entries
-            updatedAt: playdata.updatedAt,
-            source: playdata.source,
-          };
-          saveUserProfile({ playdata: finalPlaydata });
-          this.playdata = finalPlaydata;
-          window.dispatchEvent(new Event("settings-change"));
-        }
-      } catch (e) {
-        console.warn("Failed to load song mapping for verification, skipping.", e);
-        // Save the parsed data without songId
-        const finalPlaydata: Playdata = {
-          version: 2,
-          entries: [], // No matched entries
-          updatedAt: playdata.updatedAt,
-          source: playdata.source,
-        };
-        saveUserProfile({ playdata: finalPlaydata });
-        this.playdata = finalPlaydata;
-        window.dispatchEvent(new Event("settings-change"));
-      }
-
-      this.manualPasteContent = ""; // Clear after success
-
-      this.importStatus = {
-        type: "success",
-        message: i18n.t("ui.playdata.importSuccess", { count: playdata.entries.length }),
-      };
-      this.render();
-    } catch (err) {
-      console.error("Failed to import playdata:", err);
-      this.importStatus = {
-        type: "error",
-        message: i18n.t("ui.playdata.importFailed"),
-      };
-      this.render();
-    }
   }
 
   private async handlePasteImport() {
     try {
       const clipboardText = await navigator.clipboard.readText();
-      await this.processImport(clipboardText);
+      this.handleImportResult(await processImport(clipboardText));
     } catch (err) {
       console.error("Failed to read clipboard:", err);
       this.importStatus = {
