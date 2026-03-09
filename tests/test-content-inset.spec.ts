@@ -14,6 +14,29 @@ LEVEL:5
 #END
 `.trim();
 
+test.describe("Large Vertical Insets with Attribution", () => {
+  test("Visual regression", async ({ page }) => {
+    await page.goto("/chart-only.html");
+    await page.waitForFunction(() => {
+      const chart = document.querySelector("tja-chart");
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing internal chart property for test readiness check
+      return chart && (chart as any).chart;
+    });
+
+    await page.evaluate((tja) => {
+      window.renderChartCustom(tja, "oni", { showAttribution: true, beatsPerLine: 16 }, {
+        top: 80,
+        bottom: 80,
+        left: 20,
+        right: 20,
+      });
+    }, SIMPLE_TJA);
+
+    await page.waitForTimeout(100);
+    await expect(page.locator("#test-render-canvas")).toHaveScreenshot("large-vertical-inset-attribution.png");
+  });
+});
+
 test.describe("Content Inset", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/chart-only.html");

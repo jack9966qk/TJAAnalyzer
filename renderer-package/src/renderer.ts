@@ -2189,12 +2189,14 @@ export function renderLayout(
     canvasContext.textAlign = "right";
     canvasContext.textBaseline = "bottom";
     const effectivePaddingX = insets?.left ?? INSETS.left;
+    const effectivePaddingBottom = insets?.bottom ?? INSETS.bottom;
     const x = logicalCanvasWidth - effectivePaddingX;
+    const yBase = totalHeight - effectivePaddingBottom - fontSize * 0.8;
     if (options.tjaSourceName) {
-      canvasContext.fillText(`TJA source: ${options.tjaSourceName}`, x, totalHeight - fontSize * 0.8 - fontSize * 1.2);
-      canvasContext.fillText("TJA renderer by Jack", x, totalHeight - fontSize * 0.8);
+      canvasContext.fillText(`TJA source: ${options.tjaSourceName}`, x, yBase - fontSize * 1.2);
+      canvasContext.fillText("TJA renderer by Jack", x, yBase);
     } else {
-      canvasContext.fillText("TJA renderer by Jack", x, totalHeight - fontSize * 0.8);
+      canvasContext.fillText("TJA renderer by Jack", x, yBase);
     }
     canvasContext.restore();
   }

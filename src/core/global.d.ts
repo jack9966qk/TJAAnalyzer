@@ -22,6 +22,12 @@ declare global {
     createJudgementKey: (char: string, ordinal: number) => JudgementKey;
     LocationMap: typeof LocationMap;
     JudgementMap: typeof JudgementMap;
+    renderChartCustom: (
+      tjaContent: string,
+      difficulty: string,
+      viewOptions: Partial<ViewOptions>,
+      insets: { top: number; bottom: number; left: number; right: number },
+    ) => void;
     loadTJAContent: (content: string) => void;
     setViewOptions: (opts: Partial<ViewOptions>) => void;
     showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>;
