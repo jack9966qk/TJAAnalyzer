@@ -1749,11 +1749,14 @@ function drawLongNotes(
           const radius = isBig ? rBig : rSmall;
           const effectiveBorderInnerW = isBig ? borderInnerBigW : borderInnerW;
 
-          const startX = barX + segmentStartIdx * noteStep;
-          const endX = barX + j * noteStep;
-
           const hasStartCap = segmentStartIdx === currentLongNote.startNoteIdx && i === currentLongNote.startBarIdx;
           const hasEndCap = true;
+
+          // Extend by 1 device pixel on the left for all continuations (same-row and row-boundary)
+          // to prevent a sub-pixel gap at bar junctions due to canvas rasterization and bar border stroke positioning.
+          const pixelOverlap = !hasStartCap ? 1 / dpr : 0;
+          const startX = barX + segmentStartIdx * noteStep - pixelOverlap;
+          const endX = barX + j * noteStep;
 
           const isSelected = isNoteSelected(
             currentLongNote.originalBarIdx,
@@ -1832,11 +1835,16 @@ function drawLongNotes(
       const radius = isBig ? rBig : rSmall;
       const effectiveBorderInnerW = isBig ? borderInnerBigW : borderInnerW;
 
-      const startX = barX + segmentStartIdx * noteStep;
-      const endX = barX + frame.width; // Visual end of bar
-
       const hasStartCap = segmentStartIdx === currentLongNote.startNoteIdx && i === currentLongNote.startBarIdx;
       const hasEndCap = false; // Continuation
+
+      // Extend by 1 device pixel on the left when continuing from the previous bar on the same row,
+      // and on the right when continuing to the next bar on the same row,
+      // to prevent sub-pixel gaps at bar junctions due to canvas rasterization of touching float boundaries.
+      const leftPixelOverlap = !hasStartCap && hasLeftNeighbor ? 1 / dpr : 0;
+      const rightPixelOverlap = hasRightNeighbor ? 1 / dpr : 0;
+      const startX = barX + segmentStartIdx * noteStep - leftPixelOverlap;
+      const endX = barX + frame.width + rightPixelOverlap; // Visual end of bar
 
       const isSelected = isNoteSelected(
         currentLongNote.originalBarIdx,
