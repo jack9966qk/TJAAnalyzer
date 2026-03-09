@@ -48,6 +48,7 @@
       <div>Loading...</div>
     </div>
     <script>
+    window.__htmlScriptTs = performance.now();
     setTimeout(() => {
       var el = document.querySelector("#loading-screen > div");
       if (el) el.style.opacity = "1";

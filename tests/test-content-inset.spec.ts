@@ -24,12 +24,17 @@ test.describe("Large Vertical Insets with Attribution", () => {
     });
 
     await page.evaluate((tja) => {
-      window.renderChartCustom(tja, "oni", { showAttribution: true, beatsPerLine: 16 }, {
-        top: 80,
-        bottom: 80,
-        left: 20,
-        right: 20,
-      });
+      window.renderChartCustom(
+        tja,
+        "oni",
+        { showAttribution: true, beatsPerLine: 16 },
+        {
+          top: 80,
+          bottom: 80,
+          left: 20,
+          right: 20,
+        },
+      );
     }, SIMPLE_TJA);
 
     await page.waitForTimeout(100);

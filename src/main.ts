@@ -2,6 +2,9 @@ import { registerSW } from "virtual:pwa-register";
 import * as Neutralino from "@neutralinojs/lib";
 import type { ServerEvent } from "./clients/judgement-client.js";
 import "./style.css";
+import { startupLog } from "./utils/startup-log.js";
+
+startupLog.record("main module executing");
 
 window.Neutralino = Neutralino;
 import "./components/chart-list-panel.js"; // Ensure side-effect
@@ -77,7 +80,10 @@ console.log("TJAChart module loaded", TJAChart);
 console.log("NoteStatsDisplay module loaded", NoteStatsDisplay);
 
 function initPWA() {
+  startupLog.record("initPWA start");
+
   if (import.meta.env.DEV) {
+    startupLog.record("initPWA skip (dev mode)");
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.getRegistrations().then((registrations) => {
         for (const registration of registrations) {
@@ -90,23 +96,37 @@ function initPWA() {
   }
 
   if ("serviceWorker" in navigator) {
+    // Log whether a controller (service worker) is already active from a previous load.
+    // If so, subsequent fetches may be served from cache.
+    const hasController = !!navigator.serviceWorker.controller;
+    startupLog.record(
+      "SW controller check",
+      hasController ? "controller active (cache available)" : "no controller yet (first load or bypassed)",
+    );
+
     const updateSW = registerSW({
       onNeedRefresh() {
+        startupLog.record("SW needs refresh (new version available)");
         console.log("New content available, reloading...");
         updateSW(true);
       },
       onOfflineReady() {
+        startupLog.record("SW offline ready");
         console.log("App ready to work offline");
       },
       onRegisterError(error) {
+        startupLog.record("SW registration error", String(error));
         console.error("SW registration failed", error);
         appState.swRegistrationError = error instanceof Error ? error.message : String(error);
       },
     });
 
     navigator.serviceWorker.addEventListener("controllerchange", () => {
+      startupLog.record("SW controller changed");
       console.log("Controller changed");
     });
+  } else {
+    startupLog.record("SW not supported");
   }
 }
 
@@ -652,6 +672,7 @@ function initJudgementClient() {
 }
 
 function initLoad() {
+  startupLog.record("initLoad start");
   restoreUrlState();
   updateStatus("status.ready");
   updateUIText(); // Initialize text
@@ -679,14 +700,18 @@ function initLoad() {
     const loadingScreen = document.getElementById("loading-screen");
     if (loadingScreen) {
       loadingScreen.style.opacity = "0";
+      startupLog.record("app ready for interactions (loading screen hidden)");
       setTimeout(() => {
         loadingScreen.remove();
       }, 300);
+    } else {
+      startupLog.record("app ready for interactions");
     }
   }, 0);
 }
 
 async function init() {
+  startupLog.record("init start");
   try {
     initLayout();
     initEventListeners();

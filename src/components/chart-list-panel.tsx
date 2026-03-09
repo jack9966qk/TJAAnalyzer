@@ -35,6 +35,7 @@ import {
 } from "../utils/playdata-status.js";
 import type { Playdata, PlaydataEntry } from "../utils/playdata-types.js";
 import { Crown } from "../utils/playdata-types.js";
+import { startupLog } from "../utils/startup-log.js";
 import { ChartLanguage, loadUserProfile } from "../utils/user-profile.js";
 import { courseBranchSelect } from "../view/ui-elements.js";
 
@@ -156,11 +157,13 @@ export class ChartListPanel extends HTMLElement {
   }
 
   activate() {
+    startupLog.record("chart-list-panel activate");
     // Load playdata caches if playdata exists
     this.refreshPlaydataCaches();
     this.loadSettings();
 
     if (!appState.eseTree) {
+      startupLog.record("ESE tree: not cached, starting fetch");
       this.dispatchStatus("status.loadingEse");
       this.renderLoading();
 
@@ -168,6 +171,7 @@ export class ChartListPanel extends HTMLElement {
         .getTjaFiles()
         .then((tree) => {
           appState.eseTree = tree;
+          startupLog.record("ESE tree: ready", `${tree.length} entries`);
           this.dispatchStatus("status.eseReady");
           this.rebuildTitleCache();
           this.loadSearchFromUrl();
@@ -181,6 +185,7 @@ export class ChartListPanel extends HTMLElement {
         })
         .catch((e) => {
           const errMsg = e instanceof Error ? e.message : String(e);
+          startupLog.record("ESE tree: load error", errMsg);
           this.dispatchStatus("status.eseError", { error: errMsg });
           // Render error state
           const resultsContainer = this.querySelector("#ese-results");
@@ -189,6 +194,7 @@ export class ChartListPanel extends HTMLElement {
           }
         });
     } else {
+      startupLog.record("ESE tree: already cached, skipping fetch");
       this.rebuildTitleCache();
       this.loadSearchFromUrl();
       this.filterResults();

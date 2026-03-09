@@ -14,6 +14,7 @@ import {
   type UnmatchedEntry,
   verifyPlaydata,
 } from "../utils/playdata-types.js";
+import { startupLog } from "../utils/startup-log.js";
 import { parseTaikoWikiRatingHtml } from "../utils/taiko-wiki-parser.js";
 import {
   ChartLanguage,
@@ -39,6 +40,8 @@ export class SettingsPanel extends HTMLElement {
   private isExporting = false;
   private isImporting = false;
   private manualPasteContent = "";
+
+  private showDebugLog = false;
 
   // View defaults and auto-annotate settings
   private defaultViewOptions: DefaultViewOptions | null = null;
@@ -1032,13 +1035,116 @@ export class SettingsPanel extends HTMLElement {
       </div>
     );
 
+    const debugLogSection = (() => {
+      if (!appState.isTesterMode) return null;
+      const logEvents = startupLog.getEvents();
+      const first = logEvents[0]?.ts ?? 0;
+      let prev = first;
+      return (
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; gap: 8px;">
+            <action-button
+              button-variant="secondary"
+              action={async () => {
+                this.showDebugLog = !this.showDebugLog;
+                this.render();
+              }}
+            >
+              {this.showDebugLog ? "Hide Debug Log" : "Show Debug Log"}
+            </action-button>
+            <action-button
+              button-variant="secondary"
+              action={async () => {
+                const events = startupLog.getEvents();
+                if (events.length === 0) {
+                  await navigator.clipboard.writeText("No events recorded.");
+                  return;
+                }
+                const first = events[0].ts;
+                let prev = first;
+                const header = `${"#".padEnd(3)} ${"Event".padEnd(50)} ${"Start".padStart(10)} ${"Δprev".padStart(10)}  Detail`;
+                const lines = events.map((ev, i) => {
+                  const sinceStart = `${(ev.ts - first).toFixed(1)}ms`.padStart(10);
+                  const sincePrev = `${(ev.ts - prev).toFixed(1)}ms`.padStart(10);
+                  prev = ev.ts;
+                  const detail = ev.detail ? `  ${ev.detail}` : "";
+                  return `${String(i + 1).padEnd(3)} ${ev.label.padEnd(50)} ${sinceStart} ${sincePrev}${detail}`;
+                });
+                await navigator.clipboard.writeText([header, ...lines].join("\n"));
+              }}
+            >
+              Copy Log
+            </action-button>
+          </div>
+          {this.showDebugLog && (
+            <div style="background: var(--bg-input, #f8f8f8); border: 1px solid var(--border-light); border-radius: 6px; padding: 10px; overflow-x: auto;">
+              <table style="border-collapse: collapse; font-family: monospace; font-size: 12px; width: 100%; min-width: 480px;">
+                <thead>
+                  <tr style="border-bottom: 1px solid var(--border-light);">
+                    <th style="text-align: right; padding: 2px 8px 4px 2px; color: var(--text-secondary);">#</th>
+                    <th style="text-align: left; padding: 2px 8px 4px 2px; color: var(--text-secondary);">Event</th>
+                    <th style="text-align: right; padding: 2px 8px 4px 2px; color: var(--text-secondary);">Start</th>
+                    <th style="text-align: right; padding: 2px 8px 4px 2px; color: var(--text-secondary);">Δ prev</th>
+                    <th style="text-align: left; padding: 2px 2px 4px 2px; color: var(--text-secondary);">Detail</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {logEvents.length === 0 ? (
+                    <tr>
+                      <td colSpan={5} style="padding: 4px 2px; color: var(--text-secondary);">
+                        No events recorded.
+                      </td>
+                    </tr>
+                  ) : (
+                    logEvents.map((ev, i) => {
+                      const sinceStart = (ev.ts - first).toFixed(1);
+                      const sincePrev = (ev.ts - prev).toFixed(1);
+                      prev = ev.ts;
+                      return (
+                        <tr
+                          style={
+                            i % 2 === 0
+                              ? "background: transparent;"
+                              : "background: var(--bg-panel-header, rgba(0,0,0,0.04));"
+                          }
+                        >
+                          <td style="text-align: right; padding: 2px 8px; color: var(--text-secondary);">{i + 1}</td>
+                          <td style="padding: 2px 8px;">{ev.label}</td>
+                          <td style="text-align: right; padding: 2px 8px; color: var(--text-secondary); white-space: nowrap;">
+                            {sinceStart}ms
+                          </td>
+                          <td style="text-align: right; padding: 2px 8px; color: var(--text-secondary); white-space: nowrap;">
+                            {sincePrev}ms
+                          </td>
+                          <td style="padding: 2px 2px; color: var(--text-secondary); font-size: 11px;">
+                            {ev.detail ?? ""}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      );
+    })();
+
+    const devSection = (
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        {devModeToggle}
+        {debugLogSection}
+      </div>
+    );
+
     return (
       <div style="display: flex; flex-direction: column; gap: 10px;">
         {viewDefaultsSection}
         {autoAnnotateSection}
         {chartListSection}
         {playdataSection}
-        {devModeToggle}
+        {devSection}
       </div>
     );
   }
