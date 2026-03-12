@@ -125,8 +125,7 @@ export interface TaikoWikiDfcResponse {
 
 const TAIKO_RATING_ANALYZER_URL = "https://cdn.ourtaiko.org/api/fumendb_constants";
 const CNSONGS_URL = "https://cdn.ourtaiko.org/api/cnsongs";
-const TAIKO_WIKI_DB_URL =
-  "https://raw.githubusercontent.com/taikowiki/taiko-song-database/refs/heads/main/database.json";
+const TAIKO_WIKI_DB_URL = "https://taiko.wiki/api/v1/song/all";
 const DONDER_HELPER_URL =
   "https://raw.githubusercontent.com/Donder-Helper/DonderHelper/refs/heads/main/Data/songs.json";
 const TAIKO_WIKI_DFC_URL = "https://taiko.wiki/api/v1/diffchart?type=dfc&level=10";
