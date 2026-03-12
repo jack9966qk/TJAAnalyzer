@@ -487,16 +487,12 @@ export class SettingsPanel extends HTMLElement {
 
     return (
       <div style="padding: 0;">
-        <div
-          style="margin-bottom: 16px; padding: 8px 16px; border-radius: 4px; font-weight: 500; text-align: center; background: var(--status-success-bg); color: var(--status-success-text);"
-        >
+        <div style="margin-bottom: 16px; padding: 8px 16px; border-radius: 4px; font-weight: 500; text-align: center; background: var(--status-success-bg); color: var(--status-success-text);">
           {i18n.t("ui.playdata.importSuccess", { count: totalCount })}
         </div>
 
         <h3>{i18n.t("ui.playdata.unresolvable")}</h3>
-        <p className="section-description">
-          {i18n.t("ui.playdata.unmatchedDescription")}
-        </p>
+        <p className="section-description">{i18n.t("ui.playdata.unmatchedDescription")}</p>
 
         {sortedGroups.length > 0 ? (
           <div style="margin-bottom: 20px;">

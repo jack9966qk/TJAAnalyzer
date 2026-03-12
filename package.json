@@ -4,8 +4,8 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "prepare-data": "node --loader ts-node/esm prepare-data.ts",
     "build-data": "node --loader ts-node/esm build-data.ts",
+    "prepare-data": "node --loader ts-node/esm prepare-data.ts && npm run build-data",
     "build": "npm run build-data && tsc --noEmit && vite build",
     "dev": "npm run build-data && npm run --prefix renderer-package build && npm-run-all --parallel dev:renderer \"dev:vite -- {@}\" --",
     "dev:renderer": "npm run --prefix renderer-package watch",
