@@ -402,6 +402,8 @@ async function main() {
   const itemsForResolution: ProcessingItem[] = [];
   const mapping: Record<number, SongMappingEntry> = {};
 
+  const validTjaPaths = new Set(tjaFiles.map((f) => f.relativePath));
+
   for (const song of mergedSongs) {
     const targetTitle = song.defaultTitle;
     let candidates: { file: TjaFile; dist?: number }[] = [];
@@ -439,7 +441,7 @@ async function main() {
     const candidatesList = candidates.map((c) => c.file.relativePath);
     const existing = existingMapping[song.id];
 
-    if (existing) {
+    if (existing && validTjaPaths.has(existing.esePath)) {
       const newEntry: SongMappingEntry = {
         esePath: existing.esePath,
         defaultTitle: song.defaultTitle,
@@ -448,6 +450,9 @@ async function main() {
       };
       mapping[song.id] = newEntry;
     } else {
+      if (existing) {
+        console.warn(`  esePath no longer valid for Song ID ${song.id} ("${song.defaultTitle}"): ${existing.esePath}`);
+      }
       itemsForResolution.push({
         song,
         candidates,
