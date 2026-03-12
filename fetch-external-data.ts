@@ -4,15 +4,34 @@ export interface TaikoRatingAnalyzerSong {
   id: number;
   title: string;
   title_cn?: string;
-  level?: Record<
-    string,
-    {
-      constant?: number;
-      totalNotes?: number;
-      [key: string]: unknown;
-    }
-  >;
   is_cn?: boolean;
+  [key: string]: unknown;
+}
+
+export interface TaikoRatingAnalyzerFumenDataConstants {
+  constant?: number;
+  totalNotes?: number;
+  composite?: number;
+  avgDensity?: number;
+  instDensity?: number;
+  separation?: number;
+  bpmChange?: number;
+  hsChange?: number;
+}
+
+export interface TaikoRatingAnalyzerFumenDataItem {
+  id: number;
+  title: string;
+  constants?: {
+    oni?: TaikoRatingAnalyzerFumenDataConstants;
+    ura?: TaikoRatingAnalyzerFumenDataConstants;
+  };
+}
+
+export interface TaikoRatingAnalyzerSongsCNItem {
+  id: number;
+  song_name_jp: string;
+  song_name: string;
   [key: string]: unknown;
 }
 
@@ -104,8 +123,8 @@ export interface TaikoWikiDfcResponse {
   };
 }
 
-const TAIKO_RATING_ANALYZER_URL =
-  "https://raw.githubusercontent.com/KirisameVanilla/taiko-rating-analyzer/refs/heads/main/public/songs.json";
+const TAIKO_RATING_ANALYZER_URL = "https://cdn.ourtaiko.org/api/fumendb_constants";
+const CNSONGS_URL = "https://cdn.ourtaiko.org/api/cnsongs";
 const TAIKO_WIKI_DB_URL =
   "https://raw.githubusercontent.com/taikowiki/taiko-song-database/refs/heads/main/database.json";
 const DONDER_HELPER_URL =
@@ -152,17 +171,44 @@ async function fetchOrLoadJson<T>(url: string, filename: string, forceFetchAndSa
 }
 
 export async function fetchExternalSongData(forceFetchAndSave = false): Promise<ExternalSongData> {
-  const taikoRatingAnalyzerSongs = await fetchOrLoadJson<TaikoRatingAnalyzerSong[]>(
-    TAIKO_RATING_ANALYZER_URL,
-    "taiko_rating_analyzer.json",
-    forceFetchAndSave,
-  );
+  const [fumenData, songsCNData] = await Promise.all([
+    fetchOrLoadJson<TaikoRatingAnalyzerFumenDataItem[]>(
+      TAIKO_RATING_ANALYZER_URL,
+      "taiko_rating_analyzer.json",
+      forceFetchAndSave,
+    ),
+    fetchOrLoadJson<TaikoRatingAnalyzerSongsCNItem[]>(CNSONGS_URL, "songs_cn.json", forceFetchAndSave),
+  ]);
+
+  const songsCNMap = new Map<number, TaikoRatingAnalyzerSongsCNItem>();
+  for (const song of songsCNData) {
+    if (!songsCNMap.has(song.id)) songsCNMap.set(song.id, song);
+  }
+
+  const taikoRatingAnalyzerSongs: TaikoRatingAnalyzerSong[] = fumenData.map((fumenSong) => {
+    const cnSong = songsCNMap.get(fumenSong.id);
+    return {
+      id: fumenSong.id,
+      title: fumenSong.title,
+      ...(cnSong ? { title_cn: cnSong.song_name, is_cn: true } : {}),
+    };
+  });
 
   const taikoWikiSongs = await fetchOrLoadJson<TaikoWikiSong[]>(
     TAIKO_WIKI_DB_URL,
     "taiko_wiki.json",
     forceFetchAndSave,
   );
+
+  // Supplement taikoRatingAnalyzerSongs with taiko_wiki songs that are missing from fumendb_constants.
+  // This ensures songs in the game database but not rated by the analyzer are still mappable.
+  const traIds = new Set(taikoRatingAnalyzerSongs.map((s) => s.id));
+  for (const wikiSong of taikoWikiSongs) {
+    const id = Number(wikiSong.songNo);
+    if (!Number.isNaN(id) && !traIds.has(id) && wikiSong.title) {
+      taikoRatingAnalyzerSongs.push({ id, title: wikiSong.title });
+    }
+  }
 
   const donderHelperData = await fetchOrLoadJson<DonderHelperData>(
     DONDER_HELPER_URL,
