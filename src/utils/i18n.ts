@@ -246,7 +246,9 @@ const resources: Resources = {
 
     "ui.playdata.resolveConflicts": "Resolve Import Conflicts",
     "ui.playdata.resolvable": "Resolvable Conflicts",
-    "ui.playdata.unresolvable": "Unresolvable Entries (Will be skipped)",
+    "ui.playdata.unresolvable": "Unresolvable Entries",
+    "ui.playdata.unmatchedDescription":
+      "The following entries were saved but cannot be displayed in the chart list because their Song ID was not found in the local database. They will still be included in exports.",
     "ui.playdata.copyCsv": "Copy Unmatched CSV",
     "ui.playdata.resolveInstructions":
       "The following entries could not be automatically matched to the song database. Please review the suggestions and accept or reject them.",
@@ -257,6 +259,7 @@ const resources: Resources = {
     "ui.playdata.acceptAllSuggestions": "Accept All Suggestions",
     "ui.playdata.keepAllOriginal": "Keep All Originals",
     "ui.playdata.finalizeImport": "Finalize Import",
+    "ui.ok": "OK",
     "ui.accept": "Accept",
     "ui.reject": "Reject",
     "ui.keep": "Keep",
@@ -538,7 +541,9 @@ const resources: Resources = {
 
     "ui.playdata.resolveConflicts": "解决导入冲突",
     "ui.playdata.resolvable": "可解决的冲突",
-    "ui.playdata.unresolvable": "无法解决的条目（将被跳过）",
+    "ui.playdata.unresolvable": "无法解决的条目",
+    "ui.playdata.unmatchedDescription":
+      "以下条目已保存，但由于在本地数据库中未找到对应歌曲ID，无法在谱面列表中显示。这些条目仍会包含在导出中。",
     "ui.playdata.copyCsv": "复制未匹配条目为CSV",
     "ui.playdata.resolveInstructions": "以下条目无法自动匹配到歌曲数据库。请查看建议并接受或拒绝。",
     "ui.playdata.originalTitle": "原始标题",
@@ -548,6 +553,7 @@ const resources: Resources = {
     "ui.playdata.acceptAllSuggestions": "接受所有建议",
     "ui.playdata.keepAllOriginal": "保留所有原始标题",
     "ui.playdata.finalizeImport": "完成导入",
+    "ui.ok": "确定",
     "ui.accept": "接受",
     "ui.reject": "拒绝",
     "ui.keep": "保留",
@@ -832,7 +838,9 @@ const resources: Resources = {
 
     "ui.playdata.resolveConflicts": "インポートの競合を解決",
     "ui.playdata.resolvable": "解決可能な競合",
-    "ui.playdata.unresolvable": "解決不可能なエントリー（スキップされます）",
+    "ui.playdata.unresolvable": "解決不可能なエントリー",
+    "ui.playdata.unmatchedDescription":
+      "以下のエントリーは保存されましたが、ローカルデータベースに歌曲IDが見つからないため、譜面リストに表示されません。エクスポートには引き続き含まれます。",
     "ui.playdata.copyCsv": "未解決CSVをコピー",
     "ui.playdata.resolveInstructions":
       "以下のエントリーは曲データベースと自動的に一致しませんでした。提案を確認して承認または拒否してください。",
@@ -843,6 +851,7 @@ const resources: Resources = {
     "ui.playdata.acceptAllSuggestions": "すべての提案を承認",
     "ui.playdata.keepAllOriginal": "すべての元タイトルを保持",
     "ui.playdata.finalizeImport": "インポートを完了",
+    "ui.ok": "OK",
     "ui.accept": "承認",
     "ui.reject": "拒否",
     "ui.keep": "保持",

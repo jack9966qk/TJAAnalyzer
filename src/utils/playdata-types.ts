@@ -114,6 +114,16 @@ export interface ResolutionResult {
 }
 
 /**
+ * Convert a FumenDatabaseEntry to a PlaydataEntry using its numeric songId as a string.
+ * The resulting entry has no corresponding ESE path, so the UI will not display status for it,
+ * but it will be included in exports.
+ */
+export function fumenEntryToPlaydataEntry(entry: FumenDatabaseEntry): PlaydataEntry {
+  const { title: _title, ...rest } = entry;
+  return { ...rest, songId: entry.songId.toString() };
+}
+
+/**
  * Verify playdata against song mapping and identify unmatched entries
  */
 export function verifyPlaydata(playdata: FumenDatabasePlaydata, songMapping: SongMapping): ResolutionResult {

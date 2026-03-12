@@ -3,16 +3,9 @@ import "./action-button.js";
 import { appState } from "../state/app-state.js";
 import { shareFile } from "../utils/file-share.js";
 import { i18n } from "../utils/i18n.js";
-import { type ImportResult, processImport } from "../utils/playdata-import.js";
+import { type ImportResult, processImport, type UnmatchedInfo } from "../utils/playdata-import.js";
 import { PlaydataLeadingMode, PlaydataStripMode, PlaydataTrailingMode } from "../utils/playdata-status.js";
-import {
-  convertToTaikoRatingAnalyzerFormat,
-  type FumenDatabasePlaydata,
-  getPlaydataStats,
-  type Playdata,
-  type PlaydataEntry,
-  type UnmatchedEntry,
-} from "../utils/playdata-types.js";
+import { convertToTaikoRatingAnalyzerFormat, getPlaydataStats, type Playdata } from "../utils/playdata-types.js";
 import { startupLog } from "../utils/startup-log.js";
 import {
   ChartLanguage,
@@ -50,13 +43,7 @@ export class SettingsPanel extends HTMLElement {
   private leadingMode: PlaydataLeadingMode = PlaydataLeadingMode.None;
   private trailingMode: PlaydataTrailingMode = PlaydataTrailingMode.None;
 
-  private resolutionState: {
-    result: {
-      matched: PlaydataEntry[];
-      unmatched: UnmatchedEntry[];
-    };
-    playdata: FumenDatabasePlaydata;
-  } | null = null;
+  private resolutionState: { unmatched: UnmatchedInfo[]; totalCount: number } | null = null;
 
   constructor() {
     super();
@@ -178,32 +165,6 @@ export class SettingsPanel extends HTMLElement {
     appState.isTesterMode = (e.target as HTMLInputElement).checked;
     saveUserProfile({ isTesterMode: appState.isTesterMode });
     window.dispatchEvent(new Event("dev-mode-change"));
-    this.render();
-  }
-
-  private handleFinalizeImport() {
-    if (!this.resolutionState) return;
-
-    const { playdata, result } = this.resolutionState;
-    const finalEntries: PlaydataEntry[] = [...result.matched];
-
-    const finalPlaydata: Playdata = {
-      version: 2,
-      entries: finalEntries,
-      updatedAt: playdata.updatedAt,
-      source: playdata.source,
-    };
-
-    saveUserProfile({ playdata: finalPlaydata });
-    this.playdata = finalPlaydata;
-    this.resolutionState = null;
-    this.manualPasteContent = "";
-
-    this.importStatus = {
-      type: "success",
-      message: i18n.t("ui.playdata.importSuccess", { count: finalPlaydata.entries.length }),
-    };
-    window.dispatchEvent(new Event("settings-change"));
     this.render();
   }
 
@@ -364,21 +325,21 @@ export class SettingsPanel extends HTMLElement {
       return;
     }
 
-    if (result.type === "unmatched") {
-      this.resolutionState = { result: result.result, playdata: result.rawPlaydata };
-      this.importStatus = { type: "none", message: "" };
-      this.render();
-      return;
-    }
-
-    // success
+    // Always save immediately
     saveUserProfile({ playdata: result.playdata });
     this.playdata = result.playdata;
     this.manualPasteContent = "";
     window.dispatchEvent(new Event("settings-change"));
+
+    if (result.unmatched.length > 0) {
+      this.resolutionState = { unmatched: result.unmatched, totalCount: result.playdata.entries.length };
+      this.render();
+      return;
+    }
+
     this.importStatus = {
       type: "success",
-      message: i18n.t("ui.playdata.importSuccess", { count: result.parsedCount }),
+      message: i18n.t("ui.playdata.importSuccess", { count: result.playdata.entries.length }),
     };
     this.render();
   }
@@ -491,16 +452,13 @@ export class SettingsPanel extends HTMLElement {
 
   private async handleCopyUnmatchedCSV() {
     if (!this.resolutionState) return;
-    const { result } = this.resolutionState;
+    const { unmatched } = this.resolutionState;
 
     const csvLines = ["Original Title"];
 
-    // Include all unmatched items, sorted by title
-    const allUnmatched = [...result.unmatched].sort((a, b) => a.entry.title.localeCompare(b.entry.title));
-
-    for (const item of allUnmatched) {
-      const original = `"${item.entry.title.replace(/"/g, '""')}"`;
-      csvLines.push(`${original}`);
+    const sorted = [...unmatched].sort((a, b) => a.title.localeCompare(b.title));
+    for (const item of sorted) {
+      csvLines.push(`"${item.title.replace(/"/g, '""')}"`);
     }
 
     // Simple deduplication
@@ -517,35 +475,39 @@ export class SettingsPanel extends HTMLElement {
   private renderResolutionUI() {
     if (!this.resolutionState) return <div />;
 
-    const { result } = this.resolutionState;
+    const { unmatched, totalCount } = this.resolutionState;
 
     // Group unmatched entries by title
-    const groups = new Map<string, UnmatchedEntry[]>();
-    for (const item of result.unmatched) {
-      const existing = groups.get(item.entry.title) || [];
-      existing.push(item);
-      groups.set(item.entry.title, existing);
+    const groups = new Map<string, number>();
+    for (const item of unmatched) {
+      groups.set(item.title, (groups.get(item.title) ?? 0) + 1);
     }
 
     const sortedGroups = Array.from(groups.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 
     return (
       <div style="padding: 0;">
+        <div
+          style="margin-bottom: 16px; padding: 8px 16px; border-radius: 4px; font-weight: 500; text-align: center; background: var(--status-success-bg); color: var(--status-success-text);"
+        >
+          {i18n.t("ui.playdata.importSuccess", { count: totalCount })}
+        </div>
+
         <h3>{i18n.t("ui.playdata.unresolvable")}</h3>
         <p className="section-description">
-          The following entries could not be imported because their Song ID was not found in the database.
+          {i18n.t("ui.playdata.unmatchedDescription")}
         </p>
 
         {sortedGroups.length > 0 ? (
           <div style="margin-bottom: 20px;">
-            <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border-light); border-radius: 4px; background: var(--bg-input);">
+            <div style="max-height: 240px; overflow-y: auto; border: 1px solid var(--border-light); border-radius: 4px; background: var(--bg-input);">
               <ul style="margin: 0; padding: 0; list-style: none; font-size: 13px;">
-                {sortedGroups.map(([title, groupItems]) => (
+                {sortedGroups.map(([title, count]) => (
                   <li style="padding: 8px 12px; border-bottom: 1px solid var(--border-lighter); color: var(--text-secondary);">
                     {title}
-                    {groupItems.length > 1 && (
+                    {count > 1 && (
                       <span style="margin-left: 6px; font-size: 11px; color: var(--text-secondary); background: var(--bg-panel-header); padding: 1px 4px; border-radius: 4px;">
-                        x{groupItems.length}
+                        x{count}
                       </span>
                     )}
                   </li>
@@ -570,14 +532,9 @@ export class SettingsPanel extends HTMLElement {
               </action-button>
             )}
           </div>
-          <div style="display: flex; gap: 10px;">
-            <action-button button-variant="secondary" action={async () => this.handleClose()}>
-              {i18n.t("ui.cancel")}
-            </action-button>
-            <action-button button-variant="primary" action={async () => this.handleFinalizeImport()}>
-              {i18n.t("ui.playdata.finalizeImport")}
-            </action-button>
-          </div>
+          <action-button button-variant="primary" action={async () => this.handleClose()}>
+            {i18n.t("ui.ok")}
+          </action-button>
         </div>
       </div>
     );
