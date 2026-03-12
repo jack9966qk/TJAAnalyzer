@@ -92,6 +92,12 @@
     "candidates": ["03 Vocaloid/Hanaoto Ura Hyoushi/Hanaoto Ura Hyoushi.tja"],
     "matchType": "exact"
   },
+  "18": {
+    "esePath": "01 Pop/Himawari no Yakusoku/Himawari no Yakusoku.tja",
+    "defaultTitle": "ひまわりの約束",
+    "candidates": ["01 Pop/Himawari no Yakusoku/Himawari no Yakusoku.tja"],
+    "matchType": "exact"
+  },
   "19": {
     "esePath": "07 Game Music/Night and Day/Night and Day.tja",
     "defaultTitle": "Night And Day",
@@ -274,6 +280,12 @@
     "candidates": ["09 Namco Original/Bakemono Tsukiyo/Bakemono Tsukiyo.tja"],
     "matchType": "exact"
   },
+  "54": {
+    "esePath": "09 Namco Original/Unagi no Tamashii Rock/Unagi no Tamashii Rock.tja",
+    "defaultTitle": "【限定】 うなぎのたましいロック",
+    "candidates": ["09 Namco Original/Unagi no Tamashii Rock/Unagi no Tamashii Rock.tja"],
+    "matchType": "fuzzy"
+  },
   "55": {
     "esePath": "07 Game Music/Pastel Sealane/Pastel Sealane.tja",
     "defaultTitle": "Pastel Sealane",
@@ -415,7 +427,10 @@
   "84": {
     "esePath": "06 Classical/Carmen Prelude/Carmen Prelude.tja",
     "defaultTitle": "カルメン 組曲一番終曲",
-    "candidates": ["06 Classical/Carmen Prelude/Carmen Prelude.tja"],
+    "candidates": [
+      "06 Classical/Carmen Prelude/Carmen Prelude (TDM 2P).tja",
+      "06 Classical/Carmen Prelude/Carmen Prelude.tja"
+    ],
     "matchType": "fuzzy"
   },
   "85": {
@@ -651,6 +666,12 @@
     "candidates": ["02 Anime/Yume o Kanaete Doraemon/Yume o Kanaete Doraemon.tja"],
     "matchType": "exact"
   },
+  "123": {
+    "esePath": "02 Anime/Zenryoku Batankyu/Zenryoku Batankyu.tja",
+    "defaultTitle": "全力バタンキュー",
+    "candidates": ["02 Anime/Zenryoku Batankyu/Zenryoku Batankyu.tja"],
+    "matchType": "exact"
+  },
   "124": {
     "esePath": "09 Namco Original/Dream Tide -Yume no Chouryuu-/Dream Tide -Yume no Chouryuu-.tja",
     "defaultTitle": "Dream Tide",
@@ -736,10 +757,7 @@
   "138": {
     "esePath": "07 Game Music/Scars of FAUNA/Scars of FAUNA.tja",
     "defaultTitle": "Scars of FAUNA",
-    "candidates": [
-      "01 Pop/The Impression That I Get/The Impression That I Get.tja",
-      "07 Game Music/Scars of FAUNA/Scars of FAUNA.tja"
-    ],
+    "candidates": ["07 Game Music/Scars of FAUNA/Scars of FAUNA.tja"],
     "matchType": "fuzzy + llm"
   },
   "139": {
@@ -1335,11 +1353,20 @@
     "candidates": ["07 Game Music/Super Mario Bros. Medley -Old Version-/Super Mario Bros. Medley -Old Version-.tja"],
     "matchType": "exact"
   },
+  "263": {
+    "esePath": "09 Namco Original/Kidaruma 2000/Kidaruma 2000.tja",
+    "defaultTitle": "【限定】 黄ダルマ2000",
+    "candidates": ["01 Pop/Ruma/Ruma.tja", "09 Namco Original/Kidaruma 2000/Kidaruma 2000.tja"],
+    "matchType": "fuzzy + llm"
+  },
   "264": {
-    "esePath": "09 Namco Original/Mekadesu/Mekadesu..tja",
+    "esePath": "09 Namco Original/Mekadesu/Mekadesu. -New Chart-.tja",
     "defaultTitle": "メカデス。",
-    "candidates": ["09 Namco Original/Mekadesu/Mekadesu..tja"],
-    "matchType": "exact"
+    "candidates": [
+      "09 Namco Original/Mekadesu/Mekadesu. -New Chart-.tja",
+      "09 Namco Original/Mekadesu/Mekadesu. -Old Chart-.tja"
+    ],
+    "matchType": "fuzzy + llm"
   },
   "265": {
     "esePath": "09 Namco Original/Shimedore 2000/Shimedore 2000.tja",
@@ -2094,9 +2121,9 @@
     "matchType": "exact"
   },
   "405": {
-    "esePath": "04 Children and Folk/Yawaraka Sensha/Yawaraka Sensha.tja",
+    "esePath": "05 Variety/Yawaraka Sensha/Yawaraka Sensha.tja",
     "defaultTitle": "やわらか戦車",
-    "candidates": ["04 Children and Folk/Yawaraka Sensha/Yawaraka Sensha.tja"],
+    "candidates": ["05 Variety/Yawaraka Sensha/Yawaraka Sensha.tja"],
     "matchType": "exact"
   },
   "406": {
@@ -3054,6 +3081,12 @@
     "candidates": ["09 Namco Original/Sports Digestdon Fill in the Sky/Sports Digestdon Fill in the Sky.tja"],
     "matchType": "fuzzy"
   },
+  "581": {
+    "esePath": "09 Namco Original/Yokuderu 15300/Yokuderu 15300.tja",
+    "defaultTitle": "【限定】 よくでる15300",
+    "candidates": ["09 Namco Original/Yokuderu 15300/Yokuderu 15300.tja"],
+    "matchType": "fuzzy"
+  },
   "582": {
     "esePath": "07 Game Music/Kimi to Boku no Mirai/Kimi to Boku no Mirai.tja",
     "defaultTitle": "キミとボクのミライ",
@@ -3148,6 +3181,12 @@
     "esePath": "03 Vocaloid/Tokyo Teddy Bear/Tokyo Teddy Bear.tja",
     "defaultTitle": "東京テディベア",
     "candidates": ["03 Vocaloid/Tokyo Teddy Bear/Tokyo Teddy Bear.tja"],
+    "matchType": "exact"
+  },
+  "606": {
+    "esePath": "03 Vocaloid/Ghost Rule/Ghost Rule.tja",
+    "defaultTitle": "ゴーストルール",
+    "candidates": ["03 Vocaloid/Ghost Rule/Ghost Rule.tja"],
     "matchType": "exact"
   },
   "607": {
@@ -3317,6 +3356,15 @@
     "defaultTitle": "VICTORIA",
     "candidates": ["09 Namco Original/VICTORIA/VICTORIA.tja"],
     "matchType": "exact"
+  },
+  "642": {
+    "esePath": "02 Anime/Paradisus-Paradoxum/Paradisus-Paradoxum.tja",
+    "defaultTitle": "Paradisus-Paradoxum",
+    "candidates": [
+      "02 Anime/Paradisus-Paradoxum/Paradisus-Paradoxum(old).tja",
+      "02 Anime/Paradisus-Paradoxum/Paradisus-Paradoxum.tja"
+    ],
+    "matchType": "fuzzy + llm"
   },
   "644": {
     "esePath": "07 Game Music/Anzu no Uta/Anzu no Uta.tja",
@@ -3922,6 +3970,12 @@
     "candidates": ["09 Namco Original/Dairokuten Maou/Dairokuten Maou.tja"],
     "matchType": "exact"
   },
+  "766": {
+    "esePath": "01 Pop/Synchronicity/Synchronicity.tja",
+    "defaultTitle": "シンクロニシティ",
+    "candidates": ["01 Pop/Synchronicity/Synchronicity.tja"],
+    "matchType": "exact"
+  },
   "770": {
     "esePath": "03 Vocaloid/Dance Robot Dance/Dance Robot Dance.tja",
     "defaultTitle": "ダンスロボットダンス",
@@ -4223,6 +4277,15 @@
     "candidates": ["09 Namco Original/What’s in the Box/Whats in the Box.tja"],
     "matchType": "exact"
   },
+  "839": {
+    "esePath": "01 Pop/Tada Kimi ni Hare/Tada Kimi ni Hare.tja",
+    "defaultTitle": "ただ君に晴れ",
+    "candidates": [
+      "01 Pop/Tada Kimi ni Hare/Tada Kimi ni Hare (cover).tja",
+      "01 Pop/Tada Kimi ni Hare/Tada Kimi ni Hare.tja"
+    ],
+    "matchType": "fuzzy + llm"
+  },
   "842": {
     "esePath": "02 Anime/Gurenge/Gurenge.tja",
     "defaultTitle": "紅蓮華",
@@ -4251,6 +4314,18 @@
     "esePath": "09 Namco Original/Cutie☆Demonic☆Majin Emo!!/Cutie Demonic Majin Emo!!.tja",
     "defaultTitle": "キューティー☆デモニック☆魔人エモ!!",
     "candidates": ["09 Namco Original/Cutie☆Demonic☆Majin Emo!!/Cutie Demonic Majin Emo!!.tja"],
+    "matchType": "exact"
+  },
+  "847": {
+    "esePath": "02 Anime/Gudetama Theme Song/Gudetama Theme Song.tja",
+    "defaultTitle": "ぐでたまテーマソング",
+    "candidates": ["02 Anime/Gudetama Theme Song/Gudetama Theme Song.tja"],
+    "matchType": "exact"
+  },
+  "848": {
+    "esePath": "02 Anime/Gudetama Put Your Hands Up/Gudetama Put Your Hands Up.tja",
+    "defaultTitle": "ぐでたまぷちょへんざ",
+    "candidates": ["02 Anime/Gudetama Put Your Hands Up/Gudetama Put Your Hands Up.tja"],
     "matchType": "exact"
   },
   "849": {
@@ -4403,6 +4478,12 @@
     "candidates": ["03 Vocaloid/Otome Kaibou/Otome Kaibou.tja"],
     "matchType": "exact"
   },
+  "884": {
+    "esePath": "02 Anime/Ai ni Dekiru-koto wa Mada Aru Kai/Ai ni Dekiru-koto wa Mada Aru Kai.tja",
+    "defaultTitle": "愛にできることはまだあるかい",
+    "candidates": ["02 Anime/Ai ni Dekiru-koto wa Mada Aru Kai/Ai ni Dekiru-koto wa Mada Aru Kai.tja"],
+    "matchType": "exact"
+  },
   "886": {
     "esePath": "09 Namco Original/Hello! Don-chan/Hello! Don-chan.tja",
     "defaultTitle": "ハロー！どんちゃん",
@@ -4479,6 +4560,39 @@
     "defaultTitle": "God knows...",
     "candidates": ["02 Anime/God knows/God knows....tja"],
     "matchType": "exact"
+  },
+  "899": {
+    "esePath": "01 Pop/Koi/Koi (Sou-uchi).tja",
+    "defaultTitle": "【双打】 恋",
+    "candidates": ["01 Pop/Koi/Koi (Sou-uchi).tja"],
+    "matchType": "exact"
+  },
+  "900": {
+    "esePath": "09 Namco Original/Souryuu no Ran/Souryuu no Ran.tja",
+    "defaultTitle": "【双打】 双竜ノ乱",
+    "candidates": ["09 Namco Original/Souryuu no Ran/Souryuu no Ran.tja"],
+    "matchType": "fuzzy"
+  },
+  "902": {
+    "esePath": "04 Children and Folk/Mori no Kuma-san/Mori no Kuma-san -New Audio-.tja",
+    "defaultTitle": "【双打】 もりのくまさん",
+    "candidates": [
+      "04 Children and Folk/Mori no Kuma-san/Mori no Kuma-san -New Audio-.tja",
+      "04 Children and Folk/Mori no Kuma-san/Mori no Kuma-san -Old Audio-.tja"
+    ],
+    "matchType": "fuzzy + llm"
+  },
+  "903": {
+    "esePath": "07 Game Music/Music Revolver/Music Revolver.tja",
+    "defaultTitle": "【双打】 ミュージック・リボルバー",
+    "candidates": ["07 Game Music/Music Revolver/Music Revolver.tja"],
+    "matchType": "fuzzy"
+  },
+  "904": {
+    "esePath": "07 Game Music/Extreme MGG★★★/Extreme MGG.tja",
+    "defaultTitle": "【双打】 Extreme MGG★★★",
+    "candidates": ["07 Game Music/Extreme MGG★★★/Extreme MGG.tja"],
+    "matchType": "fuzzy"
   },
   "905": {
     "esePath": "09 Namco Original/memoria ficta/memoria ficta.tja",
@@ -4648,6 +4762,12 @@
     "candidates": ["07 Game Music/MagiCatz/MagiCatz.tja"],
     "matchType": "exact"
   },
+  "936": {
+    "esePath": "02 Anime/Smile! Smile! Smile!/Smile! Smile! Smile!.tja",
+    "defaultTitle": "Smile! Smile! Smile!",
+    "candidates": ["02 Anime/Smile! Smile! Smile!/Smile! Smile! Smile!.tja"],
+    "matchType": "exact"
+  },
   "937": {
     "esePath": "01 Pop/Yoru ni Kakeru/Yoru ni Kakeru -Original Version-.tja",
     "defaultTitle": "夜に駆ける",
@@ -4731,19 +4851,19 @@
     "matchType": "exact"
   },
   "949": {
-    "esePath": "01 Pop/Favorite Days/Favorite Days.tja",
+    "esePath": "05 Variety/Favorite Days/Favorite Days.tja",
     "defaultTitle": "Favorite Days",
     "candidates": ["05 Variety/Favorite Days/Favorite Days.tja"],
     "matchType": "exact"
   },
   "950": {
-    "esePath": "01 Pop/Mani Mani/Mani Mani.tja",
+    "esePath": "05 Variety/Mani Mani/Mani Mani.tja",
     "defaultTitle": "Mani Mani(Prod. TAKU INOUE)",
     "candidates": ["05 Variety/Mani Mani/Mani Mani.tja"],
     "matchType": "fuzzy"
   },
   "951": {
-    "esePath": "01 Pop/Idol Kyousenshi/Idol Kyousenshi.tja",
+    "esePath": "05 Variety/Idol Berserker/Idol Berserker.tja",
     "defaultTitle": "アイドル狂戦士(feat.佐藤貴文)",
     "candidates": ["05 Variety/Idol Berserker/Idol Berserker.tja"],
     "matchType": "exact"
@@ -4818,25 +4938,25 @@
     "matchType": "exact"
   },
   "967": {
-    "esePath": "01 Pop/Hand Over/Hand Over.tja",
+    "esePath": "05 Variety/Hand Over/Hand Over.tja",
     "defaultTitle": "Hand Over (Prod. TEMPLIME)",
     "candidates": ["05 Variety/Hand Over/Hand Over.tja"],
     "matchType": "exact"
   },
   "968": {
-    "esePath": "01 Pop/Hyper Bass/Hyper Bass.tja",
+    "esePath": "05 Variety/Hyper Bass/Hyper Bass.tja",
     "defaultTitle": "Hyper Bass (feat. Yunomi)",
     "candidates": ["05 Variety/Hyper Bass/Hyper Bass.tja"],
     "matchType": "exact"
   },
   "969": {
-    "esePath": "01 Pop/Itadaki Babel/Itadaki Babel.tja",
+    "esePath": "05 Variety/Itadaki Babel/Itadaki Babel.tja",
     "defaultTitle": "いただきバベル (Prod. ケンモチヒデフミ)",
     "candidates": ["05 Variety/Itadaki Babel/Itadaki Babel.tja"],
     "matchType": "exact"
   },
   "970": {
-    "esePath": "01 Pop/Shining Lights/Shining Lights.tja",
+    "esePath": "05 Variety/Shining Lights/Shining Lights.tja",
     "defaultTitle": "Shining Lights (feat. PSYQUI)",
     "candidates": ["05 Variety/Shining Lights/Shining Lights.tja"],
     "matchType": "exact"
@@ -5033,6 +5153,18 @@
     "candidates": ["03 Vocaloid/KING/KING.tja"],
     "matchType": "exact"
   },
+  "1007": {
+    "esePath": "01 Pop/Hadaka no Kokoro/Hadaka no Kokoro.tja",
+    "defaultTitle": "裸の心",
+    "candidates": ["01 Pop/Hadaka no Kokoro/Hadaka no Kokoro.tja"],
+    "matchType": "exact"
+  },
+  "1008": {
+    "esePath": "04 Children and Folk/Zenryoku Zenkai! Zenkaiger/Zenryoku Zenkai! Zenkaiger.tja",
+    "defaultTitle": "全力全開！ゼンカイジャー",
+    "candidates": ["04 Children and Folk/Zenryoku Zenkai! Zenkaiger/Zenryoku Zenkai! Zenkaiger.tja"],
+    "matchType": "exact"
+  },
   "1010": {
     "esePath": "09 Namco Original/Donchan Ondo/Don-chan Ondo.tja",
     "defaultTitle": "どんちゃん音頭",
@@ -5068,6 +5200,12 @@
     "defaultTitle": "ゆらめ",
     "candidates": ["07 Game Music/Yurame/Yurame.tja"],
     "matchType": "exact"
+  },
+  "1016": {
+    "esePath": "02 Anime/Turing Love/Turing Love.tja",
+    "defaultTitle": "チューリングラブ feat.Sou / ナナヲアカリ",
+    "candidates": ["01 Pop/S/S.tja", "02 Anime/Turing Love/Turing Love.tja"],
+    "matchType": "fuzzy + llm"
   },
   "1018": {
     "esePath": "03 Vocaloid/Venom/Venom.tja",
@@ -5123,6 +5261,12 @@
     "candidates": ["01 Pop/Natsu Matsuri/Natsu Matsuri -JITTERIN’ JINN Version-.tja"],
     "matchType": "exact"
   },
+  "1028": {
+    "esePath": "01 Pop/Gunjou/Gunjou.tja",
+    "defaultTitle": "群青",
+    "candidates": ["01 Pop/Gunjou/Gunjou (Cover).tja", "01 Pop/Gunjou/Gunjou.tja"],
+    "matchType": "fuzzy + llm"
+  },
   "1029": {
     "esePath": "04 Children and Folk/Colorful Party/Colorful Party.tja",
     "defaultTitle": "カラフル・パーティ",
@@ -5177,6 +5321,12 @@
     "candidates": ["05 Variety/BATTLE NO. 1/BATTLE NO. 1.tja"],
     "matchType": "exact"
   },
+  "1038": {
+    "esePath": "01 Pop/Walking with you/Walking with you.tja",
+    "defaultTitle": "Walking with you",
+    "candidates": ["01 Pop/Walking with you/Walking with you.tja"],
+    "matchType": "exact"
+  },
   "1039": {
     "esePath": "09 Namco Original/Dance Enma/Dance “Enma”.tja",
     "defaultTitle": "鼓舞曲「閻魔」",
@@ -5217,6 +5367,12 @@
     "esePath": "09 Namco Original/Issei Fuubi/Issei Fuubi.tja",
     "defaultTitle": "一世風靡",
     "candidates": ["09 Namco Original/Issei Fuubi/Issei Fuubi.tja"],
+    "matchType": "exact"
+  },
+  "1046": {
+    "esePath": "03 Vocaloid/Kaijuu Shoujo wa Hi o Fukanai/Kaijuu Shoujo wa Hi o Fukanai.tja",
+    "defaultTitle": "怪獣少女は火を吹かない",
+    "candidates": ["03 Vocaloid/Kaijuu Shoujo wa Hi o Fukanai/Kaijuu Shoujo wa Hi o Fukanai.tja"],
     "matchType": "exact"
   },
   "1047": {
@@ -5297,6 +5453,12 @@
     "candidates": ["01 Pop/Odo/Odo.tja"],
     "matchType": "exact"
   },
+  "1060": {
+    "esePath": "01 Pop/YONA YONA DANCE/YONA YONA DANCE.tja",
+    "defaultTitle": "YONA YONA DANCE",
+    "candidates": ["01 Pop/YONA YONA DANCE/YONA YONA DANCE.tja"],
+    "matchType": "exact"
+  },
   "1061": {
     "esePath": "01 Pop/Sil vous President/S’il vous President.tja",
     "defaultTitle": "シル・ヴ・プレジデント",
@@ -5307,6 +5469,24 @@
     "esePath": "02 Anime/Boku no Sensou/Boku no Sensou.tja",
     "defaultTitle": "僕の戦争",
     "candidates": ["02 Anime/Boku no Sensou/Boku no Sensou.tja"],
+    "matchType": "exact"
+  },
+  "1063": {
+    "esePath": "02 Anime/Akeboshi/Akeboshi.tja",
+    "defaultTitle": "明け星",
+    "candidates": ["02 Anime/Akeboshi/Akeboshi.tja"],
+    "matchType": "exact"
+  },
+  "1064": {
+    "esePath": "02 Anime/Fun! Fun! Fun! ～Yume∞～/Fun! Fun! Fun! Yume.tja",
+    "defaultTitle": "Fun!Fun!Fun! ～夢∞～",
+    "candidates": ["02 Anime/Fun! Fun! Fun! ～Yume∞～/Fun! Fun! Fun! Yume.tja"],
+    "matchType": "exact"
+  },
+  "1065": {
+    "esePath": "02 Anime/liveDevil/liveDevil.tja",
+    "defaultTitle": "liveDevil",
+    "candidates": ["02 Anime/liveDevil/liveDevil.tja"],
     "matchType": "exact"
   },
   "1066": {
@@ -5363,6 +5543,12 @@
     "candidates": ["01 Pop/The Distance of Love/The Distance of Love.tja"],
     "matchType": "exact"
   },
+  "1075": {
+    "esePath": "01 Pop/Sugar/Sugar.tja",
+    "defaultTitle": "Sugar",
+    "candidates": ["01 Pop/Sugar/Sugar.tja"],
+    "matchType": "exact"
+  },
   "1076": {
     "esePath": "01 Pop/AWAY/AWAY.tja",
     "defaultTitle": "AWAY",
@@ -5373,6 +5559,12 @@
     "esePath": "03 Vocaloid/Cinderella/Cinderella.tja",
     "defaultTitle": "シンデレラ",
     "candidates": ["03 Vocaloid/Cinderella/Cinderella.tja"],
+    "matchType": "exact"
+  },
+  "1078": {
+    "esePath": "01 Pop/Strawberry☆Planet!/Strawberry Planet!.tja",
+    "defaultTitle": "ストロベリー☆プラネット！",
+    "candidates": ["01 Pop/Strawberry☆Planet!/Strawberry Planet!.tja"],
     "matchType": "exact"
   },
   "1079": {
@@ -5428,10 +5620,34 @@
     "candidates": ["09 Namco Original/Players High/Players High.tja"],
     "matchType": "exact"
   },
+  "1087": {
+    "esePath": "01 Pop/Streamer/Streamer.tja",
+    "defaultTitle": "Streamer",
+    "candidates": ["01 Pop/Streamer/Streamer.tja"],
+    "matchType": "exact"
+  },
+  "1088": {
+    "esePath": "01 Pop/Promise the Star/Promise the Star.tja",
+    "defaultTitle": "プロミスザスター",
+    "candidates": ["01 Pop/Promise the Star/Promise the Star.tja"],
+    "matchType": "exact"
+  },
+  "1089": {
+    "esePath": "01 Pop/Ashura-chan/Ashura-chan.tja",
+    "defaultTitle": "阿修羅ちゃん",
+    "candidates": ["01 Pop/Ashura-chan/Ashura-chan.tja"],
+    "matchType": "exact"
+  },
   "1090": {
     "esePath": "01 Pop/Dried Flower/Dried Flower.tja",
     "defaultTitle": "ドライフラワー",
     "candidates": ["01 Pop/Dried Flower/Dried Flower.tja"],
+    "matchType": "exact"
+  },
+  "1091": {
+    "esePath": "04 Children and Folk/Cheers! Delicious Party Pretty Cure/Cheers! Delicious Party Pretty Cure.tja",
+    "defaultTitle": "Cheers！デリシャスパーティ♡プリキュア",
+    "candidates": ["04 Children and Folk/Cheers! Delicious Party Pretty Cure/Cheers! Delicious Party Pretty Cure.tja"],
     "matchType": "exact"
   },
   "1092": {
@@ -5483,6 +5699,18 @@
     "esePath": "05 Variety/Kill my Fortune/Kill my Fortune.tja",
     "defaultTitle": "Kill My Fortune",
     "candidates": ["05 Variety/Kill my Fortune/Kill my Fortune.tja"],
+    "matchType": "exact"
+  },
+  "1101": {
+    "esePath": "01 Pop/Ichizu/Ichizu.tja",
+    "defaultTitle": "一途",
+    "candidates": ["01 Pop/Ichizu/Ichizu.tja"],
+    "matchType": "exact"
+  },
+  "1102": {
+    "esePath": "04 Children and Folk/Ore Koso Only One/Ore Koso Only One.tja",
+    "defaultTitle": "俺こそオンリーワン",
+    "candidates": ["04 Children and Folk/Ore Koso Only One/Ore Koso Only One.tja"],
     "matchType": "exact"
   },
   "1103": {
@@ -5549,6 +5777,12 @@
     "candidates": ["01 Pop/CITRUS/CITRUS.tja"],
     "matchType": "exact"
   },
+  "1113": {
+    "esePath": "01 Pop/Nani Yatte mo Umaku Ikanai/Nani Yatte mo Umaku Ikanai.tja",
+    "defaultTitle": "なにやってもうまくいかない",
+    "candidates": ["01 Pop/Nani Yatte mo Umaku Ikanai/Nani Yatte mo Umaku Ikanai.tja"],
+    "matchType": "exact"
+  },
   "1114": {
     "esePath": "01 Pop/Shining Star/Shining Star.tja",
     "defaultTitle": "シャイニングスター",
@@ -5603,6 +5837,12 @@
     "candidates": ["09 Namco Original/Kyourandotou/Kyourandotou.tja"],
     "matchType": "exact"
   },
+  "1123": {
+    "esePath": "01 Pop/Practice Love/Practice Love.tja",
+    "defaultTitle": "修錬愛情 Practice Love",
+    "candidates": ["01 Pop/Practice Love/Practice Love.tja"],
+    "matchType": "exact"
+  },
   "1124": {
     "esePath": "01 Pop/Savage Love/Savage Love.tja",
     "defaultTitle": "Savage Love",
@@ -5619,6 +5859,12 @@
     "esePath": "01 Pop/Kuraberarekko/Kuraberarekko.tja",
     "defaultTitle": "くらべられっ子",
     "candidates": ["01 Pop/Kuraberarekko/Kuraberarekko.tja"],
+    "matchType": "exact"
+  },
+  "1127": {
+    "esePath": "02 Anime/Just Awake/Just Awake.tja",
+    "defaultTitle": "Just Awake",
+    "candidates": ["02 Anime/Just Awake/Just Awake.tja"],
     "matchType": "exact"
   },
   "1129": {
@@ -5699,6 +5945,24 @@
     "candidates": ["05 Variety/Scarlet Keisatsu no Ghetto Patrol 24-ji/Scarlet Keisatsu no Ghetto Patrol 24-ji.tja"],
     "matchType": "exact"
   },
+  "1141": {
+    "esePath": "01 Pop/oddloop/oddloop.tja",
+    "defaultTitle": "オドループ",
+    "candidates": ["01 Pop/oddloop/oddloop.tja"],
+    "matchType": "exact"
+  },
+  "1142": {
+    "esePath": "01 Pop/Koigeba/Koigeba.tja",
+    "defaultTitle": "恋ゲバ",
+    "candidates": ["01 Pop/Koigeba/Koigeba.tja"],
+    "matchType": "exact"
+  },
+  "1143": {
+    "esePath": "02 Anime/ALIVE/ALIVE.tja",
+    "defaultTitle": "ALIVE",
+    "candidates": ["02 Anime/ALIVE/ALIVE.tja"],
+    "matchType": "exact"
+  },
   "1144": {
     "esePath": "01 Pop/Roppon no Bara to Sai no Uta/Roppon no Bara to Sai no Uta.tja",
     "defaultTitle": "六本の薔薇と采の歌",
@@ -5739,6 +6003,12 @@
     "esePath": "02 Anime/Zankyou Sanka/Zankyou Sanka.tja",
     "defaultTitle": "残響散歌",
     "candidates": ["02 Anime/Zankyou Sanka/Zankyou Sanka.tja"],
+    "matchType": "exact"
+  },
+  "1151": {
+    "esePath": "01 Pop/Trust・Last/Trust Last.tja",
+    "defaultTitle": "Trust・Last",
+    "candidates": ["01 Pop/Trust・Last/Trust Last.tja"],
     "matchType": "exact"
   },
   "1152": {
@@ -5910,7 +6180,7 @@
     "matchType": "exact"
   },
   "1181": {
-    "esePath": "02 Anime/Kisoutengai Fushigi wo Douzo/Kisoutengai Fushigi wo Douzo.tja",
+    "esePath": "04 Children and Folk/Kisoutengai Fushigi wo Douzo/Kisoutengai Fushigi wo Douzo.tja",
     "defaultTitle": "奇想天外ふしぎをどうぞ",
     "candidates": ["04 Children and Folk/Kisoutengai Fushigi wo Douzo/Kisoutengai Fushigi wo Douzo.tja"],
     "matchType": "exact"
@@ -5970,7 +6240,7 @@
     "matchType": "exact"
   },
   "1192": {
-    "esePath": "02 Anime/Tokyo Shandy Rendezvous/Tokyo Shandy Rendezvous.tja",
+    "esePath": "01 Pop/Tokyo Shandy Rendezvous/Tokyo Shandy Rendezvous.tja",
     "defaultTitle": "トウキョウ・シャンディ・ランデヴ",
     "candidates": ["01 Pop/Tokyo Shandy Rendezvous/Tokyo Shandy Rendezvous.tja"],
     "matchType": "exact"
@@ -5989,6 +6259,12 @@
       "02 Anime/Watashi wa Saikyou/Watashi wa Saikyou.tja"
     ],
     "matchType": "fuzzy + llm"
+  },
+  "1195": {
+    "esePath": "04 Children and Folk/Hirogaru Sky! Precure ~Hero Girls~/Hirogaru Sky! Precure Hero Girls.tja",
+    "defaultTitle": "ひろがるスカイ！プリキュア ～Hero Girls～",
+    "candidates": ["04 Children and Folk/Hirogaru Sky! Precure ~Hero Girls~/Hirogaru Sky! Precure Hero Girls.tja"],
+    "matchType": "exact"
   },
   "1196": {
     "esePath": "09 Namco Original/La Morena Kumonai/La Morena Kumonai.tja",
@@ -6140,6 +6416,32 @@
     "candidates": ["05 Variety/Destr0yer/Destr0yer.tja"],
     "matchType": "exact"
   },
+  "1221": {
+    "esePath": "07 Game Music/Garakuta Doll Play/Garakuta Doll Play (Sou-uchi).tja",
+    "defaultTitle": "【双打】 Garakuta Doll Play",
+    "candidates": ["07 Game Music/Garakuta Doll Play/Garakuta Doll Play (Sou-uchi).tja"],
+    "matchType": "exact"
+  },
+  "1222": {
+    "esePath": "07 Game Music/New Legend/New Legend.tja",
+    "defaultTitle": "【双打】 ソウルキャリバーII",
+    "candidates": ["07 Game Music/New Legend/New Legend.tja"],
+    "matchType": "fuzzy"
+  },
+  "1223": {
+    "esePath": "07 Game Music/KAGEKIYO ～Genpei Touma Den Medley～/KAGEKIYO Genpei Touma Den Medley (Sou-uchi).tja",
+    "defaultTitle": "【双打】 KAGEKIYO",
+    "candidates": [
+      "07 Game Music/KAGEKIYO ～Genpei Touma Den Medley～/KAGEKIYO Genpei Touma Den Medley (Sou-uchi).tja"
+    ],
+    "matchType": "exact"
+  },
+  "1224": {
+    "esePath": "09 Namco Original/Shunyuu ～happy excursion～/Shunyuu happy excursion (Sou-uchi).tja",
+    "defaultTitle": "【双打】 春遊",
+    "candidates": ["09 Namco Original/Shunyuu ～happy excursion～/Shunyuu happy excursion (Sou-uchi).tja"],
+    "matchType": "exact"
+  },
   "1225": {
     "esePath": "09 Namco Original/Taiko zamurai/Taiko-zamurai.tja",
     "defaultTitle": "太鼓侍",
@@ -6221,6 +6523,12 @@
     "esePath": "09 Namco Original/Mood Swing/Mood Swing.tja",
     "defaultTitle": "Mood Swing",
     "candidates": ["09 Namco Original/Mood Swing/Mood Swing.tja"],
+    "matchType": "exact"
+  },
+  "1238": {
+    "esePath": "01 Pop/Kurenai/Kurenai (Sou-uchi).tja",
+    "defaultTitle": "【双打】 紅",
+    "candidates": ["01 Pop/Kurenai/Kurenai (Sou-uchi).tja"],
     "matchType": "exact"
   },
   "1240": {
@@ -7015,6 +7323,30 @@
     "candidates": ["09 Namco Original/Kutsunoko wo Utsu/Kutsunoko wo Utsu.tja"],
     "matchType": "exact"
   },
+  "1373": {
+    "esePath": "01 Pop/Everlasting Love/Everlasting Love.tja",
+    "defaultTitle": "千年之恋",
+    "candidates": ["01 Pop/Everlasting Love/Everlasting Love.tja"],
+    "matchType": "exact"
+  },
+  "1374": {
+    "esePath": "01 Pop/Unbreakable Love/Unbreakable Love.tja",
+    "defaultTitle": "永不失聯的愛 Unbreakable Love",
+    "candidates": ["01 Pop/Unbreakable Love/Unbreakable Love.tja"],
+    "matchType": "exact"
+  },
+  "1375": {
+    "esePath": "01 Pop/YIN XING DE CHI BANG/YIN XING DE CHI BANG.tja",
+    "defaultTitle": "YIN XING DE CHI BANG",
+    "candidates": ["01 Pop/YIN XING DE CHI BANG/YIN XING DE CHI BANG.tja"],
+    "matchType": "exact"
+  },
+  "1376": {
+    "esePath": "01 Pop/Those Bygone Years/Those Bygone Years.tja",
+    "defaultTitle": "Those Bygone Years",
+    "candidates": ["01 Pop/Those Bygone Years/Those Bygone Years.tja"],
+    "matchType": "exact"
+  },
   "1377": {
     "esePath": "07 Game Music/Radiant/Radiant.tja",
     "defaultTitle": "Radiant",
@@ -7225,6 +7557,12 @@
     "candidates": ["09 Namco Original/Pitch Fader/Pitch Fader.tja"],
     "matchType": "exact"
   },
+  "1414": {
+    "esePath": "09 Namco Original/Keigetsu ～Twilight Laurel～/Keigetsu Twilight Laurel.tja",
+    "defaultTitle": "桂月",
+    "candidates": ["09 Namco Original/Keigetsu ～Twilight Laurel～/Keigetsu Twilight Laurel.tja"],
+    "matchType": "exact"
+  },
   "1415": {
     "esePath": "01 Pop/Kaijuu/Kaijuu.tja",
     "defaultTitle": "怪獣",
@@ -7273,6 +7611,66 @@
     "candidates": ["03 Vocaloid/Rakuen CASINO GALAXY!/Rakuen CASINO GALAXY!.tja"],
     "matchType": "exact"
   },
+  "1424": {
+    "esePath": "07 Game Music/Teratera/Teratera.tja",
+    "defaultTitle": "てらてら",
+    "candidates": ["07 Game Music/Teratera/Teratera.tja"],
+    "matchType": "exact"
+  },
+  "1425": {
+    "esePath": "07 Game Music/More! Jump! More!/More! Jump! More!.tja",
+    "defaultTitle": "モア！ジャンプ！モア！",
+    "candidates": ["07 Game Music/More! Jump! More!/More! Jump! More!.tja"],
+    "matchType": "exact"
+  },
+  "1426": {
+    "esePath": "07 Game Music/CRaZY/CRaZY.tja",
+    "defaultTitle": "CR詠ZY",
+    "candidates": ["07 Game Music/CRaZY/CRaZY.tja"],
+    "matchType": "exact"
+  },
+  "1427": {
+    "esePath": "07 Game Music/Tondemo-Wonderz/Tondemo-Wonderz.tja",
+    "defaultTitle": "トンデモワンダーズ",
+    "candidates": ["07 Game Music/Tondemo-Wonderz/Tondemo-Wonderz.tja"],
+    "matchType": "exact"
+  },
+  "1428": {
+    "esePath": "07 Game Music/Bug/Bug.tja",
+    "defaultTitle": "バグ",
+    "candidates": ["07 Game Music/Bug/Bug.tja"],
+    "matchType": "exact"
+  },
+  "1430": {
+    "esePath": "09 Namco Original/Keigetsu ～Twilight Laurel～/Keigetsu Twilight Laurel (Sou-uchi).tja",
+    "defaultTitle": "【双打】 桂月",
+    "candidates": ["09 Namco Original/Keigetsu ～Twilight Laurel～/Keigetsu Twilight Laurel (Sou-uchi).tja"],
+    "matchType": "exact"
+  },
+  "1431": {
+    "esePath": "07 Game Music/Aria/Aria.tja",
+    "defaultTitle": "Aria",
+    "candidates": ["07 Game Music/Aria/Aria.tja"],
+    "matchType": "exact"
+  },
+  "1432": {
+    "esePath": "07 Game Music/CHAOTiC BATTLE/CHAOTiC BATTLE.tja",
+    "defaultTitle": "CHAOTiC BATTLE",
+    "candidates": ["07 Game Music/CHAOTiC BATTLE/CHAOTiC BATTLE.tja"],
+    "matchType": "exact"
+  },
+  "1433": {
+    "esePath": "09 Namco Original/RePlay!!/RePlay!!.tja",
+    "defaultTitle": "Re:Play!!",
+    "candidates": ["09 Namco Original/RePlay!!/RePlay!!.tja"],
+    "matchType": "exact"
+  },
+  "1434": {
+    "esePath": "09 Namco Original/YOUre our HEROES/YOUre our HEROES.tja",
+    "defaultTitle": "YOU're our HEROES",
+    "candidates": ["09 Namco Original/YOUre our HEROES/YOUre our HEROES.tja"],
+    "matchType": "exact"
+  },
   "1435": {
     "esePath": "03 Vocaloid/Monitoring/Monitoring.tja",
     "defaultTitle": "モニタリング",
@@ -7289,6 +7687,108 @@
     "esePath": "05 Variety/The Gensokyo The Gods Loved/The Gensokyo The Gods Loved.tja",
     "defaultTitle": "神々が恋した幻想郷",
     "candidates": ["05 Variety/The Gensokyo The Gods Loved/The Gensokyo The Gods Loved.tja"],
+    "matchType": "exact"
+  },
+  "1438": {
+    "esePath": "09 Namco Original/SORA-VIII Nebula Trail/SORA-VIII Nebula Trail.tja",
+    "defaultTitle": "SORA-VIII ネビュラトレイル",
+    "candidates": ["09 Namco Original/SORA-VIII Nebula Trail/SORA-VIII Nebula Trail.tja"],
+    "matchType": "exact"
+  },
+  "1439": {
+    "esePath": "01 Pop/Kegarenaki Kusoyarou-domo/Kegarenaki Kusoyarou-domo.tja",
+    "defaultTitle": "汚れなきクソ野郎ども",
+    "candidates": ["01 Pop/Kegarenaki Kusoyarou-domo/Kegarenaki Kusoyarou-domo.tja"],
+    "matchType": "exact"
+  },
+  "1440": {
+    "esePath": "01 Pop/Daddy's Style -Konya wa Daddy Daddy-/Daddy's Style -Konya wa Daddy Daddy-.tja",
+    "defaultTitle": "Daddy's Style -今夜はダディダディ-",
+    "candidates": ["01 Pop/Daddy's Style -Konya wa Daddy Daddy-/Daddy's Style -Konya wa Daddy Daddy-.tja"],
+    "matchType": "exact"
+  },
+  "1441": {
+    "esePath": "02 Anime/IRIS OUT/IRIS OUT.tja",
+    "defaultTitle": "IRIS OUT",
+    "candidates": ["02 Anime/IRIS OUT/IRIS OUT.tja"],
+    "matchType": "exact"
+  },
+  "1442": {
+    "esePath": "02 Anime/Zankoku na Yoru ni Kagayake/Zankoku na Yoru ni Kagayake.tja",
+    "defaultTitle": "残酷な夜に輝け",
+    "candidates": ["02 Anime/Zankoku na Yoru ni Kagayake/Zankoku na Yoru ni Kagayake.tja"],
+    "matchType": "exact"
+  },
+  "1445": {
+    "esePath": "04 Children and Folk/VISIONS/VISIONS.tja",
+    "defaultTitle": "VISIONS",
+    "candidates": ["04 Children and Folk/VISIONS/VISIONS.tja"],
+    "matchType": "exact"
+  },
+  "1446": {
+    "esePath": "09 Namco Original/Dimpy Dimper/Dimpy Dimper.tja",
+    "defaultTitle": "でぃんぴーでぃんぱー！",
+    "candidates": ["09 Namco Original/Dimpy Dimper/Dimpy Dimper.tja"],
+    "matchType": "exact"
+  },
+  "1447": {
+    "esePath": "09 Namco Original/Bubble Lip Rave Machine/Bubble Lip Rave Machine.tja",
+    "defaultTitle": "バブル・リップ・レイヴ・マシン",
+    "candidates": ["09 Namco Original/Bubble Lip Rave Machine/Bubble Lip Rave Machine.tja"],
+    "matchType": "exact"
+  },
+  "1448": {
+    "esePath": "09 Namco Original/Dajare de Oshare/Dajare de Oshare.tja",
+    "defaultTitle": "ダジャレdeオシャレ",
+    "candidates": ["09 Namco Original/Dajare de Oshare/Dajare de Oshare.tja"],
+    "matchType": "exact"
+  },
+  "1449": {
+    "esePath": "06 Classical/Classical Medley -Winter Break Version-/Classical Medley -Winter Break Version-.tja",
+    "defaultTitle": "クラシックメドレー（冬休み編）",
+    "candidates": ["06 Classical/Classical Medley -Winter Break Version-/Classical Medley -Winter Break Version-.tja"],
+    "matchType": "exact"
+  },
+  "1450": {
+    "esePath": "09 Namco Original/UMA no Force Train2000ing/UMA no Force Train2000ing (150BPM).tja",
+    "defaultTitle": "UMAのフォーストレーニ千グ 【BPM150編】",
+    "candidates": ["09 Namco Original/UMA no Force Train2000ing/UMA no Force Train2000ing (150BPM).tja"],
+    "matchType": "exact"
+  },
+  "1451": {
+    "esePath": "09 Namco Original/UMA no Force Train2000ing/UMA no Force Train2000ing (180BPM).tja",
+    "defaultTitle": "UMAのフォーストレーニ千グ 【BPM180編】",
+    "candidates": ["09 Namco Original/UMA no Force Train2000ing/UMA no Force Train2000ing (180BPM).tja"],
+    "matchType": "exact"
+  },
+  "1452": {
+    "esePath": "09 Namco Original/UMA no Force Train2000ing/UMA no Force Train2000ing (240BPM).tja",
+    "defaultTitle": "UMAのフォーストレーニ千グ 【BPM240編】",
+    "candidates": ["09 Namco Original/UMA no Force Train2000ing/UMA no Force Train2000ing (240BPM).tja"],
+    "matchType": "exact"
+  },
+  "1455": {
+    "esePath": "02 Anime/Muteki-teki Happiness/Muteki-teki Happiness.tja",
+    "defaultTitle": "無敵的ハピネス！(SOS団5人Ver.)",
+    "candidates": ["02 Anime/Muteki-teki Happiness/Muteki-teki Happiness.tja"],
+    "matchType": "exact"
+  },
+  "1456": {
+    "esePath": "09 Namco Original/World Keeps Turning/World Keeps Turning.tja",
+    "defaultTitle": "World Keeps Turning",
+    "candidates": ["09 Namco Original/World Keeps Turning/World Keeps Turning.tja"],
+    "matchType": "exact"
+  },
+  "1457": {
+    "esePath": "09 Namco Original/TsunagaRhythm/TsunagaRhythm.tja",
+    "defaultTitle": "ツナガリズム",
+    "candidates": ["09 Namco Original/TsunagaRhythm/TsunagaRhythm.tja"],
+    "matchType": "exact"
+  },
+  "1458": {
+    "esePath": "09 Namco Original/Yami no Tamashii/Yami no Tamashii.tja",
+    "defaultTitle": "闇の魂",
+    "candidates": ["09 Namco Original/Yami no Tamashii/Yami no Tamashii.tja"],
     "matchType": "exact"
   }
 }
