@@ -1,5 +1,5 @@
-import type { LayoutRatios, RenderOptions } from "tja-renderer";
-import { renderTJAString } from "tja-renderer";
+import type { BranchSelection, LayoutRatios } from "tja-renderer";
+import { BranchName, createChart, getChartInfo } from "tja-renderer";
 
 // ── Default Layout Ratios (must match renderer-package/src/layout.ts) ──
 
@@ -827,16 +827,25 @@ function doRender(): void {
       }
     }
 
-    const options: RenderOptions = {
-      course: optCourse.value || undefined,
-      beatsPerLine: parseInt(optBpl.value, 10),
+    const course = optCourse.value ? { difficulty: optCourse.value } : undefined;
+
+    // Resolve branch: "auto" shows all branches, otherwise show normal only
+    let branch: BranchSelection = "auto";
+    if (!optBranches.checked) {
+      const info = getChartInfo(tja);
+      const resolvedCourse = course ?? info.courseSpecifiers[0];
+      if (resolvedCourse && info.hasBranching(resolvedCourse)) {
+        branch = BranchName.Normal;
+      }
+    }
+
+    createChart(tja, canvas, course, {
+      zoom: { beatsPerLine: parseInt(optBpl.value, 10) },
+      branch,
       dpr: parseFloat(optDpr.value),
-      showAllBranches: optBranches.checked,
       showAttribution: optAttribution.checked,
       layoutRatios: hasOverrides ? layoutRatios : undefined,
-    };
-
-    renderTJAString(tja, canvas, options);
+    });
 
     const elapsed = performance.now() - start;
     statusText.textContent = "Rendered successfully";

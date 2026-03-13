@@ -165,25 +165,62 @@ export type ZoomLevel = "auto" | ZoomByBeatsPerLine;
 
 export type BranchSelection = "auto" | BranchName;
 
+export interface CreateChartOptions {
+  /** Zoom level. `auto` to fit content with best effort to ensure a minimum note size. */
+  zoom?: ZoomLevel;
+
+  /** Branch to render. `auto` to render all branches with unreachable sections hidden. */
+  branch?: BranchSelection;
+
+  /** Device Pixel Ratio (DPR) for rendering. */
+  dpr?: number;
+
+  /** Whether to display the TJA and renderer software attribution text at the bottom. */
+  showAttribution?: boolean;
+
+  /**
+   * Name of the source of the TJA file.
+   * Displayed in the attribution text if showAttribution is true.
+   */
+  tjaSourceName?: string;
+
+  /**
+   * Partial overrides for the layout ratios.
+   * All values are ratios relative to `baseBarWidth` (the pixel width of a 4/4 bar).
+   * Only the specified fields are overridden; unspecified fields use defaults.
+   */
+  layoutRatios?: Partial<LayoutRatios>;
+}
+
+const CREATE_CHART_DEFAULTS: Required<Pick<CreateChartOptions, "zoom" | "branch" | "showAttribution">> = {
+  zoom: { beatsPerLine: 16 },
+  branch: "auto",
+  showAttribution: true,
+};
+
 export interface Chart {
-  canvas: HTMLCanvasElement;
   applyAnnotations(annotations: NoteLocationMap<Annotation>): void;
 }
 
 /**
- * Creates a Chart object from a TJA string, targeting a specific course and branch.
+ * Renders a TJA chart to the provided canvas.
  *
  * @param tjaContent The TJA file content as a string.
+ * @param canvas The HTMLCanvasElement to render to. Must be in the DOM for correct sizing.
  * @param course The course specifier. If omitted, uses the highest difficulty and player 1 side.
- * @param zoom Zoom level: "auto" to fit content, or { beatsPerLine: number }. Default: 16 beats per line.
- * @param branch "auto" to render all branches with unreachable sections hidden, or a specific BranchName. Default: "auto".
+ * @param options Chart creation and rendering options.
  */
 export function createChart(
   tjaContent: string,
+  canvas: HTMLCanvasElement,
   course?: CourseSpecifier,
-  zoom: ZoomLevel = { beatsPerLine: 16 },
-  branch: BranchSelection = "auto",
+  options: CreateChartOptions = {},
 ): Chart {
+  const { zoom, branch, showAttribution, dpr, tjaSourceName, layoutRatios } = {
+    ...CREATE_CHART_DEFAULTS,
+    ...options,
+  };
+
   const parsed = parseTJA(tjaContent);
   const resolvedCourse = course ?? resolveDefaultCourse(parsed);
   const diffKey = resolvedCourse.difficulty.toLowerCase();
@@ -222,7 +259,10 @@ export function createChart(
     showAllBranches = !!rootChart.branches;
   }
 
-  const canvas = document.createElement("canvas");
+  if (!canvas.clientWidth) {
+    throw new Error("Canvas has no clientWidth. Ensure the canvas is in the DOM before calling createChart.");
+  }
+
   let currentAnnotations = new NoteLocationMap<Annotation>();
 
   const resolveBeatsPerLine = (): number => {
@@ -237,15 +277,16 @@ export function createChart(
       ...DEFAULT_VIEW_OPTIONS,
       beatsPerLine: resolveBeatsPerLine(),
       showAllBranches,
+      showAttribution,
+      tjaSourceName,
       annotations: currentAnnotations,
     };
-    renderChart(chart, canvas, new JudgementMap(), viewOptions);
+    renderChart(chart, canvas, new JudgementMap(), viewOptions, undefined, dpr, layoutRatios);
   };
 
   render();
 
   return {
-    canvas,
     applyAnnotations(annotations: NoteLocationMap<Annotation>): void {
       currentAnnotations = annotations;
       render();
