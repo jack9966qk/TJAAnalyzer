@@ -1,6 +1,7 @@
+import { createChartView as createInternalChartView } from "./internal.js";
 import { calculateAutoZoomBeats, type LayoutRatios } from "./layout.js";
-import { type Annotation, BranchName, JudgementMap, NoteLocationMap } from "./primitives.js";
-import { DEFAULT_RENDER_OPTIONS, type RenderOptions, renderChart } from "./renderer.js";
+import { type Annotation, BranchName, NoteLocationMap } from "./primitives.js";
+import { DEFAULT_RENDER_OPTIONS, type RenderOptions } from "./renderer.js";
 import { type ParsedChart, parseTJA } from "./tja-parser.js";
 
 export type { LayoutRatios };
@@ -153,6 +154,7 @@ export function createChartView(
     throw new Error("Canvas has no clientWidth. Ensure the canvas is in the DOM before calling createChart.");
   }
 
+  const internalView = createInternalChartView(chart, canvas);
   let currentAnnotations = new NoteLocationMap<Annotation>();
 
   const resolveBeatsPerLine = (): number => {
@@ -171,7 +173,8 @@ export function createChartView(
       tjaSourceName,
       annotations: currentAnnotations,
     };
-    renderChart(chart, canvas, new JudgementMap(), renderOptions, undefined, dpr, layoutRatios);
+    internalView.invalidateLayout();
+    internalView.render({ renderOptions, dpr, layoutRatios });
   };
 
   render();

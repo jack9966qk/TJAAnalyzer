@@ -55,7 +55,7 @@ LEVEL:10
     const dimensions = await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element shadow root
       const chart = document.getElementById("chart-component") as any;
-      const layout = chart._layout;
+      const layout = chart.layout;
       if (!layout) throw new Error("Layout not available");
 
       const { insets, baseBarWidth, offsetY, constants } = layout;
@@ -90,7 +90,7 @@ LEVEL:10
     const dimensions = await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element shadow root
       const chart = document.getElementById("chart-component") as any;
-      const layout = chart._layout;
+      const layout = chart.layout;
       if (!layout) throw new Error("Layout not available");
 
       const { insets, baseBarWidth, offsetY, constants } = layout;

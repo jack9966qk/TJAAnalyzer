@@ -7,7 +7,7 @@ const {
   annotationToggleSeparator,
   annotationWithHand,
   calculateAutoZoomBeats,
-  createLayout,
+  createChartView,
   generateAutoAnnotations,
   getChartElementAt,
   getNotePosition,
@@ -18,10 +18,11 @@ const {
   NoteLocationMap,
   PALETTE,
   renderChart,
-  renderLayout,
 } = Renderer.Private;
 
 type ChartLayout = Renderer.Private.ChartLayout;
+type ChartView = Renderer.Private.ChartView;
+type ChartViewOptions = Renderer.Private.ChartViewOptions;
 type HitInfo = Renderer.Private.HitInfo;
 type Insets = Renderer.Private.Insets;
 type JudgementKey = Renderer.Private.JudgementKey;
@@ -84,10 +85,10 @@ export class TJAChart extends HTMLElement {
   private _renderTask: number | null = null;
   private _pendingFullRender: boolean = true;
   private _chartChanged: boolean = false;
-  private _layout: ChartLayout | null = null;
+  private _chartView: ChartView | null = null;
 
   get layout(): ChartLayout | null {
-    return this._layout;
+    return this._chartView?.layout ?? null;
   }
   private _renderedJudgements: JudgementMap<JudgementValue> = new JudgementMap();
 
@@ -291,6 +292,7 @@ export class TJAChart extends HTMLElement {
   set chart(value: ParsedChart | null) {
     if (this._chart !== value) {
       this._chartChanged = true;
+      this._chartView = null;
     }
     this._chart = value;
     this._pendingFullRender = true;
@@ -347,7 +349,7 @@ export class TJAChart extends HTMLElement {
       this._renderOptions,
       originalBarIndex,
       charIndex,
-      this._layout || undefined,
+      this._chartView?.layout || undefined,
     );
   }
 
@@ -393,7 +395,7 @@ export class TJAChart extends HTMLElement {
 
     renderOptions.beatsPerLine = targetBeats;
     appState.renderOptions.beatsPerLine = targetBeats;
-    this._layout = null; // Force layout recreation
+    this._chartView?.invalidateLayout();
     this._pendingFullRender = true;
 
     document.dispatchEvent(new Event("view-options-update"));
@@ -476,33 +478,28 @@ export class TJAChart extends HTMLElement {
       showAttribution: this.isFullscreen,
     };
 
+    // Create chart view if needed (chart changed or first render)
+    if (!this._chartView) {
+      this._chartView = createChartView(this._chart, this.canvas);
+    }
+
     this.applyAutoZoom(effectiveRenderOptions, baseInsets);
 
-    const isFullRender = this._pendingFullRender || !this._layout;
+    const layout = this._chartView.layout;
+    const isFullRender = this._pendingFullRender || !layout;
 
     const texts = this._texts || {
       loopPattern: "Loop x{n}",
       judgement: { perfect: "良", good: "可", poor: "不可" },
     };
 
-    // We are doing a full render (either forced or because no incremental update needed/possible)
-    // But we only need to recreate layout if pending full render or layout missing
     if (isFullRender) {
-      this._layout = createLayout(
-        this._chart,
-        this.canvas,
-        effectiveRenderOptions,
-        this._judgements,
-        undefined,
-        texts,
-        baseInsets,
-      );
-      this._pendingFullRender = false;
+      this._chartView.invalidateLayout();
     }
 
     let dirtyRowY: Set<number> | undefined;
 
-    if (!isFullRender && this._layout) {
+    if (!isFullRender && layout) {
       // Differential Rendering
       const changedKeys: JudgementKey[] = [];
 
@@ -523,8 +520,8 @@ export class TJAChart extends HTMLElement {
 
       if (changedKeys.length > 0) {
         dirtyRowY = new Set<number>();
-        const grid = this._layout.noteOrdinalToGrid;
-        const barFrames = this._layout.barFrames;
+        const grid = layout.noteOrdinalToGrid;
+        const barFrames = layout.barFrames;
 
         for (const key of changedKeys) {
           const locations = grid.get(key);
@@ -543,18 +540,16 @@ export class TJAChart extends HTMLElement {
       }
     }
 
-    if (this._layout) {
-      renderLayout(ctx, this._layout, this._chart, this._judgements, effectiveRenderOptions, texts, dirtyRowY);
+    const viewOptions: ChartViewOptions = {
+      renderOptions: effectiveRenderOptions,
+      judgements: this._judgements,
+      texts,
+      insets: baseInsets,
+    };
 
-      // Update cache
-      if (!dirtyRowY) {
-        // Full render, sync completely
-        this._renderedJudgements = new JudgementMap(this._judgements);
-      } else {
-        // Partial render, sync completely (easier than patching)
-        this._renderedJudgements = new JudgementMap(this._judgements);
-      }
-    }
+    this._chartView.render(viewOptions, dirtyRowY);
+    this._pendingFullRender = false;
+    this._renderedJudgements = new JudgementMap(this._judgements);
   }
   // Public method to force render (e.g. after resizing parent not caught by observer, or manual trigger)
   refresh() {
@@ -580,7 +575,7 @@ export class TJAChart extends HTMLElement {
       this.canvas,
       this._judgements,
       this._renderOptions,
-      this._layout || undefined,
+      this._chartView?.layout || undefined,
     );
 
     this.dispatchEvent(
@@ -609,7 +604,7 @@ export class TJAChart extends HTMLElement {
       this.canvas,
       this._judgements,
       this._renderOptions,
-      this._layout || undefined,
+      this._chartView?.layout || undefined,
     );
 
     // Handle Annotation Mode Click

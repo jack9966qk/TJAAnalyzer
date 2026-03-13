@@ -81,7 +81,7 @@ LEVEL:10
     const coords = await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
-      const layout = chart._layout;
+      const layout = chart.layout;
       if (!layout) throw new Error("Layout not available");
 
       const { insets, baseBarWidth, offsetY } = layout;
