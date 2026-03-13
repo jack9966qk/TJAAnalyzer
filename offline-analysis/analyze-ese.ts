@@ -3,7 +3,7 @@ import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as Renderer from "tja-renderer";
 
-const { parseTJA, RENDERABLE_NOTES } = Renderer.Private;
+const { parseTJA, RENDERABLE_NOTES, JUDGEABLE_NOTES } = Renderer.Private;
 type ParsedChart = Renderer.Private.ParsedChart;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -21,9 +21,10 @@ interface SongMappingEntry {
   matchType?: string;
 }
 
-// Gap values for a sequential list of renderable notes.
-// null means the note is the first, or the gap from the previous note exceeds 1 measure.
-type NoteGaps = (number | null)[];
+// Gap values for renderable notes, grouped by bar.
+// Each subarray corresponds to one bar's renderable notes.
+// null means the note is the first, or the previous renderable note is not a small/large don or ka.
+type NoteGaps = (number | null)[][];
 
 // Maps branch key → gaps. Key is "unbranched" for non-branching charts,
 // or "normal" / "expert" / "master" for branching charts.
@@ -42,10 +43,12 @@ function computeNoteGaps(chart: ParsedChart): NoteGaps {
 
   for (let barIdx = 0; barIdx < chart.bars.length; barIdx++) {
     const bar = chart.bars[barIdx];
+    const barGaps: (number | null)[] = [];
     for (let charIdx = 0; charIdx < bar.length; charIdx++) {
       if (!RENDERABLE_NOTES.includes(bar[charIdx])) continue;
-      gaps.push(getGap(chart, barIdx, charIdx));
+      barGaps.push(getGap(chart, barIdx, charIdx));
     }
+    gaps.push(barGaps);
   }
 
   return gaps;
@@ -58,6 +61,7 @@ function getGap(chart: ParsedChart, currentBarIdx: number, currentCharIdx: numbe
 
   for (let i = currentCharIdx - 1; i >= 0; i--) {
     if (RENDERABLE_NOTES.includes(currentBar[i])) {
+      if (!JUDGEABLE_NOTES.includes(currentBar[i])) return null;
       const raw = ((currentCharIdx - i) / currentTotal) * currentRatio;
       return raw;
     }
@@ -71,7 +75,6 @@ function getGap(chart: ParsedChart, currentBarIdx: number, currentCharIdx: numbe
 
     if (!prevBar || prevBar.length === 0) {
       accumulatedGap += prevRatio;
-      if (accumulatedGap > 1.0 + 0.001) return null;
       continue;
     }
 
@@ -79,19 +82,13 @@ function getGap(chart: ParsedChart, currentBarIdx: number, currentCharIdx: numbe
 
     for (let i = prevTotal - 1; i >= 0; i--) {
       if (RENDERABLE_NOTES.includes(prevBar[i])) {
+        if (!JUDGEABLE_NOTES.includes(prevBar[i])) return null;
         const distInPrev = ((prevTotal - i) / prevTotal) * prevRatio;
-        const totalGap = accumulatedGap + distInPrev;
-
-        if (totalGap <= 1.0 + 0.0001) {
-          return totalGap;
-        } else {
-          return null;
-        }
+        return accumulatedGap + distInPrev;
       }
     }
 
     accumulatedGap += prevRatio;
-    if (accumulatedGap > 1.0) return null;
   }
 
   return null;
