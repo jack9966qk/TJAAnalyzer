@@ -1,5 +1,80 @@
 [
   {
+    "hash": "4b5858d",
+    "message": "Update version to 0.11.4.",
+    "date": "2026-03-13"
+  },
+  {
+    "hash": "949bf72",
+    "message": "Update TJA parser to calculate gaps that exceed 1 measure. Remove gap value when the previous note is not don/ka.",
+    "date": "2026-03-13"
+  },
+  {
+    "hash": "cbb251d",
+    "message": "Add a script to apply analysis to all ESE charts that have a corresponding song mapping. Currently this contains only the note gaps.",
+    "date": "2026-03-13"
+  },
+  {
+    "hash": "eb2e1d7",
+    "message": "Fix parameter propagation for prepare-data.",
+    "date": "2026-03-13"
+  },
+  {
+    "hash": "ea3aec1",
+    "message": "Update the data fetching script to use the taiko.wiki API instead of GitHub raw content address.",
+    "date": "2026-03-13"
+  },
+  {
+    "hash": "9beb20f",
+    "message": "Update prepare-data script to invoke build-data in the end.",
+    "date": "2026-03-13"
+  },
+  {
+    "hash": "9e764c1",
+    "message": "Update song_mapping.json.",
+    "date": "2026-03-13"
+  },
+  {
+    "hash": "4c40f9e",
+    "message": "Update prepare-data script to handle previously resolved ESE paths that no longer exist.",
+    "date": "2026-03-13"
+  },
+  {
+    "hash": "37ceac2",
+    "message": "Update prepare-data script to replacet the deprecated version of TaikoRatingAnalyzer file with links to its CDN. Update parsing logic to adapt to the new format.",
+    "date": "2026-03-13"
+  },
+  {
+    "hash": "1eae956",
+    "message": "Update the importing process to allow storing unmatched entires.",
+    "date": "2026-03-13"
+  },
+  {
+    "hash": "087faf4",
+    "message": "Move the HTML importer function from settings-panel to a new file.",
+    "date": "2026-03-10"
+  },
+  {
+    "hash": "a63000b",
+    "message": "(Maybe failed) attempt to fix the gap between long note segments across bars.",
+    "date": "2026-03-10"
+  },
+  {
+    "hash": "056e99a",
+    "message": "Add debug logging for app startup performance.",
+    "date": "2026-03-10"
+  },
+  {
+    "hash": "a50c61f",
+    "message": "Fix the issue where vertical inset is applied between the bars and the attribution text.",
+    "date": "2026-03-09"
+  },
+  {
+    "hash": "f42ff46",
+    "message": "Add a script to package ESE data and upload to GitHub release, for potential offline support in the future.",
+    "date": "2026-03-08"
+  },
+  {
     "hash": "b326553",
     "message": "Update version to 0.11.3.",
     "date": "2026-03-08"
@@ -423,80 +498,5 @@
     "hash": "12c8d9b",
     "message": "Remove the inner (white) border from drumroll notes.",
     "date": "2026-02-24"
-  },
-  {
-    "hash": "0862c33",
-    "message": "Slightly reduce bar border line width.",
-    "date": "2026-02-24"
-  },
-  {
-    "hash": "74fda94",
-    "message": "Update Vite config to allow app hot reloading when the renderer package changes.",
-    "date": "2026-02-24"
-  },
-  {
-    "hash": "0f66251",
-    "message": "Improve vertical bar line rendering by determining the line color beforehand and drawing a single line across bar top and body.",
-    "date": "2026-02-24"
-  },
-  {
-    "hash": "558290e",
-    "message": "Apply pixel snapping more consistently across renderer implementation.",
-    "date": "2026-02-18"
-  },
-  {
-    "hash": "d92d8ea",
-    "message": "Update version to 0.9.6.",
-    "date": "2026-02-18"
-  },
-  {
-    "hash": "badb185",
-    "message": "Slight adjustments to default layout ratios.",
-    "date": "2026-02-18"
-  },
-  {
-    "hash": "b1f4c8b",
-    "message": "Add a layout parameter for large note inner border width.",
-    "date": "2026-02-18"
-  },
-  {
-    "hash": "55e9e07",
-    "message": "Add a playground for renderer parameters to the renderer example package. Include the renderer example content in the app build process.",
-    "date": "2026-02-18"
-  },
-  {
-    "hash": "00db0ab",
-    "message": "Slight adjustments in default note sizes and line widths.",
-    "date": "2026-02-16"
-  },
-  {
-    "hash": "830f74a",
-    "message": "Update version to 0.9.5.",
-    "date": "2026-02-16"
-  },
-  {
-    "hash": "a54d275",
-    "message": "Apply a few anti aliasing optimizations to renderer.",
-    "date": "2026-02-16"
-  },
-  {
-    "hash": "5e169eb",
-    "message": "Slightly adjust note sizes and border widths.",
-    "date": "2026-02-16"
-  },
-  {
-    "hash": "c920df9",
-    "message": "Support overriding layout ratios in renderer public API.",
-    "date": "2026-02-16"
-  },
-  {
-    "hash": "2673864",
-    "message": "Update border drawing logic so that the line width ratios map exactly to the visible width, without overlapping or gaps between the note circles or borders.",
-    "date": "2026-02-16"
-  },
-  {
-    "hash": "03282e5",
-    "message": "Separate more clearly public and private API in the renderer package. Update app to use package dependency.",
-    "date": "2026-02-16"
   }
 ]
