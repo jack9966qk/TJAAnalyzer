@@ -8,7 +8,7 @@ const {
   DEFAULT_TEXTS,
   DEFAULT_VIEW_OPTIONS,
   JudgementMap,
-  LocationMap,
+  NoteLocationMap,
   parseTJA,
   renderLayout,
 } = Renderer.Private;
@@ -27,7 +27,7 @@ const tjaChart = document.getElementById("chart-component") as TJAChart;
 
 // Expose API for Playwright
 window.createJudgementKey = createJudgementKey;
-window.LocationMap = LocationMap;
+window.NoteLocationMap = NoteLocationMap;
 window.JudgementMap = JudgementMap;
 
 window.loadChart = (tjaContent: string, difficulty: string = "oni") => {

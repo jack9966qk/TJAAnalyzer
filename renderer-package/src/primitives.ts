@@ -153,12 +153,12 @@ export class JudgementMap<V> {
   }
 }
 
-export class LocationMap<V> {
+export class NoteLocationMap<V> {
   private _map = new Map<string, V>();
 
-  constructor(entries?: readonly (readonly [NoteLocation, V])[] | null | LocationMap<V>) {
+  constructor(entries?: readonly (readonly [NoteLocation, V])[] | null | NoteLocationMap<V>) {
     if (entries) {
-      if (entries instanceof LocationMap) {
+      if (entries instanceof NoteLocationMap) {
         entries.forEach((v, k) => {
           this.set(k, v);
         });
@@ -219,7 +219,7 @@ export class LocationMap<V> {
     return generator();
   }
 
-  forEach(callbackfn: (value: V, key: NoteLocation, map: LocationMap<V>) => void, thisArg?: unknown): void {
+  forEach(callbackfn: (value: V, key: NoteLocation, map: NoteLocationMap<V>) => void, thisArg?: unknown): void {
     this._map.forEach((value, key) => {
       callbackfn.call(thisArg, value, deserializeLocationKey(key), this);
     });
@@ -330,7 +330,7 @@ export interface ViewOptions {
     end: NoteLocation | null;
   } | null;
   hoveredNote?: (NoteLocation & { branch?: BranchName }) | null;
-  annotations?: LocationMap<Annotation>;
+  annotations?: NoteLocationMap<Annotation>;
   isAnnotationMode?: boolean;
   showTextInAnnotationMode?: boolean;
   alwaysShowAnnotations?: boolean;

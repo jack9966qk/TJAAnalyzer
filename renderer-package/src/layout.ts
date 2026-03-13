@@ -6,8 +6,8 @@ import {
   type JudgementKey,
   JudgementMap,
   type JudgementValue,
-  LocationMap,
   type NoteLocation,
+  NoteLocationMap,
   NoteType,
   type RenderTexts,
   type ViewOptions,
@@ -141,15 +141,15 @@ export interface ChartLayout {
   constants: RenderConstants;
   totalHeight: number;
   globalBarStartIndices: number[];
-  balloonIndices: LocationMap<number>;
-  inferredHands: LocationMap<HandType>;
+  balloonIndices: NoteLocationMap<number>;
+  inferredHands: NoteLocationMap<HandType>;
   logicalCanvasWidth: number;
   dpr: number;
   headerHeight: number;
   baseHeaderHeight: number;
   offsetY: number;
   baseBarWidth: number;
-  locToJudgementKey: LocationMap<JudgementKey>;
+  locToJudgementKey: NoteLocationMap<JudgementKey>;
   noteOrdinalToGrid: JudgementMap<{ virtualBarIdx: number; charIdx: number }[]>;
   longNoteSegments: LongNoteSegment[];
   insets: Insets;
@@ -254,7 +254,7 @@ export function generateBaseVirtualBars(
   chart: ParsedChart,
   options: ViewOptions,
   judgements: JudgementMap<JudgementValue>,
-  locToJudgementKey: LocationMap<JudgementKey>,
+  locToJudgementKey: NoteLocationMap<JudgementKey>,
 ): RenderBarInfo[] {
   const { bars, loop } = chart;
   const virtualBars: RenderBarInfo[] = [];
@@ -430,7 +430,7 @@ export function getVirtualBars(
   chart: ParsedChart,
   options: ViewOptions,
   judgements: JudgementMap<JudgementValue>,
-  locToJudgementKey: LocationMap<JudgementKey>,
+  locToJudgementKey: NoteLocationMap<JudgementKey>,
 ): RenderBarInfo[] {
   let virtualBars = generateBaseVirtualBars(chart, options, judgements, locToJudgementKey);
 
@@ -904,10 +904,10 @@ export function calculateEffectiveDpr(
 }
 
 export function calculateNoteMaps(bars: NoteType[][]): {
-  locToJudgementKey: LocationMap<JudgementKey>;
+  locToJudgementKey: NoteLocationMap<JudgementKey>;
   identToLoc: JudgementMap<NoteLocation[]>;
 } {
-  const locToJudgementKey = new LocationMap<JudgementKey>();
+  const locToJudgementKey = new NoteLocationMap<JudgementKey>();
   const identToLoc = new JudgementMap<NoteLocation[]>();
   const counters: Record<string, number> = {};
 
@@ -937,8 +937,8 @@ export function calculateNoteMaps(bars: NoteType[][]): {
   return { locToJudgementKey, identToLoc };
 }
 
-export function calculateBalloonIndices(bars: NoteType[][]): LocationMap<number> {
-  const map = new LocationMap<number>();
+export function calculateBalloonIndices(bars: NoteType[][]): NoteLocationMap<number> {
+  const map = new NoteLocationMap<number>();
   let balloonCount = 0;
 
   for (let i = 0; i < bars.length; i++) {

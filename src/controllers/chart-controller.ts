@@ -8,7 +8,7 @@ import { getCachedSongMapping, preloadSongMapping } from "../utils/playdata-stat
 import { ChartLanguage, loadUserProfile } from "../utils/user-profile.js";
 import { courseBranchSelect, noteStatsDisplay, tjaChart } from "../view/ui-elements.js";
 
-const { LocationMap, parseTJA } = Renderer.Private;
+const { NoteLocationMap, parseTJA } = Renderer.Private;
 type HitInfo = Renderer.Private.HitInfo;
 type RenderTexts = Renderer.Private.RenderTexts;
 
@@ -139,7 +139,7 @@ export function updatePlayerSideOptions() {
 export function updateChartSelection(resetBranch: boolean = false) {
   clearJudgements();
   if (resetBranch) {
-    appState.annotations = new LocationMap();
+    appState.annotations = new NoteLocationMap();
   }
   if (!appState.parsedTJACharts) return;
 
@@ -212,7 +212,7 @@ export function updateParsedCharts(content: string, fromStream = false) {
   updateSelectionUI();
 
   // Clear Annotations
-  appState.annotations = new LocationMap();
+  appState.annotations = new NoteLocationMap();
 
   courseBranchSelect.clearDifficultyOptions();
   courseBranchSelect.clearPlayerSideOptions();

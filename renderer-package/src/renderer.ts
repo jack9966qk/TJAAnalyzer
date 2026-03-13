@@ -38,7 +38,7 @@ import {
   JudgementMap,
   JudgementType,
   type JudgementValue,
-  LocationMap,
+  NoteLocationMap,
   NoteType,
   type RenderTexts,
   type ViewMode,
@@ -69,7 +69,7 @@ export {
   HandType,
   isJudgeable,
   JudgementType,
-  LocationMap,
+  NoteLocationMap,
   NoteType,
 };
 export {
@@ -156,8 +156,8 @@ export interface RenderContext {
   judgements: JudgementMap<JudgementValue>;
   texts: RenderTexts;
   constants: RenderConstants;
-  inferredHands?: LocationMap<HandType>;
-  locToJudgementKey?: LocationMap<JudgementKey>;
+  inferredHands?: NoteLocationMap<HandType>;
+  locToJudgementKey?: NoteLocationMap<JudgementKey>;
 }
 
 export function getBorderStyles(
@@ -1239,7 +1239,7 @@ function drawJudgementsText(
   rBig: number,
   texts: RenderTexts,
   judgements: JudgementMap<JudgementValue>,
-  locToJudgementKey: LocationMap<JudgementKey> | undefined,
+  locToJudgementKey: NoteLocationMap<JudgementKey> | undefined,
   effectiveBarIndex: number | undefined,
   originalBarIndex: number,
 ): void {
@@ -1678,7 +1678,7 @@ function drawLongNotes(
   constants: RenderConstants,
   viewMode: "original" | "judgements" | "judgements-underline" | "judgements-text",
   balloonCounts: number[],
-  balloonIndices: LocationMap<number>,
+  balloonIndices: NoteLocationMap<number>,
   selection: ViewOptions["selection"] | undefined,
   dirtyRowY?: Set<number>,
   dpr: number = 1,
@@ -1918,7 +1918,7 @@ function drawAllBranchesNotes(
   virtualBars: RenderBarInfo[],
   barFrames: Frame[],
   branchLayouts: BranchLayoutInfo[],
-  _balloonIndices: LocationMap<number>,
+  _balloonIndices: NoteLocationMap<number>,
   BASE_LANE_HEIGHT: number,
   dirtyRowY?: Set<number>,
   dpr: number = 1,
@@ -1985,7 +1985,7 @@ function drawAllBranchesNotes(
         ...renderContext,
         options: {
           ...options,
-          annotations: new LocationMap<Annotation>(),
+          annotations: new NoteLocationMap<Annotation>(),
           selection: null,
         },
       };

@@ -8,7 +8,7 @@ import "./action-button.js";
 import type { ModalPage } from "./modal-page.js";
 import "./stepper-control.js";
 
-const { LocationMap } = Renderer.Private;
+const { NoteLocationMap } = Renderer.Private;
 
 export class AnnotateOptions extends HTMLElement {
   private readonly ALT_THRESHOLDS = [1 / 32, 1 / 16, 1 / 12, 1 / 8, 1 / 4, 1, 2, 4, Infinity];
@@ -62,7 +62,7 @@ export class AnnotateOptions extends HTMLElement {
   }
 
   private handleClearAnnotations() {
-    appState.annotations = new LocationMap();
+    appState.annotations = new NoteLocationMap();
     refreshChart();
     this.render();
   }

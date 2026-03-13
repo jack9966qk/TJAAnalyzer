@@ -29,7 +29,7 @@ LEVEL:10
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: new window.LocationMap(),
+        annotations: new window.NoteLocationMap(),
         isAnnotationMode: true, // Enable Annotation
         showAllBranches: false,
       });
@@ -76,7 +76,7 @@ LEVEL:10
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: new window.LocationMap(),
+        annotations: new window.NoteLocationMap(),
         isAnnotationMode: true,
         showAllBranches: false,
       });
@@ -203,7 +203,7 @@ LEVEL:10
 1000100010001000,
 #END`;
       window.loadChart(tja, "oni");
-      const map = new window.LocationMap();
+      const map = new window.NoteLocationMap();
       map.set({ barIndex: 0, charIndex: 0 }, { hand: "L" });
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
       (window as any).testOptions = {
@@ -246,7 +246,7 @@ LEVEL:10
 1010101010101010,
 #END`;
       window.loadChart(tja, "oni");
-      const map = new window.LocationMap();
+      const map = new window.NoteLocationMap();
       map.set({ barIndex: 0, charIndex: 2 }, { separator: true });
       map.set({ barIndex: 0, charIndex: 8 }, { separator: true });
       window.setOptions({
@@ -284,7 +284,7 @@ LEVEL:10
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: new window.LocationMap(),
+        annotations: new window.NoteLocationMap(),
         isAnnotationMode: true,
         showAllBranches: false,
         annotationToolType: "separator",

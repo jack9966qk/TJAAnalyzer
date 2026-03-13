@@ -4,12 +4,12 @@ import { JudgementClient } from "../clients/judgement-client.js";
 import { exampleTJA } from "../core/example-data.js";
 import { loadUserProfile } from "../utils/user-profile.js";
 
-const { JudgementMap, LocationMap } = Renderer.Private;
+const { JudgementMap, NoteLocationMap } = Renderer.Private;
 
 type HitInfo = Renderer.Private.HitInfo;
 type JudgementMap<T> = Renderer.Private.JudgementMap<T>;
 type JudgementValue = Renderer.Private.JudgementValue;
-type LocationMap<V> = Renderer.Private.LocationMap<V>;
+type NoteLocationMap<V> = Renderer.Private.NoteLocationMap<V>;
 type ParsedChart = Renderer.Private.ParsedChart;
 type ViewOptions = Renderer.Private.ViewOptions;
 
@@ -24,7 +24,7 @@ interface AppState {
   hasReceivedGameStart: boolean;
   selectedNoteHitInfo: HitInfo | null;
   selectedBranchHitInfo: HitInfo | null;
-  annotations: LocationMap<Renderer.Private.Annotation>;
+  annotations: NoteLocationMap<Renderer.Private.Annotation>;
   eseClient: EseClient;
   eseTree: EseIndexEntry[] | null;
   judgementClient: JudgementClient;
@@ -50,7 +50,7 @@ export const appState: AppState = {
     selectedLoopIteration: undefined,
     beatsPerLine: 16,
     selection: null,
-    annotations: new LocationMap(),
+    annotations: new NoteLocationMap(),
     showTextInAnnotationMode: false,
     alwaysShowAnnotations: false,
     autoAnnotateMode: "partial",
@@ -65,7 +65,7 @@ export const appState: AppState = {
   hasReceivedGameStart: false,
   selectedNoteHitInfo: null,
   selectedBranchHitInfo: null,
-  annotations: new LocationMap(),
+  annotations: new NoteLocationMap(),
   eseClient: new EseClient(),
   eseTree: null,
   judgementClient: new JudgementClient(),

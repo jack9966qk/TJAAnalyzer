@@ -5,7 +5,7 @@ interface TestWindow extends Window {
   // biome-ignore lint/suspicious/noExplicitAny: Test helper
   JudgementMap: any;
   // biome-ignore lint/suspicious/noExplicitAny: Test helper
-  LocationMap: any;
+  NoteLocationMap: any;
 }
 
 test.describe("Visual Regression", () => {
@@ -42,7 +42,7 @@ test.describe("Visual Regression", () => {
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: { start: { barIndex: 0, charIndex: 0 }, end: null },
-        annotations: new (window as unknown as TestWindow).LocationMap(),
+        annotations: new (window as unknown as TestWindow).NoteLocationMap(),
         isAnnotationMode: false,
         showAllBranches: false,
       });
@@ -159,7 +159,7 @@ test.describe("Visual Regression", () => {
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: new window.LocationMap(),
+        annotations: new window.NoteLocationMap(),
         isAnnotationMode: false,
         showAllBranches: false,
       });
@@ -231,7 +231,7 @@ test.describe("Visual Regression", () => {
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: new (window as unknown as TestWindow).LocationMap(),
+        annotations: new (window as unknown as TestWindow).NoteLocationMap(),
         isAnnotationMode: false,
         showAllBranches: false,
       });
@@ -304,7 +304,7 @@ test.describe("Visual Regression", () => {
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: new (window as unknown as TestWindow).LocationMap(),
+        annotations: new (window as unknown as TestWindow).NoteLocationMap(),
         isAnnotationMode: false,
         showAllBranches: false,
       });
@@ -376,7 +376,7 @@ test.describe("Visual Regression", () => {
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: new (window as unknown as TestWindow).LocationMap(),
+        annotations: new (window as unknown as TestWindow).NoteLocationMap(),
         isAnnotationMode: false,
         showAllBranches: false,
       });
@@ -504,7 +504,7 @@ SCOREDIFF:
         selectedLoopIteration: undefined,
         beatsPerLine: 16,
         selection: null,
-        annotations: new (window as unknown as TestWindow).LocationMap(),
+        annotations: new (window as unknown as TestWindow).NoteLocationMap(),
         isAnnotationMode: false,
       });
     }, loopTJA);

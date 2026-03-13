@@ -3,8 +3,8 @@ import {
   annotationHand,
   HandType,
   JUDGEABLE_NOTES,
-  LocationMap,
   type NoteLocation,
+  NoteLocationMap,
   NoteType,
 } from "./primitives.js";
 import type { ParsedChart } from "./tja-parser.js";
@@ -89,11 +89,11 @@ export function extractNotesAndSegments(chart: ParsedChart): { notes: NoteTiming
 
 export function calculateInferredHands(
   chart: ParsedChart,
-  annotations: LocationMap<Annotation> | undefined,
+  annotations: NoteLocationMap<Annotation> | undefined,
   alternationThresholdMeasure: number = Infinity,
   resetThresholdMeasure: number = 0,
-): LocationMap<HandType> {
-  const inferred = new LocationMap<HandType>();
+): NoteLocationMap<HandType> {
+  const inferred = new NoteLocationMap<HandType>();
 
   const alternationThreshold = alternationThresholdMeasure * 4;
   const resetThreshold = resetThresholdMeasure === 0 ? Infinity : resetThresholdMeasure * 4;
@@ -164,17 +164,17 @@ export function calculateInferredHands(
 
 export function generateAutoAnnotations(
   chart: ParsedChart,
-  existingAnnotations: LocationMap<Annotation>,
+  existingAnnotations: NoteLocationMap<Annotation>,
   alternationThresholdMeasure: number = Infinity,
   resetThresholdMeasure: number = 0,
   mode: "full" | "partial" = "partial",
-): LocationMap<Annotation> {
-  const annotations = new LocationMap(existingAnnotations);
+): NoteLocationMap<Annotation> {
+  const annotations = new NoteLocationMap(existingAnnotations);
   // Auto-annotation explicit placement follows user configuration
   const inferred = calculateInferredHands(chart, annotations, alternationThresholdMeasure, resetThresholdMeasure);
   const { segments } = extractNotesAndSegments(chart);
 
-  const toAnnotate = new LocationMap<boolean>();
+  const toAnnotate = new NoteLocationMap<boolean>();
 
   if (mode === "full") {
     for (const seg of segments) {

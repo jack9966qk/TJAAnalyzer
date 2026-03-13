@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 interface TestWindow extends Window {
   // biome-ignore lint/suspicious/noExplicitAny: Test helper
-  LocationMap: any;
+  NoteLocationMap: any;
 }
 
 test.describe("Annotation Inference", () => {
@@ -33,7 +33,7 @@ LEVEL:10
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: new (window as unknown as TestWindow).LocationMap(),
+        annotations: new (window as unknown as TestWindow).NoteLocationMap(),
         isAnnotationMode: true,
         showAllBranches: false,
       });

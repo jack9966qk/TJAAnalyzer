@@ -15,7 +15,7 @@ const {
   INSETS,
   JUDGEABLE_NOTES,
   JudgementMap,
-  LocationMap,
+  NoteLocationMap,
   PALETTE,
   renderChart,
   renderLayout,
@@ -616,7 +616,7 @@ export class TJAChart extends HTMLElement {
     if (this._viewOptions.isAnnotationMode) {
       if (hit && JUDGEABLE_NOTES.includes(hit.type)) {
         const noteId = { barIndex: hit.originalBarIndex, charIndex: hit.charIndex };
-        const annotations = new LocationMap(this._viewOptions.annotations);
+        const annotations = new NoteLocationMap(this._viewOptions.annotations);
         const current = annotations.get(noteId);
         const toolType = this._viewOptions.annotationToolType || "hand";
 
@@ -659,7 +659,7 @@ export class TJAChart extends HTMLElement {
 
   autoAnnotate() {
     if (!this._chart) return;
-    const currentAnnotations = this._viewOptions?.annotations || new LocationMap();
+    const currentAnnotations = this._viewOptions?.annotations || new NoteLocationMap();
     const newAnnotations = generateAutoAnnotations(
       this._chart,
       currentAnnotations,
