@@ -1,4 +1,4 @@
-import { createChart } from "tja-renderer";
+import { createChartView } from "tja-renderer";
 
 const TJA_CONTENT = `//TJADB Project
 TITLE:Daisuki na Taiko no Ne
@@ -518,5 +518,5 @@ SCOREDIFF:0
 const canvas = document.getElementById("chart-canvas") as HTMLCanvasElement;
 
 if (canvas) {
-  createChart(TJA_CONTENT, canvas, { difficulty: "Edit" });
+  createChartView(TJA_CONTENT, canvas, { difficulty: "Edit" });
 }

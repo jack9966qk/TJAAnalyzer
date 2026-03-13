@@ -55,7 +55,7 @@ export type ZoomLevel = "auto" | ZoomByBeatsPerLine;
 
 export type BranchSelection = "auto" | BranchName;
 
-export interface CreateChartOptions {
+export interface ChartViewOptions {
   /** Zoom level. `auto` to fit content with best effort to ensure a minimum note size. */
   zoom?: ZoomLevel;
 
@@ -82,13 +82,13 @@ export interface CreateChartOptions {
   layoutRatios?: Partial<LayoutRatios>;
 }
 
-export const CREATE_CHART_OPTIONS_DEFAULTS: Required<Pick<CreateChartOptions, "zoom" | "branch" | "showAttribution">> = {
+export const CREATE_CHART_OPTIONS_DEFAULTS: Required<Pick<ChartViewOptions, "zoom" | "branch" | "showAttribution">> = {
   zoom: { beatsPerLine: 16 },
   branch: "auto",
   showAttribution: true,
 };
 
-export interface Chart {
+export interface ChartView {
   applyAnnotations(annotations: NoteLocationMap<Annotation>): void;
 }
 
@@ -100,12 +100,12 @@ export interface Chart {
  * @param course The course specifier. If omitted, uses the highest difficulty and player 1 side.
  * @param options Chart creation and rendering options.
  */
-export function createChart(
+export function createChartView(
   tjaContent: string,
   canvas: HTMLCanvasElement,
   course?: CourseSpecifier,
-  options: CreateChartOptions = {},
-): Chart {
+  options: ChartViewOptions = {},
+): ChartView {
   const { zoom, branch, showAttribution, dpr, tjaSourceName, layoutRatios } = {
     ...CREATE_CHART_OPTIONS_DEFAULTS,
     ...options,

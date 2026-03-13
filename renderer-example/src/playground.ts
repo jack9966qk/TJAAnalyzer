@@ -1,5 +1,5 @@
 import type { BranchSelection, LayoutRatios } from "tja-renderer";
-import { BranchName, createChart, getChartInfo } from "tja-renderer";
+import { BranchName, createChartView, getChartInfo } from "tja-renderer";
 
 // ── Default Layout Ratios (must match renderer-package/src/layout.ts) ──
 
@@ -839,7 +839,7 @@ function doRender(): void {
       }
     }
 
-    createChart(tja, canvas, course, {
+    createChartView(tja, canvas, course, {
       zoom: { beatsPerLine: parseInt(optBpl.value, 10) },
       branch,
       dpr: parseFloat(optDpr.value),
