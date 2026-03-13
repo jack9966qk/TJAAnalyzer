@@ -11,12 +11,12 @@ type JudgementMap<T> = Renderer.Private.JudgementMap<T>;
 type JudgementValue = Renderer.Private.JudgementValue;
 type NoteLocationMap<V> = Renderer.Private.NoteLocationMap<V>;
 type ParsedChart = Renderer.Private.ParsedChart;
-type ViewOptions = Renderer.Private.ViewOptions;
+type RenderOptions = Renderer.Private.RenderOptions;
 
 interface AppState {
   parsedTJACharts: Record<string, ParsedChart> | null;
   currentChart: ParsedChart | null;
-  viewOptions: ViewOptions & { autoZoom?: boolean };
+  renderOptions: RenderOptions & { autoZoom?: boolean };
   loadedTJAContent: string;
   activeDataSourceMode: string;
   isSimulating: boolean;
@@ -42,7 +42,7 @@ interface AppState {
 export const appState: AppState = {
   parsedTJACharts: null,
   currentChart: null,
-  viewOptions: {
+  renderOptions: {
     viewMode: "original",
     coloringMode: "categorical",
     visibility: { perfect: true, good: true, poor: true },

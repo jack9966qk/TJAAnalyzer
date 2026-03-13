@@ -6,7 +6,7 @@ import {
   JudgementMap,
   type JudgementValue,
   NoteType,
-  type ViewOptions,
+  type RenderOptions,
 } from "./primitives.js";
 import type { ParsedChart } from "./tja-parser.js";
 
@@ -26,7 +26,7 @@ export function getBranchLineAt(
   y: number,
   chart: ParsedChart,
   canvas: HTMLCanvasElement,
-  options: ViewOptions,
+  options: RenderOptions,
   layout?: ChartLayout,
 ): HitInfo | null {
   let activeLayout: ChartLayout;
@@ -89,7 +89,7 @@ export function getNoteAt(
   chart: ParsedChart,
   canvas: HTMLCanvasElement,
   judgements: JudgementMap<JudgementValue> = new JudgementMap(),
-  options: ViewOptions,
+  options: RenderOptions,
   layout?: ChartLayout,
 ): HitInfo | null {
   let activeLayout: ChartLayout;
@@ -308,7 +308,7 @@ export function getChartElementAt(
   chart: ParsedChart,
   canvas: HTMLCanvasElement,
   judgements: JudgementMap<JudgementValue>,
-  options: ViewOptions,
+  options: RenderOptions,
   layout?: ChartLayout,
 ): HitInfo | null {
   const noteHit = getNoteAt(x, y, chart, canvas, judgements, options, layout);
@@ -323,7 +323,7 @@ export function getChartElementAt(
 export function getNotePosition(
   chart: ParsedChart,
   canvas: HTMLCanvasElement,
-  options: ViewOptions,
+  options: RenderOptions,
   targetBarIndex: number,
   targetCharIndex: number,
   layout?: ChartLayout,

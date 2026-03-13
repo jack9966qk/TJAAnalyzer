@@ -7,7 +7,7 @@ const { createJudgementKey, JUDGEABLE_NOTES, JudgementMap } = Renderer.Private;
 type HitInfo = Renderer.Private.HitInfo;
 type JudgementValue = Renderer.Private.JudgementValue;
 type ParsedChart = Renderer.Private.ParsedChart;
-type ViewOptions = Renderer.Private.ViewOptions;
+type RenderOptions = Renderer.Private.RenderOptions;
 
 // Ensure NoteStatsDisplay is registered
 console.log("NoteStatsDisplay module loaded", NoteStatsDisplay);
@@ -18,7 +18,7 @@ interface CustomWindow extends Window {
   setStats: (
     hit: HitInfo | null,
     chart: ParsedChart | null,
-    viewOptions: ViewOptions | null,
+    renderOptions: RenderOptions | null,
     judgements?: string[],
     judgementDeltas?: (number | undefined)[],
   ) => void;
@@ -29,13 +29,13 @@ const w = window as unknown as CustomWindow;
 w.setStats = (
   hit: HitInfo | null,
   chart: ParsedChart | null,
-  viewOptions: ViewOptions | null,
+  renderOptions: RenderOptions | null,
   judgementsArr: string[] = [],
   judgementDeltasArr: (number | undefined)[] = [],
 ) => {
   if (noteStats) {
     noteStats.chart = chart;
-    noteStats.viewOptions = viewOptions;
+    noteStats.renderOptions = renderOptions;
     noteStats.hit = hit;
 
     const map = new JudgementMap<JudgementValue>();

@@ -26,7 +26,7 @@ export class SelectOptions extends HTMLElement {
   }
 
   private handleClearSelection() {
-    appState.viewOptions.selection = null;
+    appState.renderOptions.selection = null;
     appState.selectedNoteHitInfo = null;
     refreshChart();
     this.render();
@@ -55,7 +55,7 @@ export class SelectOptions extends HTMLElement {
   }
 
   render() {
-    const hasSelection = !!appState.viewOptions.selection;
+    const hasSelection = !!appState.renderOptions.selection;
     const hasNeutralino = appState.isNeutralinoConnected;
     const hasWebFS = !!window.showDirectoryPicker;
     const canSelectDir = hasNeutralino || hasWebFS;
@@ -72,7 +72,7 @@ export class SelectOptions extends HTMLElement {
           </action-button>
         </div>
 
-        {!appState.viewOptions.showAllBranches ? (
+        {!appState.renderOptions.showAllBranches ? (
           <label className="checkbox-label" style="width: 100%;">
             <input
               type="checkbox"

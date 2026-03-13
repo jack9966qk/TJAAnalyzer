@@ -6,7 +6,7 @@ const {
   createJudgementKey,
   createLayout,
   DEFAULT_TEXTS,
-  DEFAULT_VIEW_OPTIONS,
+  DEFAULT_RENDER_OPTIONS,
   JudgementMap,
   NoteLocationMap,
   parseTJA,
@@ -15,7 +15,7 @@ const {
 
 type Insets = Renderer.Private.Insets;
 type JudgementValue = Renderer.Private.JudgementValue;
-type ViewOptions = Renderer.Private.ViewOptions;
+type RenderOptions = Renderer.Private.RenderOptions;
 type JudgementMap<T> = Renderer.Private.JudgementMap<T>;
 
 // Ensure side-effects
@@ -46,13 +46,13 @@ window.loadChart = (tjaContent: string, difficulty: string = "oni") => {
   }
 };
 
-window.setOptions = (options: Partial<ViewOptions>) => {
-  if (tjaChart.viewOptions) {
-    tjaChart.viewOptions = { ...tjaChart.viewOptions, ...options } as ViewOptions;
+window.setOptions = (options: Partial<RenderOptions>) => {
+  if (tjaChart.renderOptions) {
+    tjaChart.renderOptions = { ...tjaChart.renderOptions, ...options } as RenderOptions;
   } else {
-    // Assuming options is full if viewOptions is not set, or we need default.
+    // Assuming options is full if renderOptions is not set, or we need default.
     // But we set default below.
-    tjaChart.viewOptions = { ...DEFAULT_VIEW_OPTIONS, ...options };
+    tjaChart.renderOptions = { ...DEFAULT_RENDER_OPTIONS, ...options };
   }
 };
 
@@ -60,9 +60,9 @@ window.setOptions = (options: Partial<ViewOptions>) => {
 tjaChart.addEventListener("annotations-change", (e: Event) => {
   const newAnnotations = (e as CustomEvent).detail;
   // Update options with new annotations
-  if (tjaChart.viewOptions) {
-    tjaChart.viewOptions = {
-      ...tjaChart.viewOptions,
+  if (tjaChart.renderOptions) {
+    tjaChart.renderOptions = {
+      ...tjaChart.renderOptions,
       annotations: newAnnotations,
     };
   }
@@ -93,7 +93,7 @@ window.setJudgements = (newJudgements: JudgementMap<JudgementValue>) => {
 window.renderChartCustom = (
   tjaContent: string,
   difficulty: string,
-  viewOptions: Partial<ViewOptions>,
+  renderOptions: Partial<RenderOptions>,
   insets: Insets,
 ) => {
   try {
@@ -114,7 +114,7 @@ window.renderChartCustom = (
       document.body.appendChild(canvas);
     }
 
-    const opts: ViewOptions = { ...DEFAULT_VIEW_OPTIONS, showAllBranches: false, ...viewOptions };
+    const opts: RenderOptions = { ...DEFAULT_RENDER_OPTIONS, showAllBranches: false, ...renderOptions };
     const judgements = new JudgementMap<JudgementValue>();
     const layout = createLayout(chart, canvas, opts, judgements, undefined, DEFAULT_TEXTS, insets);
     const ctx = canvas.getContext("2d");
@@ -126,8 +126,8 @@ window.renderChartCustom = (
 };
 
 // Default Options
-tjaChart.viewOptions = {
-  ...DEFAULT_VIEW_OPTIONS,
+tjaChart.renderOptions = {
+  ...DEFAULT_RENDER_OPTIONS,
   showAllBranches: false,
 };
 

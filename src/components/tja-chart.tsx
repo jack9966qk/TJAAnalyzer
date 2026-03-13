@@ -28,7 +28,7 @@ type JudgementKey = Renderer.Private.JudgementKey;
 type JudgementValue = Renderer.Private.JudgementValue;
 type ParsedChart = Renderer.Private.ParsedChart;
 type RenderTexts = Renderer.Private.RenderTexts;
-type ViewOptions = Renderer.Private.ViewOptions;
+type RenderOptions = Renderer.Private.RenderOptions;
 type JudgementMap<T> = Renderer.Private.JudgementMap<T>;
 
 interface VendorDocument extends Document {
@@ -42,7 +42,7 @@ interface VendorDocument extends Document {
   msExitFullscreen?(): Promise<void>;
 }
 
-type AppViewOptions = ViewOptions & { autoZoom?: boolean };
+type AppRenderOptions = RenderOptions & { autoZoom?: boolean };
 
 function getSafeAreaInsets(): Insets {
   const div = document.createElement("div");
@@ -73,7 +73,7 @@ export class TJAChart extends HTMLElement {
   private canvas!: HTMLCanvasElement;
   private messageContainer!: HTMLDivElement;
   private _chart: ParsedChart | null = null;
-  private _viewOptions: ViewOptions | null = null;
+  private _renderOptions: RenderOptions | null = null;
   private _judgements: JudgementMap<JudgementValue> = new JudgementMap();
   private _texts: RenderTexts | undefined;
   private _message: { text: string; type: "warning" | "info" } | null = null;
@@ -114,7 +114,7 @@ export class TJAChart extends HTMLElement {
     this.renderDOM();
 
     this.upgradeProperty("chart");
-    this.upgradeProperty("viewOptions");
+    this.upgradeProperty("renderOptions");
     this.upgradeProperty("judgements");
     this.upgradeProperty("texts");
 
@@ -301,14 +301,14 @@ export class TJAChart extends HTMLElement {
     return this._chart;
   }
 
-  set viewOptions(value: ViewOptions | null) {
-    this._viewOptions = value;
+  set renderOptions(value: RenderOptions | null) {
+    this._renderOptions = value;
     this._pendingFullRender = true;
     this.scheduleRender();
   }
 
-  get viewOptions(): ViewOptions | null {
-    return this._viewOptions;
+  get renderOptions(): RenderOptions | null {
+    return this._renderOptions;
   }
 
   set judgements(value: JudgementMap<JudgementValue>) {
@@ -340,11 +340,11 @@ export class TJAChart extends HTMLElement {
 
   // Testing Helper
   getNoteCoordinates(originalBarIndex: number, charIndex: number): { x: number; y: number } | null {
-    if (!this._chart || !this._viewOptions) return null;
+    if (!this._chart || !this._renderOptions) return null;
     return getNotePosition(
       this._chart,
       this.canvas,
-      this._viewOptions,
+      this._renderOptions,
       originalBarIndex,
       charIndex,
       this._layout || undefined,
@@ -373,8 +373,8 @@ export class TJAChart extends HTMLElement {
     }
   }
 
-  private applyAutoZoom(viewOptions: AppViewOptions, insets: Insets = INSETS) {
-    if (!viewOptions.autoZoom) return;
+  private applyAutoZoom(renderOptions: AppRenderOptions, insets: Insets = INSETS) {
+    if (!renderOptions.autoZoom) return;
     // Use logical width (CSS pixels) for calculation
     const canvasWidth = this.clientWidth;
 
@@ -389,10 +389,10 @@ export class TJAChart extends HTMLElement {
     if (barLengths.size === 0) barLengths.set(4, 1);
 
     const targetBeats = calculateAutoZoomBeats(canvasWidth, barLengths, insets);
-    if (viewOptions.beatsPerLine === targetBeats) return;
+    if (renderOptions.beatsPerLine === targetBeats) return;
 
-    viewOptions.beatsPerLine = targetBeats;
-    appState.viewOptions.beatsPerLine = targetBeats;
+    renderOptions.beatsPerLine = targetBeats;
+    appState.renderOptions.beatsPerLine = targetBeats;
     this._layout = null; // Force layout recreation
     this._pendingFullRender = true;
 
@@ -461,7 +461,7 @@ export class TJAChart extends HTMLElement {
     if (!ctx) return;
 
     // If no chart, maybe clear?
-    if (!this._chart || !this._viewOptions) {
+    if (!this._chart || !this._renderOptions) {
       this.canvas.width = width;
       this.canvas.height = 0;
       this.canvas.style.height = "0px";
@@ -471,12 +471,12 @@ export class TJAChart extends HTMLElement {
     }
 
     // Clone options to avoid mutating the original prop, and apply attribution logic
-    const effectiveViewOptions: AppViewOptions = {
-      ...this._viewOptions,
+    const effectiveRenderOptions: AppRenderOptions = {
+      ...this._renderOptions,
       showAttribution: this.isFullscreen,
     };
 
-    this.applyAutoZoom(effectiveViewOptions, baseInsets);
+    this.applyAutoZoom(effectiveRenderOptions, baseInsets);
 
     const isFullRender = this._pendingFullRender || !this._layout;
 
@@ -491,7 +491,7 @@ export class TJAChart extends HTMLElement {
       this._layout = createLayout(
         this._chart,
         this.canvas,
-        effectiveViewOptions,
+        effectiveRenderOptions,
         this._judgements,
         undefined,
         texts,
@@ -544,7 +544,7 @@ export class TJAChart extends HTMLElement {
     }
 
     if (this._layout) {
-      renderLayout(ctx, this._layout, this._chart, this._judgements, effectiveViewOptions, texts, dirtyRowY);
+      renderLayout(ctx, this._layout, this._chart, this._judgements, effectiveRenderOptions, texts, dirtyRowY);
 
       // Update cache
       if (!dirtyRowY) {
@@ -567,7 +567,7 @@ export class TJAChart extends HTMLElement {
       this.canvas.style.cursor = "default";
       return;
     }
-    if (!this._chart || !this._viewOptions) return;
+    if (!this._chart || !this._renderOptions) return;
 
     const rect = this.canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -579,7 +579,7 @@ export class TJAChart extends HTMLElement {
       this._chart,
       this.canvas,
       this._judgements,
-      this._viewOptions,
+      this._renderOptions,
       this._layout || undefined,
     );
 
@@ -596,7 +596,7 @@ export class TJAChart extends HTMLElement {
 
   handleClick(event: MouseEvent) {
     if (this._message) return;
-    if (!this._chart || !this._viewOptions) return;
+    if (!this._chart || !this._renderOptions) return;
 
     const rect = this.canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -608,17 +608,17 @@ export class TJAChart extends HTMLElement {
       this._chart,
       this.canvas,
       this._judgements,
-      this._viewOptions,
+      this._renderOptions,
       this._layout || undefined,
     );
 
     // Handle Annotation Mode Click
-    if (this._viewOptions.isAnnotationMode) {
+    if (this._renderOptions.isAnnotationMode) {
       if (hit && JUDGEABLE_NOTES.includes(hit.type)) {
         const noteId = { barIndex: hit.originalBarIndex, charIndex: hit.charIndex };
-        const annotations = new NoteLocationMap(this._viewOptions.annotations);
+        const annotations = new NoteLocationMap(this._renderOptions.annotations);
         const current = annotations.get(noteId);
-        const toolType = this._viewOptions.annotationToolType || "hand";
+        const toolType = this._renderOptions.annotationToolType || "hand";
 
         if (toolType === "separator") {
           // Toggle separator, preserve hand annotation
@@ -659,13 +659,13 @@ export class TJAChart extends HTMLElement {
 
   autoAnnotate() {
     if (!this._chart) return;
-    const currentAnnotations = this._viewOptions?.annotations || new NoteLocationMap();
+    const currentAnnotations = this._renderOptions?.annotations || new NoteLocationMap();
     const newAnnotations = generateAutoAnnotations(
       this._chart,
       currentAnnotations,
-      this._viewOptions?.handAlternationThreshold,
-      this._viewOptions?.handResetThreshold,
-      this._viewOptions?.autoAnnotateMode,
+      this._renderOptions?.handAlternationThreshold,
+      this._renderOptions?.handResetThreshold,
+      this._renderOptions?.autoAnnotateMode,
     );
 
     this.dispatchEvent(
@@ -677,13 +677,13 @@ export class TJAChart extends HTMLElement {
     );
   }
 
-  exportImage(overrideOptions?: Partial<ViewOptions>): string {
-    if (!this._chart || !this._viewOptions) {
+  exportImage(overrideOptions?: Partial<RenderOptions>): string {
+    if (!this._chart || !this._renderOptions) {
       throw new Error("Chart not loaded");
     }
 
-    const options: ViewOptions = {
-      ...this._viewOptions,
+    const options: RenderOptions = {
+      ...this._renderOptions,
       showAttribution: true,
       ...overrideOptions,
     };

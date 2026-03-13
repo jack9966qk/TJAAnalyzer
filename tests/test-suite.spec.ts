@@ -984,7 +984,7 @@ test.describe("UI Logic", () => {
       () => {
         // biome-ignore lint/suspicious/noExplicitAny: internal testing
         const tjaChart = document.getElementById("chart-component") as any;
-        return tjaChart?.viewOptions?.titleOverride === "Sample Song (English)";
+        return tjaChart?.renderOptions?.titleOverride === "Sample Song (English)";
       },
       undefined,
       { timeout: 5000 },
@@ -994,7 +994,7 @@ test.describe("UI Logic", () => {
       // biome-ignore lint/suspicious/noExplicitAny: internal testing
       const tjaChart = document.getElementById("chart-component") as any;
       return {
-        title: tjaChart.viewOptions?.titleOverride,
+        title: tjaChart.renderOptions?.titleOverride,
       };
     });
 
@@ -1314,11 +1314,11 @@ test.describe("Selection Interaction", () => {
     expect(p0).not.toBeNull();
     await canvas.hover({ position: p0, force: true });
 
-    // Verify viewOptions.hoveredNote is set
+    // Verify renderOptions.hoveredNote is set
     const hoveredNote = await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
-      return chart.viewOptions.hoveredNote;
+      return chart.renderOptions.hoveredNote;
     });
     expect(hoveredNote).toEqual({ barIndex: 0, charIndex: 0, branch: "normal" });
 
@@ -1329,7 +1329,7 @@ test.describe("Selection Interaction", () => {
     const hoveredNoteHidden = await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
-      return chart.viewOptions.hoveredNote;
+      return chart.renderOptions.hoveredNote;
     });
     expect(hoveredNoteHidden).toBeNull();
 
@@ -1340,7 +1340,7 @@ test.describe("Selection Interaction", () => {
     const hoveredNoteStillNull = await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
-      return chart.viewOptions.hoveredNote;
+      return chart.renderOptions.hoveredNote;
     });
     expect(hoveredNoteStillNull).toBeNull();
   });

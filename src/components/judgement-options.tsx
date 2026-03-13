@@ -32,11 +32,11 @@ export class JudgementOptions extends HTMLElement {
     const target = e.target as HTMLInputElement;
     if (target.checked) {
       if (target.value === "underline") {
-        appState.viewOptions.viewMode = "judgements-underline";
+        appState.renderOptions.viewMode = "judgements-underline";
       } else if (target.value === "text") {
-        appState.viewOptions.viewMode = "judgements-text";
+        appState.renderOptions.viewMode = "judgements-text";
       } else {
-        appState.viewOptions.viewMode = "judgements";
+        appState.renderOptions.viewMode = "judgements";
       }
       refreshChart();
       this.render();
@@ -46,7 +46,7 @@ export class JudgementOptions extends HTMLElement {
   private handleColoringChange(e: Event) {
     const target = e.target as HTMLInputElement;
     if (target.checked) {
-      appState.viewOptions.coloringMode = target.value === "gradient" ? "gradient" : "categorical";
+      appState.renderOptions.coloringMode = target.value === "gradient" ? "gradient" : "categorical";
       refreshChart();
       this.render();
     }
@@ -54,15 +54,15 @@ export class JudgementOptions extends HTMLElement {
 
   private handleVisibilityChange(type: "perfect" | "good" | "poor", e: Event) {
     const checked = (e.target as HTMLInputElement).checked;
-    appState.viewOptions.visibility = {
-      ...appState.viewOptions.visibility,
+    appState.renderOptions.visibility = {
+      ...appState.renderOptions.visibility,
       [type]: checked,
     };
     refreshChart();
   }
 
   private handleCollapseLoopChange(e: Event) {
-    appState.viewOptions.collapsedLoop = (e.target as HTMLInputElement).checked;
+    appState.renderOptions.collapsedLoop = (e.target as HTMLInputElement).checked;
     refreshChart();
     updateStatsComponent(null);
     this.render();
@@ -71,17 +71,20 @@ export class JudgementOptions extends HTMLElement {
   private handleLoopAutoChange(e: Event) {
     const checked = (e.target as HTMLInputElement).checked;
     if (checked) {
-      appState.viewOptions.selectedLoopIteration = undefined;
+      appState.renderOptions.selectedLoopIteration = undefined;
     } else {
-      appState.viewOptions.selectedLoopIteration = 0;
+      appState.renderOptions.selectedLoopIteration = 0;
     }
     refreshChart();
     this.render();
   }
 
   private handlePrevLoop() {
-    if (appState.viewOptions.selectedLoopIteration !== undefined && appState.viewOptions.selectedLoopIteration > 0) {
-      appState.viewOptions.selectedLoopIteration--;
+    if (
+      appState.renderOptions.selectedLoopIteration !== undefined &&
+      appState.renderOptions.selectedLoopIteration > 0
+    ) {
+      appState.renderOptions.selectedLoopIteration--;
       refreshChart();
       this.render();
     }
@@ -90,10 +93,10 @@ export class JudgementOptions extends HTMLElement {
   private handleNextLoop() {
     if (
       appState.currentChart?.loop &&
-      appState.viewOptions.selectedLoopIteration !== undefined &&
-      appState.viewOptions.selectedLoopIteration < appState.currentChart.loop.iterations - 1
+      appState.renderOptions.selectedLoopIteration !== undefined &&
+      appState.renderOptions.selectedLoopIteration < appState.currentChart.loop.iterations - 1
     ) {
-      appState.viewOptions.selectedLoopIteration++;
+      appState.renderOptions.selectedLoopIteration++;
       refreshChart();
       this.render();
     }
@@ -104,8 +107,8 @@ export class JudgementOptions extends HTMLElement {
   private getLoopStatus() {
     const hasLoop = !!appState.currentChart?.loop;
     let text = "1 / 1";
-    const isAuto = appState.viewOptions.selectedLoopIteration === undefined;
-    const current = appState.viewOptions.selectedLoopIteration || 0;
+    const isAuto = appState.renderOptions.selectedLoopIteration === undefined;
+    const current = appState.renderOptions.selectedLoopIteration || 0;
     const total = appState.currentChart?.loop?.iterations || 1;
     let prevDisabled = true;
     let nextDisabled = true;
@@ -120,9 +123,9 @@ export class JudgementOptions extends HTMLElement {
         const loop = appState.currentChart!.loop!;
 
         if (
-          (appState.viewOptions.viewMode === "judgements" ||
-            appState.viewOptions.viewMode === "judgements-underline" ||
-            appState.viewOptions.viewMode === "judgements-text") &&
+          (appState.renderOptions.viewMode === "judgements" ||
+            appState.renderOptions.viewMode === "judgements-underline" ||
+            appState.renderOptions.viewMode === "judgements-text") &&
           appState.judgements.size > 0
         ) {
           // Iterate loops to find max iteration with judgements
@@ -147,10 +150,10 @@ export class JudgementOptions extends HTMLElement {
 
     const isStreamActive = appState.isStreamConnected || appState.isSimulating;
     const loopStatus = this.getLoopStatus();
-    const isLoopCollapsed = appState.viewOptions.collapsedLoop;
+    const isLoopCollapsed = appState.renderOptions.collapsedLoop;
 
     // Determine selected style
-    const viewMode = appState.viewOptions.viewMode;
+    const viewMode = appState.renderOptions.viewMode;
     const styleValue =
       viewMode === "judgements-text" ? "text" : viewMode === "judgements-underline" ? "underline" : "color";
 
@@ -267,7 +270,7 @@ export class JudgementOptions extends HTMLElement {
                   type="radio"
                   name="judgementColoring"
                   value="class"
-                  checked={appState.viewOptions.coloringMode === "categorical"}
+                  checked={appState.renderOptions.coloringMode === "categorical"}
                   onchange={this.handleColoringChange.bind(this)}
                 />
                 <span>{i18n.t("ui.coloring.class")}</span>
@@ -277,7 +280,7 @@ export class JudgementOptions extends HTMLElement {
                   type="radio"
                   name="judgementColoring"
                   value="gradient"
-                  checked={appState.viewOptions.coloringMode === "gradient"}
+                  checked={appState.renderOptions.coloringMode === "gradient"}
                   onchange={this.handleColoringChange.bind(this)}
                 />
                 <span>{i18n.t("ui.coloring.gradient")}</span>
@@ -290,7 +293,7 @@ export class JudgementOptions extends HTMLElement {
                 <input
                   type="checkbox"
                   id="show-perfect"
-                  checked={appState.viewOptions.visibility.perfect}
+                  checked={appState.renderOptions.visibility.perfect}
                   onchange={(e) => this.handleVisibilityChange("perfect", e)}
                 />
                 <span>{i18n.t("judgement.perfect")}</span>
@@ -299,7 +302,7 @@ export class JudgementOptions extends HTMLElement {
                 <input
                   type="checkbox"
                   id="show-good"
-                  checked={appState.viewOptions.visibility.good}
+                  checked={appState.renderOptions.visibility.good}
                   onchange={(e) => this.handleVisibilityChange("good", e)}
                 />
                 <span>{i18n.t("judgement.good")}</span>
@@ -308,7 +311,7 @@ export class JudgementOptions extends HTMLElement {
                 <input
                   type="checkbox"
                   id="show-poor"
-                  checked={appState.viewOptions.visibility.poor}
+                  checked={appState.renderOptions.visibility.poor}
                   onchange={(e) => this.handleVisibilityChange("poor", e)}
                 />
                 <span>{i18n.t("judgement.poor")}</span>

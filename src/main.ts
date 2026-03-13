@@ -38,7 +38,7 @@ const { createJudgementKey } = Renderer.Private;
 type HitInfo = Renderer.Private.HitInfo;
 type JudgementMap<T> = Renderer.Private.JudgementMap<T>;
 type JudgementValue = Renderer.Private.JudgementValue;
-type RendererViewOptions = Renderer.Private.ViewOptions;
+type RenderOptions = Renderer.Private.RenderOptions;
 
 import {
   refreshChart,
@@ -275,8 +275,8 @@ function updateDisplayState() {
   const _isStreamActive = appState.isStreamConnected || appState.isSimulating;
 
   if (mode === "judgements") {
-    if (appState.viewOptions.viewMode === "original") {
-      appState.viewOptions.viewMode = "judgements-underline";
+    if (appState.renderOptions.viewMode === "original") {
+      appState.renderOptions.viewMode = "judgements-underline";
     }
 
     // We need to refresh the component status
@@ -285,7 +285,7 @@ function updateDisplayState() {
       judgementOptions.refreshStatus();
     }
   } else {
-    appState.viewOptions.viewMode = "original";
+    appState.renderOptions.viewMode = "original";
   }
 
   refreshChart();
@@ -472,7 +472,7 @@ function initEventListeners() {
     const newHoveredNote =
       isStatsVisible && hit ? { barIndex: hit.originalBarIndex, charIndex: hit.charIndex, branch: hit.branch } : null;
 
-    const currentHovered = appState.viewOptions.hoveredNote;
+    const currentHovered = appState.renderOptions.hoveredNote;
     let changed = false;
 
     if (!currentHovered && !newHoveredNote) {
@@ -487,7 +487,7 @@ function initEventListeners() {
     }
 
     if (changed) {
-      appState.viewOptions.hoveredNote = newHoveredNote;
+      appState.renderOptions.hoveredNote = newHoveredNote;
       refreshChart();
     }
   });
@@ -500,7 +500,7 @@ function initEventListeners() {
     const activeTab = document.querySelector("#chart-options-panel .panel-tab.active");
     const mode = activeTab ? activeTab.getAttribute("data-do-tab") : "view";
 
-    if (appState.viewOptions.showAllBranches && (mode === "annotation" || mode === "selection")) return;
+    if (appState.renderOptions.showAllBranches && (mode === "annotation" || mode === "selection")) return;
 
     // Annotation logic moved to component (annotations-change event)
     if (mode === "annotation") return;
@@ -512,25 +512,25 @@ function initEventListeners() {
     // Selection Logic
     // Only allow selecting notes (charIndex !== -1)
     if (hit && hit.charIndex !== -1) {
-      if (!appState.viewOptions.selection) {
-        appState.viewOptions.selection = {
+      if (!appState.renderOptions.selection) {
+        appState.renderOptions.selection = {
           start: { barIndex: hit.originalBarIndex, charIndex: hit.charIndex },
           end: null,
         };
         appState.selectedNoteHitInfo = hit;
-      } else if (appState.viewOptions.selection.start && !appState.viewOptions.selection.end) {
+      } else if (appState.renderOptions.selection.start && !appState.renderOptions.selection.end) {
         if (
-          appState.viewOptions.selection.start.barIndex === hit.originalBarIndex &&
-          appState.viewOptions.selection.start.charIndex === hit.charIndex
+          appState.renderOptions.selection.start.barIndex === hit.originalBarIndex &&
+          appState.renderOptions.selection.start.charIndex === hit.charIndex
         ) {
-          appState.viewOptions.selection = null;
+          appState.renderOptions.selection = null;
           appState.selectedNoteHitInfo = null;
         } else {
-          appState.viewOptions.selection.end = { barIndex: hit.originalBarIndex, charIndex: hit.charIndex };
+          appState.renderOptions.selection.end = { barIndex: hit.originalBarIndex, charIndex: hit.charIndex };
           appState.selectedNoteHitInfo = hit;
         }
       } else {
-        appState.viewOptions.selection = {
+        appState.renderOptions.selection = {
           start: { barIndex: hit.originalBarIndex, charIndex: hit.charIndex },
           end: null,
         };
@@ -538,7 +538,7 @@ function initEventListeners() {
       }
     } else if (!hit) {
       // Clear selection only if clicking on empty space (not a hit)
-      appState.viewOptions.selection = null;
+      appState.renderOptions.selection = null;
       appState.selectedNoteHitInfo = null;
       appState.selectedBranchHitInfo = null;
     } else if (hit && hit.charIndex === -1) {
@@ -590,7 +590,7 @@ function initJudgementClient() {
       appState.hasReceivedGameStart = true;
 
       // Clear selection
-      appState.viewOptions.selection = null;
+      appState.renderOptions.selection = null;
       appState.selectedNoteHitInfo = null;
       updateSelectionUI();
 
@@ -811,8 +811,8 @@ window.loadTJAContent = (content: string) => {
   updateStatus("status.fileLoaded");
 };
 
-window.setViewOptions = (opts: Partial<RendererViewOptions>) => {
-  appState.viewOptions = { ...appState.viewOptions, ...opts };
+window.setRenderOptions = (opts: Partial<RenderOptions>) => {
+  appState.renderOptions = { ...appState.renderOptions, ...opts };
   refreshChart();
 };
 

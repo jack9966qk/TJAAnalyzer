@@ -314,7 +314,7 @@ export interface JudgementVisibility {
   poor: boolean;
 }
 
-export interface ViewOptions {
+export interface RenderOptions {
   titleOverride?: string;
   subtitleOverride?: string;
   viewMode: "original" | "judgements" | "judgements-underline" | "judgements-text";
@@ -372,7 +372,7 @@ export const DEFAULT_TEXTS: RenderTexts = {
   },
 };
 
-export const DEFAULT_VIEW_OPTIONS: ViewOptions = {
+export const DEFAULT_RENDER_OPTIONS: RenderOptions = {
   viewMode: "original",
   coloringMode: "categorical",
   visibility: {

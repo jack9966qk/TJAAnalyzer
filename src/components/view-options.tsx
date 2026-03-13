@@ -78,9 +78,9 @@ export class ViewOptions extends HTMLElement {
   }
 
   private handleZoomChange(beatsPerLine: number) {
-    appState.viewOptions.autoZoom = false;
-    if (appState.viewOptions.beatsPerLine !== beatsPerLine) {
-      appState.viewOptions.beatsPerLine = beatsPerLine;
+    appState.renderOptions.autoZoom = false;
+    if (appState.renderOptions.beatsPerLine !== beatsPerLine) {
+      appState.renderOptions.beatsPerLine = beatsPerLine;
       refreshChart();
       this.render();
     }
@@ -88,8 +88,8 @@ export class ViewOptions extends HTMLElement {
 
   private handleAutoZoom(e: Event) {
     const target = e.target as HTMLInputElement;
-    appState.viewOptions.autoZoom = target.checked;
-    if (appState.viewOptions.autoZoom) {
+    appState.renderOptions.autoZoom = target.checked;
+    if (appState.renderOptions.autoZoom) {
       refreshChart();
     }
     this.render();
@@ -122,8 +122,8 @@ export class ViewOptions extends HTMLElement {
 
     // Clear hover effect if hidden
     if (!this.statsVisible) {
-      if (appState.viewOptions.hoveredNote) {
-        appState.viewOptions.hoveredNote = null;
+      if (appState.renderOptions.hoveredNote) {
+        appState.renderOptions.hoveredNote = null;
         refreshChart();
       }
     }
@@ -143,7 +143,7 @@ export class ViewOptions extends HTMLElement {
       const chartEl = document.getElementById("chart-component");
       const width = chartEl ? chartEl.clientWidth : 800;
       const availableWidth = width - (INSETS.left + INSETS.right);
-      const beatsPerLine = appState.viewOptions.beatsPerLine;
+      const beatsPerLine = appState.renderOptions.beatsPerLine;
       const barsPerRow = beatsPerLine / 4;
       const baseBarWidth = availableWidth / barsPerRow;
       const noteDiameter = baseBarWidth * LAYOUT_RATIOS.noteRadiusSmall * 2;
@@ -180,7 +180,7 @@ export class ViewOptions extends HTMLElement {
             <div className="zoom-controls" style="display: flex; align-items: center; gap: 5px;">
               <stepper-control
                 id="zoom-stepper"
-                value={appState.viewOptions.beatsPerLine}
+                value={appState.renderOptions.beatsPerLine}
                 baseline={16}
                 min={4}
                 max={32}
@@ -192,7 +192,7 @@ export class ViewOptions extends HTMLElement {
                 <input
                   type="checkbox"
                   id="zoom-auto-checkbox"
-                  checked={!!appState.viewOptions.autoZoom}
+                  checked={!!appState.renderOptions.autoZoom}
                   onchange={this.handleAutoZoom.bind(this)}
                 />
                 <span>{i18n.t("ui.auto")}</span>

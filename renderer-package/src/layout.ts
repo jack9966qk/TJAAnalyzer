@@ -9,8 +9,8 @@ import {
   type NoteLocation,
   NoteLocationMap,
   NoteType,
+  type RenderOptions,
   type RenderTexts,
-  type ViewOptions,
 } from "./primitives.js";
 import type { BarParams, ParsedChart } from "./tja-parser.js";
 
@@ -252,7 +252,7 @@ export function calculateAutoZoomBeats(
 
 export function generateBaseVirtualBars(
   chart: ParsedChart,
-  options: ViewOptions,
+  options: RenderOptions,
   judgements: JudgementMap<JudgementValue>,
   locToJudgementKey: NoteLocationMap<JudgementKey>,
 ): RenderBarInfo[] {
@@ -338,7 +338,7 @@ export function generateBaseVirtualBars(
   return virtualBars;
 }
 
-export function isNoteSelected(barIdx: number, charIdx: number, selection: ViewOptions["selection"]): boolean {
+export function isNoteSelected(barIdx: number, charIdx: number, selection: RenderOptions["selection"]): boolean {
   if (!selection) return false;
 
   const { start, end } = selection;
@@ -375,7 +375,7 @@ export function isNoteSelected(barIdx: number, charIdx: number, selection: ViewO
   return true; // strictly between startBar and endBar
 }
 
-export function filterVirtualBarsByRange(virtualBars: RenderBarInfo[], range: ViewOptions["range"]): RenderBarInfo[] {
+export function filterVirtualBarsByRange(virtualBars: RenderBarInfo[], range: RenderOptions["range"]): RenderBarInfo[] {
   if (!range) return virtualBars;
 
   let { start, end } = range;
@@ -428,7 +428,7 @@ export function filterVirtualBarsByRange(virtualBars: RenderBarInfo[], range: Vi
 
 export function getVirtualBars(
   chart: ParsedChart,
-  options: ViewOptions,
+  options: RenderOptions,
   judgements: JudgementMap<JudgementValue>,
   locToJudgementKey: NoteLocationMap<JudgementKey>,
 ): RenderBarInfo[] {
@@ -461,7 +461,7 @@ export function calculateGlobalBarStartIndices(bars: NoteType[][]): number[] {
 export function determineVisibleBranches(
   chart: ParsedChart,
   params: BarParams | undefined,
-  options: ViewOptions,
+  options: RenderOptions,
 ): Set<BranchName> {
   const visibleBranches = new Set<BranchName>();
 
@@ -531,7 +531,7 @@ export function calculateLayout(
   virtualBars: RenderBarInfo[],
   chart: ParsedChart,
   logicalCanvasWidth: number,
-  options: ViewOptions,
+  options: RenderOptions,
   insets: Insets,
   layoutRatios?: Partial<LayoutRatios>,
 ): {
@@ -801,7 +801,7 @@ export function measureHeaderHeight(
   width: number,
   baseHeight: number,
   texts?: RenderTexts,
-  options?: ViewOptions,
+  options?: RenderOptions,
 ): number {
   const title = options?.titleOverride ?? chart.title ?? "Untitled";
   const subtitle = options?.subtitleOverride ?? chart.subtitle ?? "";
@@ -957,7 +957,7 @@ export function calculateBalloonIndices(bars: NoteType[][]): NoteLocationMap<num
 export function createLayout(
   chart: ParsedChart,
   canvas: HTMLCanvasElement,
-  options: ViewOptions,
+  options: RenderOptions,
   judgements: JudgementMap<JudgementValue>,
   customDpr?: number,
   texts?: RenderTexts,

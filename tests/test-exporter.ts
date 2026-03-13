@@ -3,7 +3,7 @@ import { generateTJAFromSelection } from "../src/core/tja-exporter.js";
 
 const { NoteType, parseTJA } = Renderer.Private;
 
-type ViewOptions = Renderer.Private.ViewOptions;
+type RenderOptions = Renderer.Private.RenderOptions;
 
 function runTest(name: string, fn: () => void) {
   try {
@@ -57,7 +57,7 @@ LEVEL:10
   const parsed = parseTJA(tjaContent).oni;
 
   runTest("Test 1: Full selection with Balloon (Middle)", () => {
-    const selection: ViewOptions["selection"] = {
+    const selection: RenderOptions["selection"] = {
       start: { barIndex: 1, charIndex: 0 },
       end: { barIndex: 1, charIndex: 7 },
     };
@@ -68,7 +68,7 @@ LEVEL:10
   });
 
   runTest("Test 2: Partial selection (Offset Balloon)", () => {
-    const selection: ViewOptions["selection"] = {
+    const selection: RenderOptions["selection"] = {
       start: { barIndex: 2, charIndex: 0 },
       end: { barIndex: 2, charIndex: 7 },
     };
@@ -77,7 +77,7 @@ LEVEL:10
   });
 
   runTest("Test 3: Partial selection cutting off Balloon", () => {
-    const selection: ViewOptions["selection"] = {
+    const selection: RenderOptions["selection"] = {
       start: { barIndex: 1, charIndex: 2 },
       end: { barIndex: 1, charIndex: 7 },
     };
@@ -98,7 +98,7 @@ COURSE:Oni
 #END
 `;
     const parsed2 = parseTJA(tjaContent2).oni;
-    const selection: ViewOptions["selection"] = {
+    const selection: RenderOptions["selection"] = {
       start: { barIndex: 1, charIndex: 0 },
       end: { barIndex: 1, charIndex: 7 },
     };
@@ -122,7 +122,7 @@ LEVEL:8
 #END
 `;
     const parsed3 = parseTJA(tjaContent3).hard;
-    const selection: ViewOptions["selection"] = {
+    const selection: RenderOptions["selection"] = {
       start: { barIndex: 0, charIndex: 0 },
       end: { barIndex: 0, charIndex: 7 },
     };
@@ -146,7 +146,7 @@ COURSE:Oni
 `;
     const parsedLoop = parseTJA(tjaLoop).oni;
     // Select Bar 0
-    const selection: ViewOptions["selection"] = {
+    const selection: RenderOptions["selection"] = {
       start: { barIndex: 0, charIndex: 0 },
       end: { barIndex: 0, charIndex: 7 },
     };
@@ -183,7 +183,7 @@ BALLOON:10
 #END
 `;
     const parsedBalloonLoop = parseTJA(tjaBalloonLoop).oni;
-    const selection: ViewOptions["selection"] = {
+    const selection: RenderOptions["selection"] = {
       start: { barIndex: 0, charIndex: 0 },
       end: { barIndex: 0, charIndex: 7 },
     };
@@ -213,7 +213,7 @@ BPM:100
     const parsedMidBar = parseTJA(tjaMidBar).oni;
 
     // Select just the first note (Index 0)
-    const selection: ViewOptions["selection"] = {
+    const selection: RenderOptions["selection"] = {
       start: { barIndex: 0, charIndex: 0 },
       end: { barIndex: 0, charIndex: 0 },
     };
@@ -252,7 +252,7 @@ BALLOON:3
 #END
 `;
     const parsedCycle = parseTJA(tjaCycle).oni;
-    const selection: ViewOptions["selection"] = {
+    const selection: RenderOptions["selection"] = {
       start: { barIndex: 0, charIndex: 0 },
       end: { barIndex: 0, charIndex: 7 },
     };
@@ -297,7 +297,7 @@ COURSE:Oni
 #END
 `;
     const parsed4 = parseTJA(tjaContent4).oni;
-    const selection: ViewOptions["selection"] = {
+    const selection: RenderOptions["selection"] = {
       start: { barIndex: 0, charIndex: 0 },
       end: { barIndex: 0, charIndex: 7 },
     };
@@ -315,7 +315,7 @@ COURSE:Oni
 #END
 `;
     const parsed5 = parseTJA(tjaContent5).oni;
-    const selection: ViewOptions["selection"] = {
+    const selection: RenderOptions["selection"] = {
       start: { barIndex: 0, charIndex: 0 },
       end: { barIndex: 0, charIndex: 7 },
     };

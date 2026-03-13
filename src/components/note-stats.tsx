@@ -8,13 +8,13 @@ type HitInfo = Renderer.Private.HitInfo;
 type JudgementMap<T> = Renderer.Private.JudgementMap<T>;
 type JudgementValue = Renderer.Private.JudgementValue;
 type ParsedChart = Renderer.Private.ParsedChart;
-type ViewOptions = Renderer.Private.ViewOptions;
+type RenderOptions = Renderer.Private.RenderOptions;
 
 export class NoteStatsDisplay extends HTMLElement {
   private _hit: HitInfo | null = null;
   private _branchHit: HitInfo | null = null;
   private _chart: ParsedChart | null = null;
-  private _viewOptions: ViewOptions | null = null;
+  private _renderOptions: RenderOptions | null = null;
   private _judgements: JudgementMap<JudgementValue> = new JudgementMap();
 
   constructor() {
@@ -42,8 +42,8 @@ export class NoteStatsDisplay extends HTMLElement {
     this.render();
   }
 
-  set viewOptions(value: ViewOptions | null) {
-    this._viewOptions = value;
+  set renderOptions(value: RenderOptions | null) {
+    this._renderOptions = value;
     this.render();
   }
 
@@ -133,7 +133,7 @@ export class NoteStatsDisplay extends HTMLElement {
     const hit = this._hit;
     const branchHit = this._branchHit;
     const chart = this._chart;
-    const options = this._viewOptions;
+    const options = this._renderOptions;
     const judgements = this._judgements;
 
     const {

@@ -2,7 +2,7 @@ import * as Renderer from "tja-renderer";
 
 const { NoteType } = Renderer.Private;
 type NoteType = Renderer.Private.NoteType;
-type ViewOptions = Renderer.Private.ViewOptions;
+type RenderOptions = Renderer.Private.RenderOptions;
 type ParsedChart = Renderer.Private.ParsedChart;
 
 interface ChartContext {
@@ -54,7 +54,7 @@ function getContextAt(chart: ParsedChart, barIndex: number, charIndex: number): 
 
 export function generateTJAFromSelection(
   chart: ParsedChart,
-  selection: NonNullable<ViewOptions["selection"]>,
+  selection: NonNullable<RenderOptions["selection"]>,
   courseName: string = "Oni",
   loopCount: number = 10,
   chartName: string = "Exported Selection",

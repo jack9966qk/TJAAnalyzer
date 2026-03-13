@@ -174,11 +174,11 @@ LEVEL:8
     await canvas.locator("canvas").hover({ position: p0, force: true });
     await page.waitForTimeout(200);
 
-    // Check if hoveredNote is set correctly in viewOptions
+    // Check if hoveredNote is set correctly in renderOptions
     const hoveredNote = await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
-      return chart.viewOptions.hoveredNote;
+      return chart.renderOptions.hoveredNote;
     });
 
     // { barIndex: 0, charIndex: 0, branch: 'normal' }

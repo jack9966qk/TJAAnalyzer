@@ -30,8 +30,8 @@ import {
   annotationHand,
   annotationHasSeparator,
   BranchName,
+  DEFAULT_RENDER_OPTIONS,
   DEFAULT_TEXTS,
-  DEFAULT_VIEW_OPTIONS,
   HandType,
   isJudgeable,
   type JudgementKey,
@@ -40,9 +40,9 @@ import {
   type JudgementValue,
   NoteLocationMap,
   NoteType,
+  type RenderOptions,
   type RenderTexts,
   type ViewMode,
-  type ViewOptions,
 } from "./primitives.js";
 
 import type { BarParams, GogoChange, LoopInfo, ParsedChart } from "./tja-parser.js";
@@ -65,7 +65,7 @@ export {
   annotationHasSeparator,
   BranchName,
   DEFAULT_TEXTS,
-  DEFAULT_VIEW_OPTIONS,
+  DEFAULT_RENDER_OPTIONS,
   HandType,
   isJudgeable,
   JudgementType,
@@ -77,7 +77,7 @@ export {
   annotationWithHand,
   JUDGEABLE_NOTES,
 } from "./primitives.js";
-export type { Annotation, JudgementKey, JudgementMap, JudgementValue, RenderTexts, ViewMode, ViewOptions };
+export type { Annotation, JudgementKey, JudgementMap, JudgementValue, RenderTexts, ViewMode, RenderOptions };
 
 export const PALETTE = {
   background: "#d4d4d4ff",
@@ -152,7 +152,7 @@ export const PALETTE = {
 
 export interface RenderContext {
   canvasContext: CanvasRenderingContext2D;
-  options: ViewOptions;
+  options: RenderOptions;
   judgements: JudgementMap<JudgementValue>;
   texts: RenderTexts;
   constants: RenderConstants;
@@ -305,7 +305,7 @@ function drawChartHeader(
   frame: Frame,
   texts: RenderTexts,
   baseHeight?: number,
-  options?: ViewOptions,
+  options?: RenderOptions,
 ): void {
   const { x, y, width, height } = frame;
   const title = options?.titleOverride ?? (chart.title || "Untitled");
@@ -858,7 +858,7 @@ function drawBarBackgroundWrapper(
   info: RenderBarInfo,
   index: number,
   chart: ParsedChart,
-  options: ViewOptions,
+  options: RenderOptions,
   constants: RenderConstants,
   virtualBars: RenderBarInfo[],
   barFrames: Frame[],
@@ -1679,10 +1679,10 @@ function drawLongNotes(
   viewMode: "original" | "judgements" | "judgements-underline" | "judgements-text",
   balloonCounts: number[],
   balloonIndices: NoteLocationMap<number>,
-  selection: ViewOptions["selection"] | undefined,
+  selection: RenderOptions["selection"] | undefined,
   dirtyRowY?: Set<number>,
   dpr: number = 1,
-  hoveredNote?: ViewOptions["hoveredNote"],
+  hoveredNote?: RenderOptions["hoveredNote"],
   branch?: BranchName,
 ): void {
   const {
@@ -2009,7 +2009,7 @@ export function renderLayout(
   layout: ChartLayout,
   chart: ParsedChart,
   judgements: JudgementMap<JudgementValue>,
-  options: ViewOptions,
+  options: RenderOptions,
   texts: RenderTexts,
   dirtyRowY?: Set<number>,
 ): void {
@@ -2218,7 +2218,7 @@ export function renderChart(
   chart: ParsedChart,
   canvas: HTMLCanvasElement,
   judgements: JudgementMap<JudgementValue> = new JudgementMap(),
-  options: ViewOptions,
+  options: RenderOptions,
   texts: RenderTexts = DEFAULT_TEXTS,
   customDpr?: number,
   layoutRatios?: Partial<LayoutRatios>,

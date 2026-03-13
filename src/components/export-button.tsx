@@ -68,12 +68,12 @@ export class ExportButton extends HTMLElement {
   }
 
   private generateContent() {
-    if (!appState.currentChart || !appState.viewOptions.selection) {
+    if (!appState.currentChart || !appState.renderOptions.selection) {
       throw new Error("No selection");
     }
     return generateTJAFromSelection(
       appState.currentChart,
-      appState.viewOptions.selection,
+      appState.renderOptions.selection,
       courseBranchSelect.difficulty,
       this.loopCount,
       this.chartName,
@@ -82,7 +82,7 @@ export class ExportButton extends HTMLElement {
   }
 
   private async handleClick() {
-    if (!appState.currentChart || !appState.viewOptions.selection) return;
+    if (!appState.currentChart || !appState.renderOptions.selection) return;
 
     const content = this.generateContent();
 

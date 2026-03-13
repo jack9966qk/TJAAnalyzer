@@ -24,8 +24,8 @@ test.describe("Judgement View Edge Cases", () => {
     await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const tjaChart = document.getElementById("chart-component") as any;
-      tjaChart.viewOptions = {
-        ...tjaChart.viewOptions,
+      tjaChart.renderOptions = {
+        ...tjaChart.renderOptions,
         viewMode: "judgements-underline",
         visibility: { perfect: true, good: true, poor: true },
       };

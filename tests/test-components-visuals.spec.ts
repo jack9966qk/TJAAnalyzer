@@ -88,7 +88,7 @@ test.describe("Web Components Visual Regression", () => {
         },
       };
       // biome-ignore lint/suspicious/noExplicitAny: Mocking global objects
-      (window as any).appState.viewOptions.showAllBranches = true;
+      (window as any).appState.renderOptions.showAllBranches = true;
 
       // Trigger render
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element

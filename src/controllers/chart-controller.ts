@@ -103,7 +103,7 @@ export function updateStatsComponent(hit: HitInfo | null) {
 
   if (noteStatsDisplay) {
     noteStatsDisplay.chart = appState.currentChart;
-    noteStatsDisplay.viewOptions = appState.viewOptions;
+    noteStatsDisplay.renderOptions = appState.renderOptions;
     noteStatsDisplay.judgements = appState.judgements;
     noteStatsDisplay.hit = noteHit;
     noteStatsDisplay.branchHit = branchHit;
@@ -163,10 +163,10 @@ export function updateChartSelection(resetBranch: boolean = false) {
     const branchType = courseBranchSelect.branch;
 
     if (branchType === "all") {
-      appState.viewOptions.showAllBranches = true;
+      appState.renderOptions.showAllBranches = true;
       appState.currentChart = rootChart;
     } else {
-      appState.viewOptions.showAllBranches = false;
+      appState.renderOptions.showAllBranches = false;
       // Note: rootChart.branches.normal is the rootChart itself usually
       const target = rootChart.branches[branchType as "normal" | "expert" | "master"];
       if (target) {
@@ -178,7 +178,7 @@ export function updateChartSelection(resetBranch: boolean = false) {
     }
   } else {
     courseBranchSelect.setBranchVisibility(false);
-    appState.viewOptions.showAllBranches = false;
+    appState.renderOptions.showAllBranches = false;
     appState.currentChart = rootChart;
   }
 
@@ -194,10 +194,10 @@ export function updateCollapseLoopState() {
 
   if (hasLoop) {
     // Ensure checked state reflects appState
-    judgementOptions.setLoopCollapseState(true, appState.viewOptions.collapsedLoop);
+    judgementOptions.setLoopCollapseState(true, appState.renderOptions.collapsedLoop);
   } else {
     // Disabled and unchecked
-    appState.viewOptions.collapsedLoop = false;
+    appState.renderOptions.collapsedLoop = false;
     judgementOptions.setLoopCollapseState(false, false);
   }
 }
@@ -207,7 +207,7 @@ export function updateParsedCharts(content: string, fromStream = false) {
   appState.parsedTJACharts = parseTJA(content);
 
   // Clear selection
-  appState.viewOptions.selection = null;
+  appState.renderOptions.selection = null;
   appState.selectedNoteHitInfo = null;
   updateSelectionUI();
 
@@ -249,10 +249,10 @@ export function updateParsedCharts(content: string, fromStream = false) {
       const defaults = profile.defaultViewOptions;
       // Apply zoom
       if (defaults.zoom === "auto") {
-        appState.viewOptions.autoZoom = true;
+        appState.renderOptions.autoZoom = true;
       } else {
-        appState.viewOptions.autoZoom = false;
-        appState.viewOptions.beatsPerLine = defaults.zoom;
+        appState.renderOptions.autoZoom = false;
+        appState.renderOptions.beatsPerLine = defaults.zoom;
       }
       // Apply note stats visibility
       const viewOptionsEl = document.querySelector("view-options") as { statsVisible: boolean } | null;
@@ -304,14 +304,14 @@ export function refreshChart() {
     const mode = activeTab ? activeTab.getAttribute("data-do-tab") : "view";
 
     // 1. Check for All Branches + Selection/Annotation Mode
-    if (appState.viewOptions.showAllBranches && (mode === "selection" || mode === "annotation")) {
+    if (appState.renderOptions.showAllBranches && (mode === "selection" || mode === "annotation")) {
       tjaChart.showMessage(i18n.t("ui.error.branchAllMode"), "warning");
       updateLoopControls();
       return;
     }
 
     // 2. Check for Branching + Judgement Mode
-    const isJudgementMode = appState.viewOptions.viewMode.startsWith("judgements");
+    const isJudgementMode = appState.renderOptions.viewMode.startsWith("judgements");
     // Check if branching UI is active/visible as a proxy for "chart has branching"
     const selectedDiff = courseBranchSelect.difficulty;
     let rootChart = appState.parsedTJACharts?.[selectedDiff];
@@ -346,17 +346,17 @@ export function refreshChart() {
       },
     };
 
-    // Update viewOptions annotations
-    appState.viewOptions.annotations = appState.annotations;
-    appState.viewOptions.isAnnotationMode = mode === "annotation";
+    // Update annotations
+    appState.renderOptions.annotations = appState.annotations;
+    appState.renderOptions.isAnnotationMode = mode === "annotation";
 
-    let finalViewOptions = appState.viewOptions;
-    if (appState.displayOnlySelected && appState.viewOptions.selection && !appState.viewOptions.showAllBranches) {
-      finalViewOptions = {
-        ...appState.viewOptions,
+    let finalRenderOptions = appState.renderOptions;
+    if (appState.displayOnlySelected && appState.renderOptions.selection && !appState.renderOptions.showAllBranches) {
+      finalRenderOptions = {
+        ...appState.renderOptions,
         range: {
-          start: appState.viewOptions.selection.start,
-          end: appState.viewOptions.selection.end || appState.viewOptions.selection.start,
+          start: appState.renderOptions.selection.start,
+          end: appState.renderOptions.selection.end || appState.renderOptions.selection.start,
         },
         selection: null,
       };
@@ -364,8 +364,8 @@ export function refreshChart() {
 
     // Apply language overrides synchronously if possible
     if (appState.currentEsePath) {
-      finalViewOptions = {
-        ...finalViewOptions,
+      finalRenderOptions = {
+        ...finalRenderOptions,
         tjaSourceName: "TJADB",
       };
 
@@ -380,8 +380,8 @@ export function refreshChart() {
           const locTitle = getLocalizedTitle(mappingEntry, lang);
           const locSubtitle = getLocalizedSubtitle(mappingEntry, lang) ?? appState.currentChart?.subtitle ?? "";
 
-          finalViewOptions = {
-            ...finalViewOptions,
+          finalRenderOptions = {
+            ...finalRenderOptions,
             titleOverride: locTitle,
             subtitleOverride: locSubtitle,
           };
@@ -397,13 +397,13 @@ export function refreshChart() {
             const locTitle = getLocalizedTitle(mappingEntry, lang);
             const locSubtitle = getLocalizedSubtitle(mappingEntry, lang) ?? appState.currentChart?.subtitle ?? "";
 
-            if (tjaChart.viewOptions) {
+            if (tjaChart.renderOptions) {
               if (
-                tjaChart.viewOptions.titleOverride !== locTitle ||
-                tjaChart.viewOptions.subtitleOverride !== locSubtitle
+                tjaChart.renderOptions.titleOverride !== locTitle ||
+                tjaChart.renderOptions.subtitleOverride !== locSubtitle
               ) {
-                tjaChart.viewOptions = {
-                  ...tjaChart.viewOptions,
+                tjaChart.renderOptions = {
+                  ...tjaChart.renderOptions,
                   titleOverride: locTitle,
                   subtitleOverride: locSubtitle,
                 };
@@ -415,7 +415,7 @@ export function refreshChart() {
     }
 
     tjaChart.chart = appState.currentChart;
-    tjaChart.viewOptions = finalViewOptions;
+    tjaChart.renderOptions = finalRenderOptions;
     tjaChart.judgements = appState.judgements;
     tjaChart.texts = texts;
 

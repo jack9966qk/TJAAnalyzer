@@ -69,37 +69,37 @@ export class AnnotateOptions extends HTMLElement {
 
   private handleToggleShowText(e: Event) {
     const target = e.target as HTMLInputElement;
-    appState.viewOptions.showTextInAnnotationMode = target.checked;
+    appState.renderOptions.showTextInAnnotationMode = target.checked;
     refreshChart();
   }
 
   private handleToggleAlwaysShow(e: Event) {
     const target = e.target as HTMLInputElement;
-    appState.viewOptions.alwaysShowAnnotations = target.checked;
+    appState.renderOptions.alwaysShowAnnotations = target.checked;
     refreshChart();
   }
 
   private handleAltChange(index: number) {
-    appState.viewOptions.handAlternationThreshold = this.ALT_THRESHOLDS[Math.floor(index)];
+    appState.renderOptions.handAlternationThreshold = this.ALT_THRESHOLDS[Math.floor(index)];
     refreshChart();
     this.render();
   }
 
   private handleResetChange(index: number) {
-    appState.viewOptions.handResetThreshold = this.RESET_THRESHOLDS[Math.floor(index)];
+    appState.renderOptions.handResetThreshold = this.RESET_THRESHOLDS[Math.floor(index)];
     refreshChart();
     this.render();
   }
 
   private handleToolTypeSelect(value: "hand" | "separator") {
-    appState.viewOptions.annotationToolType = value;
+    appState.renderOptions.annotationToolType = value;
     refreshChart();
     this.render();
   }
 
   private handleModeChange(e: Event) {
     const target = e.target as HTMLSelectElement;
-    appState.viewOptions.autoAnnotateMode = target.value as "full" | "partial";
+    appState.renderOptions.autoAnnotateMode = target.value as "full" | "partial";
     refreshChart();
     this.render();
   }
@@ -115,18 +115,18 @@ export class AnnotateOptions extends HTMLElement {
   }
 
   render() {
-    const altVal = appState.viewOptions.handAlternationThreshold ?? Infinity;
+    const altVal = appState.renderOptions.handAlternationThreshold ?? Infinity;
     let altIdx = this.ALT_THRESHOLDS.indexOf(altVal);
     if (altIdx === -1) altIdx = this.ALT_THRESHOLDS.length - 1;
 
-    const resetVal = appState.viewOptions.handResetThreshold ?? 0;
+    const resetVal = appState.renderOptions.handResetThreshold ?? 0;
     let resetIdx = this.RESET_THRESHOLDS.indexOf(resetVal);
     if (resetIdx === -1) resetIdx = 0;
 
-    const mode = appState.viewOptions.autoAnnotateMode || "partial";
+    const mode = appState.renderOptions.autoAnnotateMode || "partial";
     const isPartialSelected = (mode === "partial") as boolean | undefined;
     const isFullSelected = (mode === "full") as boolean | undefined;
-    const toolType = appState.viewOptions.annotationToolType || "hand";
+    const toolType = appState.renderOptions.annotationToolType || "hand";
     const isHandTool = toolType === "hand";
     const isSeparatorTool = toolType === "separator";
     const descKey = isHandTool ? "ui.annotation.desc" : "ui.annotation.desc.separator";
@@ -166,7 +166,7 @@ export class AnnotateOptions extends HTMLElement {
           <label className="checkbox-label">
             <input
               type="checkbox"
-              checked={!!appState.viewOptions.showTextInAnnotationMode}
+              checked={!!appState.renderOptions.showTextInAnnotationMode}
               onchange={this.handleToggleShowText.bind(this)}
             />
             <span>{i18n.t("ui.showTextInAnnotationMode")}</span>
@@ -174,7 +174,7 @@ export class AnnotateOptions extends HTMLElement {
           <label className="checkbox-label">
             <input
               type="checkbox"
-              checked={!!appState.viewOptions.alwaysShowAnnotations}
+              checked={!!appState.renderOptions.alwaysShowAnnotations}
               onchange={this.handleToggleAlwaysShow.bind(this)}
             />
             <span>{i18n.t("ui.alwaysShowAnnotations")}</span>

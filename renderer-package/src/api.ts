@@ -1,6 +1,6 @@
 import { calculateAutoZoomBeats, type LayoutRatios } from "./layout.js";
 import { type Annotation, BranchName, JudgementMap, NoteLocationMap } from "./primitives.js";
-import { DEFAULT_VIEW_OPTIONS, renderChart, type ViewOptions } from "./renderer.js";
+import { DEFAULT_RENDER_OPTIONS, type RenderOptions, renderChart } from "./renderer.js";
 import { type ParsedChart, parseTJA } from "./tja-parser.js";
 
 export type { LayoutRatios };
@@ -163,15 +163,15 @@ export function createChartView(
   };
 
   const render = () => {
-    const viewOptions: ViewOptions = {
-      ...DEFAULT_VIEW_OPTIONS,
+    const renderOptions: RenderOptions = {
+      ...DEFAULT_RENDER_OPTIONS,
       beatsPerLine: resolveBeatsPerLine(),
       showAllBranches,
       showAttribution,
       tjaSourceName,
       annotations: currentAnnotations,
     };
-    renderChart(chart, canvas, new JudgementMap(), viewOptions, undefined, dpr, layoutRatios);
+    renderChart(chart, canvas, new JudgementMap(), renderOptions, undefined, dpr, layoutRatios);
   };
 
   render();

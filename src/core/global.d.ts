@@ -1,5 +1,5 @@
 import type * as NeutralinoLib from "@neutralinojs/lib";
-import type { ViewOptions, JudgementMap, JudgementValue, JudgementKey, NoteLocationMap } from "./renderer.ts";
+import type { RenderOptions, JudgementMap, JudgementValue, JudgementKey, NoteLocationMap } from "./renderer.ts";
 import type { ExportButtonProps } from "../components/export-button.tsx";
 import type { SaveImageButtonProps } from "../components/save-image-button.tsx";
 import type { ActionButtonProps } from "../components/action-button.tsx";
@@ -10,7 +10,7 @@ declare global {
   interface Window {
     Neutralino: typeof NeutralinoLib;
     loadChart: (tjaContent: string, difficulty?: string) => void;
-    setOptions: (options: Partial<ViewOptions>) => void;
+    setOptions: (options: Partial<RenderOptions>) => void;
     autoAnnotate: () => void;
     setJudgements: (newJudgements: JudgementMap<JudgementValue>) => void;
     getLayoutInfo: () => {
@@ -25,11 +25,11 @@ declare global {
     renderChartCustom: (
       tjaContent: string,
       difficulty: string,
-      viewOptions: Partial<ViewOptions>,
+      renderOptions: Partial<RenderOptions>,
       insets: { top: number; bottom: number; left: number; right: number },
     ) => void;
     loadTJAContent: (content: string) => void;
-    setViewOptions: (opts: Partial<ViewOptions>) => void;
+    setRenderOptions: (opts: Partial<RenderOptions>) => void;
     showDirectoryPicker?: () => Promise<FileSystemDirectoryHandle>;
     parseFumenDatabaseHtml: (html: string) => FumenDatabasePlaydata;
     parseTaikoWikiRatingHtml: (html: string) => FumenDatabasePlaydata;

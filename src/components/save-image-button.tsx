@@ -24,7 +24,7 @@ export class SaveImageButton extends HTMLElement {
 
     const activeTab = document.querySelector("#chart-options-panel .panel-tab.active");
     const mode = activeTab ? activeTab.getAttribute("data-do-tab") : "view";
-    const optionsForExport = { ...appState.viewOptions, isAnnotationMode: mode === "annotation" };
+    const optionsForExport = { ...appState.renderOptions, isAnnotationMode: mode === "annotation" };
     if (appState.displayOnlySelected) {
       optionsForExport.selection = null;
     }

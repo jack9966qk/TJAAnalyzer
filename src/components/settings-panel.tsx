@@ -170,11 +170,11 @@ export class SettingsPanel extends HTMLElement {
 
   private async handleSaveViewDefaults() {
     // Get current view options from appState
-    const viewOptions = appState.viewOptions;
+    const renderOptions = appState.renderOptions;
     const viewOptionsEl = document.querySelector("view-options") as { statsVisible: boolean } | null;
 
     const defaults: DefaultViewOptions = {
-      zoom: viewOptions.autoZoom ? "auto" : viewOptions.beatsPerLine,
+      zoom: renderOptions.autoZoom ? "auto" : renderOptions.beatsPerLine,
       showNoteStats: viewOptionsEl?.statsVisible ?? true,
     };
 

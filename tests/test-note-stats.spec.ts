@@ -14,8 +14,8 @@ test.describe("Note Stats Component", () => {
         judgeableNoteIndex: 0,
         ordinal: 0,
       };
-      // Mock ViewOptions and Chart
-      const viewOptions = {
+      // Mock renderOptions and Chart
+      const renderOptions = {
         viewMode: "original",
         coloringMode: "categorical",
         visibility: { perfect: true, good: true, poor: true },
@@ -28,7 +28,7 @@ test.describe("Note Stats Component", () => {
       };
 
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom test function
-      (window as any).setStats(hit, chart, viewOptions);
+      (window as any).setStats(hit, chart, renderOptions);
     });
 
     const stats = page.locator("note-stats");
@@ -48,7 +48,7 @@ test.describe("Note Stats Component", () => {
         judgeableNoteIndex: 0,
         ordinal: 0,
       };
-      const viewOptions = {
+      const renderOptions = {
         viewMode: "judgements",
         coloringMode: "categorical",
         visibility: { perfect: true, good: true, poor: true },
@@ -63,7 +63,7 @@ test.describe("Note Stats Component", () => {
       const deltas = [0, 10];
 
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom test function
-      (window as any).setStats(hit, chart, viewOptions, judgements, deltas);
+      (window as any).setStats(hit, chart, renderOptions, judgements, deltas);
     });
 
     const stats = page.locator("note-stats");
@@ -81,7 +81,7 @@ test.describe("Note Stats Component", () => {
         charIndex: 0,
         judgeableNoteIndex: 0,
       };
-      const viewOptions = {
+      const renderOptions = {
         viewMode: "original",
         coloringMode: "categorical",
         visibility: { perfect: true, good: true, poor: true },
@@ -90,7 +90,7 @@ test.describe("Note Stats Component", () => {
       };
       const chart = { bars: [["1"]] };
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom test function
-      (window as any).setStats(hit, chart, viewOptions);
+      (window as any).setStats(hit, chart, renderOptions);
     });
 
     const stats = page.locator("note-stats");
