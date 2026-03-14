@@ -11,7 +11,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "test": "node --loader ts-node/esm tests/test-renderer.ts"
   },
   "keywords": [
     "tja",
@@ -22,6 +23,7 @@
   "author": "Jack",
   "license": "MIT",
   "devDependencies": {
+    "ts-node": "^10.9.2",
     "typescript": "^5.0.0"
   }
 }

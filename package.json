@@ -11,7 +11,7 @@
     "dev:renderer": "npm run --prefix renderer-package watch",
     "dev:vite": "vite",
     "start": "vite preview --port 8080",
-    "test": "npm run build && node --loader ts-node/esm tests/test-parser.ts && node --loader ts-node/esm tests/test-exporter.ts && playwright test",
+    "test": "npm run build && npm run test --prefix renderer-package && node --loader ts-node/esm tests/test-parser.ts && node --loader ts-node/esm tests/test-exporter.ts && playwright test",
     "build:exe": "npm run build && node build-exe.js",
     "start:exe": "npm run build && neu update && neu run",
     "deploy": "npm run build && gh-pages -d dist",
