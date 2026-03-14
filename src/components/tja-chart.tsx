@@ -411,6 +411,49 @@ export class TJAChart extends HTMLElement {
     document.dispatchEvent(new Event("view-options-update"));
   }
 
+  /**
+   * Returns dirty row Y positions for differential rendering, or an empty set if nothing changed.
+   * Returns undefined when a full render is needed (should not happen as callers guard this).
+   */
+  private calculateDirtyRowY(layout: ChartLayout): Set<number> {
+    const changedKeys: JudgementKey[] = [];
+
+    // Check for added or changed items
+    for (const [key, val] of this._judgements) {
+      const oldVal = this._renderedJudgements.get(key);
+      if (!oldVal || oldVal.judgement !== val.judgement || oldVal.delta !== val.delta) {
+        changedKeys.push(key);
+      }
+    }
+
+    // Check for removed items
+    for (const key of this._renderedJudgements.keys()) {
+      if (!this._judgements.has(key)) {
+        changedKeys.push(key);
+      }
+    }
+
+    const dirtyRowY = new Set<number>();
+    if (changedKeys.length === 0) return dirtyRowY;
+
+    const grid = layout.noteOrdinalToGrid;
+    const barFrames = layout.barFrames;
+
+    for (const key of changedKeys) {
+      const locations = grid.get(key);
+      if (locations) {
+        for (const loc of locations) {
+          const frame = barFrames[loc.virtualBarIdx];
+          if (frame) {
+            dirtyRowY.add(frame.y);
+          }
+        }
+      }
+    }
+
+    return dirtyRowY;
+  }
+
   render() {
     this._renderTask = null;
     if (!this.isConnected || !this.canvas) return;
@@ -512,48 +555,8 @@ export class TJAChart extends HTMLElement {
       this._chartView.invalidateLayout();
     }
 
-    let dirtyRowY: Set<number> | undefined;
-
-    if (!isFullRender && layout) {
-      // Differential Rendering
-      const changedKeys: JudgementKey[] = [];
-
-      // Check for added or changed items
-      for (const [key, val] of this._judgements) {
-        const oldVal = this._renderedJudgements.get(key);
-        if (!oldVal || oldVal.judgement !== val.judgement || oldVal.delta !== val.delta) {
-          changedKeys.push(key);
-        }
-      }
-
-      // Check for removed items
-      for (const key of this._renderedJudgements.keys()) {
-        if (!this._judgements.has(key)) {
-          changedKeys.push(key);
-        }
-      }
-
-      if (changedKeys.length > 0) {
-        dirtyRowY = new Set<number>();
-        const grid = layout.noteOrdinalToGrid;
-        const barFrames = layout.barFrames;
-
-        for (const key of changedKeys) {
-          const locations = grid.get(key);
-          if (locations) {
-            for (const loc of locations) {
-              const frame = barFrames[loc.virtualBarIdx];
-              if (frame) {
-                dirtyRowY.add(frame.y);
-              }
-            }
-          }
-        }
-      } else {
-        // Nothing changed
-        return;
-      }
-    }
+    const dirtyRowY = isFullRender || !layout ? undefined : this.calculateDirtyRowY(layout);
+    if (dirtyRowY !== undefined && dirtyRowY.size === 0) return;
 
     const viewOptions: ChartViewOptions = {
       renderOptions: effectiveRenderOptions,
