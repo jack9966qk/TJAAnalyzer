@@ -13,10 +13,15 @@ import {
   resolveCanvasWidth,
 } from "./layout.js";
 import {
+  type Annotation,
+  applyCycleHand,
+  applyToggleSeparator,
   DEFAULT_TEXTS,
+  isJudgeable,
   JudgementMap,
   type JudgementValue,
   type NoteLocation,
+  type NoteLocationMap,
   type RenderOptions,
   type RenderTexts,
 } from "./primitives.js";
@@ -249,5 +254,33 @@ export function createChartView(chart: ParsedChart, canvas: HTMLCanvasElement): 
 
       return exportCanvas.toDataURL("image/png");
     },
+  };
+}
+
+/**
+ * Creates a NoteInteractionHandler that cycles hand annotation (none → L → R → none)
+ * on judgeable notes. Non-judgeable notes are ignored.
+ */
+export function createCycleHandHandler(
+  getAnnotations: () => NoteLocationMap<Annotation>,
+  onChange: (annotations: NoteLocationMap<Annotation>) => void,
+): NoteInteractionHandler {
+  return ({ hit }) => {
+    if (!hit || !isJudgeable(hit.type)) return;
+    onChange(applyCycleHand(getAnnotations(), hit.location));
+  };
+}
+
+/**
+ * Creates a NoteInteractionHandler that toggles separator annotation
+ * on judgeable notes. Non-judgeable notes are ignored.
+ */
+export function createToggleSeparatorHandler(
+  getAnnotations: () => NoteLocationMap<Annotation>,
+  onChange: (annotations: NoteLocationMap<Annotation>) => void,
+): NoteInteractionHandler {
+  return ({ hit }) => {
+    if (!hit || !isJudgeable(hit.type)) return;
+    onChange(applyToggleSeparator(getAnnotations(), hit.location));
   };
 }

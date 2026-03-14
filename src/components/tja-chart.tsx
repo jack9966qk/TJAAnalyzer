@@ -3,16 +3,13 @@ import * as webjsx from "webjsx";
 import { appState } from "../state/app-state.js";
 
 const {
-  annotationHand,
-  annotationToggleSeparator,
-  annotationWithHand,
   calculateAutoZoomBeats,
   createChartView,
+  createCycleHandHandler,
+  createToggleSeparatorHandler,
   generateAutoAnnotations,
   getNotePosition,
-  HandType,
   INSETS,
-  JUDGEABLE_NOTES,
   JudgementMap,
   NoteLocationMap,
   PALETTE,
@@ -23,6 +20,7 @@ type ChartView = Renderer.Private.ChartView;
 type ChartViewOptions = Renderer.Private.ChartViewOptions;
 type HitInfo = Renderer.Private.HitInfo;
 type NoteInteractionEvent = Renderer.Private.NoteInteractionEvent;
+type NoteInteractionHandler = Renderer.Private.NoteInteractionHandler;
 type Insets = Renderer.Private.Insets;
 type JudgementKey = Renderer.Private.JudgementKey;
 type JudgementValue = Renderer.Private.JudgementValue;
@@ -89,6 +87,8 @@ export class TJAChart extends HTMLElement {
   private _clickCleanup: (() => void) | null = null;
   private _hoverCleanup: (() => void) | null = null;
   private _hoverStyleEnabled: boolean = false;
+  private _cycleHandHandler: NoteInteractionHandler;
+  private _toggleSeparatorHandler: NoteInteractionHandler;
 
   get layout(): ChartLayout | null {
     return this._chartView?.layout ?? null;
@@ -103,6 +103,19 @@ export class TJAChart extends HTMLElement {
   constructor() {
     super();
     this.attachShadow({ mode: "open" });
+
+    const getAnnotations = () => this._renderOptions?.annotations || new NoteLocationMap();
+    const onAnnotationsChange = (annotations: Renderer.Private.NoteLocationMap<Renderer.Private.Annotation>) => {
+      this.dispatchEvent(
+        new CustomEvent("annotations-change", {
+          detail: annotations,
+          bubbles: true,
+          composed: true,
+        }),
+      );
+    };
+    this._cycleHandHandler = createCycleHandHandler(getAnnotations, onAnnotationsChange);
+    this._toggleSeparatorHandler = createToggleSeparatorHandler(getAnnotations, onAnnotationsChange);
 
     this.resizeObserver = new ResizeObserver(() => {
       this._pendingFullRender = true;
@@ -627,37 +640,9 @@ export class TJAChart extends HTMLElement {
 
     // Handle Annotation Mode Click
     if (this._renderOptions.isAnnotationMode) {
-      if (hit && JUDGEABLE_NOTES.includes(hit.type)) {
-        const noteId = hit.location;
-        const annotations = new NoteLocationMap(this._renderOptions.annotations);
-        const current = annotations.get(noteId);
-        const toolType = this._renderOptions.annotationToolType || "hand";
-
-        if (toolType === "separator") {
-          // Toggle separator, preserve hand annotation
-          const newVal = annotationToggleSeparator(current);
-          if (newVal) annotations.set(noteId, newVal);
-          else annotations.delete(noteId);
-        } else {
-          // Cycle hand annotation L -> R -> clear, preserve separator
-          const currentHand = annotationHand(current);
-          let newHand: typeof HandType.L | typeof HandType.R | undefined;
-          if (!currentHand) newHand = HandType.L;
-          else if (currentHand === HandType.L) newHand = HandType.R;
-          else newHand = undefined;
-          const newVal = annotationWithHand(current, newHand);
-          if (newVal) annotations.set(noteId, newVal);
-          else annotations.delete(noteId);
-        }
-
-        this.dispatchEvent(
-          new CustomEvent("annotations-change", {
-            detail: annotations,
-            bubbles: true,
-            composed: true,
-          }),
-        );
-      }
+      const toolType = this._renderOptions.annotationToolType || "hand";
+      const handler = toolType === "separator" ? this._toggleSeparatorHandler : this._cycleHandHandler;
+      handler({ x, y, hit, originalEvent });
       // Don't return, still emit chart-click for generic listeners
     }
 

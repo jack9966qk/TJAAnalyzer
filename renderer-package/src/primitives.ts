@@ -297,6 +297,48 @@ export function annotationToggleSeparator(a: Annotation | undefined): Annotation
   return { hand, separator: newSep || undefined };
 }
 
+/**
+ * Cycles the hand annotation: none → L → R → none, preserving any separator.
+ */
+export function cycleHandAnnotation(current: Annotation | undefined): Annotation | undefined {
+  const currentHand = annotationHand(current);
+  let newHand: HandType | undefined;
+  if (!currentHand) newHand = HandType.L;
+  else if (currentHand === HandType.L) newHand = HandType.R;
+  else newHand = undefined;
+  return annotationWithHand(current, newHand);
+}
+
+/**
+ * Cycles the hand annotation at the given location, returning a new annotations map.
+ * Cycles: none → L → R → none, preserving any separator.
+ */
+export function applyCycleHand(
+  annotations: NoteLocationMap<Annotation>,
+  location: NoteLocation,
+): NoteLocationMap<Annotation> {
+  const result = new NoteLocationMap(annotations);
+  const newVal = cycleHandAnnotation(result.get(location));
+  if (newVal) result.set(location, newVal);
+  else result.delete(location);
+  return result;
+}
+
+/**
+ * Toggles the separator annotation at the given location, returning a new annotations map.
+ * Preserves any hand annotation.
+ */
+export function applyToggleSeparator(
+  annotations: NoteLocationMap<Annotation>,
+  location: NoteLocation,
+): NoteLocationMap<Annotation> {
+  const result = new NoteLocationMap(annotations);
+  const newVal = annotationToggleSeparator(result.get(location));
+  if (newVal) result.set(location, newVal);
+  else result.delete(location);
+  return result;
+}
+
 export enum JudgementType {
   Perfect = "perfect",
   Great = "great",

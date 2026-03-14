@@ -1,6 +1,22 @@
-import { createChartView, type NoteInteractionEvent } from "../src/internal.js";
+import type { HitInfo } from "../src/hit-testing.js";
+import {
+  createChartView,
+  createCycleHandHandler,
+  createToggleSeparatorHandler,
+  type NoteInteractionEvent,
+} from "../src/internal.js";
 import { createLayout } from "../src/layout.js";
-import { DEFAULT_RENDER_OPTIONS, JudgementMap, NoteLocationMap } from "../src/primitives.js";
+import {
+  type Annotation,
+  applyCycleHand,
+  applyToggleSeparator,
+  cycleHandAnnotation,
+  DEFAULT_RENDER_OPTIONS,
+  HandType,
+  JudgementMap,
+  NoteLocationMap,
+  NoteType,
+} from "../src/primitives.js";
 import { parseTJA } from "../src/tja-parser.js";
 
 function runTest(name: string, fn: () => void) {
@@ -353,6 +369,177 @@ try {
     cleanupClick();
     assert(canvas.listeners.get("mousemove")?.size === 0, "Mousemove listener removed");
     assert(canvas.listeners.get("click")?.size === 0, "Click listener removed");
+  });
+
+  runTest("cycleHandAnnotation: none -> L", () => {
+    const result = cycleHandAnnotation(undefined);
+    assert(result?.hand === HandType.L, `Expected L, got ${result?.hand}`);
+  });
+
+  runTest("cycleHandAnnotation: L -> R", () => {
+    const result = cycleHandAnnotation({ hand: HandType.L });
+    assert(result?.hand === HandType.R, `Expected R, got ${result?.hand}`);
+  });
+
+  runTest("cycleHandAnnotation: R -> none", () => {
+    const result = cycleHandAnnotation({ hand: HandType.R });
+    assert(result === undefined, "Expected undefined");
+  });
+
+  runTest("cycleHandAnnotation preserves separator", () => {
+    const result = cycleHandAnnotation({ separator: true });
+    assert(result?.hand === HandType.L, `Expected L, got ${result?.hand}`);
+    assert(result?.separator === true, "Expected separator to be preserved");
+  });
+
+  runTest("cycleHandAnnotation: R with separator -> separator only", () => {
+    const result = cycleHandAnnotation({ hand: HandType.R, separator: true });
+    assert(result?.hand === undefined, `Expected no hand, got ${result?.hand}`);
+    assert(result?.separator === true, "Expected separator to be preserved");
+  });
+
+  runTest("applyCycleHand: cycles on location", () => {
+    const loc = { barIndex: 0, charIndex: 0 };
+    const annotations = new NoteLocationMap<Annotation>();
+
+    const r1 = applyCycleHand(annotations, loc);
+    assert(r1.get(loc)?.hand === HandType.L, "First click should set L");
+
+    const r2 = applyCycleHand(r1, loc);
+    assert(r2.get(loc)?.hand === HandType.R, "Second click should set R");
+
+    const r3 = applyCycleHand(r2, loc);
+    assert(r3.get(loc) === undefined, "Third click should clear");
+  });
+
+  runTest("applyToggleSeparator: toggles on location", () => {
+    const loc = { barIndex: 1, charIndex: 2 };
+    const annotations = new NoteLocationMap<Annotation>();
+
+    const r1 = applyToggleSeparator(annotations, loc);
+    assert(r1.get(loc)?.separator === true, "First click should set separator");
+
+    const r2 = applyToggleSeparator(r1, loc);
+    assert(r2.get(loc) === undefined, "Second click should clear separator");
+  });
+
+  runTest("applyCycleHand: preserves separator", () => {
+    const loc = { barIndex: 0, charIndex: 0 };
+    const annotations = new NoteLocationMap<Annotation>();
+    annotations.set(loc, { separator: true });
+
+    const r1 = applyCycleHand(annotations, loc);
+    assert(r1.get(loc)?.hand === HandType.L, "Should set L");
+    assert(r1.get(loc)?.separator === true, "Should preserve separator");
+  });
+
+  runTest("applyToggleSeparator: preserves hand", () => {
+    const loc = { barIndex: 0, charIndex: 0 };
+    const annotations = new NoteLocationMap<Annotation>();
+    annotations.set(loc, { hand: HandType.L });
+
+    const r1 = applyToggleSeparator(annotations, loc);
+    assert(r1.get(loc)?.hand === HandType.L, "Should preserve hand");
+    assert(r1.get(loc)?.separator === true, "Should set separator");
+  });
+
+  runTest("applyCycleHand does not mutate original map", () => {
+    const loc = { barIndex: 0, charIndex: 0 };
+    const annotations = new NoteLocationMap<Annotation>();
+
+    const result = applyCycleHand(annotations, loc);
+    assert(annotations.get(loc) === undefined, "Original should be unchanged");
+    assert(result.get(loc)?.hand === HandType.L, "Result should have the annotation");
+  });
+
+  runTest("createCycleHandHandler: cycles hand on judgeable note", () => {
+    let annotations = new NoteLocationMap<Annotation>();
+    let lastResult: NoteLocationMap<Annotation> | null = null;
+    const handler = createCycleHandHandler(
+      () => annotations,
+      (a) => {
+        lastResult = a;
+        annotations = a;
+      },
+    );
+
+    const loc = { barIndex: 0, charIndex: 0 };
+    const hit: HitInfo = { location: loc, type: NoteType.Don, bpm: 120, scroll: 1 };
+    const fakeEvent = { x: 0, y: 0, hit, originalEvent: {} as MouseEvent };
+
+    handler(fakeEvent);
+    assert(lastResult !== null, "onChange should be called");
+    assert(annotations.get(loc)?.hand === HandType.L, "First click should set L");
+
+    handler(fakeEvent);
+    assert(annotations.get(loc)?.hand === HandType.R, "Second click should set R");
+
+    handler(fakeEvent);
+    assert(annotations.get(loc) === undefined, "Third click should clear");
+  });
+
+  runTest("createCycleHandHandler: ignores non-judgeable notes", () => {
+    const annotations = new NoteLocationMap<Annotation>();
+    let called = false;
+    const handler = createCycleHandHandler(
+      () => annotations,
+      () => {
+        called = true;
+      },
+    );
+
+    const hit: HitInfo = { location: { barIndex: 0, charIndex: 0 }, type: NoteType.Drumroll, bpm: 120, scroll: 1 };
+    handler({ x: 0, y: 0, hit, originalEvent: {} as MouseEvent });
+    assert(!called, "onChange should not be called for non-judgeable note");
+  });
+
+  runTest("createCycleHandHandler: ignores null hit", () => {
+    const annotations = new NoteLocationMap<Annotation>();
+    let called = false;
+    const handler = createCycleHandHandler(
+      () => annotations,
+      () => {
+        called = true;
+      },
+    );
+
+    handler({ x: 0, y: 0, hit: null, originalEvent: {} as MouseEvent });
+    assert(!called, "onChange should not be called for null hit");
+  });
+
+  runTest("createToggleSeparatorHandler: toggles separator on judgeable note", () => {
+    let annotations = new NoteLocationMap<Annotation>();
+    const handler = createToggleSeparatorHandler(
+      () => annotations,
+      (a) => {
+        annotations = a;
+      },
+    );
+
+    const loc = { barIndex: 0, charIndex: 0 };
+    const hit: HitInfo = { location: loc, type: NoteType.Ka, bpm: 120, scroll: 1 };
+    const fakeEvent = { x: 0, y: 0, hit, originalEvent: {} as MouseEvent };
+
+    handler(fakeEvent);
+    assert(annotations.get(loc)?.separator === true, "First click should set separator");
+
+    handler(fakeEvent);
+    assert(annotations.get(loc) === undefined, "Second click should clear separator");
+  });
+
+  runTest("createToggleSeparatorHandler: ignores non-judgeable notes", () => {
+    const annotations = new NoteLocationMap<Annotation>();
+    let called = false;
+    const handler = createToggleSeparatorHandler(
+      () => annotations,
+      () => {
+        called = true;
+      },
+    );
+
+    const hit: HitInfo = { location: { barIndex: 0, charIndex: 0 }, type: NoteType.Balloon, bpm: 120, scroll: 1 };
+    handler({ x: 0, y: 0, hit, originalEvent: {} as MouseEvent });
+    assert(!called, "onChange should not be called for non-judgeable note");
   });
 
   console.log("\nAll renderer tests passed.\n");
