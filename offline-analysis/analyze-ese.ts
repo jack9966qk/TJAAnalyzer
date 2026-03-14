@@ -14,6 +14,18 @@ const ESE_DIR = path.join(ROOT_DIR, "public", "ese");
 const MAPPING_FILE = path.join(ROOT_DIR, "data", "song_mapping.json");
 const OUTPUT_DIR = path.join(__dirname, "output");
 
+type GapUnit = "measures" | "ms";
+
+function parseGapUnit(): GapUnit {
+  const idx = process.argv.indexOf("--unit");
+  if (idx === -1) return "measures";
+  const value = process.argv[idx + 1];
+  if (value === "ms") return "ms";
+  if (value === "measures") return "measures";
+  console.error(`error: unknown unit "${value}". Expected "measures" or "ms".`);
+  process.exit(1);
+}
+
 interface SongMappingEntry {
   esePath: string;
   defaultTitle: string;
@@ -38,15 +50,21 @@ interface TJAAnalysis {
   courses: Record<string, CourseGaps>;
 }
 
-function computeNoteGaps(chart: ParsedChart): NoteGaps {
+function measureFractionToMs(fraction: number, bpm: number): number {
+  return (fraction * 240000) / bpm;
+}
+
+function computeNoteGaps(chart: ParsedChart, unit: GapUnit): NoteGaps {
   const gaps: NoteGaps = [];
+  const getGapFn = unit === "ms" ? getGapMs : getGap;
 
   for (let barIdx = 0; barIdx < chart.bars.length; barIdx++) {
     const bar = chart.bars[barIdx];
     const barGaps: (number | null)[] = [];
     for (let charIdx = 0; charIdx < bar.length; charIdx++) {
       if (!RENDERABLE_NOTES.includes(bar[charIdx])) continue;
-      barGaps.push(getGap(chart, barIdx, charIdx));
+      const gap = getGapFn(chart, barIdx, charIdx);
+      barGaps.push(gap !== null ? Math.round(gap * 1000) / 1000 : null);
     }
     gaps.push(barGaps);
   }
@@ -94,44 +112,88 @@ function getGap(chart: ParsedChart, currentBarIdx: number, currentCharIdx: numbe
   return null;
 }
 
-function analyzeChart(chart: ParsedChart): CourseGaps {
+function getGapMs(chart: ParsedChart, currentBarIdx: number, currentCharIdx: number): number | null {
+  const currentBar = chart.bars[currentBarIdx];
+  const currentTotal = currentBar.length;
+  const currentRatio = chart.barParams?.[currentBarIdx]?.measureRatio ?? 1.0;
+  const currentBpm = chart.barParams?.[currentBarIdx]?.bpm ?? 120;
+
+  for (let i = currentCharIdx - 1; i >= 0; i--) {
+    if (RENDERABLE_NOTES.includes(currentBar[i])) {
+      if (!JUDGEABLE_NOTES.includes(currentBar[i])) return null;
+      const fraction = ((currentCharIdx - i) / currentTotal) * currentRatio;
+      return measureFractionToMs(fraction, currentBpm);
+    }
+  }
+
+  let accumulatedMs = measureFractionToMs((currentCharIdx / currentTotal) * currentRatio, currentBpm);
+
+  for (let b = currentBarIdx - 1; b >= 0; b--) {
+    const prevBar = chart.bars[b];
+    const prevRatio = chart.barParams?.[b]?.measureRatio ?? 1.0;
+    const prevBpm = chart.barParams?.[b]?.bpm ?? 120;
+
+    if (!prevBar || prevBar.length === 0) {
+      accumulatedMs += measureFractionToMs(prevRatio, prevBpm);
+      continue;
+    }
+
+    const prevTotal = prevBar.length;
+
+    for (let i = prevTotal - 1; i >= 0; i--) {
+      if (RENDERABLE_NOTES.includes(prevBar[i])) {
+        if (!JUDGEABLE_NOTES.includes(prevBar[i])) return null;
+        const distInPrev = ((prevTotal - i) / prevTotal) * prevRatio;
+        return accumulatedMs + measureFractionToMs(distInPrev, prevBpm);
+      }
+    }
+
+    accumulatedMs += measureFractionToMs(prevRatio, prevBpm);
+  }
+
+  return null;
+}
+
+function analyzeChart(chart: ParsedChart, unit: GapUnit): CourseGaps {
   if (chart.playerSides) {
     const result: Record<string, ChartGaps> = {};
     for (const [side, sideChart] of Object.entries(chart.playerSides)) {
-      result[side] = analyzeLeafChart(sideChart);
+      result[side] = analyzeLeafChart(sideChart, unit);
     }
     return result;
   }
 
-  return analyzeLeafChart(chart);
+  return analyzeLeafChart(chart, unit);
 }
 
-function analyzeLeafChart(chart: ParsedChart): ChartGaps {
+function analyzeLeafChart(chart: ParsedChart, unit: GapUnit): ChartGaps {
   if (!chart.branches) {
-    return { unbranched: computeNoteGaps(chart) };
+    return { unbranched: computeNoteGaps(chart, unit) };
   }
 
   const result: ChartGaps = {};
   for (const [branchName, branchChart] of Object.entries(chart.branches)) {
     if (branchChart) {
-      result[branchName] = computeNoteGaps(branchChart);
+      result[branchName] = computeNoteGaps(branchChart, unit);
     }
   }
   return result;
 }
 
-function analyzeTJA(content: string): TJAAnalysis {
+function analyzeTJA(content: string, unit: GapUnit): TJAAnalysis {
   const parsed = parseTJA(content);
   const courses: Record<string, CourseGaps> = {};
 
   for (const [courseName, chart] of Object.entries(parsed)) {
-    courses[courseName] = analyzeChart(chart);
+    courses[courseName] = analyzeChart(chart, unit);
   }
 
   return { courses };
 }
 
 async function main() {
+  const unit = parseGapUnit();
+
   if (!fs.existsSync(MAPPING_FILE)) {
     console.error("error: missing data/song_mapping.json. Run `npm run prepare-data` first.");
     process.exit(1);
@@ -140,7 +202,7 @@ async function main() {
   const mapping: Record<string, SongMappingEntry> = JSON.parse(fs.readFileSync(MAPPING_FILE, "utf8"));
   const entries = Object.values(mapping);
 
-  console.log(`Processing ${entries.length} songs...`);
+  console.log(`Processing ${entries.length} songs (unit: ${unit})...`);
 
   let processed = 0;
   let skipped = 0;
@@ -155,7 +217,7 @@ async function main() {
     }
 
     const content = fs.readFileSync(tjaPath, "utf8");
-    const analysis = analyzeTJA(content);
+    const analysis = analyzeTJA(content, unit);
 
     const outputPath = path.join(OUTPUT_DIR, entry.esePath.replace(/\.tja$/i, ".json"));
     fs.mkdirSync(path.dirname(outputPath), { recursive: true });
