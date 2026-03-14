@@ -1031,7 +1031,7 @@ test.describe("Loop Controls Interaction", () => {
     // Switch to File Tab
     await page.click('button[data-mode="file"]');
 
-    const filePath = path.join(process.cwd(), "dev_instructions", "loop_example.tja");
+    const filePath = path.join(process.cwd(), "tests", "data", "loop_example.tja");
     await page.setInputFiles("#tja-file-picker", filePath);
     await page.waitForTimeout(1000);
 
