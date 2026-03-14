@@ -9,8 +9,7 @@ test.describe("Note Stats Component", () => {
         type: "1", // Don
         bpm: 150,
         scroll: 1.0,
-        originalBarIndex: 0,
-        charIndex: 0,
+        location: { barIndex: 0, charIndex: 0, branch: "normal" },
         judgeableNoteIndex: 0,
         ordinal: 0,
       };
@@ -43,8 +42,7 @@ test.describe("Note Stats Component", () => {
         type: "2", // Ka
         bpm: 150,
         scroll: 1.0,
-        originalBarIndex: 0,
-        charIndex: 1,
+        location: { barIndex: 0, charIndex: 1, branch: "normal" },
         judgeableNoteIndex: 0,
         ordinal: 0,
       };
@@ -77,8 +75,7 @@ test.describe("Note Stats Component", () => {
         type: "1",
         bpm: 150,
         scroll: 1.0,
-        originalBarIndex: 0,
-        charIndex: 0,
+        location: { barIndex: 0, charIndex: 0, branch: "normal" },
         judgeableNoteIndex: 0,
       };
       const renderOptions = {

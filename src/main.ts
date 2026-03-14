@@ -486,27 +486,27 @@ function initEventListeners() {
 
     // Selection Logic
     // Only allow selecting notes (charIndex !== -1)
-    if (hit && hit.charIndex !== -1) {
+    if (hit && hit.location.charIndex !== -1) {
       if (!appState.renderOptions.selection) {
         appState.renderOptions.selection = {
-          start: { barIndex: hit.originalBarIndex, charIndex: hit.charIndex },
+          start: hit.location,
           end: null,
         };
         appState.selectedNoteHitInfo = hit;
       } else if (appState.renderOptions.selection.start && !appState.renderOptions.selection.end) {
         if (
-          appState.renderOptions.selection.start.barIndex === hit.originalBarIndex &&
-          appState.renderOptions.selection.start.charIndex === hit.charIndex
+          appState.renderOptions.selection.start.barIndex === hit.location.barIndex &&
+          appState.renderOptions.selection.start.charIndex === hit.location.charIndex
         ) {
           appState.renderOptions.selection = null;
           appState.selectedNoteHitInfo = null;
         } else {
-          appState.renderOptions.selection.end = { barIndex: hit.originalBarIndex, charIndex: hit.charIndex };
+          appState.renderOptions.selection.end = hit.location;
           appState.selectedNoteHitInfo = hit;
         }
       } else {
         appState.renderOptions.selection = {
-          start: { barIndex: hit.originalBarIndex, charIndex: hit.charIndex },
+          start: hit.location,
           end: null,
         };
         appState.selectedNoteHitInfo = hit;
@@ -516,7 +516,7 @@ function initEventListeners() {
       appState.renderOptions.selection = null;
       appState.selectedNoteHitInfo = null;
       appState.selectedBranchHitInfo = null;
-    } else if (hit && hit.charIndex === -1) {
+    } else if (hit && hit.location.charIndex === -1) {
       // Branch line selection
       appState.selectedBranchHitInfo = hit;
     }

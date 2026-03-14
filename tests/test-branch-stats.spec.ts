@@ -25,7 +25,7 @@ test.describe("Branch Stats in Note Stats Component", () => {
       // In this component test, we need to set properties directly.
 
       const branchHit = {
-        charIndex: -1, // Indicates branch line
+        location: { charIndex: -1 }, // Indicates branch line
         branchStartParams: {
           type: "p",
           p1: 80,

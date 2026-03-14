@@ -150,10 +150,10 @@ export class NoteStatsDisplay extends HTMLElement {
 
     // Resolve target chart based on branch
     let targetChart = chart;
-    if (hit?.branch && chart && chart.branches) {
-      if (hit.branch === "normal") targetChart = chart.branches.normal || chart;
-      else if (hit.branch === "expert") targetChart = chart.branches.expert || chart;
-      else if (hit.branch === "master") targetChart = chart.branches.master || chart;
+    if (hit?.location?.branch && chart && chart.branches) {
+      if (hit.location.branch === "normal") targetChart = chart.branches.normal || chart;
+      else if (hit.location.branch === "expert") targetChart = chart.branches.expert || chart;
+      else if (hit.location.branch === "master") targetChart = chart.branches.master || chart;
     }
 
     // Calculation Logic
@@ -172,7 +172,7 @@ export class NoteStatsDisplay extends HTMLElement {
 
       if (collapsed && targetChart.loop) {
         const loop = targetChart.loop;
-        if (hit.originalBarIndex >= loop.startBarIndex && hit.originalBarIndex < loop.startBarIndex + loop.period) {
+        if (hit.location.barIndex >= loop.startBarIndex && hit.location.barIndex < loop.startBarIndex + loop.period) {
           const counters: Record<string, number> = {};
           const map = new Map<string, number>();
           // Build map for relevant bars? Or full chart.
@@ -190,15 +190,15 @@ export class NoteStatsDisplay extends HTMLElement {
           }
 
           // Determine relative position
-          // `hit.originalBarIndex` is inside the first loop iteration (template).
-          const relBarIdx = hit.originalBarIndex - loop.startBarIndex; // 0 to period-1
+          // `hit.location.barIndex` is inside the first loop iteration (template).
+          const relBarIdx = hit.location.barIndex - loop.startBarIndex; // 0 to period-1
 
           let currentIterationIdx = -1;
           const iterationOrdinals: number[] = [];
 
           for (let iter = 0; iter < loop.iterations; iter++) {
             const actualBarIdx = loop.startBarIndex + iter * loop.period + relBarIdx;
-            const ord = map.get(`${actualBarIdx}_${hit.charIndex}`);
+            const ord = map.get(`${actualBarIdx}_${hit.location.charIndex}`);
             if (ord !== undefined) {
               iterationOrdinals.push(ord);
               if (ord === hit.ordinal) {
@@ -360,7 +360,7 @@ export class NoteStatsDisplay extends HTMLElement {
 
     let gap = def;
     if (hit && targetChart) {
-      const g = this.getGapInfo(targetChart, hit.originalBarIndex, hit.charIndex);
+      const g = this.getGapInfo(targetChart, hit.location.barIndex, hit.location.charIndex);
       if (g) {
         if (hit.bpm > 0) {
           const seconds = (g.raw * (240 / hit.bpm)).toFixed(3);
@@ -382,8 +382,8 @@ export class NoteStatsDisplay extends HTMLElement {
       const masterVal = params ? params.p2.toString() : def;
 
       let reachable = { normal: true, expert: true, master: true };
-      if (branchHit && chart && chart.barParams[branchHit.originalBarIndex]) {
-        const barParams = chart.barParams[branchHit.originalBarIndex];
+      if (branchHit && chart && chart.barParams[branchHit.location.barIndex]) {
+        const barParams = chart.barParams[branchHit.location.barIndex];
         if (barParams.reachableBranches) {
           reachable = barParams.reachableBranches;
         }

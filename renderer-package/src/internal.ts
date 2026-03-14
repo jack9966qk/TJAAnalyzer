@@ -13,7 +13,6 @@ import {
   resolveCanvasWidth,
 } from "./layout.js";
 import {
-  type BranchName,
   DEFAULT_TEXTS,
   JudgementMap,
   type JudgementValue,
@@ -56,7 +55,7 @@ export interface ChartView {
   readonly layout: ChartLayout | null;
 
   /** The currently hovered note, managed by onNoteHovered. */
-  readonly hoveredNote: (NoteLocation & { branch?: BranchName }) | null;
+  readonly hoveredNote: NoteLocation | null;
 
   /** Mark the current layout as stale, forcing recreation on next render. */
   invalidateLayout(): void;
@@ -89,7 +88,7 @@ export interface ChartView {
   onNoteClicked(handler: NoteInteractionHandler): () => void;
 }
 
-type HoveredNote = (NoteLocation & { branch?: BranchName }) | null;
+type HoveredNote = NoteLocation | null;
 
 /**
  * Creates an internal chart view for a pre-parsed chart.
@@ -107,9 +106,7 @@ export function createChartView(chart: ParsedChart, canvas: HTMLCanvasElement): 
   function handleMouseMove(e: MouseEvent) {
     if (!lastOptions) return;
     const { x, y, hit } = hitTest(e);
-    const newHovered: HoveredNote = hit
-      ? { barIndex: hit.originalBarIndex, charIndex: hit.charIndex, branch: hit.branch }
-      : null;
+    const newHovered: HoveredNote = hit ? hit.location : null;
     if (hoveredNoteChanged(hoveredNote, newHovered)) {
       hoveredNote = newHovered;
       lastOptions.renderOptions.hoveredNote = hoveredNote;

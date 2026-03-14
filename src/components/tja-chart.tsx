@@ -628,7 +628,7 @@ export class TJAChart extends HTMLElement {
     // Handle Annotation Mode Click
     if (this._renderOptions.isAnnotationMode) {
       if (hit && JUDGEABLE_NOTES.includes(hit.type)) {
-        const noteId = { barIndex: hit.originalBarIndex, charIndex: hit.charIndex };
+        const noteId = hit.location;
         const annotations = new NoteLocationMap(this._renderOptions.annotations);
         const current = annotations.get(noteId);
         const toolType = this._renderOptions.annotationToolType || "hand";

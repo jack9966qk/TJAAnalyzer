@@ -5,18 +5,17 @@ import {
   isRenderable,
   JudgementMap,
   type JudgementValue,
+  type NoteLocation,
   NoteType,
   type RenderOptions,
 } from "./primitives.js";
 import type { ParsedChart } from "./tja-parser.js";
 
 export interface HitInfo {
-  originalBarIndex: number;
-  charIndex: number;
+  location: NoteLocation;
   type: NoteType;
   bpm: number;
   scroll: number;
-  branch?: BranchName;
   ordinal?: number;
   branchStartParams?: ParsedChart["barParams"][0]["branchStartParams"];
 }
@@ -70,12 +69,10 @@ export function getBranchLineAt(
 
       if (Math.abs(x - lineX) <= hitWidth / 2 && y >= topY - maxRadius && y <= frame.y + frame.height + maxRadius) {
         return {
-          originalBarIndex: info.originalIndex,
-          charIndex: -1,
+          location: { barIndex: info.originalIndex, charIndex: -1, branch: chart.branchType },
           type: NoteType.None,
           bpm: params.bpm,
           scroll: params.scroll,
-          branch: chart.branchType, // Best effort
           branchStartParams: params.branchStartParams,
         };
       }
@@ -216,18 +213,16 @@ export function getNoteAt(
 
         let ordinal: number | undefined;
         if (activeLayout.locToJudgementKey) {
-          const locKey = { barIndex: effectiveBarIndex, charIndex: i };
+          const locKey = { barIndex: effectiveBarIndex, charIndex: i, branch: currentBranch };
           const ident = activeLayout.locToJudgementKey.get(locKey);
           if (ident) ordinal = ident.ordinal;
         }
 
         return {
-          originalBarIndex: info.originalIndex,
-          charIndex: i,
+          location: { barIndex: info.originalIndex, charIndex: i, branch: currentBranch },
           type: char,
           bpm: effectiveBpm,
           scroll: effectiveScroll,
-          branch: currentBranch,
           ordinal: ordinal,
         };
       }
@@ -283,18 +278,16 @@ export function getNoteAt(
 
         let ordinal: number | undefined;
         if (activeLayout.locToJudgementKey) {
-          const locKey = { barIndex: originalBarIdx, charIndex: charIdx };
+          const locKey = { barIndex: originalBarIdx, charIndex: charIdx, branch: chart.branchType };
           const ident = activeLayout.locToJudgementKey.get(locKey);
           if (ident) ordinal = ident.ordinal;
         }
 
         return {
-          originalBarIndex: originalBarIdx,
-          charIndex: charIdx,
+          location: { barIndex: originalBarIdx, charIndex: charIdx, branch: chart.branchType },
           type: segment.type,
           bpm: effectiveBpm,
           scroll: effectiveScroll,
-          branch: chart.branchType,
           // Note: In showAllBranches mode, segments are currently only calculated for the root chart (usually normal branch).
           // Hit testing for other branches' long notes is a known limitation.
           ordinal: ordinal,

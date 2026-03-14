@@ -35,7 +35,7 @@ export function extractNotesAndSegments(chart: ParsedChart): { notes: NoteTiming
       for (let j = 0; j < bar.length; j++) {
         const char = bar[j];
         if (JUDGEABLE_NOTES.includes(char)) {
-          const id = { barIndex: i, charIndex: j };
+          const id = { barIndex: i, charIndex: j, branch: chart.branchType };
           notes.push({ id, beat: currentBeat + j * step, type: char });
         }
       }

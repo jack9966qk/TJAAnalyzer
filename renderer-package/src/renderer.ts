@@ -1041,6 +1041,7 @@ function calculateNoteColors(
   originalBarIndex: number,
   loopInfo: LoopInfo | undefined,
   effectiveBarIndex: number | undefined,
+  currentBranch: BranchName,
 ): (string | null)[] {
   const { options, judgements, locToJudgementKey } = renderContext;
   const { viewMode, coloringMode, visibility: judgementVisibility } = options;
@@ -1075,7 +1076,7 @@ function calculateNoteColors(
               loopInfo.startBarIndex + iter * loopInfo.period + (originalBarIndex - loopInfo.startBarIndex);
             // Look up ordinal
             if (locToJudgementKey) {
-              const locKey = { barIndex: actualBarIdx, charIndex: i };
+              const locKey = { barIndex: actualBarIdx, charIndex: i, branch: currentBranch };
               const ident = locToJudgementKey.get(locKey);
               if (ident) {
                 const judgeData = judgements.get(ident);
@@ -1107,7 +1108,7 @@ function calculateNoteColors(
           // Standard or specific iteration
           const barIdx = effectiveBarIndex !== undefined ? effectiveBarIndex : originalBarIndex;
           if (locToJudgementKey) {
-            const locKey = { barIndex: barIdx, charIndex: i };
+            const locKey = { barIndex: barIdx, charIndex: i, branch: currentBranch };
             const ident = locToJudgementKey.get(locKey);
             if (ident) {
               const judgeData = judgements.get(ident);
@@ -1141,7 +1142,7 @@ function calculateNoteColors(
         // Categorical Logic
         const barIdx = effectiveBarIndex !== undefined ? effectiveBarIndex : originalBarIndex;
         if (locToJudgementKey) {
-          const locKey = { barIndex: barIdx, charIndex: i };
+          const locKey = { barIndex: barIdx, charIndex: i, branch: currentBranch };
           const ident = locToJudgementKey.get(locKey);
           if (ident) {
             const judgeData = judgements.get(ident);
@@ -1244,6 +1245,7 @@ function drawJudgementsText(
   locToJudgementKey: NoteLocationMap<JudgementKey> | undefined,
   effectiveBarIndex: number | undefined,
   originalBarIndex: number,
+  currentBranch: BranchName,
 ): void {
   const { x, width, height } = frame;
   const centerY = frame.y + frame.height / 2;
@@ -1263,11 +1265,10 @@ function drawJudgementsText(
     const color = noteColors[i];
 
     if (color) {
-      // Look up judgement again
       const barIdx = effectiveBarIndex !== undefined ? effectiveBarIndex : originalBarIndex;
       let judge = "";
       if (locToJudgementKey) {
-        const locKey = { barIndex: barIdx, charIndex: i };
+        const locKey = { barIndex: barIdx, charIndex: i, branch: currentBranch };
         const ident = locToJudgementKey.get(locKey);
         if (ident) {
           const jd = judgements.get(ident);
@@ -1300,10 +1301,10 @@ function drawBarNotes(
   renderContext: RenderContext,
   bar: NoteType[],
   frame: Frame,
-  originalBarIndex: number = -1,
-  loopInfo?: LoopInfo,
-  currentBranch?: BranchName,
-  effectiveBarIndex?: number,
+  originalBarIndex: number,
+  loopInfo: LoopInfo | undefined,
+  currentBranch: BranchName,
+  effectiveBarIndex: number | undefined,
 ): void {
   const { canvasContext, options, judgements, texts, constants, locToJudgementKey } = renderContext;
   const {
@@ -1324,7 +1325,15 @@ function drawBarNotes(
   const noteStep = width / noteCount;
 
   // Pre-calculate colors for judgeable notes if needed
-  const noteColors = calculateNoteColors(renderContext, bar, noteCount, originalBarIndex, loopInfo, effectiveBarIndex);
+  const noteColors = calculateNoteColors(
+    renderContext,
+    bar,
+    noteCount,
+    originalBarIndex,
+    loopInfo,
+    effectiveBarIndex,
+    currentBranch,
+  );
 
   // Phase 1: Draw Underlines (Judgements Underline Mode only)
   if (viewMode === "judgements-underline") {
@@ -1346,6 +1355,7 @@ function drawBarNotes(
       locToJudgementKey,
       effectiveBarIndex,
       originalBarIndex,
+      currentBranch,
     );
   }
 
@@ -1424,6 +1434,7 @@ function drawBarAnnotations(
   bar: NoteType[],
   frame: Frame,
   originalBarIndex: number,
+  branch: BranchName,
 ): void {
   const { canvasContext, options, constants, inferredHands } = renderContext;
   const { noteRadiusSmall: rSmall, noteRadiusBig: rBig } = constants;
@@ -1438,7 +1449,7 @@ function drawBarAnnotations(
   // Pass 1: Draw separator lines (above notes, below L/R text)
   for (let i = 0; i < bar.length; i++) {
     if (!isJudgeable(bar[i])) continue;
-    const noteId = { barIndex: originalBarIndex, charIndex: i };
+    const noteId = { barIndex: originalBarIndex, charIndex: i, branch };
     const annotation = options.annotations.get(noteId);
     if (!annotationHasSeparator(annotation)) continue;
     const noteX = x + i * noteStep;
@@ -1460,7 +1471,7 @@ function drawBarAnnotations(
   // Pass 2: Draw L/R text (above separators)
   for (let i = 0; i < bar.length; i++) {
     if (!isJudgeable(bar[i])) continue;
-    const noteId = { barIndex: originalBarIndex, charIndex: i };
+    const noteId = { barIndex: originalBarIndex, charIndex: i, branch };
     const hand = annotationHand(options.annotations.get(noteId));
     if (!hand) continue;
     const noteX = x + i * noteStep;
@@ -1682,10 +1693,10 @@ function drawLongNotes(
   balloonCounts: number[],
   balloonIndices: NoteLocationMap<number>,
   selection: RenderOptions["selection"] | undefined,
-  dirtyRowY?: Set<number>,
-  dpr: number = 1,
-  hoveredNote?: RenderOptions["hoveredNote"],
-  branch?: BranchName,
+  dirtyRowY: Set<number> | undefined,
+  dpr: number,
+  hoveredNote: RenderOptions["hoveredNote"],
+  branch: BranchName,
 ): void {
   const {
     noteRadiusSmall: rSmall,
@@ -1778,6 +1789,7 @@ function drawLongNotes(
               const balloonIdx = balloonIndices.get({
                 barIndex: currentLongNote.originalBarIdx,
                 charIndex: currentLongNote.originalNoteIdx,
+                branch: branch,
               });
               const count =
                 balloonIdx !== undefined && balloonCounts[balloonIdx] !== undefined ? balloonCounts[balloonIdx] : 5;
@@ -1865,6 +1877,7 @@ function drawLongNotes(
           const balloonIdx = balloonIndices.get({
             barIndex: currentLongNote.originalBarIdx,
             charIndex: currentLongNote.originalNoteIdx,
+            branch: branch,
           });
           const count =
             balloonIdx !== undefined && balloonCounts[balloonIdx] !== undefined ? balloonCounts[balloonIdx] : 5;
@@ -1927,10 +1940,10 @@ function drawAllBranchesNotes(
 ) {
   const { canvasContext, options, constants } = renderContext;
   if (!chart.branches) return;
-  const branches: { type: BranchName; data: ParsedChart }[] = [
-    { type: BranchName.Normal, data: chart.branches.normal || chart },
-    { type: BranchName.Expert, data: chart.branches.expert || chart },
-    { type: BranchName.Master, data: chart.branches.master || chart },
+  const branches: { name: BranchName; data: ParsedChart }[] = [
+    { name: BranchName.Normal, data: chart.branches.normal || chart },
+    { name: BranchName.Expert, data: chart.branches.expert || chart },
+    { name: BranchName.Master, data: chart.branches.master || chart },
   ];
 
   branches.forEach((b) => {
@@ -1941,7 +1954,7 @@ function drawAllBranchesNotes(
 
     const branchFrames = barFrames.map((f, idx) => {
       const layout = branchLayouts[idx];
-      const branchInfo = layout.branches[b.type];
+      const branchInfo = layout.branches[b.name];
 
       if (branchInfo?.visible) {
         return {
@@ -1964,12 +1977,12 @@ function drawAllBranchesNotes(
       constants,
       options.viewMode,
       b.data.balloonCounts,
-      calculateBalloonIndices(b.data.bars),
+      calculateBalloonIndices(b.data.bars, b.name),
       null,
       dirtyRowY,
       dpr,
       options.hoveredNote,
-      b.type,
+      b.name,
     );
 
     for (let index = branchVirtualBars.length - 1; index >= 0; index--) {
@@ -1981,7 +1994,7 @@ function drawAllBranchesNotes(
       // OPTIMIZATION: If unbranched, only draw for 'normal' branch to avoid overdraw
       const params = chart.barParams[info.originalIndex];
       const isBranched = params ? params.isBranched : false;
-      if (!isBranched && b.type !== BranchName.Normal) continue;
+      if (!isBranched && b.name !== BranchName.Normal) continue;
 
       const branchContext: RenderContext = {
         ...renderContext,
@@ -1998,10 +2011,10 @@ function drawAllBranchesNotes(
         frame,
         info.originalIndex,
         undefined,
-        b.type as BranchName,
+        b.name as BranchName,
         info.effectiveBarIndex,
       );
-      drawBarAnnotations(branchContext, info.bar, frame, info.originalIndex);
+      drawBarAnnotations(branchContext, info.bar, frame, info.originalIndex, b.name as BranchName);
     }
   });
 }
@@ -2148,6 +2161,9 @@ export function renderLayout(
       effectiveDpr,
     );
   } else {
+    // Single-branch rendering path. Judgements, annotations, and selection only work here.
+    const branch = chart.branchType || BranchName.Normal;
+
     // Layer 1.5: Drumrolls and Balloons
     drawLongNotes(
       canvasContext,
@@ -2161,7 +2177,7 @@ export function renderLayout(
       dirtyRowY,
       effectiveDpr,
       options.hoveredNote,
-      chart.branchType,
+      branch,
     );
 
     // Layer 2: Notes
@@ -2176,7 +2192,7 @@ export function renderLayout(
         frame,
         info.originalIndex,
         options.collapsedLoop ? chart.loop : undefined,
-        chart.branchType,
+        branch,
         info.effectiveBarIndex,
       );
     }
@@ -2187,7 +2203,7 @@ export function renderLayout(
       const frame = barFrames[index];
       if (dirtyRowY && !dirtyRowY.has(frame.y)) continue;
 
-      drawBarAnnotations(renderContext, info.bar, frame, info.originalIndex);
+      drawBarAnnotations(renderContext, info.bar, frame, info.originalIndex, branch);
     }
   }
 

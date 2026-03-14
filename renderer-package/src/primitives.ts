@@ -1,6 +1,7 @@
 export interface NoteLocation {
   barIndex: number;
   charIndex: number;
+  branch?: BranchName;
 }
 
 export enum NoteType {
@@ -65,14 +66,15 @@ function deserializeJudgementKey(key: string): JudgementKey {
 }
 
 function serializeLocationKey(location: NoteLocation): string {
-  return `${location.barIndex}_${location.charIndex}`;
+  return `${location.barIndex}_${location.charIndex}_${location.branch || ""}`;
 }
 
 function deserializeLocationKey(key: string): NoteLocation {
-  const [barIndexStr, charIndexStr] = key.split("_");
+  const [barIndexStr, charIndexStr, branchStr] = key.split("_");
   return {
     barIndex: parseInt(barIndexStr, 10),
     charIndex: parseInt(charIndexStr, 10),
+    branch: branchStr ? (branchStr as BranchName) : undefined,
   };
 }
 
@@ -231,7 +233,11 @@ export class NoteLocationMap<V> {
 }
 
 export const createJudgementKey = (char: string, ordinal: number): JudgementKey => ({ char, ordinal });
-export const createNoteLocation = (barIndex: number, charIndex: number): NoteLocation => ({ barIndex, charIndex });
+export const createNoteLocation = (barIndex: number, charIndex: number, branch?: BranchName): NoteLocation => ({
+  barIndex,
+  charIndex,
+  branch,
+});
 
 export type ViewMode = "original" | "judgements" | "judgements-underline" | "judgements-text";
 
@@ -329,7 +335,7 @@ export interface RenderOptions {
     start: NoteLocation;
     end: NoteLocation | null;
   } | null;
-  hoveredNote?: (NoteLocation & { branch?: BranchName }) | null;
+  hoveredNote?: NoteLocation | null;
   annotations?: NoteLocationMap<Annotation>;
   isAnnotationMode?: boolean;
   showTextInAnnotationMode?: boolean;

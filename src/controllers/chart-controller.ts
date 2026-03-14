@@ -98,8 +98,8 @@ export function updatePageUrl() {
 export function updateStatsComponent(hit: HitInfo | null) {
   // Logic: note stats shows selected note, or hovered note if it's a note.
   // branch stats shows hovered branch line.
-  const noteHit = appState.selectedNoteHitInfo || (hit && hit.charIndex !== -1 ? hit : null);
-  const branchHit = appState.selectedBranchHitInfo || (hit && hit.charIndex === -1 ? hit : null);
+  const noteHit = appState.selectedNoteHitInfo || (hit && hit.location.charIndex !== -1 ? hit : null);
+  const branchHit = appState.selectedBranchHitInfo || (hit && hit.location.charIndex === -1 ? hit : null);
 
   if (noteStatsDisplay) {
     noteStatsDisplay.chart = appState.currentChart;

@@ -910,7 +910,10 @@ export function calculateEffectiveDpr(
   return { effectiveDpr, finalCanvasHeight, finalStyleHeight };
 }
 
-export function calculateNoteMaps(bars: NoteType[][]): {
+export function calculateNoteMaps(
+  bars: NoteType[][],
+  branchType?: BranchName,
+): {
   locToJudgementKey: NoteLocationMap<JudgementKey>;
   identToLoc: JudgementMap<NoteLocation[]>;
 } {
@@ -928,7 +931,7 @@ export function calculateNoteMaps(bars: NoteType[][]): {
 
         const ordinal = counters[char];
         const identity: JudgementKey = { char, ordinal };
-        const location: NoteLocation = { barIndex: i, charIndex: j };
+        const location: NoteLocation = { barIndex: i, charIndex: j, branch: branchType };
 
         locToJudgementKey.set(location, identity);
 
@@ -944,7 +947,7 @@ export function calculateNoteMaps(bars: NoteType[][]): {
   return { locToJudgementKey, identToLoc };
 }
 
-export function calculateBalloonIndices(bars: NoteType[][]): NoteLocationMap<number> {
+export function calculateBalloonIndices(bars: NoteType[][], branchType?: BranchName): NoteLocationMap<number> {
   const map = new NoteLocationMap<number>();
   let balloonCount = 0;
 
@@ -953,7 +956,7 @@ export function calculateBalloonIndices(bars: NoteType[][]): NoteLocationMap<num
     if (!bar) continue;
     for (let j = 0; j < bar.length; j++) {
       if (bar[j] === NoteType.Balloon || bar[j] === NoteType.Kusudama) {
-        map.set({ barIndex: i, charIndex: j }, balloonCount);
+        map.set({ barIndex: i, charIndex: j, branch: branchType }, balloonCount);
         balloonCount++;
       }
     }
@@ -1017,8 +1020,8 @@ export function createLayout(
 
   const { bars } = chart;
   const globalBarStartIndices = calculateGlobalBarStartIndices(bars);
-  const balloonIndices = calculateBalloonIndices(bars);
-  const { locToJudgementKey } = calculateNoteMaps(bars);
+  const balloonIndices = calculateBalloonIndices(bars, chart.branchType);
+  const { locToJudgementKey } = calculateNoteMaps(bars, chart.branchType);
   const virtualBars = getVirtualBars(chart, options, judgements, locToJudgementKey);
 
   const barLayoutInsets: Insets = {
