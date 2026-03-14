@@ -24,21 +24,27 @@ test.describe("Large Vertical Insets with Attribution", () => {
     });
 
     await page.evaluate((tja) => {
-      window.renderChartCustom(
-        tja,
-        "oni",
-        { showAttribution: true, beatsPerLine: 16 },
-        {
+      window.loadChart(tja, "oni");
+      window.setOptions({ showAttribution: true, beatsPerLine: 16 });
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element property
+      const chart = document.getElementById("chart-component") as any;
+      if (chart) {
+        chart.insetsOverride = {
           top: 80,
           bottom: 80,
           left: 20,
           right: 20,
-        },
-      );
+        };
+      }
     }, SIMPLE_TJA);
 
-    await page.waitForTimeout(100);
-    await expect(page.locator("#test-render-canvas")).toHaveScreenshot("large-vertical-inset-attribution.png");
+    await page.waitForFunction(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element property
+      const chart = document.getElementById("chart-component") as any;
+      return chart?.layout?.insets.top === 80;
+    });
+
+    await expect(page.locator("tja-chart")).toHaveScreenshot("large-vertical-inset-attribution.png");
   });
 });
 

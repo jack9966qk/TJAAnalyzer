@@ -51,6 +51,12 @@ export interface ChartView {
    * Pass dirtyRowY for differential rendering of specific rows only.
    */
   render(options: ChartViewOptions, dirtyRowY?: Set<number>): void;
+
+  /**
+   * Export the chart as a PNG data URL.
+   * Renders to an offscreen canvas at the given width (default 1024) with DPR 1.
+   */
+  exportImage(options: ChartViewOptions, width?: number): string;
 }
 
 /**
@@ -100,6 +106,27 @@ export function createChartView(chart: ParsedChart, canvas: HTMLCanvasElement): 
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
       renderLayoutImpl(ctx, layout, chart, judgements, renderOptions, texts, dirtyRowY);
+    },
+
+    exportImage(options: ChartViewOptions, width = 1024): string {
+      const {
+        renderOptions,
+        judgements = new JudgementMap(),
+        texts = DEFAULT_TEXTS,
+        insets = INSETS,
+        layoutRatios,
+      } = options;
+
+      const exportCanvas = document.createElement("canvas");
+      exportCanvas.width = width;
+
+      const exportLayout = createLayoutImpl(chart, width, renderOptions, judgements, 1, texts, insets, layoutRatios);
+
+      const ctx = exportCanvas.getContext("2d");
+      if (!ctx) throw new Error("Failed to get 2D context for export canvas");
+      renderLayoutImpl(ctx, exportLayout, chart, judgements, renderOptions, texts);
+
+      return exportCanvas.toDataURL("image/png");
     },
   };
 }

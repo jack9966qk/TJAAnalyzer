@@ -17,7 +17,6 @@ const {
   JudgementMap,
   NoteLocationMap,
   PALETTE,
-  renderChart,
 } = Renderer.Private;
 
 type ChartLayout = Renderer.Private.ChartLayout;
@@ -77,6 +76,7 @@ export class TJAChart extends HTMLElement {
   private _renderOptions: RenderOptions | null = null;
   private _judgements: JudgementMap<JudgementValue> = new JudgementMap();
   private _texts: RenderTexts | undefined;
+  private _insetsOverride: Insets | null = null;
   private _message: { text: string; type: "warning" | "info" } | null = null;
   private resizeObserver: ResizeObserver;
   private mutationObserver: MutationObserver;
@@ -328,6 +328,16 @@ export class TJAChart extends HTMLElement {
     this.scheduleRender();
   }
 
+  set insetsOverride(value: Insets | null) {
+    this._insetsOverride = value;
+    this._pendingFullRender = true;
+    this.scheduleRender();
+  }
+
+  get insetsOverride(): Insets | null {
+    return this._insetsOverride;
+  }
+
   showMessage(text: string, type: "warning" | "info" = "info") {
     this._message = { text, type };
     this._pendingFullRender = true;
@@ -410,20 +420,25 @@ export class TJAChart extends HTMLElement {
     const width = this.clientWidth || 800;
 
     const isHorizontal = document.body.classList.contains("horizontal-layout");
-    // Standard padding we want to enforce within the canvas now
-    let baseInsets: Insets = { top: 20, bottom: 20, left: 20, right: 20 };
-    if (isHorizontal) {
-      baseInsets.left = 35;
-    }
+    let baseInsets: Insets;
+    if (this._insetsOverride) {
+      baseInsets = this._insetsOverride;
+    } else {
+      // Standard padding we want to enforce within the canvas now
+      baseInsets = { top: 20, bottom: 20, left: 20, right: 20 };
+      if (isHorizontal) {
+        baseInsets.left = 35;
+      }
 
-    if (this.isFullscreen) {
-      const safeArea = getSafeAreaInsets();
-      baseInsets = {
-        top: Math.max(INSETS.top, safeArea.top + 10),
-        bottom: Math.max(INSETS.bottom, safeArea.bottom + 10),
-        left: Math.max(INSETS.left, safeArea.left + 10),
-        right: Math.max(INSETS.right, safeArea.right + 10),
-      };
+      if (this.isFullscreen) {
+        const safeArea = getSafeAreaInsets();
+        baseInsets = {
+          top: Math.max(INSETS.top, safeArea.top + 10),
+          bottom: Math.max(INSETS.bottom, safeArea.bottom + 10),
+          left: Math.max(INSETS.left, safeArea.left + 10),
+          right: Math.max(INSETS.right, safeArea.right + 10),
+        };
+      }
     }
 
     // Handle Message State
@@ -475,7 +490,7 @@ export class TJAChart extends HTMLElement {
     // Clone options to avoid mutating the original prop, and apply attribution logic
     const effectiveRenderOptions: AppRenderOptions = {
       ...this._renderOptions,
-      showAttribution: this.isFullscreen,
+      showAttribution: this._renderOptions.showAttribution || this.isFullscreen,
     };
 
     // Create chart view if needed (chart changed or first render)
@@ -672,27 +687,25 @@ export class TJAChart extends HTMLElement {
     );
   }
 
-  exportImage(overrideOptions?: Partial<RenderOptions>): string {
-    if (!this._chart || !this._renderOptions) {
+  exportImage(overrideOptions?: Partial<RenderOptions>, width?: number): string {
+    if (!this._chartView || !this._renderOptions) {
       throw new Error("Chart not loaded");
     }
 
-    const options: RenderOptions = {
+    const renderOptions: RenderOptions = {
       ...this._renderOptions,
       showAttribution: true,
       ...overrideOptions,
     };
 
-    const canvas = document.createElement("canvas");
-    const TARGET_WIDTH = 1024;
-
-    // We want the final image to be exactly 1024px wide.
-    // We force DPR to 1 so that logical width == physical width.
-    canvas.width = TARGET_WIDTH;
-
-    renderChart(this._chart, canvas, this._judgements, options, this._texts, 1);
-
-    return canvas.toDataURL("image/png");
+    return this._chartView.exportImage(
+      {
+        renderOptions,
+        judgements: this._judgements,
+        texts: this._texts,
+      },
+      width,
+    );
   }
 }
 
