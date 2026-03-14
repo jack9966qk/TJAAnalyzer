@@ -24,6 +24,7 @@ import {
   type LayoutRatios,
   type RenderBarInfo,
   type RenderConstants,
+  resolveCanvasWidth,
 } from "./layout.js";
 import {
   type Annotation,
@@ -54,6 +55,7 @@ export {
   calculateAutoZoomBeats,
   calculateLayout,
   createLayout,
+  resolveCanvasWidth,
   INSETS,
   LAYOUT_RATIOS,
   type ChartLayout,
@@ -2229,6 +2231,8 @@ export function renderChart(
     return;
   }
 
-  const layout = createLayout(chart, canvas, options, judgements, customDpr, texts, undefined, layoutRatios);
+  const logicalCanvasWidth = resolveCanvasWidth(canvas);
+  const dpr = customDpr !== undefined ? customDpr : window.devicePixelRatio || 1;
+  const layout = createLayout(chart, logicalCanvasWidth, options, judgements, dpr, texts, undefined, layoutRatios);
   renderLayout(canvasContext, layout, chart, judgements, options, texts);
 }

@@ -9,6 +9,7 @@ import {
   INSETS,
   type Insets,
   type LayoutRatios,
+  resolveCanvasWidth,
 } from "./layout.js";
 import {
   DEFAULT_TEXTS,
@@ -80,14 +81,24 @@ export function createChartView(chart: ParsedChart, canvas: HTMLCanvasElement): 
       } = options;
 
       if (layoutInvalid || !layout) {
-        layout = createLayoutImpl(chart, canvas, renderOptions, judgements, dpr, texts, insets, layoutRatios);
+        const logicalCanvasWidth = resolveCanvasWidth(canvas);
+        const resolvedDpr = dpr !== undefined ? dpr : window.devicePixelRatio || 1;
+        layout = createLayoutImpl(
+          chart,
+          logicalCanvasWidth,
+          renderOptions,
+          judgements,
+          resolvedDpr,
+          texts,
+          insets,
+          layoutRatios,
+        );
         layoutInvalid = false;
         dirtyRowY = undefined; // Force full render after layout recreation
       }
 
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-
       renderLayoutImpl(ctx, layout, chart, judgements, renderOptions, texts, dirtyRowY);
     },
   };

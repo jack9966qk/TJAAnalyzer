@@ -1,5 +1,6 @@
 import { createChartView } from "../src/internal.js";
-import { DEFAULT_RENDER_OPTIONS, NoteLocationMap } from "../src/primitives.js";
+import { createLayout } from "../src/layout.js";
+import { DEFAULT_RENDER_OPTIONS, JudgementMap, NoteLocationMap } from "../src/primitives.js";
 import { parseTJA } from "../src/tja-parser.js";
 
 function runTest(name: string, fn: () => void) {
@@ -141,6 +142,43 @@ try {
     chartView.invalidateLayout();
     chartView.render({ renderOptions: { ...DEFAULT_RENDER_OPTIONS }, dpr: 1 });
     assert(chartView.layout !== firstLayout, "Layout should be recreated after invalidation");
+  });
+
+  runTest("createLayout pure logic - basic properties", () => {
+    const chart = parseTJA(SIMPLE_TJA).oni;
+    const width = 800;
+    const layout = createLayout(chart, width, { ...DEFAULT_RENDER_OPTIONS }, new JudgementMap(), 1);
+
+    assert(
+      layout.logicalCanvasWidth === width,
+      `Expected logicalCanvasWidth ${width}, got ${layout.logicalCanvasWidth}`,
+    );
+    assert(layout.dpr === 1, `Expected dpr 1, got ${layout.dpr}`);
+    assert(layout.barFrames.length > 0, "Expected at least one bar frame");
+    assert(layout.virtualBars.length > 0, "Expected at least one virtual bar");
+    assert(layout.totalHeight > 0, `Expected positive totalHeight, got ${layout.totalHeight}`);
+  });
+
+  runTest("createLayout pure logic - width affects layout", () => {
+    const chart = parseTJA(SIMPLE_TJA).oni;
+    const opts = { ...DEFAULT_RENDER_OPTIONS };
+
+    const narrowLayout = createLayout(chart, 400, opts, new JudgementMap(), 1);
+    const wideLayout = createLayout(chart, 1200, opts, new JudgementMap(), 1);
+
+    assert(
+      narrowLayout.baseBarWidth < wideLayout.baseBarWidth,
+      `Narrow baseBarWidth (${narrowLayout.baseBarWidth}) should be less than wide (${wideLayout.baseBarWidth})`,
+    );
+    assert(narrowLayout.logicalCanvasWidth === 400, "Narrow layout width should be 400");
+    assert(wideLayout.logicalCanvasWidth === 1200, "Wide layout width should be 1200");
+  });
+
+  runTest("createLayout pure logic - dpr is stored", () => {
+    const chart = parseTJA(SIMPLE_TJA).oni;
+    const layout2x = createLayout(chart, 800, { ...DEFAULT_RENDER_OPTIONS }, new JudgementMap(), 2);
+
+    assert(layout2x.dpr === 2, `Expected dpr 2, got ${layout2x.dpr}`);
   });
 
   console.log("\nAll renderer tests passed.\n");

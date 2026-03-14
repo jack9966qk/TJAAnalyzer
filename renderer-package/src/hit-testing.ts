@@ -1,4 +1,4 @@
-import { type ChartLayout, createLayout } from "./layout.js";
+import { type ChartLayout, createLayout, resolveCanvasWidth } from "./layout.js";
 import {
   BranchName,
   isBig,
@@ -34,7 +34,9 @@ export function getBranchLineAt(
   if (layout) {
     activeLayout = layout;
   } else {
-    activeLayout = createLayout(chart, canvas, options, new JudgementMap());
+    const logicalWidth = resolveCanvasWidth(canvas);
+    const dpr = window.devicePixelRatio || 1;
+    activeLayout = createLayout(chart, logicalWidth, options, new JudgementMap(), dpr);
   }
 
   const { barFrames, constants, virtualBars } = activeLayout;
@@ -97,7 +99,9 @@ export function getNoteAt(
   if (layout) {
     activeLayout = layout;
   } else {
-    activeLayout = createLayout(chart, canvas, options, judgements);
+    const logicalWidth = resolveCanvasWidth(canvas);
+    const dpr = window.devicePixelRatio || 1;
+    activeLayout = createLayout(chart, logicalWidth, options, judgements, dpr);
   }
 
   const { barFrames, constants, virtualBars } = activeLayout;
@@ -334,7 +338,9 @@ export function getNotePosition(
     activeLayout = layout;
   } else {
     // For getNotePosition we don't need judgements really, pass empty
-    activeLayout = createLayout(chart, canvas, options, new JudgementMap());
+    const logicalWidth = resolveCanvasWidth(canvas);
+    const dpr = window.devicePixelRatio || 1;
+    activeLayout = createLayout(chart, logicalWidth, options, new JudgementMap(), dpr);
   }
 
   const { barFrames, virtualBars } = activeLayout;

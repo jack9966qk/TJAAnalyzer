@@ -795,14 +795,21 @@ export function calculateLongNoteSegments(
   return segments;
 }
 
-export function measureHeaderHeight(
-  ctx: CanvasRenderingContext2D,
+/**
+ * Estimates header height using OffscreenCanvas for text measurement when available,
+ * falling back to the ratio-based baseHeight when not (e.g. Node.js).
+ */
+function estimateHeaderHeight(
   chart: ParsedChart,
-  width: number,
+  availableWidth: number,
   baseHeight: number,
   texts?: RenderTexts,
   options?: RenderOptions,
 ): number {
+  if (typeof OffscreenCanvas === "undefined") return baseHeight;
+  const ctx = new OffscreenCanvas(1, 1).getContext("2d");
+  if (!ctx) return baseHeight;
+
   const title = options?.titleOverride ?? chart.title ?? "Untitled";
   const subtitle = options?.subtitleOverride ?? chart.subtitle ?? "";
   const { level = 0, course = "Oni", bpm = 120 } = chart;
@@ -853,8 +860,8 @@ export function measureHeaderHeight(
   ctx.restore();
 
   const GAP = 20;
-  const titleOverlap = titleWidth + GAP + courseWidth > width;
-  const subtitleOverlap = subtitleWidth + GAP + bpmWidth > width;
+  const titleOverlap = titleWidth + GAP + courseWidth > availableWidth;
+  const subtitleOverlap = subtitleWidth + GAP + bpmWidth > availableWidth;
 
   if (titleOverlap || subtitleOverlap) {
     let h = titleFontSize + 5;
@@ -954,23 +961,29 @@ export function calculateBalloonIndices(bars: NoteType[][]): NoteLocationMap<num
   return map;
 }
 
+/**
+ * Resolves the logical canvas width from a canvas element,
+ * resetting its CSS width to 100% to measure the container.
+ */
+export function resolveCanvasWidth(canvas: HTMLCanvasElement): number {
+  canvas.style.width = "100%";
+  let width = canvas.clientWidth;
+  if (width === 0) {
+    width = canvas.width || 800;
+  }
+  return width;
+}
+
 export function createLayout(
   chart: ParsedChart,
-  canvas: HTMLCanvasElement,
+  logicalCanvasWidth: number,
   options: RenderOptions,
   judgements: JudgementMap<JudgementValue>,
-  customDpr?: number,
+  dpr: number,
   texts?: RenderTexts,
   baseInsets: Insets = INSETS,
   layoutRatios?: Partial<LayoutRatios>,
 ): ChartLayout {
-  // Reset width to 100% to allow measuring the container's available width
-  canvas.style.width = "100%";
-  let logicalCanvasWidth = canvas.clientWidth;
-  if (logicalCanvasWidth === 0) {
-    logicalCanvasWidth = canvas.width || 800;
-  }
-
   // Layout Logic: Safe Area + Bleed
   const safeWidth = logicalCanvasWidth - (baseInsets.left + baseInsets.right);
   const beatsPerLine = options.beatsPerLine || 16;
@@ -993,11 +1006,7 @@ export function createLayout(
 
   const baseHeaderHeight = baseBarWidth * resolved.headerHeight;
 
-  let headerHeight = baseHeaderHeight;
-  const ctx = canvas.getContext("2d");
-  if (ctx) {
-    headerHeight = measureHeaderHeight(ctx, chart, availableWidth, baseHeaderHeight, texts, options);
-  }
+  const headerHeight = estimateHeaderHeight(chart, availableWidth, baseHeaderHeight, texts, options);
 
   const statusFontSize = baseBarWidth * resolved.statusFontSize;
   const barNumberOffsetY = baseBarWidth * resolved.barNumberOffsetY;
@@ -1051,9 +1060,6 @@ export function createLayout(
   });
 
   const inferredHands = calculateInferredHands(chart, options.annotations, Infinity, 0);
-
-  // Adjust for device pixel ratio for sharp rendering
-  const dpr = customDpr !== undefined ? customDpr : window.devicePixelRatio || 1;
 
   return {
     virtualBars,

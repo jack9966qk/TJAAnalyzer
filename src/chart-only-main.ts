@@ -11,6 +11,7 @@ const {
   NoteLocationMap,
   parseTJA,
   renderLayout,
+  resolveCanvasWidth,
 } = Renderer.Private;
 
 type Insets = Renderer.Private.Insets;
@@ -116,7 +117,9 @@ window.renderChartCustom = (
 
     const opts: RenderOptions = { ...DEFAULT_RENDER_OPTIONS, showAllBranches: false, ...renderOptions };
     const judgements = new JudgementMap<JudgementValue>();
-    const layout = createLayout(chart, canvas, opts, judgements, undefined, DEFAULT_TEXTS, insets);
+    const logicalWidth = resolveCanvasWidth(canvas);
+    const dpr = window.devicePixelRatio || 1;
+    const layout = createLayout(chart, logicalWidth, opts, judgements, dpr, DEFAULT_TEXTS, insets);
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     renderLayout(ctx, layout, chart, judgements, opts, DEFAULT_TEXTS);
