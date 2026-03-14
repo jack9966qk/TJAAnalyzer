@@ -86,11 +86,18 @@ export class TJAChart extends HTMLElement {
   private _pendingFullRender: boolean = true;
   private _chartChanged: boolean = false;
   private _chartView: ChartView | null = null;
-  private _interactionCleanup: (() => void)[] = [];
+  private _clickCleanup: (() => void) | null = null;
+  private _hoverCleanup: (() => void) | null = null;
+  private _hoverStyleEnabled: boolean = false;
 
   get layout(): ChartLayout | null {
     return this._chartView?.layout ?? null;
   }
+
+  get hoveredNote() {
+    return this._chartView?.hoveredNote ?? null;
+  }
+
   private _renderedJudgements: JudgementMap<JudgementValue> = new JudgementMap();
 
   constructor() {
@@ -285,8 +292,10 @@ export class TJAChart extends HTMLElement {
   }
 
   private cleanupInteractions() {
-    for (const cleanup of this._interactionCleanup) cleanup();
-    this._interactionCleanup = [];
+    this._hoverCleanup?.();
+    this._hoverCleanup = null;
+    this._clickCleanup?.();
+    this._clickCleanup = null;
   }
 
   set chart(value: ParsedChart | null) {
@@ -327,6 +336,21 @@ export class TJAChart extends HTMLElement {
     this._texts = value;
     this._pendingFullRender = true;
     this.scheduleRender();
+  }
+
+  set hoverStyleEnabled(value: boolean) {
+    if (this._hoverStyleEnabled === value) return;
+    this._hoverStyleEnabled = value;
+    if (value && this._chartView && !this._hoverCleanup) {
+      this._hoverCleanup = this._chartView.onNoteHovered((e) => this.handleNoteHovered(e));
+    } else if (!value && this._hoverCleanup) {
+      this._hoverCleanup();
+      this._hoverCleanup = null;
+    }
+  }
+
+  get hoverStyleEnabled(): boolean {
+    return this._hoverStyleEnabled;
   }
 
   set insetsOverride(value: Insets | null) {
@@ -540,10 +564,10 @@ export class TJAChart extends HTMLElement {
     // Create chart view if needed (chart changed or first render)
     if (!this._chartView) {
       this._chartView = createChartView(this._chart, this.canvas);
-      this._interactionCleanup.push(
-        this._chartView.onNoteHovered((e) => this.handleNoteHovered(e)),
-        this._chartView.onNoteClicked((e) => this.handleNoteClicked(e)),
-      );
+      this._clickCleanup = this._chartView.onNoteClicked((e) => this.handleNoteClicked(e));
+      if (this._hoverStyleEnabled) {
+        this._hoverCleanup = this._chartView.onNoteHovered((e) => this.handleNoteHovered(e));
+      }
     }
 
     this.applyAutoZoom(effectiveRenderOptions, baseInsets);

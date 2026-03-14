@@ -5,6 +5,7 @@ import { appState } from "../state/app-state.js";
 import { i18n } from "../utils/i18n.js";
 import { noteStatsDisplay } from "../view/ui-elements.js";
 import "./stepper-control.js";
+import type { TJAChart } from "./tja-chart.js";
 
 const { INSETS, LAYOUT_RATIOS } = Renderer.Private;
 
@@ -120,12 +121,10 @@ export class ViewOptions extends HTMLElement {
       }
     }
 
-    // Clear hover effect if hidden
-    if (!this.statsVisible) {
-      if (appState.renderOptions.hoveredNote) {
-        appState.renderOptions.hoveredNote = null;
-        refreshChart();
-      }
+    // Toggle hover style on chart
+    const tjaChart = document.querySelector("tja-chart") as TJAChart | null;
+    if (tjaChart) {
+      tjaChart.hoverStyleEnabled = this.statsVisible;
     }
   }
 

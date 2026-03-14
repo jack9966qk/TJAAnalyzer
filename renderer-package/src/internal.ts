@@ -13,9 +13,11 @@ import {
   resolveCanvasWidth,
 } from "./layout.js";
 import {
+  type BranchName,
   DEFAULT_TEXTS,
   JudgementMap,
   type JudgementValue,
+  type NoteLocation,
   type RenderOptions,
   type RenderTexts,
 } from "./primitives.js";
@@ -53,6 +55,9 @@ export interface ChartView {
   /** The current computed layout, or null if not yet rendered. */
   readonly layout: ChartLayout | null;
 
+  /** The currently hovered note, managed by onNoteHovered. */
+  readonly hoveredNote: (NoteLocation & { branch?: BranchName }) | null;
+
   /** Mark the current layout as stale, forcing recreation on next render. */
   invalidateLayout(): void;
 
@@ -84,6 +89,8 @@ export interface ChartView {
   onNoteClicked(handler: NoteInteractionHandler): () => void;
 }
 
+type HoveredNote = (NoteLocation & { branch?: BranchName }) | null;
+
 /**
  * Creates an internal chart view for a pre-parsed chart.
  * This is the private counterpart to the public createChartView which accepts a TJA string.
@@ -91,16 +98,56 @@ export interface ChartView {
 export function createChartView(chart: ParsedChart, canvas: HTMLCanvasElement): ChartView {
   let layout: ChartLayout | null = null;
   let layoutInvalid = true;
-  let lastRenderOptions: RenderOptions | null = null;
-  let lastJudgements: JudgementMap<JudgementValue> = new JudgementMap();
+  let lastOptions: ChartViewOptions | null = null;
+  let hoveredNote: HoveredNote = null;
 
-  function handleInteraction(event: MouseEvent, handler: NoteInteractionHandler) {
-    if (!lastRenderOptions) return;
+  function hitTest(event: MouseEvent): { x: number; y: number; hit: HitInfo | null } {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
-    const hit = getChartElementAt(x, y, chart, canvas, lastJudgements, lastRenderOptions, layout ?? undefined);
-    handler({ x, y, hit, originalEvent: event });
+    if (!lastOptions) return { x, y, hit: null };
+    const judgements = lastOptions.judgements ?? new JudgementMap();
+    const hit = getChartElementAt(x, y, chart, canvas, judgements, lastOptions.renderOptions, layout ?? undefined);
+    return { x, y, hit };
+  }
+
+  function hoveredNoteChanged(a: HoveredNote, b: HoveredNote): boolean {
+    if (!a && !b) return false;
+    if (!a || !b) return true;
+    return a.barIndex !== b.barIndex || a.charIndex !== b.charIndex || a.branch !== b.branch;
+  }
+
+  function render(options: ChartViewOptions, dirtyRowY?: Set<number>) {
+    lastOptions = options;
+    const {
+      renderOptions,
+      judgements = new JudgementMap(),
+      texts = DEFAULT_TEXTS,
+      insets = INSETS,
+      dpr,
+      layoutRatios,
+    } = options;
+
+    if (layoutInvalid || !layout) {
+      const logicalCanvasWidth = resolveCanvasWidth(canvas);
+      const resolvedDpr = dpr !== undefined ? dpr : window.devicePixelRatio || 1;
+      layout = createLayoutImpl(
+        chart,
+        logicalCanvasWidth,
+        renderOptions,
+        judgements,
+        resolvedDpr,
+        texts,
+        insets,
+        layoutRatios,
+      );
+      layoutInvalid = false;
+      dirtyRowY = undefined; // Force full render after layout recreation
+    }
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    renderLayoutImpl(ctx, layout, chart, judgements, renderOptions, texts, dirtyRowY);
   }
 
   return {
@@ -108,53 +155,48 @@ export function createChartView(chart: ParsedChart, canvas: HTMLCanvasElement): 
       return layout;
     },
 
+    get hoveredNote() {
+      return hoveredNote;
+    },
+
     invalidateLayout() {
       layoutInvalid = true;
     },
 
-    render(options: ChartViewOptions, dirtyRowY?: Set<number>) {
-      const {
-        renderOptions,
-        judgements = new JudgementMap(),
-        texts = DEFAULT_TEXTS,
-        insets = INSETS,
-        dpr,
-        layoutRatios,
-      } = options;
-
-      lastRenderOptions = renderOptions;
-      lastJudgements = judgements;
-
-      if (layoutInvalid || !layout) {
-        const logicalCanvasWidth = resolveCanvasWidth(canvas);
-        const resolvedDpr = dpr !== undefined ? dpr : window.devicePixelRatio || 1;
-        layout = createLayoutImpl(
-          chart,
-          logicalCanvasWidth,
-          renderOptions,
-          judgements,
-          resolvedDpr,
-          texts,
-          insets,
-          layoutRatios,
-        );
-        layoutInvalid = false;
-        dirtyRowY = undefined; // Force full render after layout recreation
-      }
-
-      const ctx = canvas.getContext("2d");
-      if (!ctx) return;
-      renderLayoutImpl(ctx, layout, chart, judgements, renderOptions, texts, dirtyRowY);
-    },
+    render,
 
     onNoteHovered(handler: NoteInteractionHandler): () => void {
-      const listener = (e: MouseEvent) => handleInteraction(e, handler);
+      const listener = (e: MouseEvent) => {
+        if (!lastOptions) return;
+        const { x, y, hit } = hitTest(e);
+        const newHovered: HoveredNote = hit
+          ? { barIndex: hit.originalBarIndex, charIndex: hit.charIndex, branch: hit.branch }
+          : null;
+        if (hoveredNoteChanged(hoveredNote, newHovered)) {
+          hoveredNote = newHovered;
+          lastOptions.renderOptions.hoveredNote = hoveredNote;
+          render(lastOptions);
+        }
+        handler({ x, y, hit, originalEvent: e });
+      };
       canvas.addEventListener("mousemove", listener);
-      return () => canvas.removeEventListener("mousemove", listener);
+      const cleanUp = () => {
+        canvas.removeEventListener("mousemove", listener);
+        if (hoveredNote && lastOptions) {
+          hoveredNote = null;
+          lastOptions.renderOptions.hoveredNote = null;
+          render(lastOptions);
+        }
+      };
+      return cleanUp;
     },
 
     onNoteClicked(handler: NoteInteractionHandler): () => void {
-      const listener = (e: MouseEvent) => handleInteraction(e, handler);
+      const listener = (e: MouseEvent) => {
+        if (!lastOptions) return;
+        const { x, y, hit } = hitTest(e);
+        handler({ x, y, hit, originalEvent: e });
+      };
       canvas.addEventListener("click", listener);
       return () => canvas.removeEventListener("click", listener);
     },

@@ -178,7 +178,7 @@ LEVEL:8
     const hoveredNote = await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
-      return chart.renderOptions.hoveredNote;
+      return chart.hoveredNote;
     });
 
     // { barIndex: 0, charIndex: 0, branch: 'normal' }

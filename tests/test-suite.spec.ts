@@ -1318,7 +1318,7 @@ test.describe("Selection Interaction", () => {
     const hoveredNote = await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
-      return chart.renderOptions.hoveredNote;
+      return chart.hoveredNote;
     });
     expect(hoveredNote).toEqual({ barIndex: 0, charIndex: 0, branch: "normal" });
 
@@ -1329,7 +1329,7 @@ test.describe("Selection Interaction", () => {
     const hoveredNoteHidden = await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
-      return chart.renderOptions.hoveredNote;
+      return chart.hoveredNote;
     });
     expect(hoveredNoteHidden).toBeNull();
 
@@ -1340,7 +1340,7 @@ test.describe("Selection Interaction", () => {
     const hoveredNoteStillNull = await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
-      return chart.renderOptions.hoveredNote;
+      return chart.hoveredNote;
     });
     expect(hoveredNoteStillNull).toBeNull();
   });

@@ -465,31 +465,6 @@ function initEventListeners() {
     // Render stats
     // Note: updateStatsComponent logic handles separating note hits and branch hits
     updateStatsComponent(hit);
-
-    // Update Hover Style
-    const viewOptionsEl = document.querySelector("view-options") as ViewOptions;
-    const isStatsVisible = viewOptionsEl?.statsVisible ?? false;
-    const newHoveredNote =
-      isStatsVisible && hit ? { barIndex: hit.originalBarIndex, charIndex: hit.charIndex, branch: hit.branch } : null;
-
-    const currentHovered = appState.renderOptions.hoveredNote;
-    let changed = false;
-
-    if (!currentHovered && !newHoveredNote) {
-      changed = false;
-    } else if (!currentHovered || !newHoveredNote) {
-      changed = true;
-    } else {
-      changed =
-        currentHovered.barIndex !== newHoveredNote.barIndex ||
-        currentHovered.charIndex !== newHoveredNote.charIndex ||
-        currentHovered.branch !== newHoveredNote.branch;
-    }
-
-    if (changed) {
-      appState.renderOptions.hoveredNote = newHoveredNote;
-      refreshChart();
-    }
   });
 
   tjaChart.addEventListener("chart-click", (e: Event) => {
