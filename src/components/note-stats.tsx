@@ -1,8 +1,9 @@
 import * as Renderer from "tja-renderer";
 import * as webjsx from "webjsx";
 import { i18n } from "../utils/i18n.js";
+import { getGapMeasures, getGapMs } from "../utils/note-gap.js";
 
-const { getGradientColor, JUDGEABLE_NOTES, JudgementMap, JudgementType, PALETTE, RENDERABLE_NOTES } = Renderer.Private;
+const { getGradientColor, JUDGEABLE_NOTES, JudgementMap, JudgementType, PALETTE } = Renderer.Private;
 
 type HitInfo = Renderer.Private.HitInfo;
 type JudgementMap<T> = Renderer.Private.JudgementMap<T>;
@@ -74,59 +75,7 @@ export class NoteStatsDisplay extends HTMLElement {
     return gap.toFixed(3);
   }
 
-  private getGapInfo(
-    chart: Renderer.Private.ParsedChart,
-    currentBarIdx: number,
-    currentCharIdx: number,
-  ): { formatted: string; raw: number } | null {
-    const currentBar = chart.bars[currentBarIdx];
-    const currentTotal = currentBar.length;
-    // Get measure ratio, default to 1.0 if not present
-    const currentRatio = chart.barParams?.[currentBarIdx]?.measureRatio ?? 1.0;
-
-    for (let i = currentCharIdx - 1; i >= 0; i--) {
-      if (RENDERABLE_NOTES.includes(currentBar[i])) {
-        const prevPos = i / currentTotal;
-        const curPos = currentCharIdx / currentTotal;
-        const raw = (curPos - prevPos) * currentRatio;
-        return { formatted: this.formatGap(raw), raw };
-      }
-    }
-
-    // Accumulate gap from start of current bar
-    let accumulatedGap = (currentCharIdx / currentTotal) * currentRatio;
-
-    for (let b = currentBarIdx - 1; b >= 0; b--) {
-      const prevBar = chart.bars[b];
-      const prevRatio = chart.barParams?.[b]?.measureRatio ?? 1.0;
-
-      if (!prevBar || prevBar.length === 0) {
-        accumulatedGap += prevRatio;
-        if (accumulatedGap > 1.0 + 0.001) return null;
-        continue;
-      }
-
-      const prevTotal = prevBar.length;
-
-      for (let i = prevTotal - 1; i >= 0; i--) {
-        if (RENDERABLE_NOTES.includes(prevBar[i])) {
-          const distInPrev = (prevTotal - i) / prevTotal;
-          const totalGap = accumulatedGap + distInPrev * prevRatio;
-
-          if (totalGap <= 1.0 + 0.0001) {
-            return { formatted: this.formatGap(totalGap), raw: totalGap };
-          } else {
-            return null;
-          }
-        }
-      }
-
-      accumulatedGap += prevRatio;
-      if (accumulatedGap > 1.0) return null;
-    }
-
-    return null;
-  }
+  private static readonly GAP_OPTIONS = { requireJudgeable: true, maxMeasures: 1 } as const;
 
   render() {
     const def = "-";
@@ -360,13 +309,16 @@ export class NoteStatsDisplay extends HTMLElement {
 
     let gap = def;
     if (hit && targetChart) {
-      const g = this.getGapInfo(targetChart, hit.location.barIndex, hit.location.charIndex);
-      if (g) {
-        if (hit.bpm > 0) {
-          const seconds = (g.raw * (240 / hit.bpm)).toFixed(3);
-          gap = `${g.formatted} (${seconds}s)`;
+      const { barIndex, charIndex } = hit.location;
+      const raw = getGapMeasures(targetChart, barIndex, charIndex, NoteStatsDisplay.GAP_OPTIONS);
+      if (raw !== null) {
+        const formatted = this.formatGap(raw);
+        const ms = getGapMs(targetChart, barIndex, charIndex, NoteStatsDisplay.GAP_OPTIONS);
+        if (ms !== null) {
+          const seconds = (ms / 1000).toFixed(3);
+          gap = `${formatted} (${seconds}s)`;
         } else {
-          gap = g.formatted;
+          gap = formatted;
         }
       }
     }

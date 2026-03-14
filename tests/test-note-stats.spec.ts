@@ -55,6 +55,7 @@ test.describe("Note Stats Component", () => {
       };
       const chart = {
         bars: [["1", "2", "0", "0"]],
+        barParams: [{ bpm: 150, scroll: 1.0, measureRatio: 1.0 }],
       };
       // 1st note (Don) -> dummy, 2nd note (Ka) -> perfect
       const judgements = ["good", "perfect"];

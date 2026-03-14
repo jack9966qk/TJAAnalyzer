@@ -2,8 +2,9 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as Renderer from "tja-renderer";
+import { getGapMeasures, getGapMs } from "../src/utils/note-gap.js";
 
-const { parseTJA, RENDERABLE_NOTES, JUDGEABLE_NOTES } = Renderer.Private;
+const { parseTJA, RENDERABLE_NOTES } = Renderer.Private;
 type ParsedChart = Renderer.Private.ParsedChart;
 
 const __filename = fileURLToPath(import.meta.url);
@@ -50,108 +51,24 @@ interface TJAAnalysis {
   courses: Record<string, CourseGaps>;
 }
 
-function measureFractionToMs(fraction: number, bpm: number): number {
-  return (fraction * 240000) / bpm;
-}
+const GAP_OPTIONS = { requireJudgeable: true } as const;
 
 function computeNoteGaps(chart: ParsedChart, unit: GapUnit): NoteGaps {
   const gaps: NoteGaps = [];
-  const getGapFn = unit === "ms" ? getGapMs : getGap;
+  const getGapFn = unit === "ms" ? getGapMs : getGapMeasures;
 
   for (let barIdx = 0; barIdx < chart.bars.length; barIdx++) {
     const bar = chart.bars[barIdx];
     const barGaps: (number | null)[] = [];
     for (let charIdx = 0; charIdx < bar.length; charIdx++) {
       if (!RENDERABLE_NOTES.includes(bar[charIdx])) continue;
-      const gap = getGapFn(chart, barIdx, charIdx);
+      const gap = getGapFn(chart, barIdx, charIdx, GAP_OPTIONS);
       barGaps.push(gap !== null ? Math.round(gap * 1000) / 1000 : null);
     }
     gaps.push(barGaps);
   }
 
   return gaps;
-}
-
-function getGap(chart: ParsedChart, currentBarIdx: number, currentCharIdx: number): number | null {
-  const currentBar = chart.bars[currentBarIdx];
-  const currentTotal = currentBar.length;
-  const currentRatio = chart.barParams?.[currentBarIdx]?.measureRatio ?? 1.0;
-
-  for (let i = currentCharIdx - 1; i >= 0; i--) {
-    if (RENDERABLE_NOTES.includes(currentBar[i])) {
-      if (!JUDGEABLE_NOTES.includes(currentBar[i])) return null;
-      const raw = ((currentCharIdx - i) / currentTotal) * currentRatio;
-      return raw;
-    }
-  }
-
-  let accumulatedGap = (currentCharIdx / currentTotal) * currentRatio;
-
-  for (let b = currentBarIdx - 1; b >= 0; b--) {
-    const prevBar = chart.bars[b];
-    const prevRatio = chart.barParams?.[b]?.measureRatio ?? 1.0;
-
-    if (!prevBar || prevBar.length === 0) {
-      accumulatedGap += prevRatio;
-      continue;
-    }
-
-    const prevTotal = prevBar.length;
-
-    for (let i = prevTotal - 1; i >= 0; i--) {
-      if (RENDERABLE_NOTES.includes(prevBar[i])) {
-        if (!JUDGEABLE_NOTES.includes(prevBar[i])) return null;
-        const distInPrev = ((prevTotal - i) / prevTotal) * prevRatio;
-        return accumulatedGap + distInPrev;
-      }
-    }
-
-    accumulatedGap += prevRatio;
-  }
-
-  return null;
-}
-
-function getGapMs(chart: ParsedChart, currentBarIdx: number, currentCharIdx: number): number | null {
-  const currentBar = chart.bars[currentBarIdx];
-  const currentTotal = currentBar.length;
-  const currentRatio = chart.barParams?.[currentBarIdx]?.measureRatio ?? 1.0;
-  const currentBpm = chart.barParams?.[currentBarIdx]?.bpm ?? 120;
-
-  for (let i = currentCharIdx - 1; i >= 0; i--) {
-    if (RENDERABLE_NOTES.includes(currentBar[i])) {
-      if (!JUDGEABLE_NOTES.includes(currentBar[i])) return null;
-      const fraction = ((currentCharIdx - i) / currentTotal) * currentRatio;
-      return measureFractionToMs(fraction, currentBpm);
-    }
-  }
-
-  let accumulatedMs = measureFractionToMs((currentCharIdx / currentTotal) * currentRatio, currentBpm);
-
-  for (let b = currentBarIdx - 1; b >= 0; b--) {
-    const prevBar = chart.bars[b];
-    const prevRatio = chart.barParams?.[b]?.measureRatio ?? 1.0;
-    const prevBpm = chart.barParams?.[b]?.bpm ?? 120;
-
-    if (!prevBar || prevBar.length === 0) {
-      accumulatedMs += measureFractionToMs(prevRatio, prevBpm);
-      continue;
-    }
-
-    const prevTotal = prevBar.length;
-
-    for (let i = prevTotal - 1; i >= 0; i--) {
-      if (RENDERABLE_NOTES.includes(prevBar[i])) {
-        if (!JUDGEABLE_NOTES.includes(prevBar[i])) return null;
-        const distInPrev = ((prevTotal - i) / prevTotal) * prevRatio;
-        return accumulatedMs + measureFractionToMs(distInPrev, prevBpm);
-      }
-    }
-
-    accumulatedMs += measureFractionToMs(prevRatio, prevBpm);
-  }
-
-  return null;
 }
 
 function analyzeChart(chart: ParsedChart, unit: GapUnit): CourseGaps {
