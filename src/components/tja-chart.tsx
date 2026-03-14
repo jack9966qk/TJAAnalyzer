@@ -234,6 +234,30 @@ export class TJAChart extends HTMLElement {
                 font-family: sans-serif;
                 box-sizing: border-box;
             }
+            #safe-area-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                height: calc(env(safe-area-inset-top) + 30px);
+                background: linear-gradient(to bottom,
+                    rgba(0,0,0,0.8),
+                    rgba(0,0,0,0.75) 10%,
+                    rgba(0,0,0,0.65) 20%,
+                    rgba(0,0,0,0.5) 35%,
+                    rgba(0,0,0,0.3) 50%,
+                    rgba(0,0,0,0.15) 65%,
+                    rgba(0,0,0,0.05) 80%,
+                    transparent
+                );
+                pointer-events: none;
+                z-index: 9999;
+            }
+            :host(:fullscreen) #safe-area-overlay,
+            :host(.pseudo-fullscreen) #safe-area-overlay {
+                display: block;
+            }
             .hidden {
                 display: none !important;
             }
@@ -255,6 +279,7 @@ export class TJAChart extends HTMLElement {
             }
           }}
         ></canvas>
+        <div id="safe-area-overlay"></div>
       </>
     );
 
