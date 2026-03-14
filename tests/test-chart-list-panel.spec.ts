@@ -279,13 +279,13 @@ test.describe("Chart List Panel Component", () => {
     await expect(page.locator("#advanced-search-modal.open")).toBeVisible();
 
     // Select "SS" from the DFC dropdown
-    // The DFC select is after difficulty, stars, so we find it by its label context
-    const dfcSelect = page.locator("#advanced-search-modal.open select").nth(1); // 0=difficulty, 1=DFC
+    // DFC is the first <select> in the modal (difficulty is now toggle buttons)
+    const dfcSelect = page.locator("#advanced-search-modal.open select").first();
     await dfcSelect.selectOption("SS");
 
-    // Verify stars was auto-set to 10
-    const starsInput = page.locator('#advanced-search-modal.open input[type="number"]').first();
-    await expect(starsInput).toHaveValue("10");
+    // Verify stars min was auto-set to 10
+    const starsMinInput = page.locator('#advanced-search-modal.open input[type="number"]').first();
+    await expect(starsMinInput).toHaveValue("10");
 
     // Apply
     await page.locator("#advanced-search-modal.open").getByText("Apply").click();
@@ -298,13 +298,17 @@ test.describe("Chart List Panel Component", () => {
     await page.locator(".adv-search-active-bar").click();
     await expect(page.locator("#advanced-search-modal.open")).toBeVisible();
 
-    // Change stars to 9 (should auto-clear DFC)
+    // Change stars min to 9 (should auto-clear DFC since 10 is no longer in range)
     const starsInput2 = page.locator('#advanced-search-modal.open input[type="number"]').first();
     await starsInput2.fill("9");
     await starsInput2.dispatchEvent("input");
+    // Also set stars max to 9 so 10 is excluded
+    const starsMaxInput = page.locator('#advanced-search-modal.open input[type="number"]').nth(1);
+    await starsMaxInput.fill("9");
+    await starsMaxInput.dispatchEvent("input");
 
     // DFC select should be reset to "Any" (empty value)
-    const dfcSelect2 = page.locator("#advanced-search-modal.open select").nth(1);
+    const dfcSelect2 = page.locator("#advanced-search-modal.open select").first();
     await expect(dfcSelect2).toHaveValue("");
 
     // Clear all and restore
@@ -350,7 +354,7 @@ test.describe("Chart List Panel Component", () => {
     await expect(page.locator("#advanced-search-modal.open")).toBeVisible();
 
     // Select DFC SS (which matches only the oni difficulty)
-    const dfcSelect = page.locator("#advanced-search-modal.open select").nth(1);
+    const dfcSelect = page.locator("#advanced-search-modal.open select").first();
     await dfcSelect.selectOption("SS");
     await page.locator("#advanced-search-modal.open").getByText("Apply").click();
 

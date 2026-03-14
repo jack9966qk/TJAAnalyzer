@@ -340,11 +340,12 @@ export class ChartListPanel extends HTMLElement {
 
     if (this._isAdvancedSearchActive) {
       const c = this._advancedCriteria;
-      if (c.difficulty && c.difficulty !== "any") url.searchParams.set("adv_diff", c.difficulty);
+      if (c.difficulty && c.difficulty.length > 0) url.searchParams.set("adv_diff", c.difficulty.join(","));
       if (c.title) url.searchParams.set("adv_title", c.title);
       if (c.artist) url.searchParams.set("adv_artist", c.artist);
       if (c.subtitle) url.searchParams.set("adv_subtitle", c.subtitle);
-      if (c.stars != null) url.searchParams.set("adv_stars", String(c.stars));
+      if (c.starsMin != null) url.searchParams.set("adv_starsmin", String(c.starsMin));
+      if (c.starsMax != null) url.searchParams.set("adv_starsmax", String(c.starsMax));
       if (c.noteCountMin != null) url.searchParams.set("adv_ncmin", String(c.noteCountMin));
       if (c.noteCountMax != null) url.searchParams.set("adv_ncmax", String(c.noteCountMax));
       if (c.bpmMin != null) url.searchParams.set("adv_bpmmin", String(c.bpmMin));
@@ -372,15 +373,24 @@ export class ChartListPanel extends HTMLElement {
     if (hasAdvanced) {
       const criteria: AdvancedSearchCriteria = {};
       const diff = params.get("adv_diff");
-      if (diff) criteria.difficulty = diff as AdvancedSearchCriteria["difficulty"];
+      if (diff) criteria.difficulty = diff.split(",") as AdvancedSearchCriteria["difficulty"];
       const title = params.get("adv_title");
       if (title) criteria.title = title;
       const artist = params.get("adv_artist");
       if (artist) criteria.artist = artist;
       const subtitle = params.get("adv_subtitle");
       if (subtitle) criteria.subtitle = subtitle;
-      const stars = params.get("adv_stars");
-      if (stars) criteria.stars = Number(stars);
+      // Support legacy single-value adv_stars as starsMin=starsMax
+      const starsLegacy = params.get("adv_stars");
+      if (starsLegacy) {
+        const n = Number(starsLegacy);
+        criteria.starsMin = n;
+        criteria.starsMax = n;
+      }
+      const starsmin = params.get("adv_starsmin");
+      if (starsmin) criteria.starsMin = Number(starsmin);
+      const starsmax = params.get("adv_starsmax");
+      if (starsmax) criteria.starsMax = Number(starsmax);
       const ncmin = params.get("adv_ncmin");
       if (ncmin) criteria.noteCountMin = Number(ncmin);
       const ncmax = params.get("adv_ncmax");

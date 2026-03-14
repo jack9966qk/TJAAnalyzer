@@ -20,11 +20,12 @@ export const difficultyToNumber: Record<Difficulty, number> = {
 };
 
 export interface AdvancedSearchCriteria {
-  difficulty?: "any" | Difficulty | "oni/ura";
+  difficulty?: Difficulty[];
   title?: string;
   artist?: string;
   subtitle?: string;
-  stars?: number;
+  starsMin?: number;
+  starsMax?: number;
   noteCountMin?: number;
   noteCountMax?: number;
   bpmMin?: number;
@@ -43,12 +44,11 @@ export interface PlaydataContext {
 
 /**
  * Get the list of difficulties to check based on the criterion.
- * For "any", returns all; for "oni/ura", returns both.
+ * Returns null if no difficulty filter is active (meaning all).
  */
 function getDifficulties(diff: AdvancedSearchCriteria["difficulty"]): Difficulty[] | null {
-  if (!diff || diff === "any") return null; // null = all
-  if (diff === "oni/ura") return ["oni", "ura"];
-  return [diff];
+  if (!diff || diff.length === 0) return null; // null = all
+  return diff;
 }
 
 /**
@@ -63,7 +63,8 @@ export function getMatchedDifficulties(
 ): Difficulty[] | null {
   // Only produce difficulty-specific results when per-difficulty criteria are active
   const hasPerDiffCriteria =
-    criteria.stars != null ||
+    criteria.starsMin != null ||
+    criteria.starsMax != null ||
     criteria.noteCountMin != null ||
     criteria.noteCountMax != null ||
     criteria.dfcDifficulty ||
@@ -75,9 +76,15 @@ export function getMatchedDifficulties(
   // Start with difficulties that exist on this entry
   let candidates = baseDiffs.filter((d) => entry.courses?.[d]);
 
-  // Filter by stars
-  if (criteria.stars != null) {
-    candidates = candidates.filter((d) => entry.courses?.[d]?.level === criteria.stars);
+  // Filter by stars range
+  if (criteria.starsMin != null || criteria.starsMax != null) {
+    candidates = candidates.filter((d) => {
+      const level = entry.courses?.[d]?.level;
+      if (level == null) return false;
+      if (criteria.starsMin != null && level < criteria.starsMin) return false;
+      if (criteria.starsMax != null && level > criteria.starsMax) return false;
+      return true;
+    });
   }
 
   // Filter by note count
@@ -152,10 +159,16 @@ export function matchesAdvancedCriteria(
     if (!match) return false;
   }
 
-  // Stars (level) — for "any" difficulty, match if any difficulty has the level
-  if (criteria.stars != null) {
+  // Stars (level range) — for "any" difficulty, match if any difficulty is in range
+  if (criteria.starsMin != null || criteria.starsMax != null) {
     const diffsToCheck = diffs ?? (["easy", "normal", "hard", "oni", "ura"] as Difficulty[]);
-    const hasLevel = diffsToCheck.some((d) => entry.courses?.[d]?.level === criteria.stars);
+    const hasLevel = diffsToCheck.some((d) => {
+      const level = entry.courses?.[d]?.level;
+      if (level == null) return false;
+      if (criteria.starsMin != null && level < criteria.starsMin) return false;
+      if (criteria.starsMax != null && level > criteria.starsMax) return false;
+      return true;
+    });
     if (!hasLevel) return false;
   }
 
@@ -223,11 +236,12 @@ export function matchesAdvancedCriteria(
 /** Check if any criteria is set (non-empty). */
 export function hasAnyCriteria(criteria: AdvancedSearchCriteria): boolean {
   return !!(
-    (criteria.difficulty && criteria.difficulty !== "any") ||
+    (criteria.difficulty && criteria.difficulty.length > 0) ||
     criteria.title ||
     criteria.artist ||
     criteria.subtitle ||
-    criteria.stars != null ||
+    criteria.starsMin != null ||
+    criteria.starsMax != null ||
     criteria.noteCountMin != null ||
     criteria.noteCountMax != null ||
     criteria.bpmMin != null ||
@@ -247,12 +261,17 @@ export function getAdvancedSearchSummary(criteria: AdvancedSearchCriteria): stri
 
   const parts: string[] = [];
 
-  if (criteria.difficulty && criteria.difficulty !== "any") {
-    if (criteria.difficulty === "oni/ura") parts.push(`${i18n.t("ui.difficulty.oni")}/${i18n.t("ui.difficulty.edit")}`);
-    else parts.push(i18n.t(`ui.difficulty.${criteria.difficulty === "ura" ? "edit" : criteria.difficulty}`));
+  if (criteria.difficulty && criteria.difficulty.length > 0) {
+    const diffLabels = criteria.difficulty.map((d) => i18n.t(`ui.difficulty.${d === "ura" ? "edit" : d}`));
+    parts.push(diffLabels.join("/"));
   }
 
-  if (criteria.stars != null) parts.push(`★${criteria.stars}`);
+  if (criteria.starsMin != null || criteria.starsMax != null) {
+    const min = criteria.starsMin ?? 1;
+    const max = criteria.starsMax ?? 10;
+    if (min === max) parts.push(`★${min}`);
+    else parts.push(`★${min}-${max}`);
+  }
 
   if (criteria.title) parts.push(criteria.title);
   if (criteria.artist) parts.push(criteria.artist);
@@ -391,23 +410,42 @@ export class AdvancedSearchModal extends HTMLElement {
   }
 
   private updateField(field: keyof AdvancedSearchCriteria, value: unknown) {
-    if (value === "" || value === undefined || value === null) {
+    // For array fields, treat empty arrays as unset
+    const isEmpty =
+      value === "" || value === undefined || value === null || (Array.isArray(value) && value.length === 0);
+    if (isEmpty) {
       delete this.criteria[field as keyof AdvancedSearchCriteria];
     } else {
       // biome-ignore lint/suspicious/noExplicitAny: dynamic assignment
       (this.criteria as any)[field] = value;
     }
 
-    // Mutual dependency: DFC sets stars to 10
+    // Mutual dependency: DFC sets stars range to 10-10
     if (field === "dfcDifficulty" && value) {
-      this.criteria.stars = 10;
+      this.criteria.starsMin = 10;
+      this.criteria.starsMax = 10;
     }
-    // Stars changed to non-10 or cleared: clear DFC
-    if (field === "stars" && value !== 10) {
-      delete this.criteria.dfcDifficulty;
+    // Stars range changed so 10 is excluded: clear DFC
+    if (field === "starsMin" || field === "starsMax") {
+      const min = this.criteria.starsMin ?? 1;
+      const max = this.criteria.starsMax ?? 10;
+      if (min > 10 || max < 10) {
+        delete this.criteria.dfcDifficulty;
+      }
     }
 
     this.render();
+  }
+
+  private toggleDifficulty(diff: Difficulty) {
+    const current = this.criteria.difficulty ? [...this.criteria.difficulty] : [];
+    const idx = current.indexOf(diff);
+    if (idx >= 0) {
+      current.splice(idx, 1);
+    } else {
+      current.push(diff);
+    }
+    this.updateField("difficulty", current.length > 0 ? current : undefined);
   }
 
   private collectKnownValues(): { platforms: string[]; regions: string[] } {
@@ -434,14 +472,12 @@ export class AdvancedSearchModal extends HTMLElement {
     const { platforms, regions } = this.collectKnownValues();
     const c = this.criteria;
 
-    const diffOptions: { value: string; label: string }[] = [
-      { value: "any", label: i18n.t("ui.advSearch.any") },
+    const diffOptions: { value: Difficulty; label: string }[] = [
       { value: "easy", label: i18n.t("ui.difficulty.easy") },
       { value: "normal", label: i18n.t("ui.difficulty.normal") },
       { value: "hard", label: i18n.t("ui.difficulty.hard") },
       { value: "oni", label: i18n.t("ui.difficulty.oni") },
       { value: "ura", label: i18n.t("ui.difficulty.edit") },
-      { value: "oni/ura", label: `${i18n.t("ui.difficulty.oni")}/${i18n.t("ui.difficulty.edit")}` },
     ];
 
     const starsLabel = i18n.t("ui.advSearch.stars");
@@ -499,32 +535,47 @@ export class AdvancedSearchModal extends HTMLElement {
             />
           </div>
 
-          {/* Difficulty & Stars (paired) */}
-          <div className="adv-search-pair">
-            <div className="adv-search-field">
-              <span className="adv-search-label">{i18n.t("ui.advSearch.difficulty")}</span>
-              <select
-                value={c.difficulty || "any"}
-                onchange={(e: Event) => this.updateField("difficulty", (e.target as HTMLSelectElement).value)}
-              >
-                {diffOptions.map((o) => (
-                  <option value={o.value} selected={o.value === (c.difficulty || "any")}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
+          {/* Difficulty (toggle buttons) */}
+          <div className="adv-search-field">
+            <span className="adv-search-label">{i18n.t("ui.advSearch.difficulty")}</span>
+            <div className="adv-search-toggles">
+              {diffOptions.map((o) => (
+                <button
+                  type="button"
+                  className={`adv-search-toggle${c.difficulty?.includes(o.value) ? " active" : ""}`}
+                  onclick={() => this.toggleDifficulty(o.value)}
+                >
+                  {o.label}
+                </button>
+              ))}
             </div>
-            <div className="adv-search-field">
-              <span className="adv-search-label">{starsLabel}</span>
+          </div>
+
+          {/* Stars (range) */}
+          <div className="adv-search-field">
+            <span className="adv-search-label">{starsLabel}</span>
+            <div className="adv-search-range">
               <input
                 type="number"
-                value={c.stars != null ? String(c.stars) : ""}
+                value={c.starsMin != null ? String(c.starsMin) : ""}
                 min="1"
                 max="10"
-                placeholder="1-10"
+                placeholder={i18n.t("ui.advSearch.min")}
                 oninput={(e: Event) => {
                   const val = (e.target as HTMLInputElement).value;
-                  this.updateField("stars", val ? Number(val) : undefined);
+                  this.updateField("starsMin", val ? Number(val) : undefined);
+                }}
+              />
+              <span style="color: var(--text-secondary);">–</span>
+              <input
+                type="number"
+                value={c.starsMax != null ? String(c.starsMax) : ""}
+                min="1"
+                max="10"
+                placeholder={i18n.t("ui.advSearch.max")}
+                oninput={(e: Event) => {
+                  const val = (e.target as HTMLInputElement).value;
+                  this.updateField("starsMax", val ? Number(val) : undefined);
                 }}
               />
             </div>
@@ -636,41 +687,45 @@ export class AdvancedSearchModal extends HTMLElement {
             </div>
           </div>
 
-          {/* Platform */}
-          {platforms.length > 0 && (
-            <div className="adv-search-field">
-              <span className="adv-search-label">{i18n.t("ui.advSearch.platform")}</span>
-              <select
-                value={c.platform || ""}
-                onchange={(e: Event) =>
-                  this.updateField("platform", (e.target as HTMLSelectElement).value || undefined)
-                }
-              >
-                <option value="">{i18n.t("ui.advSearch.any")}</option>
-                {platforms.map((p) => (
-                  <option value={p} selected={p === c.platform}>
-                    {p}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-
-          {/* Region */}
-          {regions.length > 0 && (
-            <div className="adv-search-field">
-              <span className="adv-search-label">{i18n.t("ui.advSearch.region")}</span>
-              <select
-                value={c.region || ""}
-                onchange={(e: Event) => this.updateField("region", (e.target as HTMLSelectElement).value || undefined)}
-              >
-                <option value="">{i18n.t("ui.advSearch.any")}</option>
-                {regions.map((r) => (
-                  <option value={r} selected={r === c.region}>
-                    {r}
-                  </option>
-                ))}
-              </select>
+          {/* Platform & Region (paired) */}
+          {(platforms.length > 0 || regions.length > 0) && (
+            <div className="adv-search-pair">
+              {platforms.length > 0 && (
+                <div className="adv-search-field">
+                  <span className="adv-search-label">{i18n.t("ui.advSearch.platform")}</span>
+                  <select
+                    value={c.platform || ""}
+                    onchange={(e: Event) =>
+                      this.updateField("platform", (e.target as HTMLSelectElement).value || undefined)
+                    }
+                  >
+                    <option value="">{i18n.t("ui.advSearch.any")}</option>
+                    {platforms.map((p) => (
+                      <option value={p} selected={p === c.platform}>
+                        {p}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {regions.length > 0 && (
+                <div className="adv-search-field">
+                  <span className="adv-search-label">{i18n.t("ui.advSearch.region")}</span>
+                  <select
+                    value={c.region || ""}
+                    onchange={(e: Event) =>
+                      this.updateField("region", (e.target as HTMLSelectElement).value || undefined)
+                    }
+                  >
+                    <option value="">{i18n.t("ui.advSearch.any")}</option>
+                    {regions.map((r) => (
+                      <option value={r} selected={r === c.region}>
+                        {r}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
             </div>
           )}
 
