@@ -1325,13 +1325,14 @@ test.describe("Selection Interaction", () => {
     // 2. Hide stats
     await showStatsCheckbox.uncheck();
 
-    // Verify hoveredNote is cleared
+    // Verify hoveredNote is NOT cleared because click handler is still present
     const hoveredNoteHidden = await page.evaluate(() => {
       // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
       const chart = document.getElementById("chart-component") as any;
       return chart.hoveredNote;
     });
-    expect(hoveredNoteHidden).toBeNull();
+    expect(hoveredNoteHidden).not.toBeNull();
+    expect(hoveredNoteHidden).toEqual({ barIndex: 0, charIndex: 0, branch: "normal" });
 
     // 3. Hover again (stats hidden)
     await canvas.hover({ position: { x: 0, y: 0 }, force: true }); // Move away
@@ -1342,6 +1343,7 @@ test.describe("Selection Interaction", () => {
       const chart = document.getElementById("chart-component") as any;
       return chart.hoveredNote;
     });
-    expect(hoveredNoteStillNull).toBeNull();
+    expect(hoveredNoteStillNull).not.toBeNull();
+    expect(hoveredNoteStillNull).toEqual({ barIndex: 0, charIndex: 0, branch: "normal" });
   });
 });

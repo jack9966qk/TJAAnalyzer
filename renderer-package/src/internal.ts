@@ -100,6 +100,55 @@ export function createChartView(chart: ParsedChart, canvas: HTMLCanvasElement): 
   let layoutInvalid = true;
   let lastOptions: ChartViewOptions | null = null;
   let hoveredNote: HoveredNote = null;
+  const hoverHandlers = new Set<NoteInteractionHandler>();
+  const clickHandlers = new Set<NoteInteractionHandler>();
+  let interactionsAttached = false;
+
+  function handleMouseMove(e: MouseEvent) {
+    if (!lastOptions) return;
+    const { x, y, hit } = hitTest(e);
+    const newHovered: HoveredNote = hit
+      ? { barIndex: hit.originalBarIndex, charIndex: hit.charIndex, branch: hit.branch }
+      : null;
+    if (hoveredNoteChanged(hoveredNote, newHovered)) {
+      hoveredNote = newHovered;
+      lastOptions.renderOptions.hoveredNote = hoveredNote;
+      render(lastOptions);
+    }
+    if (hoverHandlers.size > 0) {
+      const eventParams = { x, y, hit, originalEvent: e };
+      for (const handler of hoverHandlers) {
+        handler(eventParams);
+      }
+    }
+  }
+
+  function handleMouseClick(e: MouseEvent) {
+    if (!lastOptions || clickHandlers.size === 0) return;
+    const { x, y, hit } = hitTest(e);
+    const eventParams = { x, y, hit, originalEvent: e };
+    for (const handler of clickHandlers) {
+      handler(eventParams);
+    }
+  }
+
+  function updateInteractionListeners() {
+    const shouldAttach = hoverHandlers.size > 0 || clickHandlers.size > 0;
+    if (shouldAttach && !interactionsAttached) {
+      canvas.addEventListener("mousemove", handleMouseMove);
+      canvas.addEventListener("click", handleMouseClick);
+      interactionsAttached = true;
+    } else if (!shouldAttach && interactionsAttached) {
+      canvas.removeEventListener("mousemove", handleMouseMove);
+      canvas.removeEventListener("click", handleMouseClick);
+      interactionsAttached = false;
+      if (hoveredNote && lastOptions) {
+        hoveredNote = null;
+        lastOptions.renderOptions.hoveredNote = null;
+        render(lastOptions);
+      }
+    }
+  }
 
   function hitTest(event: MouseEvent): { x: number; y: number; hit: HitInfo | null } {
     const rect = canvas.getBoundingClientRect();
@@ -166,39 +215,21 @@ export function createChartView(chart: ParsedChart, canvas: HTMLCanvasElement): 
     render,
 
     onNoteHovered(handler: NoteInteractionHandler): () => void {
-      const listener = (e: MouseEvent) => {
-        if (!lastOptions) return;
-        const { x, y, hit } = hitTest(e);
-        const newHovered: HoveredNote = hit
-          ? { barIndex: hit.originalBarIndex, charIndex: hit.charIndex, branch: hit.branch }
-          : null;
-        if (hoveredNoteChanged(hoveredNote, newHovered)) {
-          hoveredNote = newHovered;
-          lastOptions.renderOptions.hoveredNote = hoveredNote;
-          render(lastOptions);
-        }
-        handler({ x, y, hit, originalEvent: e });
+      hoverHandlers.add(handler);
+      updateInteractionListeners();
+      return () => {
+        hoverHandlers.delete(handler);
+        updateInteractionListeners();
       };
-      canvas.addEventListener("mousemove", listener);
-      const cleanUp = () => {
-        canvas.removeEventListener("mousemove", listener);
-        if (hoveredNote && lastOptions) {
-          hoveredNote = null;
-          lastOptions.renderOptions.hoveredNote = null;
-          render(lastOptions);
-        }
-      };
-      return cleanUp;
     },
 
     onNoteClicked(handler: NoteInteractionHandler): () => void {
-      const listener = (e: MouseEvent) => {
-        if (!lastOptions) return;
-        const { x, y, hit } = hitTest(e);
-        handler({ x, y, hit, originalEvent: e });
+      clickHandlers.add(handler);
+      updateInteractionListeners();
+      return () => {
+        clickHandlers.delete(handler);
+        updateInteractionListeners();
       };
-      canvas.addEventListener("click", listener);
-      return () => canvas.removeEventListener("click", listener);
     },
 
     exportImage(options: ChartViewOptions, width = 1024): string {

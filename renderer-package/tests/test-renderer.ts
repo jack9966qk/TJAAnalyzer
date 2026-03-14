@@ -347,10 +347,11 @@ try {
 
     // Cleanup hover only
     cleanupHover();
-    assert(canvas.listeners.get("mousemove")?.size === 0, "Mousemove listener removed");
+    assert(canvas.listeners.get("mousemove")?.size === 1, "Mousemove listener still active for click hover style");
     assert(canvas.listeners.get("click")?.size === 1, "Click listener still active");
 
     cleanupClick();
+    assert(canvas.listeners.get("mousemove")?.size === 0, "Mousemove listener removed");
     assert(canvas.listeners.get("click")?.size === 0, "Click listener removed");
   });
 
