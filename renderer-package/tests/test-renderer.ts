@@ -1,4 +1,4 @@
-import { createChartView } from "../src/internal.js";
+import { createChartView, type NoteInteractionEvent } from "../src/internal.js";
 import { createLayout } from "../src/layout.js";
 import { DEFAULT_RENDER_OPTIONS, JudgementMap, NoteLocationMap } from "../src/primitives.js";
 import { parseTJA } from "../src/tja-parser.js";
@@ -26,10 +26,13 @@ function assert(condition: boolean, message: string) {
 
 // Minimal HTMLCanvasElement mock for Node.js (no DOM).
 // getContext returns null, so layout skips text measurement and uses defaults.
-function createMockCanvas(width = 800): HTMLCanvasElement {
+function createMockCanvas(
+  width = 800,
+): HTMLCanvasElement & { listeners: Map<string, Set<(...args: never) => unknown>> } {
   let canvasWidth = width;
   let canvasHeight = 0;
   const style: Record<string, string> = { width: "", height: "" };
+  const listeners = new Map<string, Set<(...args: never) => unknown>>();
 
   return {
     get clientWidth() {
@@ -51,7 +54,28 @@ function createMockCanvas(width = 800): HTMLCanvasElement {
     getContext() {
       return null;
     },
-  } as unknown as HTMLCanvasElement;
+    getBoundingClientRect() {
+      return {
+        left: 0,
+        top: 0,
+        right: canvasWidth,
+        bottom: canvasHeight,
+        width: canvasWidth,
+        height: canvasHeight,
+        x: 0,
+        y: 0,
+        toJSON() {},
+      };
+    },
+    addEventListener(type: string, fn: (...args: never) => unknown) {
+      if (!listeners.has(type)) listeners.set(type, new Set());
+      listeners.get(type)?.add(fn);
+    },
+    removeEventListener(type: string, fn: (...args: never) => unknown) {
+      listeners.get(type)?.delete(fn);
+    },
+    listeners,
+  } as unknown as HTMLCanvasElement & { listeners: Map<string, Set<(...args: never) => unknown>> };
 }
 
 const SIMPLE_TJA = `TITLE:Test Song
@@ -179,6 +203,155 @@ try {
     const layout2x = createLayout(chart, 800, { ...DEFAULT_RENDER_OPTIONS }, new JudgementMap(), 2);
 
     assert(layout2x.dpr === 2, `Expected dpr 2, got ${layout2x.dpr}`);
+  });
+
+  runTest("onNoteHovered registers and cleans up mousemove listener", () => {
+    const chart = parseTJA(SIMPLE_TJA).oni;
+    const canvas = createMockCanvas(800);
+    const chartView = createChartView(chart, canvas);
+
+    assert((canvas.listeners.get("mousemove")?.size ?? 0) === 0, "No mousemove listeners initially");
+
+    const cleanup = chartView.onNoteHovered(() => {});
+    assert(canvas.listeners.get("mousemove")?.size === 1, "Should have one mousemove listener after registration");
+
+    cleanup();
+    assert(canvas.listeners.get("mousemove")?.size === 0, "Mousemove listener should be removed after cleanup");
+  });
+
+  runTest("onNoteClicked registers and cleans up click listener", () => {
+    const chart = parseTJA(SIMPLE_TJA).oni;
+    const canvas = createMockCanvas(800);
+    const chartView = createChartView(chart, canvas);
+
+    assert((canvas.listeners.get("click")?.size ?? 0) === 0, "No click listeners initially");
+
+    const cleanup = chartView.onNoteClicked(() => {});
+    assert(canvas.listeners.get("click")?.size === 1, "Should have one click listener after registration");
+
+    cleanup();
+    assert(canvas.listeners.get("click")?.size === 0, "Click listener should be removed after cleanup");
+  });
+
+  runTest("onNoteHovered callback receives NoteInteractionEvent with hit info", () => {
+    const chart = parseTJA(SIMPLE_TJA).oni;
+    const canvas = createMockCanvas(800);
+    const chartView = createChartView(chart, canvas);
+
+    // Render to create layout (needed for hit testing)
+    chartView.render({ renderOptions: { ...DEFAULT_RENDER_OPTIONS }, dpr: 1 });
+    const layout = chartView.layout;
+    if (!layout) throw new Error("Layout should exist after render");
+
+    let receivedEvent: NoteInteractionEvent | null = null;
+    chartView.onNoteHovered((e) => {
+      receivedEvent = e;
+    });
+
+    // Simulate a mousemove by invoking the registered listener
+    const listeners = canvas.listeners.get("mousemove");
+    if (!listeners || listeners.size === 0) throw new Error("Expected mousemove listener");
+
+    const fakeEvent = { clientX: 0, clientY: 0 } as MouseEvent;
+    for (const listener of listeners) {
+      (listener as (e: MouseEvent) => void)(fakeEvent);
+    }
+
+    const hoverEvent = receivedEvent as NoteInteractionEvent | null;
+    if (!hoverEvent) throw new Error("Handler should have been called");
+    assert(typeof hoverEvent.x === "number", "Event should have x coordinate");
+    assert(typeof hoverEvent.y === "number", "Event should have y coordinate");
+    assert(hoverEvent.originalEvent === fakeEvent, "Event should include originalEvent");
+  });
+
+  runTest("onNoteClicked callback receives NoteInteractionEvent", () => {
+    const chart = parseTJA(SIMPLE_TJA).oni;
+    const canvas = createMockCanvas(800);
+    const chartView = createChartView(chart, canvas);
+
+    chartView.render({ renderOptions: { ...DEFAULT_RENDER_OPTIONS }, dpr: 1 });
+
+    let receivedEvent: NoteInteractionEvent | null = null;
+    chartView.onNoteClicked((e) => {
+      receivedEvent = e;
+    });
+
+    const listeners = canvas.listeners.get("click");
+    if (!listeners || listeners.size === 0) throw new Error("Expected click listener");
+
+    const fakeEvent = { clientX: 0, clientY: 0 } as MouseEvent;
+    for (const listener of listeners) {
+      (listener as (e: MouseEvent) => void)(fakeEvent);
+    }
+
+    const clickEvent = receivedEvent as NoteInteractionEvent | null;
+    if (!clickEvent) throw new Error("Handler should have been called");
+    assert(typeof clickEvent.x === "number", "Event should have x coordinate");
+    assert(typeof clickEvent.y === "number", "Event should have y coordinate");
+    assert(clickEvent.originalEvent === fakeEvent, "Event should include originalEvent");
+  });
+
+  runTest("interaction handlers are no-op before first render", () => {
+    const chart = parseTJA(SIMPLE_TJA).oni;
+    const canvas = createMockCanvas(800);
+    const chartView = createChartView(chart, canvas);
+
+    // No render() called — lastRenderOptions is null
+    let called = false;
+    chartView.onNoteHovered(() => {
+      called = true;
+    });
+
+    const listeners = canvas.listeners.get("mousemove");
+    if (!listeners || listeners.size === 0) throw new Error("Expected mousemove listener");
+
+    const fakeEvent = { clientX: 50, clientY: 50 } as MouseEvent;
+    for (const listener of listeners) {
+      (listener as (e: MouseEvent) => void)(fakeEvent);
+    }
+
+    assert(!called, "Handler should not be called before render (no render options available)");
+  });
+
+  runTest("multiple interaction handlers can be registered independently", () => {
+    const chart = parseTJA(SIMPLE_TJA).oni;
+    const canvas = createMockCanvas(800);
+    const chartView = createChartView(chart, canvas);
+
+    chartView.render({ renderOptions: { ...DEFAULT_RENDER_OPTIONS }, dpr: 1 });
+
+    let hoverCount = 0;
+    let clickCount = 0;
+    const cleanupHover = chartView.onNoteHovered(() => {
+      hoverCount++;
+    });
+    const cleanupClick = chartView.onNoteClicked(() => {
+      clickCount++;
+    });
+
+    assert(canvas.listeners.get("mousemove")?.size === 1, "Should have one mousemove listener");
+    assert(canvas.listeners.get("click")?.size === 1, "Should have one click listener");
+
+    // Dispatch hover
+    const hoverListeners = canvas.listeners.get("mousemove");
+    if (!hoverListeners) throw new Error("Expected mousemove listeners");
+    for (const l of hoverListeners) (l as (e: MouseEvent) => void)({ clientX: 0, clientY: 0 } as MouseEvent);
+    assert(hoverCount === 1, "Hover handler should be called once");
+    assert(clickCount === 0, "Click handler should not be called on hover");
+
+    // Dispatch click
+    const clickListeners = canvas.listeners.get("click");
+    if (!clickListeners) throw new Error("Expected click listeners");
+    for (const l of clickListeners) (l as (e: MouseEvent) => void)({ clientX: 0, clientY: 0 } as MouseEvent);
+    assert(clickCount === 1, "Click handler should be called once");
+
+    // Cleanup hover only
+    cleanupHover();
+    assert(canvas.listeners.get("mousemove")?.size === 0, "Mousemove listener removed");
+    assert(canvas.listeners.get("click")?.size === 1, "Click listener still active");
+
+    cleanupClick();
+    assert(canvas.listeners.get("click")?.size === 0, "Click listener removed");
   });
 
   console.log("\nAll renderer tests passed.\n");

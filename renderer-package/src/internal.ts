@@ -3,6 +3,7 @@ export * from "./primitives.js";
 export * from "./renderer.js";
 export * from "./tja-parser.js";
 
+import { getChartElementAt, type HitInfo } from "./hit-testing.js";
 import {
   type ChartLayout,
   createLayout as createLayoutImpl,
@@ -34,6 +35,16 @@ export interface ChartViewOptions {
   layoutRatios?: Partial<LayoutRatios>;
 }
 
+/** Event payload for note interaction callbacks. */
+export interface NoteInteractionEvent {
+  x: number;
+  y: number;
+  hit: HitInfo | null;
+  originalEvent: MouseEvent;
+}
+
+export type NoteInteractionHandler = (event: NoteInteractionEvent) => void;
+
 /**
  * Internal chart view bound to a ParsedChart and canvas.
  * Manages layout lifecycle and rendering.
@@ -57,6 +68,20 @@ export interface ChartView {
    * Renders to an offscreen canvas at the given width (default 1024) with DPR 1.
    */
   exportImage(options: ChartViewOptions, width?: number): string;
+
+  /**
+   * Register a handler called on mousemove over the canvas with hit testing results.
+   * Uses render options and judgements from the most recent render() call.
+   * Returns a cleanup function that removes the listener.
+   */
+  onNoteHovered(handler: NoteInteractionHandler): () => void;
+
+  /**
+   * Register a handler called on click on the canvas with hit testing results.
+   * Uses render options and judgements from the most recent render() call.
+   * Returns a cleanup function that removes the listener.
+   */
+  onNoteClicked(handler: NoteInteractionHandler): () => void;
 }
 
 /**
@@ -66,6 +91,17 @@ export interface ChartView {
 export function createChartView(chart: ParsedChart, canvas: HTMLCanvasElement): ChartView {
   let layout: ChartLayout | null = null;
   let layoutInvalid = true;
+  let lastRenderOptions: RenderOptions | null = null;
+  let lastJudgements: JudgementMap<JudgementValue> = new JudgementMap();
+
+  function handleInteraction(event: MouseEvent, handler: NoteInteractionHandler) {
+    if (!lastRenderOptions) return;
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const hit = getChartElementAt(x, y, chart, canvas, lastJudgements, lastRenderOptions, layout ?? undefined);
+    handler({ x, y, hit, originalEvent: event });
+  }
 
   return {
     get layout() {
@@ -85,6 +121,9 @@ export function createChartView(chart: ParsedChart, canvas: HTMLCanvasElement): 
         dpr,
         layoutRatios,
       } = options;
+
+      lastRenderOptions = renderOptions;
+      lastJudgements = judgements;
 
       if (layoutInvalid || !layout) {
         const logicalCanvasWidth = resolveCanvasWidth(canvas);
@@ -106,6 +145,18 @@ export function createChartView(chart: ParsedChart, canvas: HTMLCanvasElement): 
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
       renderLayoutImpl(ctx, layout, chart, judgements, renderOptions, texts, dirtyRowY);
+    },
+
+    onNoteHovered(handler: NoteInteractionHandler): () => void {
+      const listener = (e: MouseEvent) => handleInteraction(e, handler);
+      canvas.addEventListener("mousemove", listener);
+      return () => canvas.removeEventListener("mousemove", listener);
+    },
+
+    onNoteClicked(handler: NoteInteractionHandler): () => void {
+      const listener = (e: MouseEvent) => handleInteraction(e, handler);
+      canvas.addEventListener("click", listener);
+      return () => canvas.removeEventListener("click", listener);
     },
 
     exportImage(options: ChartViewOptions, width = 1024): string {

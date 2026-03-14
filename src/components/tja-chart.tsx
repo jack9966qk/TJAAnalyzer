@@ -9,7 +9,6 @@ const {
   calculateAutoZoomBeats,
   createChartView,
   generateAutoAnnotations,
-  getChartElementAt,
   getNotePosition,
   HandType,
   INSETS,
@@ -23,6 +22,7 @@ type ChartLayout = Renderer.Private.ChartLayout;
 type ChartView = Renderer.Private.ChartView;
 type ChartViewOptions = Renderer.Private.ChartViewOptions;
 type HitInfo = Renderer.Private.HitInfo;
+type NoteInteractionEvent = Renderer.Private.NoteInteractionEvent;
 type Insets = Renderer.Private.Insets;
 type JudgementKey = Renderer.Private.JudgementKey;
 type JudgementValue = Renderer.Private.JudgementValue;
@@ -86,6 +86,7 @@ export class TJAChart extends HTMLElement {
   private _pendingFullRender: boolean = true;
   private _chartChanged: boolean = false;
   private _chartView: ChartView | null = null;
+  private _interactionCleanup: (() => void)[] = [];
 
   get layout(): ChartLayout | null {
     return this._chartView?.layout ?? null;
@@ -231,9 +232,6 @@ export class TJAChart extends HTMLElement {
           ref={(el) => {
             if (el) {
               this.canvas = el as HTMLCanvasElement;
-              // Re-attach listeners if canvas changes (though diffing should prevent recreation)
-              this.canvas.onmousemove = this.handleMouseMove.bind(this);
-              this.canvas.onclick = this.handleClick.bind(this);
             }
           }}
         ></canvas>
@@ -277,10 +275,7 @@ export class TJAChart extends HTMLElement {
       cancelAnimationFrame(this._renderTask);
       this._renderTask = null;
     }
-    if (this.canvas) {
-      this.canvas.onmousemove = null;
-      this.canvas.onclick = null;
-    }
+    this.cleanupInteractions();
   }
 
   scheduleRender() {
@@ -289,9 +284,15 @@ export class TJAChart extends HTMLElement {
     }
   }
 
+  private cleanupInteractions() {
+    for (const cleanup of this._interactionCleanup) cleanup();
+    this._interactionCleanup = [];
+  }
+
   set chart(value: ParsedChart | null) {
     if (this._chart !== value) {
       this._chartChanged = true;
+      this.cleanupInteractions();
       this._chartView = null;
     }
     this._chart = value;
@@ -539,6 +540,10 @@ export class TJAChart extends HTMLElement {
     // Create chart view if needed (chart changed or first render)
     if (!this._chartView) {
       this._chartView = createChartView(this._chart, this.canvas);
+      this._interactionCleanup.push(
+        this._chartView.onNoteHovered((e) => this.handleNoteHovered(e)),
+        this._chartView.onNoteClicked((e) => this.handleNoteClicked(e)),
+      );
     }
 
     this.applyAutoZoom(effectiveRenderOptions, baseInsets);
@@ -575,30 +580,15 @@ export class TJAChart extends HTMLElement {
     this.scheduleRender();
   }
 
-  private handleMouseMove(event: MouseEvent) {
+  private handleNoteHovered({ x, y, hit, originalEvent }: NoteInteractionEvent) {
     if (this._message) {
       this.canvas.style.cursor = "default";
       return;
     }
-    if (!this._chart || !this._renderOptions) return;
-
-    const rect = this.canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    const hit = getChartElementAt(
-      x,
-      y,
-      this._chart,
-      this.canvas,
-      this._judgements,
-      this._renderOptions,
-      this._chartView?.layout || undefined,
-    );
 
     this.dispatchEvent(
       new CustomEvent("chart-hover", {
-        detail: { x, y, hit, originalEvent: event },
+        detail: { x, y, hit, originalEvent },
         bubbles: true,
         composed: true,
       }),
@@ -607,23 +597,9 @@ export class TJAChart extends HTMLElement {
     this.canvas.style.cursor = hit ? "pointer" : "default";
   }
 
-  handleClick(event: MouseEvent) {
+  private handleNoteClicked({ x, y, hit, originalEvent }: NoteInteractionEvent) {
     if (this._message) return;
-    if (!this._chart || !this._renderOptions) return;
-
-    const rect = this.canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    const hit = getChartElementAt(
-      x,
-      y,
-      this._chart,
-      this.canvas,
-      this._judgements,
-      this._renderOptions,
-      this._chartView?.layout || undefined,
-    );
+    if (!this._renderOptions) return;
 
     // Handle Annotation Mode Click
     if (this._renderOptions.isAnnotationMode) {
@@ -663,7 +639,7 @@ export class TJAChart extends HTMLElement {
 
     this.dispatchEvent(
       new CustomEvent("chart-click", {
-        detail: { x, y, hit, originalEvent: event },
+        detail: { x, y, hit, originalEvent },
         bubbles: true,
         composed: true,
       }),
