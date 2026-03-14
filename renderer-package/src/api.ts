@@ -1,11 +1,18 @@
-import { createChartView as createInternalChartView } from "./internal.js";
+import type { HitInfo } from "./hit-testing.js";
+import {
+  createCycleHandHandler,
+  createChartView as createInternalChartView,
+  createToggleSeparatorHandler,
+  type NoteInteractionEvent,
+  type NoteInteractionHandler,
+} from "./internal.js";
 import { calculateAutoZoomBeats, type LayoutRatios } from "./layout.js";
-import { type Annotation, BranchName, NoteLocationMap } from "./primitives.js";
+import { type Annotation, BranchName, type NoteLocation, NoteLocationMap, type NoteType } from "./primitives.js";
 import { DEFAULT_RENDER_OPTIONS, type RenderOptions } from "./renderer.js";
 import { type ParsedChart, parseTJA } from "./tja-parser.js";
 
-export type { LayoutRatios };
-export { NoteLocationMap, type Annotation, BranchName };
+export type { HitInfo, LayoutRatios, NoteInteractionEvent, NoteInteractionHandler, NoteLocation, NoteType };
+export { BranchName, createCycleHandHandler, createToggleSeparatorHandler, NoteLocationMap, type Annotation };
 
 export interface CourseSpecifier {
   difficulty: string;
@@ -91,6 +98,20 @@ export const CREATE_CHART_OPTIONS_DEFAULTS: Required<Pick<ChartViewOptions, "zoo
 
 export interface ChartView {
   applyAnnotations(annotations: NoteLocationMap<Annotation>): void;
+
+  /**
+   * Register a handler called when the user hovers over the canvas.
+   * The handler receives hit testing results for the hovered position.
+   * Returns a cleanup function that removes the listener.
+   */
+  onNoteHovered(handler: NoteInteractionHandler): () => void;
+
+  /**
+   * Register a handler called when the user clicks on the canvas.
+   * The handler receives hit testing results for the clicked position.
+   * Returns a cleanup function that removes the listener.
+   */
+  onNoteClicked(handler: NoteInteractionHandler): () => void;
 }
 
 /**
@@ -184,6 +205,8 @@ export function createChartView(
       currentAnnotations = annotations;
       render();
     },
+    onNoteHovered: (handler: NoteInteractionHandler) => internalView.onNoteHovered(handler),
+    onNoteClicked: (handler: NoteInteractionHandler) => internalView.onNoteClicked(handler),
   };
 }
 
