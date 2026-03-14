@@ -38,6 +38,12 @@ LEVEL:10
         showAllBranches: false,
       });
     }, tja);
+
+    await page.waitForFunction(() => {
+      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element property
+      const chart = document.getElementById("chart-component") as any;
+      return chart?.layout !== null;
+    });
   });
 
   test("Inference Coloring - Mismatch Sequence", async ({ page }) => {
