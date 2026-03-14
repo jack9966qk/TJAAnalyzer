@@ -156,6 +156,7 @@ export class ModalPage extends HTMLElement {
       <div
         id="modal-root"
         className={`modal ${this._isOpen ? "open" : ""} ${layoutClass}${anchoredClass}`}
+        style={this._isOpen ? undefined : "visibility: hidden; opacity: 0;"}
         onclick={this.handleOverlayClick.bind(this)}
       >
         <link rel="stylesheet" href={styleUrl} />
