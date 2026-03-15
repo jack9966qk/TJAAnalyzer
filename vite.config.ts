@@ -5,6 +5,24 @@ import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
+// Disable PWA in dev to avoid a known iOS issue where blank space is displayed under the rendered
+// chart in fullscreen. The issue only happens from the second time the PWA is launched. The exact
+// cause is unclear and fixing this seems to be infeasible.
+const stripPwaMetaInDev = () => ({
+  name: "strip-pwa-meta-in-dev",
+  transformIndexHtml: {
+    order: "pre" as const,
+    handler(html: string) {
+      const pattern = /<meta name="apple-mobile-web-app-capable"[^>]*>\n?\s*/g;
+      if (!pattern.test(html)) {
+        throw new Error("stripPwaMetaInDev: apple-mobile-web-app-capable meta tag not found in index.html");
+      }
+      return html.replace(pattern, "");
+    },
+  },
+  apply: "serve" as const,
+});
+
 const generateMetaFiles = () => {
   return {
     name: "generate-meta-files",
@@ -86,6 +104,7 @@ export default defineConfig({
     jsxImportSource: "webjsx",
   },
   plugins: [
+    stripPwaMetaInDev(),
     generateMetaFiles(),
     viteStaticCopy({
       targets: [
