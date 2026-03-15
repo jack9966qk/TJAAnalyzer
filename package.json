@@ -6,11 +6,17 @@
   "scripts": {
     "build-data": "node --loader ts-node/esm build-data.ts",
     "prepare-data": "sh -c 'node --loader ts-node/esm prepare-data.ts \"$@\" && npm run build-data' --",
-    "build": "npm run build-data && tsc --noEmit && vite build",
-    "dev": "npm run build-data && npm-run-all --parallel \"dev:vite -- {@}\" --",
+    "build:renderer": "npm run build --prefix TJARenderer",
+    "build:app": "npm run build-data && tsc --noEmit && vite build",
+    "build": "npm run build:renderer && npm run build:app",
+    "dev": "npm run build:renderer && concurrently -P \"npm run dev:renderer\" \"npm run dev:app -- {@}\" --",
+    "dev:renderer": "npm run watch --prefix TJARenderer",
+    "dev:app": "npm run build-data && npm-run-all --parallel \"dev:vite -- {@}\" --",
     "dev:vite": "vite",
     "start": "vite preview --port 8080",
-    "test": "npm run build && node --loader ts-node/esm tests/test-parser.ts && node --loader ts-node/esm tests/test-exporter.ts && playwright test",
+    "test:renderer": "npm run test --prefix TJARenderer",
+    "test:app": "npm run build:app && node --loader ts-node/esm tests/test-parser.ts && node --loader ts-node/esm tests/test-exporter.ts && playwright test",
+    "test": "npm run test:renderer && npm run test:app",
     "build:exe": "npm run build && node build-exe.js",
     "start:exe": "npm run build && neu update && neu run",
     "deploy": "npm run build && gh-pages -d dist",
@@ -20,6 +26,7 @@
     "analyze-ese": "rm -rf offline-analysis/output && node --loader ts-node/esm offline-analysis/analyze-ese.ts"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "@biomejs/biome": "2.3.11",
     "@neutralinojs/neu": "^11.6.0",
     "@playwright/test": "^1.57.0",
@@ -36,7 +43,7 @@
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@neutralinojs/lib": "^6.4.0",
-    "tja-renderer": "*",
+    "tja-renderer": "file:TJARenderer",
     "webjsx": "^0.0.73"
   }
 }

@@ -1,7 +1,7 @@
 import type { BranchSelection, LayoutRatios } from "tja-renderer";
 import { BranchName, createChartView, getChartInfo } from "tja-renderer";
 
-// ── Default Layout Ratios (must match renderer-package/src/layout.ts) ──
+// ── Default Layout Ratios (must match TJARenderer/src/layout.ts) ──
 
 const DEFAULT_LAYOUT_RATIOS: LayoutRatios = {
   barHeight: 0.14,

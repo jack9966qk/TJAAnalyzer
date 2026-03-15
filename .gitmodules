@@ -1,3 +1,6 @@
 [submodule "assets/heroicons"]
 	path = assets/heroicons
 	url = https://github.com/tailwindlabs/heroicons
+[submodule "TJARenderer"]
+	path = TJARenderer
+	url = https://github.com/jack9966qk/TJARenderer.git
