@@ -1,5 +1,160 @@
 [
   {
+    "hash": "4eea016",
+    "message": "Update version to 0.11.5.",
+    "date": "2026-03-16"
+  },
+  {
+    "hash": "30169dc",
+    "message": "Hide the full screen chart graident overlay if no safe area in the top.",
+    "date": "2026-03-16"
+  },
+  {
+    "hash": "4bd4e26",
+    "message": "Disable PWA capability when app run in npm dev mode due to known issue.",
+    "date": "2026-03-16"
+  },
+  {
+    "hash": "6e90e07",
+    "message": "Reintroduce renderer package as a git submodule.",
+    "date": "2026-03-15"
+  },
+  {
+    "hash": "f59b5d9",
+    "message": "Disable page zoom on mobile platforms.",
+    "date": "2026-03-15"
+  },
+  {
+    "hash": "43e5bfd",
+    "message": "Add missing data for a test case.",
+    "date": "2026-03-15"
+  },
+  {
+    "hash": "b877fde",
+    "message": "Refine the UI in advanced search. Allow selecting multiple difficulties and a range of stars.",
+    "date": "2026-03-15"
+  },
+  {
+    "hash": "c7e91cb",
+    "message": "Add a gradient overlay to the top safe area of the fullscreen chart.",
+    "date": "2026-03-15"
+  },
+  {
+    "hash": "8dd2f3f",
+    "message": "Share note gap calculation logic between offline analysis and note stats panel. Fix the duration calculation with changing BPM in the note stats panel.",
+    "date": "2026-03-15"
+  },
+  {
+    "hash": "c641ae9",
+    "message": "Update analyze-ese script to accept a unit parameter, supporting gaps output in ms.",
+    "date": "2026-03-15"
+  },
+  {
+    "hash": "a5e26cf",
+    "message": "Avoid the flash of modal pages when app opens.",
+    "date": "2026-03-15"
+  },
+  {
+    "hash": "ae1e393",
+    "message": "Update package scripts to adapt to the separation of the renderer package. Move some tests out of this (app) repository.",
+    "date": "2026-03-15"
+  },
+  {
+    "hash": "e6f2cec",
+    "message": "Remove the renderer package for it to become a separate repository.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "3810c45",
+    "message": "Make note hover and click handling API public, along with helper functions for annotations.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "ddaf773",
+    "message": "Move some chart annotation interaction logic from the app to the renderer package.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "188365b",
+    "message": "Include branch name in note location object. Update HitInfo to use note location. Remove some usages of optional branch name. For now, use normal branch name to express charts/sections with no branching.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "6edc615",
+    "message": "Enable the hover style in the renderer package when only click handlers are configured.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "fed9b4d",
+    "message": "Move hovered note style updates from the app to the renderer package.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "a5cb9fc",
+    "message": "Extend renderer internal API for hover/click event handler registration.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "bc2c7d9",
+    "message": "Minor refactoring in tja-chart to make calculateDirtyRowY a separate function.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "9cce2be",
+    "message": "Move image export implementation to the renderer. Eliminate usages of renderChart from the app.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "d2cc84f",
+    "message": "Address some flaky tests.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "48f1a5a",
+    "message": "Reduce browser environment dependency in layout.ts, add basic test cases.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "15eb714",
+    "message": "Set up tests within the renderer package.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "67ed3cc",
+    "message": "Add README to the TJA renderer package.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "222d1f8",
+    "message": "Define an internal/private version of ChartView API allowing easier migration of functionalities from the app package to the renderer package.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "c54a5b9",
+    "message": "Rename renderer ViewOptions as RenderOptions to disambiguate from ChartViewOptions and the app ViewOptions.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "410c501",
+    "message": "Rename chart as chart view in public renderer API.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "0afda8b",
+    "message": "Remove the previously defined public API. Also make default chart options public.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "9f1827d",
+    "message": "Update the new public API. Migrate renderer example package to the new API.",
+    "date": "2026-03-14"
+  },
+  {
+    "hash": "15f0bd9",
+    "message": "Extend renderer public API and mark previous ones as deprecated.",
+    "date": "2026-03-13"
+  },
+  {
     "hash": "4b5858d",
     "message": "Update version to 0.11.4.",
     "date": "2026-03-13"
@@ -343,160 +498,5 @@
     "hash": "23ce800",
     "message": "Fix blurry long note extension.",
     "date": "2026-02-28"
-  },
-  {
-    "hash": "b00bfa0",
-    "message": "Improve button styling consistency.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "4f7f420",
-    "message": "Improve long note extension drawing so that the fade is more consistent with the remaining of the chart.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "0615255",
-    "message": "Update version to 0.10.2.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "a87d0a3",
-    "message": "Update the colors of drumroll and ballon notes, and the colors for difficulties.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "dbecbbc",
-    "message": "Attempt (again) to fix dev hot reloading when there is a renderer package change. Update gitignore.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "ad07ed9",
-    "message": "Draw a leading circle for drumroll long notes.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "32f091e",
-    "message": "Fix ESE chart loading for items with \"+\" in the path.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "55d6fa6",
-    "message": "Draw long note extension for line beginning/end.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "805684c",
-    "message": "For auto zoom calculation. Evaluate full note diameter instead of the inner circle.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "6cacebe",
-    "message": "Slight adjustment in ballon number text sizing and positioning.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "9d19798",
-    "message": "Remove the white border from ballon/kasudama trailing capsule.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "c2fd80c",
-    "message": "Update renderer to support title and subtitle override. Make use of these instead of modifying the chart from the app.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "8fa19bd",
-    "message": "Update data preparation and index generation processes for a clearer separation between data that should be tracked and data that is derived in a deterministic way. Fix some test cases.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "088a536",
-    "message": "Add a setting for preferred chart title/subtitle language independent from app language.",
-    "date": "2026-02-27"
-  },
-  {
-    "hash": "2f0c53f",
-    "message": "Update version to 0.10.1.",
-    "date": "2026-02-27"
-  },
-  {
-    "hash": "cb77da0",
-    "message": "Change chart list ura label to just Ura instead of Oni(Ura) and fix difficulty-specific selection highlight bugs.",
-    "date": "2026-02-27"
-  },
-  {
-    "hash": "f92c299",
-    "message": "Make chart list items difficulty-aware when using advanced search filters.",
-    "date": "2026-02-27"
-  },
-  {
-    "hash": "68e2c8c",
-    "message": "Update version to 0.10.0.",
-    "date": "2026-02-27"
-  },
-  {
-    "hash": "5c9a0dc",
-    "message": "Update 1 outdated snapshot.",
-    "date": "2026-02-27"
-  },
-  {
-    "hash": "b996f21",
-    "message": "Fetch 10 star DFC difficulty data and add a filtering option for it.",
-    "date": "2026-02-27"
-  },
-  {
-    "hash": "11c40fc",
-    "message": "Add to advanced search filtering by playdata category.",
-    "date": "2026-02-27"
-  },
-  {
-    "hash": "d8dfa3e",
-    "message": "Set up advanced search which allows filtering by difficulty, stars, BPM and more.",
-    "date": "2026-02-27"
-  },
-  {
-    "hash": "7d41632",
-    "message": "Update song_mapping.",
-    "date": "2026-02-27"
-  },
-  {
-    "hash": "05dc988",
-    "message": "Expand ESE index to include additional metadata.",
-    "date": "2026-02-26"
-  },
-  {
-    "hash": "75bb864",
-    "message": "Update version to 0.9.8.",
-    "date": "2026-02-26"
-  },
-  {
-    "hash": "98646a6",
-    "message": "Allow more flexibility in playdata display. Move the dropdown to settings page.",
-    "date": "2026-02-26"
-  },
-  {
-    "hash": "a8bde96",
-    "message": "Update song mapping format. Incorporate DonderHelper data for more localized titles.",
-    "date": "2026-02-26"
-  },
-  {
-    "hash": "80d5dfe",
-    "message": "Simplify some UI label text.",
-    "date": "2026-02-25"
-  },
-  {
-    "hash": "6ad2de5",
-    "message": "Update version to 0.9.7.",
-    "date": "2026-02-24"
-  },
-  {
-    "hash": "e359554",
-    "message": "Slightly reduce inner border width multiplier for selected notes.",
-    "date": "2026-02-24"
-  },
-  {
-    "hash": "12c8d9b",
-    "message": "Remove the inner (white) border from drumroll notes.",
-    "date": "2026-02-24"
   }
 ]
