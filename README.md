@@ -8,16 +8,25 @@ A versatile tool for visualizing, analyzing, and annotating TJA charts.
 
 - Renders TJA charts in native resolution with zooming support.
 - Renders branches (Normal, Expert, Master) individually or stacked together.
+- Supports player side selection for multi-player charts.
+- Full-screen chart view with PWA support and mobile optimizations.
 
 ### Analysis
 
-- Displays note statistics such as BPM and interval from previous note.
-- Annotate hands (L/R) manually or automatically with hand inference.
+- Displays note statistics such as BPM and note gaps (in beats or milliseconds).
+- Annotate hands (L/R) manually or automatically with customizable hand inference.
+- Note separator annotations for marking chart sections.
+
+### Search
+
+- Advanced search with filters for difficulty, star rating range, and BPM range.
+- Shareable search state via URL parameters.
 
 ### Export
 
 - Exports selected chart section as TJA, with loop customizations.
 - Save rendered charts as high-quality images.
+- Share link to current chart with search options.
 
 ## Getting Started
 
@@ -96,6 +105,8 @@ npm run fetch-ese
 
 A brief summary of each minor version:
 
+- **v0.11.x**: Note separator annotations and customizable auto-annotation. Extracted renderer into a standalone package with public API.
+- **v0.10.x**: Advanced search filters (BPM range, difficulty, star rating), wiki links, player side selection, shareable search state via URL.
 - **v0.9.x**: Added playdata management (import and export), play status indicators in chart list, persistent URL updates, refined ESE search functionality.
 - **v0.8.x**: Implemented PWA offline support and auto-updates, migrated build system, extracted renderer logic into a standalone package.
 - **v0.7.x**: Overhauled judgement handling for better game integration, introduced portable builds for desktop, added scripts for generating song mappings.
