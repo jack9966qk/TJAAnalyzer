@@ -544,6 +544,8 @@ export class TJAChart extends HTMLElement {
           left: Math.max(INSETS.left, safeArea.left + 10),
           right: Math.max(INSETS.right, safeArea.right + 10),
         };
+        const overlay = this.shadowRoot?.getElementById("safe-area-overlay");
+        overlay?.classList.toggle("hidden", safeArea.top === 0);
       }
     }
 
