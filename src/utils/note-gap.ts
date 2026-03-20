@@ -15,6 +15,20 @@ interface BarSegment {
   bpm: number;
 }
 
+/** Resolve the effective BPM at a given char index, accounting for mid-bar BPM changes. */
+function getEffectiveBpm(chart: ParsedChart, barIdx: number, charIdx: number): number {
+  const params = chart.barParams?.[barIdx];
+  if (!params) return 120;
+  const changes = params.bpmChanges;
+  if (!changes || changes.length === 0) return params.bpm;
+  let bpm = params.bpm;
+  for (const c of changes) {
+    if (c.index <= charIdx) bpm = c.bpm;
+    else break;
+  }
+  return bpm;
+}
+
 /**
  * Walk backwards from (currentBarIdx, currentCharIdx) to the previous renderable note,
  * collecting per-bar segments with their measure fractions and BPMs.
@@ -30,14 +44,14 @@ function getGapSegments(
   const currentBar = chart.bars[currentBarIdx];
   const currentTotal = currentBar.length;
   const currentRatio = chart.barParams?.[currentBarIdx]?.measureRatio ?? 1.0;
-  const currentBpm = chart.barParams?.[currentBarIdx]?.bpm ?? 120;
+  const currentBpm = getEffectiveBpm(chart, currentBarIdx, currentCharIdx);
 
   // Check within current bar
   for (let i = currentCharIdx - 1; i >= 0; i--) {
     if (RENDERABLE_NOTES.includes(currentBar[i])) {
       if (requireJudgeable && !JUDGEABLE_NOTES.includes(currentBar[i])) return null;
       const fraction = ((currentCharIdx - i) / currentTotal) * currentRatio;
-      return [{ fraction, bpm: currentBpm }];
+      return [{ fraction, bpm: getEffectiveBpm(chart, currentBarIdx, i) }];
     }
   }
 
@@ -48,7 +62,7 @@ function getGapSegments(
   for (let b = currentBarIdx - 1; b >= 0; b--) {
     const prevBar = chart.bars[b];
     const prevRatio = chart.barParams?.[b]?.measureRatio ?? 1.0;
-    const prevBpm = chart.barParams?.[b]?.bpm ?? 120;
+    const prevBpm = getEffectiveBpm(chart, b, prevBar?.length ?? 0);
 
     if (!prevBar || prevBar.length === 0) {
       if (maxMeasures !== undefined && totalMeasures + prevRatio > maxMeasures + 0.001) return null;
@@ -65,7 +79,7 @@ function getGapSegments(
         const distInPrev = ((prevTotal - i) / prevTotal) * prevRatio;
         const candidateTotal = totalMeasures + distInPrev;
         if (maxMeasures !== undefined && candidateTotal > maxMeasures + 0.0001) return null;
-        segments.push({ fraction: distInPrev, bpm: prevBpm });
+        segments.push({ fraction: distInPrev, bpm: getEffectiveBpm(chart, b, i) });
         return segments;
       }
     }
