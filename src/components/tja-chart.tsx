@@ -605,9 +605,11 @@ export class TJAChart extends HTMLElement {
     if (!this._chartView) {
       this._chartView = createChartView(this._chart, this.canvas);
       this._clickCleanup = this._chartView.onNoteClicked((e) => this.handleNoteClicked(e));
-      if (this._hoverStyleEnabled) {
-        this._hoverCleanup = this._chartView.onNoteHovered((e) => this.handleNoteHovered(e));
-      }
+    }
+
+    // Ensure hover listener is always registered when it should be
+    if (this._hoverStyleEnabled && this._chartView && !this._hoverCleanup) {
+      this._hoverCleanup = this._chartView.onNoteHovered((e) => this.handleNoteHovered(e));
     }
 
     this.applyAutoZoom(effectiveRenderOptions, baseInsets);

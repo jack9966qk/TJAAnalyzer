@@ -1,6 +1,6 @@
 import * as Renderer from "tja-renderer";
 
-const { NoteType } = Renderer.Private;
+const { NoteType, getEffectiveBpm, getEffectiveScroll, getEffectiveGogo } = Renderer.Private;
 type NoteType = Renderer.Private.NoteType;
 type RenderOptions = Renderer.Private.RenderOptions;
 type ParsedChart = Renderer.Private.ParsedChart;
@@ -26,30 +26,12 @@ function getContextAt(chart: ParsedChart, barIndex: number, charIndex: number): 
     };
   }
 
-  let bpm = params.bpm;
-  let scroll = params.scroll;
-  const measureRatio = params.measureRatio;
-  let gogoTime = params.gogoTime;
-
-  if (params.bpmChanges) {
-    for (const ch of params.bpmChanges) {
-      if (ch.index <= charIndex) bpm = ch.bpm;
-    }
-  }
-
-  if (params.scrollChanges) {
-    for (const ch of params.scrollChanges) {
-      if (ch.index <= charIndex) scroll = ch.scroll;
-    }
-  }
-
-  if (params.gogoChanges) {
-    for (const ch of params.gogoChanges) {
-      if (ch.index <= charIndex) gogoTime = ch.isGogo;
-    }
-  }
-
-  return { bpm, scroll, measureRatio, gogoTime };
+  return {
+    bpm: getEffectiveBpm(params, charIndex),
+    scroll: getEffectiveScroll(params, charIndex),
+    measureRatio: params.measureRatio,
+    gogoTime: getEffectiveGogo(params, charIndex),
+  };
 }
 
 export function generateTJAFromSelection(

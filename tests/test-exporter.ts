@@ -266,7 +266,7 @@ BALLOON:3
     assert(!!reParsed, "Re-parsed chart should contain 'Oni' course");
 
     // Check Header BPM
-    assert(reParsed.barParams[0].bpm === 150, `Expected BPM 150, got ${reParsed.barParams[0].bpm}`);
+    assert(reParsed.barParams[0].initialBpm === 150, `Expected BPM 150, got ${reParsed.barParams[0].initialBpm}`);
 
     // Check Structure:
     // Loop 1: Empty Bar (0,) -> Selection (10700000,)

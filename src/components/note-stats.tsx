@@ -459,9 +459,12 @@ export class NoteStatsDisplay extends HTMLElement {
             <div className="stat-label">{i18n.t("stats.gap")}</div>
             <div className="stat-value">{gap}</div>
           </div>
-          {StatBox(i18n.t("stats.bpm"), hit ? this.formatBPM(hit.bpm) : def)}
-          {StatBox(i18n.t("stats.hs"), hit ? this.formatHS(hit.scroll) : def)}
-          {StatBox(i18n.t("stats.seenBpm"), hit ? this.formatBPM(hit.bpm * hit.scroll) : def)}
+          {StatBox(i18n.t("stats.bpm"), hit?.bpm != null ? this.formatBPM(hit.bpm) : def)}
+          {StatBox(i18n.t("stats.hs"), hit?.scroll != null ? this.formatHS(hit.scroll) : def)}
+          {StatBox(
+            i18n.t("stats.seenBpm"),
+            hit?.bpm != null && hit?.scroll != null ? this.formatBPM(hit.bpm * hit.scroll) : def,
+          )}
 
           {collapsed ? (
             <div style="display: contents;">

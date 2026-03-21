@@ -31,8 +31,8 @@ try {
 
   // Check BPM/Scroll
   const params0 = chart.barParams[0];
-  console.log(`Bar 0 Params: BPM=${params0.bpm}, Scroll=${params0.scroll}`);
-  if (params0.bpm !== 125) throw new Error(`Expected Bar 0 BPM to be 125, got ${params0.bpm}`);
+  console.log(`Bar 0 Params: BPM=${params0.initialBpm}, Scroll=${params0.scroll}`);
+  if (params0.initialBpm !== 125) throw new Error(`Expected Bar 0 BPM to be 125, got ${params0.initialBpm}`);
 
   // Check Bar 4 (after BPMCHANGE 250 and SCROLL 0.75)
   // Counting bars in exampleTJA:
@@ -42,13 +42,13 @@ try {
   // Bar 3: 0 (measure 2/4)
   // Bar 4: 3000... (measure 4/4, after change)
   const params4 = chart.barParams[4];
-  console.log(`Bar 4 Params: BPM=${params4.bpm}, Scroll=${params4.scroll}`);
+  console.log(`Bar 4 Params: BPM=${params4.initialBpm}, Scroll=${params4.scroll}`);
 
   // The parser behavior is that changes at the start of the bar are recorded in bpmChanges/scrollChanges
-  // while the base 'bpm'/'scroll' property reflects the state at the end of the previous bar.
+  // while the base 'initialBpm'/'scroll' property reflects the state at the end of the previous bar.
   // The renderer handles this by checking changes at index 0.
 
-  if (params4.bpm !== 125) throw new Error(`Expected Bar 4 Base BPM to be 125, got ${params4.bpm}`);
+  if (params4.initialBpm !== 125) throw new Error(`Expected Bar 4 Base BPM to be 125, got ${params4.initialBpm}`);
 
   const bpmChange = params4.bpmChanges?.find((c) => c.index === 0);
   if (!bpmChange || bpmChange.bpm !== 250) {

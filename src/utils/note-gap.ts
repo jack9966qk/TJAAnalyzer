@@ -1,6 +1,6 @@
 import * as Renderer from "tja-renderer";
 
-const { RENDERABLE_NOTES, JUDGEABLE_NOTES } = Renderer.Private;
+const { RENDERABLE_NOTES, JUDGEABLE_NOTES, getEffectiveBpm } = Renderer.Private;
 type ParsedChart = Renderer.Private.ParsedChart;
 
 export interface GapOptions {
@@ -13,20 +13,6 @@ export interface GapOptions {
 interface BarSegment {
   fraction: number;
   bpm: number;
-}
-
-/** Resolve the effective BPM at a given char index, accounting for mid-bar BPM changes. */
-function getEffectiveBpm(chart: ParsedChart, barIdx: number, charIdx: number): number {
-  const params = chart.barParams?.[barIdx];
-  if (!params) return 120;
-  const changes = params.bpmChanges;
-  if (!changes || changes.length === 0) return params.bpm;
-  let bpm = params.bpm;
-  for (const c of changes) {
-    if (c.index <= charIdx) bpm = c.bpm;
-    else break;
-  }
-  return bpm;
 }
 
 /**
@@ -43,15 +29,17 @@ function getGapSegments(
   const { requireJudgeable = false, maxMeasures } = options;
   const currentBar = chart.bars[currentBarIdx];
   const currentTotal = currentBar.length;
-  const currentRatio = chart.barParams?.[currentBarIdx]?.measureRatio ?? 1.0;
-  const currentBpm = getEffectiveBpm(chart, currentBarIdx, currentCharIdx);
+  const currentParams = chart.barParams?.[currentBarIdx];
+  if (!currentParams) return null;
+  const currentRatio = currentParams.measureRatio;
+  const currentBpm = getEffectiveBpm(currentParams, currentCharIdx);
 
   // Check within current bar
   for (let i = currentCharIdx - 1; i >= 0; i--) {
     if (RENDERABLE_NOTES.includes(currentBar[i])) {
       if (requireJudgeable && !JUDGEABLE_NOTES.includes(currentBar[i])) return null;
       const fraction = ((currentCharIdx - i) / currentTotal) * currentRatio;
-      return [{ fraction, bpm: getEffectiveBpm(chart, currentBarIdx, i) }];
+      return [{ fraction, bpm: getEffectiveBpm(currentParams, i) }];
     }
   }
 
@@ -61,8 +49,10 @@ function getGapSegments(
 
   for (let b = currentBarIdx - 1; b >= 0; b--) {
     const prevBar = chart.bars[b];
-    const prevRatio = chart.barParams?.[b]?.measureRatio ?? 1.0;
-    const prevBpm = getEffectiveBpm(chart, b, prevBar?.length ?? 0);
+    const prevParams = chart.barParams?.[b];
+    const prevRatio = prevParams?.measureRatio ?? 1.0;
+    if (!prevParams) return null;
+    const prevBpm = getEffectiveBpm(prevParams, prevBar?.length ?? 0);
 
     if (!prevBar || prevBar.length === 0) {
       if (maxMeasures !== undefined && totalMeasures + prevRatio > maxMeasures + 0.001) return null;
@@ -79,7 +69,7 @@ function getGapSegments(
         const distInPrev = ((prevTotal - i) / prevTotal) * prevRatio;
         const candidateTotal = totalMeasures + distInPrev;
         if (maxMeasures !== undefined && candidateTotal > maxMeasures + 0.0001) return null;
-        segments.push({ fraction: distInPrev, bpm: getEffectiveBpm(chart, b, i) });
+        segments.push({ fraction: distInPrev, bpm: getEffectiveBpm(prevParams, i) });
         return segments;
       }
     }
