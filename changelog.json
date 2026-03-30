@@ -1,5 +1,30 @@
 [
   {
+    "hash": "04de254",
+    "message": "Update version to 0.11.6.",
+    "date": "2026-03-31"
+  },
+  {
+    "hash": "014b177",
+    "message": "Replace the temporary local getEffectiveBpm solution with the new utility function from the renderer package. Also update usages of a renamed symbol.",
+    "date": "2026-03-21"
+  },
+  {
+    "hash": "8d0c15f",
+    "message": "Apply a quick fix to BPM calculation during note gap calculation.",
+    "date": "2026-03-20"
+  },
+  {
+    "hash": "2f05733",
+    "message": "Update TJARenderer submodule version.",
+    "date": "2026-03-20"
+  },
+  {
+    "hash": "199fe21",
+    "message": "Update README.md.",
+    "date": "2026-03-16"
+  },
+  {
     "hash": "4eea016",
     "message": "Update version to 0.11.5.",
     "date": "2026-03-16"
@@ -472,31 +497,6 @@
   {
     "hash": "9d9b2b2",
     "message": "Update version to 0.10.3.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "2750537",
-    "message": "Improve advanced search layout under low width.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "6952fb5",
-    "message": "Fix broken tests.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "47b22d1",
-    "message": "Add some padding for the tja-chart message state. Run formatter.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "a004222",
-    "message": "Refactor modal page implementations with a reusable component. Update its vertical layout behavior to behave like a buttom sheet.",
-    "date": "2026-02-28"
-  },
-  {
-    "hash": "23ce800",
-    "message": "Fix blurry long note extension.",
     "date": "2026-02-28"
   }
 ]
