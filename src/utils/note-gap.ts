@@ -1,11 +1,27 @@
 import * as Renderer from "tja-renderer";
 
-const { RENDERABLE_NOTES, JUDGEABLE_NOTES, getEffectiveBpm } = Renderer.Private;
+const { RENDERABLE_NOTES, getEffectiveBpm, NoteType } = Renderer.Private;
 type ParsedChart = Renderer.Private.ParsedChart;
 
+const LONG_NOTE_TYPES = [NoteType.Drumroll, NoteType.DrumrollBig, NoteType.Balloon, NoteType.Kusudama, NoteType.End];
+
+/**
+ * How to handle long notes (drumrolls, balloons, kusudama) when measuring gaps.
+ * - End: stop at the End marker of a long note (default)
+ * - Start: skip End markers, stop at the long note start (Drumroll/Balloon/etc.)
+ * - Skip: skip the entire long note, find the previous judgeable note
+ * - Strict: return null if a long note is encountered before a judgeable note
+ */
+export enum LongNoteHandling {
+  End = "end",
+  Start = "start",
+  Skip = "skip",
+  Strict = "strict",
+}
+
 export interface GapOptions {
-  /** If true, return null when the previous renderable note is not judgeable. */
-  requireJudgeable?: boolean;
+  /** How to handle long notes when measuring gaps. Defaults to LongNoteHandling.End. */
+  longNoteHandling?: LongNoteHandling;
   /** Maximum gap in measures before returning null. Defaults to no limit. */
   maxMeasures?: number;
 }
@@ -26,7 +42,7 @@ function getGapSegments(
   currentCharIdx: number,
   options: GapOptions = {},
 ): BarSegment[] | null {
-  const { requireJudgeable = false, maxMeasures } = options;
+  const { longNoteHandling = LongNoteHandling.End, maxMeasures } = options;
   const currentBar = chart.bars[currentBarIdx];
   const currentTotal = currentBar.length;
   const currentParams = chart.barParams?.[currentBarIdx];
@@ -37,7 +53,11 @@ function getGapSegments(
   // Check within current bar
   for (let i = currentCharIdx - 1; i >= 0; i--) {
     if (RENDERABLE_NOTES.includes(currentBar[i])) {
-      if (requireJudgeable && !JUDGEABLE_NOTES.includes(currentBar[i])) return null;
+      if (LONG_NOTE_TYPES.includes(currentBar[i])) {
+        if (longNoteHandling === LongNoteHandling.Strict) return null;
+        if (longNoteHandling === LongNoteHandling.Skip) continue;
+        if (longNoteHandling === LongNoteHandling.Start && currentBar[i] === NoteType.End) continue;
+      }
       const fraction = ((currentCharIdx - i) / currentTotal) * currentRatio;
       return [{ fraction, bpm: getEffectiveBpm(currentParams, i) }];
     }
@@ -65,7 +85,11 @@ function getGapSegments(
 
     for (let i = prevTotal - 1; i >= 0; i--) {
       if (RENDERABLE_NOTES.includes(prevBar[i])) {
-        if (requireJudgeable && !JUDGEABLE_NOTES.includes(prevBar[i])) return null;
+        if (LONG_NOTE_TYPES.includes(prevBar[i])) {
+          if (longNoteHandling === LongNoteHandling.Strict) return null;
+          if (longNoteHandling === LongNoteHandling.Skip) continue;
+          if (longNoteHandling === LongNoteHandling.Start && prevBar[i] === NoteType.End) continue;
+        }
         const distInPrev = ((prevTotal - i) / prevTotal) * prevRatio;
         const candidateTotal = totalMeasures + distInPrev;
         if (maxMeasures !== undefined && candidateTotal > maxMeasures + 0.0001) return null;
