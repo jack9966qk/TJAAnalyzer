@@ -1,7 +1,7 @@
 import * as Renderer from "tja-renderer";
 import * as webjsx from "webjsx";
 import { i18n } from "../utils/i18n.js";
-import { getGapMeasures, getGapMs } from "../utils/note-gap.js";
+import { getGapMeasures, getGapMs, LongNoteHandling } from "../utils/note-gap.js";
 
 const { getGradientColor, JUDGEABLE_NOTES, JudgementMap, JudgementType, PALETTE } = Renderer.Private;
 
@@ -75,7 +75,7 @@ export class NoteStatsDisplay extends HTMLElement {
     return gap.toFixed(3);
   }
 
-  private static readonly GAP_OPTIONS = { requireJudgeable: true, maxMeasures: 1 } as const;
+  private static readonly GAP_OPTIONS = { longNoteHandling: LongNoteHandling.Strict, maxMeasures: 1 } as const;
 
   render() {
     const def = "-";

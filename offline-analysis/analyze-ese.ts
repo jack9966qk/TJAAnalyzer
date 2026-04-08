@@ -2,7 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
 import * as Renderer from "tja-renderer";
-import { getGapMeasures, getGapMs } from "../src/utils/note-gap.js";
+import { getGapMeasures, getGapMs, LongNoteHandling } from "../src/utils/note-gap.js";
 
 const { parseTJA, RENDERABLE_NOTES } = Renderer.Private;
 type ParsedChart = Renderer.Private.ParsedChart;
@@ -51,7 +51,7 @@ interface TJAAnalysis {
   courses: Record<string, CourseGaps>;
 }
 
-const GAP_OPTIONS = { requireJudgeable: true } as const;
+const GAP_OPTIONS = { longNoteHandling: LongNoteHandling.Strict } as const;
 
 function computeNoteGaps(chart: ParsedChart, unit: GapUnit): NoteGaps {
   const gaps: NoteGaps = [];
