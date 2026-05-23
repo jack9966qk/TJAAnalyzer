@@ -40,6 +40,7 @@ type JudgementMap<T> = Renderer.Private.JudgementMap<T>;
 type JudgementValue = Renderer.Private.JudgementValue;
 type RenderOptions = Renderer.Private.RenderOptions;
 
+import { collapseSheet, expandSheet, initBottomSheet } from "./controllers/bottom-sheet-controller.js";
 import {
   refreshChart,
   restoreUrlState,
@@ -166,6 +167,8 @@ function switchDisplayOptionTab(mode: string) {
 
   updateModeStatus(mode);
   updateDisplayState();
+  // Notify the bottom-sheet so it can re-measure content height for anchoring.
+  window.dispatchEvent(new CustomEvent("options-tab-changed"));
 }
 
 function switchDataSourceMode(mode: string) {
@@ -369,7 +372,13 @@ function initEventListeners() {
   doTabs.forEach((tab) => {
     tab.addEventListener("click", () => {
       const mode = tab.getAttribute("data-do-tab");
-      if (mode) switchDisplayOptionTab(mode);
+      if (!mode) return;
+      // Tap active tab to expand the bottom sheet
+      if (tab.classList.contains("active")) {
+        expandSheet();
+        return;
+      }
+      switchDisplayOptionTab(mode);
     });
   });
 
@@ -380,12 +389,11 @@ function initEventListeners() {
     dsPanelHeader.addEventListener("click", () => {
       if (dsBody.classList.contains("collapsed")) {
         dsBody.classList.remove("collapsed");
-
+        collapseSheet();
         dsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-up.svg";
         dsCollapseIcon.alt = i18n.t("ui.collapse");
       } else {
         dsBody.classList.add("collapsed");
-
         dsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-down.svg";
         dsCollapseIcon.alt = i18n.t("ui.expand");
       }
@@ -396,6 +404,9 @@ function initEventListeners() {
   if (optionsPanelHeader && optionsBody && optionsCollapseIcon) {
     optionsPanelHeader.style.cursor = "pointer";
     optionsPanelHeader.addEventListener("click", () => {
+      // In vertical layout, the bottom-sheet controller owns the panel-header
+      // interaction (drag + tap). Skip the manual .collapsed toggle there.
+      if (!appState.isHorizontalLayout) return;
       if (optionsBody.classList.contains("collapsed")) {
         optionsBody.classList.remove("collapsed");
 
@@ -689,6 +700,7 @@ async function init() {
   startupLog.record("init start");
   try {
     initLayout();
+    initBottomSheet();
     initEventListeners();
     initJudgementClient();
     initPWA();

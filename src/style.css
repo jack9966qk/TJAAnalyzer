@@ -244,16 +244,17 @@ a:visited {
 .panel-body {
   display: grid;
   grid-template-rows: 1fr;
+  max-height: 600px;
+  overflow: hidden;
   transition:
-    grid-template-rows var(--anim-duration-fast) ease-out,
-    opacity var(--anim-duration-fast) ease-out;
+    max-height 0.28s cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 0.28s ease;
   opacity: 1;
 }
-
 .panel-body.collapsed {
-  grid-template-rows: 0fr;
+  max-height: 0;
   opacity: 0;
-  border-bottom: none; /* Hide border if any */
+  border-bottom: none;
 }
 
 .panel-body.collapsed .chart-options-footer {
@@ -1181,12 +1182,123 @@ body.horizontal-layout.controls-collapsed #layout-toggle-btn {
   padding-right: max(12px, env(safe-area-inset-right));
 }
 
+/* Vertical layout: chart options panel as a bottom sheet (similar to mobile apps).
+   The panel-header at the top of the sheet doubles as the drag handle.
+   Note stats sticks just above the collapsed sheet. The JS controller manages
+   between two states (collapsed / expanded).
+
+   --sheet-height        — visible portion of the sheet in px
+   --sheet-handle-height — measured panel-header height
+   --sheet-max-height    — sheet height when fully expanded (constant during drag) */
+body:not(.horizontal-layout) #app {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: var(--sheet-height, 50px);
+}
+
+body:not(.horizontal-layout) #sticky-header {
+  display: contents;
+}
+
+body:not(.horizontal-layout) #chart-options-panel {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  /* Always render at max height; translateY slides it down to reveal only the visible portion.
+     Completely GPU-compositable — no layout recalculation during animation. */
+  height: var(--sheet-max-height, 300px);
+  transform: translateY(calc(var(--sheet-max-height, 300px) - var(--sheet-height, 50px)));
+  overflow: hidden;
+  touch-action: none;
+  transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+  border-radius: 6px 6px 0 0;
+  background-color: var(--bg-app);
+  border-top: 1px solid var(--border-color);
+  box-shadow: 0 -8px 24px var(--shadow-color);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+body:not(.horizontal-layout) #chart-options-panel.dragging {
+  transition: none;
+}
+
+/* Inside the sheet: panel-header (drag handle) at top, options-body fills
+   the remaining space. Content scrolling is handled by JS for proper
+   sheet-drag vs content-scroll disambiguation. */
+body:not(.horizontal-layout) #chart-options-panel #options-panel-header {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+body:not(.horizontal-layout) #chart-options-panel.dragging #options-panel-header {
+  cursor: grabbing;
+}
+
+body:not(.horizontal-layout) #chart-options-panel #options-body {
+  /* Override the grid-collapse behavior — sheet height controls visibility */
+  display: block;
+  opacity: 1;
+  overflow-y: auto;
+  /* Sheet uses box-sizing: border-box, so the sheet's bottom safe-area
+     padding eats into the content area. Subtract it here so options-body
+     occupies only the visible region above the home indicator. */
+  height: calc(var(--sheet-height, 50px) - var(--sheet-handle-height, 50px) - env(safe-area-inset-bottom));
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  /* Sheet drag owns vertical swipes here. Block browser pan so it can't
+     race the pointer handler and scroll the page underneath. */
+  touch-action: none;
+}
+
+body:not(.horizontal-layout) #chart-options-panel .panel-inner {
+  overflow: visible;
+}
+
+/* Chevron rotates based on expanded/collapsed state of the bottom sheet. */
+body:not(.horizontal-layout) #chart-options-panel #options-collapse-icon {
+  display: block;
+  transform: rotate(0deg); /* points down when collapsed, tap to expand upward */
+  transition: transform 0.28s ease;
+}
+body:not(.horizontal-layout) #chart-options-panel.sheet-expanded #options-collapse-icon {
+  transform: rotate(180deg);
+}
+
+/* In vertical layout the .collapsed class on #options-body is always
+   present (sheet height controls visibility instead). Override the
+   collapsed-footer rule so the full-screen / save-image buttons show. */
+body:not(.horizontal-layout) #chart-options-panel .chart-options-footer {
+  display: flex;
+}
+
+/* Show the mode chip only when collapsed; tabs indicate the mode when open. */
+body:not(.horizontal-layout) #chart-options-panel.sheet-expanded #chart-mode-status {
+  opacity: 0;
+}
+body:not(.horizontal-layout) #note-stats-display {
+  position: fixed;
+  bottom: calc(var(--sheet-height, 50px) + 10px);
+  left: max(12px, env(safe-area-inset-left));
+  right: max(12px, env(safe-area-inset-right));
+  z-index: 99;
+  background-color: var(--bg-body);
+  box-shadow: 0 -2px 4px var(--shadow-color);
+}
+
 #data-source-panel {
   margin-left: max(12px, env(safe-area-inset-left));
   margin-right: max(12px, env(safe-area-inset-right));
   margin-bottom: 0;
 }
 
+/* In vertical layout, #sticky-header has display:contents so its padding
+   no longer creates a gap below the data source panel. Restore it here. */
+body:not(.horizontal-layout) #data-source-panel {
+  margin-bottom: 10px;
+}
 .canvas-container {
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
