@@ -1,8 +1,10 @@
 //TJADB Project
 TITLE:Player’s High
 TITLEJA:Player's High
+TITLEZH:Player's High
 SUBTITLE:--K.key
 SUBTITLEJA:K.key
+SUBTITLEZH:K.key
 BPM:255
 WAVE:Players High.ogg
 OFFSET:-3.760

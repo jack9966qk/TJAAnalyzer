@@ -1,8 +1,11 @@
 //TJADB Project
 TITLE:Raiko Taiko Disco
 TITLEJA:ライコタイコディスコ
+TITLEZH:Raiko-Taiko-Disco
+TITLEKO:Raiko-Taiko-Disco
 SUBTITLE:--Ryo Watanabe/Touhou Project
 SUBTITLEJA:東方Project×NAMCO SOUNDS 渡辺量
+SUBTITLEZH:东方Project × NAMCO SOUNDS / 渡边量(BNSI)
 BPM:144
 WAVE:Raiko Taiko Disco.ogg
 OFFSET:-1.903

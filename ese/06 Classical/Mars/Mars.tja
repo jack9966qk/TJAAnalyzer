@@ -1,8 +1,11 @@
 //TJADB Project
 TITLE:Mars
 TITLEJA:火星
+TITLEZH:火星
+TITLEKO:화성
 SUBTITLE:--Gustav Holst
 SUBTITLEJA:ホルスト
+SUBTITLEZH:霍尔斯特
 BPM:160
 WAVE:Mars.ogg
 OFFSET:-1.813

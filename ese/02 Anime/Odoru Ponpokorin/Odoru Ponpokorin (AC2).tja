@@ -1,12 +1,16 @@
 //TJADB Project
 TITLE:Odoru Ponpokorin -Old Audio/AC2 Chart-
 TITLEJA:おどるポンポコリン
+TITLEZH:稍息立正站好
 SUBTITLE:--B.B.Queens/Chibi Maruko-chan
 SUBTITLEJA:旧音源・AC2譜面 「ちびまる子ちゃん」より
+SUBTITLEZH:旧音源・AC2谱面 出自"樱桃小丸子"
 BPM:140
 WAVE:Odoru Ponpokorin -Old Audio-.ogg
 OFFSET:-1.752
 DEMOSTART:41.187
+
+//SONG_ID:odoru
 
 COURSE:Oni
 LEVEL:2

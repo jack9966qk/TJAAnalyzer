@@ -1,6 +1,8 @@
 //TJADB Project
 TITLE:Nijiiro Yumeiro Taikoiro -New Audio/Chart-
 TITLEJA:虹色･夢色･太鼓色
+TITLEKO:니지이로 · 유메이로 · 타이코이로
+TITLEZH:虹色·梦色·太鼓色
 SUBTITLE:--Go Shiina feat. Yoko Takahashi
 SUBTITLEJA:新音源・譜面
 BPM:136
@@ -8,12 +10,13 @@ WAVE:Nijiiro Yumeiro Taikoiro.ogg
 OFFSET:-2.426
 DEMOSTART:72.963
 
+//SONG_ID:opng2
 //Shinuchi: 7830/5370/3570/2560/1740
 
 COURSE:Edit
 LEVEL:8
 BALLOON:
-SCOREINIT:550,1740
+SCOREINIT:550,1790
 SCOREDIFF:150
 
 #START

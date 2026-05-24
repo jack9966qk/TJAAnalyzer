@@ -1,8 +1,11 @@
 //TJADB Project
 TITLE:Kaibutsu
 TITLEJA:怪物
+TITLEZH:怪物
+TITLEKO:Monster
 SUBTITLE:--YOASOBI/BEASTARS
 SUBTITLEJA:YOASOBI「怪物 / 優しい彗星」より
+SUBTITLEZH:出自 YOASOBI "Monster / Comet"
 BPM:170
 WAVE:Kaibutsu.ogg
 OFFSET:-1.646

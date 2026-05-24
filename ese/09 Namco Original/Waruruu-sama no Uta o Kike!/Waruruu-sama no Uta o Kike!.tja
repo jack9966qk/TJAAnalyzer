@@ -1,6 +1,7 @@
 //TJADB Project
 TITLE:Waruruu-sama no Uta o Kike!
 TITLEJA:ワルルーさまの歌を聴けぇ！
+TITLEKO:Waruloo 사마노 우타오 키이테!
 SUBTITLE:--Yuuji Masubuchi feat. Takashi Nagasako
 BPM:127
 WAVE:Waruruu-sama no Uta o Kike!.ogg
@@ -8,7 +9,7 @@ OFFSET:-2.947
 DEMOSTART:10.466
 
 COURSE:Oni
-LEVEL:9
+LEVEL:8
 BALLOON:16,6
 SCOREINIT:580
 SCOREDIFF:148
@@ -89,7 +90,7 @@ SCOREDIFF:148
 
 
 COURSE:Hard
-LEVEL:8
+LEVEL:7
 BALLOON:12,12,25
 SCOREINIT:650
 SCOREDIFF:140

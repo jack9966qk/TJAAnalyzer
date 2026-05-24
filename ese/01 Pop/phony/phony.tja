@@ -1,8 +1,11 @@
 //TJADB Project
 TITLE:phony
 TITLEJA:フォニイ
+TITLEZH:phony
+TITLEKO:phony
 SUBTITLE:--tsumiki feat. KAFU
 SUBTITLEJA:ツミキ feat. 音楽的同位体 可不(KAFU)
+SUBTITLEZH:tsumiki feat. KAFU
 WAVE:phony.ogg
 BPM:170
 OFFSET:-1.509

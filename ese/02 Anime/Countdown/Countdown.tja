@@ -1,8 +1,11 @@
 //TJADB Project
 TITLE:Countdown
 TITLEJA:カウントダウン
+TITLEZH:Count Down
+TITLEKO:Count Down
 SUBTITLE:--NormCore/Detective Conan
 SUBTITLEJA:「名探偵コナン」より
+SUBTITLEZH:出自"名侦探柯南"
 BPM:194
 WAVE:Countdown.ogg
 OFFSET:-1.353

@@ -1,0 +1,127 @@
+//TJADB Project
+TITLE:Revival Drumroll
+TITLEJA:復活連打
+SUBTITLE:--
+SUBTITLEJA:
+BPM:200
+WAVE:Revival Drumroll.ogg
+OFFSET:-3.943
+DEMOSTART:43.660
+
+//Temporary Track reconstructed from gameplay videos
+//Note: In official AC, this track can only be played while the invisible drumroll anomaly happens.
+
+COURSE:Oni
+LEVEL:1
+BALLOON:
+SCOREINIT:0
+SCOREDIFF:0
+
+#START
+0,
+0,
+0,
+0,
+0,
+#MEASURE 8/4
+0, //6
+
+#MEASURE 3/4
+#BPMCHANGE 240
+6,
+0,
+0,
+0,
+
+0,
+0,
+008,
+0, //14
+#END
+
+
+COURSE:Hard
+LEVEL:1
+BALLOON:
+SCOREINIT:0
+SCOREDIFF:0
+
+#START
+0,
+0,
+0,
+0,
+0,
+#MEASURE 8/4
+0, //6
+
+#MEASURE 3/4
+#BPMCHANGE 240
+6,
+0,
+0,
+0,
+
+0,
+0,
+008,
+0, //14
+#END
+
+
+COURSE:Normal
+LEVEL:1
+BALLOON:
+SCOREINIT:0
+SCOREDIFF:0
+
+#START
+0,
+0,
+0,
+0,
+0,
+#MEASURE 8/4
+0, //6
+
+#MEASURE 3/4
+#BPMCHANGE 240
+6,
+0,
+0,
+0,
+
+0,
+0,
+008,
+0, //14
+#END
+
+
+COURSE:Easy
+LEVEL:1
+BALLOON:
+SCOREINIT:0
+SCOREDIFF:0
+
+#START
+0,
+0,
+0,
+0,
+0,
+#MEASURE 8/4
+0, //6
+
+#MEASURE 3/4
+#BPMCHANGE 240
+6,
+0,
+0,
+0,
+
+0,
+0,
+008,
+0, //14
+#END

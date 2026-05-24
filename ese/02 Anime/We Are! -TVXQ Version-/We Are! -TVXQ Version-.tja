@@ -1,11 +1,16 @@
 //TJADB Project
 TITLE:We Are! -TVXQ Version-
 TITLEJA:ウィーアー！
+TITLEZH:ウィーアー！
 SUBTITLE:--TVXQ/ONE PIECE
+SUBTITLEJA:--AC12亜音源・譜面 「航海王」主題曲
+SUBTITLEZH:AC12亞音源・譜面 「航海王」主題曲
 BPM:168
 WAVE:We Are! -TVXQ Version-.ogg
-OFFSET:-2.36
-DEMOSTART:13.416
+OFFSET:-2.389
+DEMOSTART:13.417
+
+//SONG_ID: weare
 
 COURSE:Oni
 LEVEL:6
@@ -61,7 +66,7 @@ SCOREDIFF:140
 
 1020001020222000,
 1020001020111000,
-1020001020222020,
+1020001020222010,
 01201010,
 
 1020001020222000,
@@ -207,7 +212,7 @@ SCOREDIFF:160
 30330030,
 30330030,
 6,
-8003, //verified from video, exact length for big drumroll 
+8003,
 
 3,
 0,
@@ -233,11 +238,12 @@ SCOREDIFF:160
 
 30330030,
 30330030,
-6008,  //verified from video, exact length for big drumroll 
+6008,
 3303,
 3,
 0, //83
 #END
+
 
 COURSE:Normal
 LEVEL:3
@@ -324,7 +330,7 @@ SCOREDIFF:310
 30030000,
 30030000,
 6,
-8003, //verified from video, exact length for big drumroll 
+8003,
 
 3,
 0,
@@ -350,7 +356,7 @@ SCOREDIFF:310
 
 30030000,
 30030000,
-600000000000000000000000000000000008000000000000,
+6008,
 3303,
 3,
 0, //83
@@ -442,7 +448,7 @@ SCOREDIFF:250
 30030000,
 30030000,
 6,
-8003, //verified from video, exact length for big drumroll 
+8003,
 
 3,
 0,
