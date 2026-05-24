@@ -127,7 +127,7 @@ const TAIKO_RATING_ANALYZER_URL = "https://cdn.ourtaiko.org/api/fumendb_constant
 const CNSONGS_URL = "https://cdn.ourtaiko.org/api/cnsongs";
 const TAIKO_WIKI_DB_URL = "https://taiko.wiki/api/v1/song/all";
 const DONDER_HELPER_URL =
-  "https://raw.githubusercontent.com/Donder-Helper/DonderHelper/refs/heads/main/Data/songs.json";
+  "https://raw.githubusercontent.com/Donder-Helper/DonderHelper/a9853d0684877e5ca6c6a3d24fe0d7adcd067b29/Data/songs.json";
 const TAIKO_WIKI_DFC_URL = "https://taiko.wiki/api/v1/diffchart?type=dfc&level=10";
 
 import * as path from "node:path";
