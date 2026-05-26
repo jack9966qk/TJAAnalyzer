@@ -19,7 +19,7 @@ export function updateLayout() {
   if (shouldUseHorizontal) {
     document.body.classList.add("horizontal-layout");
 
-    // Move footer to controls container
+    // Move appFooter to controlsContainer
     if (appFooter && appFooter.parentElement !== controlsContainer) {
       controlsContainer.appendChild(appFooter);
     }
@@ -39,7 +39,7 @@ export function updateLayout() {
   } else {
     document.body.classList.remove("horizontal-layout");
 
-    // Move footer back to chart container
+    // Move appFooter back to chart container
     if (appFooter && appFooter.parentElement !== chartContainer) {
       chartContainer.appendChild(appFooter);
     }

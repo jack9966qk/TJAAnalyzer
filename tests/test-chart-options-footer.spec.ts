@@ -15,7 +15,7 @@ test.describe("Chart Options Footer", () => {
     }
     await expect(body).not.toHaveClass(/collapsed/);
 
-    const footer = page.locator("chart-options-footer");
+    const footer = page.locator("chart-options-footer.in-sheet-footer");
     await expect(footer).toBeVisible();
 
     // Check for Export Image button (display:contents host — check it's attached and its inner button is visible)
@@ -51,7 +51,7 @@ test.describe("Chart Options Footer", () => {
     // Footer should be inside collapsed body, so technically it is not visible
     // Note: Playwright's toBeVisible() checks if the element is visible to the user.
     // CSS display:none on parent hides children.
-    const footer = page.locator("chart-options-footer");
+    const footer = page.locator("chart-options-footer.in-sheet-footer");
 
     // Check bounding box height
     const _box = await footer.boundingBox();
@@ -80,7 +80,7 @@ test.describe("Chart Options Footer", () => {
       await panel.locator(".panel-header").click();
     }
 
-    const footer = page.locator("chart-options-footer");
+    const footer = page.locator("chart-options-footer.in-sheet-footer");
     await expect(footer).toBeVisible();
 
     // Switch to Judgements tab

@@ -257,7 +257,7 @@ a:visited {
   border-bottom: none;
 }
 
-.panel-body.collapsed .chart-options-footer {
+.panel-body.collapsed .in-sheet-footer {
   display: none;
 }
 
@@ -1267,13 +1267,57 @@ body:not(.horizontal-layout) #chart-options-panel.sheet-expanded #options-collap
   transform: rotate(180deg);
 }
 
-/* In vertical layout the .collapsed class on #options-body is always
-   present (sheet height controls visibility instead). Override the
-   collapsed-footer rule so the full-screen / save-image buttons show. */
-body:not(.horizontal-layout) #chart-options-panel .chart-options-footer {
-  display: flex;
+/* Vertical: show floating pill above the bottom sheet; hide the in-sheet footer. */
+body:not(.horizontal-layout) .in-sheet-footer {
+  display: none;
 }
 
+/* Wrapper — full-width fixed bar that centers the pill without transform.
+   transform creates a containing block that breaks position:fixed children
+   (e.g. the wiki dropdown). */
+body:not(.horizontal-layout) #floating-actions-wrapper {
+  position: fixed;
+  bottom: calc(var(--sheet-height, 50px) + 12px);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  z-index: 110;
+  pointer-events: none;
+  transition: bottom 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+body:not(.horizontal-layout) #floating-chart-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  pointer-events: auto;
+}
+body:not(.horizontal-layout) #floating-chart-actions chart-options-footer {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  justify-content: center;
+  width: auto;
+  padding-top: 0;
+  margin: 0;
+  border-top: none;
+}
+
+/* Horizontal: hide the floating pill; the in-sheet footer renders normally. */
+body.horizontal-layout #floating-actions-wrapper {
+  display: none;
+}
+
+/* Disable transition during drag so the floating bar tracks the sheet instantly. */
+body:not(.horizontal-layout) #chart-options-panel.dragging ~ #floating-actions-wrapper {
+  transition: none;
+}
+
+/* Horizontal: hide the floating pill; the in-sheet footer renders normally. */
+body.horizontal-layout #floating-chart-actions {
+  display: none;
+}
 /* Show the mode chip only when collapsed; tabs indicate the mode when open. */
 body:not(.horizontal-layout) #chart-options-panel.sheet-expanded #chart-mode-status {
   opacity: 0;
