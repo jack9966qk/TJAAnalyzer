@@ -54,7 +54,7 @@ export class SaveImageButton extends HTMLElement {
         <img
           src="assets/heroicons/optimized/24/outline/photo.svg"
           alt={i18n.t("ui.exportImage")}
-          style="width: 20px; height: 20px; filter: brightness(0) invert(1);"
+          style="width: 20px; height: 20px; filter: var(--btn-icon-img-filter, brightness(0) invert(1));"
         />
       </action-button>
     );

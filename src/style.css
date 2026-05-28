@@ -389,7 +389,16 @@ button:disabled {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
+  padding: var(--btn-icon-padding, 8px);
+  background-color: var(--btn-icon-bg, var(--primary-color));
+  border-radius: var(--btn-icon-radius, 4px);
+  height: var(--btn-icon-height, auto);
+  border: var(--btn-icon-border, 1px solid transparent);
+  cursor: pointer;
+  transition: all 0.15s ease-out;
+}
+.btn-icon:hover {
+  background-color: var(--btn-icon-hover-bg, var(--primary-hover));
 }
 
 /* Sticky Header & Stats */
@@ -1292,6 +1301,21 @@ body:not(.horizontal-layout) #floating-chart-actions {
   justify-content: center;
   gap: 6px;
   pointer-events: auto;
+  transition:
+    all 0.2s ease,
+    bottom 0s;
+  --btn-icon-bg: var(--bg-input);
+  --btn-icon-radius: 100px;
+  --btn-icon-height: 38px;
+  --btn-icon-border: 1px solid var(--border-color);
+  --btn-icon-padding: 8px 12px;
+  --btn-icon-hover-bg: var(--bg-hover);
+  --btn-icon-img-filter: brightness(0);
+}
+@media (prefers-color-scheme: dark) {
+  body:not(.horizontal-layout) #floating-chart-actions {
+    --btn-icon-img-filter: brightness(0) invert(1);
+  }
 }
 body:not(.horizontal-layout) #floating-chart-actions chart-options-footer {
   display: flex;
@@ -1314,10 +1338,6 @@ body:not(.horizontal-layout) #chart-options-panel.dragging ~ #floating-actions-w
   transition: none;
 }
 
-/* Horizontal: hide the floating pill; the in-sheet footer renders normally. */
-body.horizontal-layout #floating-chart-actions {
-  display: none;
-}
 /* Show the mode chip only when collapsed; tabs indicate the mode when open. */
 body:not(.horizontal-layout) #chart-options-panel.sheet-expanded #chart-mode-status {
   opacity: 0;

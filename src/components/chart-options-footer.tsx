@@ -201,7 +201,7 @@ export class ChartOptionsFooter extends HTMLElement {
             <img
               src="assets/heroicons/optimized/24/outline/arrows-pointing-out.svg"
               alt="Fullscreen"
-              style="width: 20px; height: 20px; filter: brightness(0) invert(1);"
+              style="width: 20px; height: 20px; filter: var(--btn-icon-img-filter, brightness(0) invert(1));"
             />
           </action-button>
         </div>
