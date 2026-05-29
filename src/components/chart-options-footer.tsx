@@ -46,14 +46,18 @@ export class ChartOptionsFooter extends HTMLElement {
     i18n.onLanguageChange(() => this.render());
     window.addEventListener("status-change", this.handleStatusChange);
     window.addEventListener("difficulty-change", this.handleDifficultyChange);
-    document.addEventListener("click", this.handleDocumentClick);
+    // Listen in the capture phase: the bottom-sheet header's click handler
+    // calls stopPropagation() in vertical layout, so a bubble-phase listener
+    // would never see taps on the sheet handle. Capture runs before that, so
+    // the dropdown still closes when toggling the sheet.
+    document.addEventListener("click", this.handleDocumentClick, { capture: true });
     window.addEventListener("scroll", this.handleScroll, true);
   }
 
   disconnectedCallback() {
     window.removeEventListener("status-change", this.handleStatusChange);
     window.removeEventListener("difficulty-change", this.handleDifficultyChange);
-    document.removeEventListener("click", this.handleDocumentClick);
+    document.removeEventListener("click", this.handleDocumentClick, { capture: true });
     window.removeEventListener("scroll", this.handleScroll, true);
   }
 
