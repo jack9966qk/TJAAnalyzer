@@ -290,6 +290,10 @@ export function updateLoopControls() {
 export function refreshChart() {
   if (!tjaChart) return;
 
+  // Hide the bottom sheet (vertical layout) when there's no chart to configure;
+  // it slides back in when a chart is loaded. No-op in horizontal layout (CSS).
+  document.body.classList.toggle("chart-options-hidden", !appState.currentChart);
+
   // 1. Check for Stream Waiting State
   if ((appState.isStreamConnected || appState.isSimulating) && !appState.hasReceivedGameStart) {
     tjaChart.showMessage(i18n.t("ui.stream.waitingStart"), "info");

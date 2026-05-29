@@ -1240,6 +1240,20 @@ body:not(.horizontal-layout) #chart-options-panel.dragging {
   transition: none;
 }
 
+/* No chart loaded: slide the whole sheet fully off the bottom edge (the
+   transform transition animates the slide), reclaim the space it reserved, and
+   hide the floating action pill that sits above it. Higher specificity than the
+   base transform rule so it wins. */
+body:not(.horizontal-layout).chart-options-hidden #chart-options-panel {
+  transform: translateY(100%);
+}
+body:not(.horizontal-layout).chart-options-hidden #app {
+  padding-bottom: 0;
+}
+body:not(.horizontal-layout).chart-options-hidden #floating-actions-wrapper {
+  display: none;
+}
+
 /* Inside the sheet: panel-header (drag handle) at top, options-body fills
    the remaining space. Content scrolling is handled by JS for proper
    sheet-drag vs content-scroll disambiguation. */
