@@ -65,6 +65,9 @@ function expandedHeight() {
 
 function setSheetHeightPx(px: number) {
   docRoot.style.setProperty("--sheet-height", `${px}px`);
+  // The floating action pill is anchored above the sheet, so a height change
+  // moves it; let the visibility controller re-evaluate.
+  window.dispatchEvent(new CustomEvent("sheet-height-change"));
 }
 
 function setMaxHeightPx(px: number) {

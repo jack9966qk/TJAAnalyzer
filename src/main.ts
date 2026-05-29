@@ -52,6 +52,7 @@ import {
   updateSelectionUI,
   updateStatsComponent,
 } from "./controllers/chart-controller.js";
+import { initFloatingActionsVisibility } from "./controllers/floating-actions-visibility.js";
 import { handleLayoutToggle, updateLayout } from "./controllers/layout-controller.js";
 import { exampleTJA } from "./core/example-data.js";
 import { appState } from "./state/app-state.js";
@@ -701,6 +702,7 @@ async function init() {
   try {
     initLayout();
     initBottomSheet();
+    initFloatingActionsVisibility();
     initEventListeners();
     initJudgementClient();
     initPWA();

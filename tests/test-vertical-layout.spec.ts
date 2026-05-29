@@ -75,6 +75,57 @@ test.describe("Vertical Layout: Mutually Exclusive Panel Expansion", () => {
   });
 });
 
+test.describe("Vertical Layout: Floating Actions Auto-Hide", () => {
+  test("Floating actions hide when the chart is scrolled out of bounds", async ({ page }) => {
+    await gotoVertical(page);
+    const wrapper = page.locator("#floating-actions-wrapper");
+
+    // Visible while pill sits over the chart preview.
+    await expect(wrapper).not.toHaveClass(/floating-hidden/);
+
+    // Scroll far enough that the chart's bottom rises above the pill.
+    await page.evaluate(() => window.scrollTo(0, 1000));
+    await page.waitForTimeout(300);
+    await expect(wrapper).toHaveClass(/floating-hidden/);
+
+    // Scroll back; visibility restores.
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(300);
+    await expect(wrapper).not.toHaveClass(/floating-hidden/);
+  });
+  test("Floating actions visibility tracks the bottom sheet height, not just scroll", async ({ page }) => {
+    await gotoVertical(page);
+    const wrapper = page.locator("#floating-actions-wrapper");
+
+    // Collapse the data source panel first so expanding the sheet later does
+    // not reflow the chart — isolating sheet height as the only variable.
+    await page.click("#ds-panel-header");
+    await page.waitForTimeout(300);
+
+    // Scroll so the chart's bottom edge sits just above the pill (collapsed
+    // sheet): the pill now overhangs the chart and must hide.
+    await page.evaluate(() => {
+      const pill = document.getElementById("floating-chart-actions")?.getBoundingClientRect();
+      const chart = document.getElementById("chart-component")?.getBoundingClientRect();
+      if (!pill || !chart) return;
+      window.scrollBy(0, chart.bottom - (pill.bottom - 20));
+    });
+    await page.waitForTimeout(300);
+    await expect(wrapper).toHaveClass(/floating-hidden/);
+
+    // Expand the sheet without scrolling: the pill rises above the chart's
+    // bottom edge and should become visible again purely from the height change.
+    await page.click("#options-panel-header");
+    await page.waitForTimeout(500);
+    await expect(wrapper).not.toHaveClass(/floating-hidden/);
+
+    // Collapsing the sheet drops the pill back over the edge → hidden again.
+    await page.click("#options-panel-header");
+    await page.waitForTimeout(500);
+    await expect(wrapper).toHaveClass(/floating-hidden/);
+  });
+});
+
 test.describe("Vertical Layout: Visual Regression", () => {
   test("Initial state (DS expanded, sheet collapsed)", async ({ page }) => {
     await gotoVertical(page);
