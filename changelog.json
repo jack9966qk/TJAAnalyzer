@@ -1,5 +1,30 @@
 [
   {
+    "hash": "87e955c",
+    "message": "Update version to 0.12.1.",
+    "date": "2026-05-30"
+  },
+  {
+    "hash": "9bdbec2",
+    "message": "Hide the bottom sheet if there is no chart loaded.",
+    "date": "2026-05-30"
+  },
+  {
+    "hash": "169c8f4",
+    "message": "Fix the issue where the wiki dropdown does not disappear when interacting with the bottom sheet.",
+    "date": "2026-05-30"
+  },
+  {
+    "hash": "9867596",
+    "message": "Fix missing animation when exiting from full screen on some environments such as iOS.",
+    "date": "2026-05-29"
+  },
+  {
+    "hash": "212d900",
+    "message": "A few optimizations on data source and chat option panel animation performance.",
+    "date": "2026-05-29"
+  },
+  {
     "hash": "c26ef08",
     "message": "Update version to 0.12.0.",
     "date": "2026-05-29"
@@ -472,31 +497,6 @@
   {
     "hash": "8dd89a5",
     "message": "Update version to 0.10.5.",
-    "date": "2026-03-01"
-  },
-  {
-    "hash": "ebf40e7",
-    "message": "Update song_mapping.",
-    "date": "2026-03-01"
-  },
-  {
-    "hash": "babc5a4",
-    "message": "Include Wiki URLs when processing external data. Add Wiki links to the app as a dropdown button.",
-    "date": "2026-03-01"
-  },
-  {
-    "hash": "775b70f",
-    "message": "Replace text with icon for the export image button.",
-    "date": "2026-03-01"
-  },
-  {
-    "hash": "aeb6710",
-    "message": "Support \"display only selected\" for branching charts when a single branch is selected.",
-    "date": "2026-03-01"
-  },
-  {
-    "hash": "462dba0",
-    "message": "Update tests and snapshots for recent change.",
     "date": "2026-03-01"
   }
 ]
