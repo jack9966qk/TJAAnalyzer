@@ -1,4 +1,6 @@
 import { expect, test } from "@playwright/test";
+import type { ChartListPanel } from "../src/components/chart-list-panel.js";
+import type { AppState } from "../src/state/app-state.js";
 
 test.describe("Chart List Playdata Display Modes", () => {
   test.beforeEach(async ({ page }) => {
@@ -65,8 +67,7 @@ test.describe("Chart List Playdata Display Modes", () => {
       await page.evaluate(
         ({ strip, leading, trailing }) => {
           // Mock ESE Tree
-          // biome-ignore lint/suspicious/noExplicitAny: Mocking global objects
-          (window as any).appState.eseTree = [
+          window.appState.eseTree = [
             { path: "Category/Song 1.tja", title: "Song 1" }, // Gold: FC, > 10 OKs
             { path: "Category/Song 2.tja", title: "Song 2" }, // Cyan: Perfect
             {
@@ -76,7 +77,7 @@ test.describe("Chart List Playdata Display Modes", () => {
             { path: "Category/Song 4.tja", title: "Song 4" }, // Grey: Clear
             { path: "Category/Song 5.tja", title: "Song 5" }, // White: Failed
             { path: "Category/Song 6.tja", title: "Song 6" }, // No data
-          ];
+          ] as unknown as AppState["eseTree"];
 
           // Mock Playdata
           const playdata = {
@@ -147,8 +148,7 @@ test.describe("Chart List Playdata Display Modes", () => {
           );
 
           // Force reload settings and data
-          // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
-          const el = document.querySelector("chart-list-panel") as any;
+          const el = document.querySelector("chart-list-panel") as ChartListPanel;
           if (el) {
             window.dispatchEvent(new Event("settings-change"));
             el.searchQuery = ""; // Trigger render

@@ -16,21 +16,12 @@ import "./components/view-options.js";
 import { appState } from "./state/app-state.js";
 import { i18n } from "./utils/i18n.js";
 
-// Mock global objects if needed
-interface CustomWindow extends Window {
-  // biome-ignore lint/suspicious/noExplicitAny: Mocking global objects
-  i18n?: any;
-  // biome-ignore lint/suspicious/noExplicitAny: Mocking global objects
-  appState?: any;
+// Expose globals the component test harness drives from Playwright specs.
+if (!window.i18n) {
+  window.i18n = i18n;
 }
-
-const customWindow = window as unknown as CustomWindow;
-
-if (!customWindow.i18n) {
-  customWindow.i18n = i18n;
-}
-if (!customWindow.appState) {
-  customWindow.appState = appState;
+if (!window.appState) {
+  window.appState = appState;
 }
 
 function init() {

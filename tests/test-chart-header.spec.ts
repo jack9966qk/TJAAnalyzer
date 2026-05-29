@@ -1,12 +1,12 @@
 import { expect, test } from "@playwright/test";
+import type { TJAChart } from "../src/components/tja-chart.js";
 
 test.describe("Chart Header Layout", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/chart-only.html");
     await page.waitForFunction(() => {
       const chart = document.querySelector("tja-chart");
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing internal chart property for test readiness check
-      return chart && (chart as any).chart;
+      return chart && (chart as TJAChart).chart;
     });
   });
 

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import type { TJAChart } from "../src/components/tja-chart.js";
 
 test.describe("Branch Hover Interaction", () => {
   test.beforeEach(async ({ page }) => {
@@ -79,8 +80,7 @@ LEVEL:10
     // Normal is top, Expert middle, Master bottom.
 
     const coords = await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       const layout = chart.layout;
       if (!layout) throw new Error("Layout not available");
 
@@ -164,20 +164,18 @@ LEVEL:8
 
     // Get coordinates of the first note (Bar 0, Note 0) - Unbranched
     const p0 = await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       return chart.getNoteCoordinates(0, 0);
     });
     expect(p0).not.toBeNull();
 
     // Hover
-    await canvas.locator("canvas").hover({ position: p0, force: true });
+    await canvas.locator("canvas").hover({ position: p0 ?? undefined, force: true });
     await page.waitForTimeout(200);
 
     // Check if hoveredNote is set correctly in renderOptions
     const hoveredNote = await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       return chart.hoveredNote;
     });
 

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import type { TJAChart } from "../src/components/tja-chart.js";
 
 const SIMPLE_TJA = `
 TITLE:Inset Test
@@ -19,15 +20,13 @@ test.describe("Large Vertical Insets with Attribution", () => {
     await page.goto("/chart-only.html");
     await page.waitForFunction(() => {
       const chart = document.querySelector("tja-chart");
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing internal chart property for test readiness check
-      return chart && (chart as any).chart;
+      return chart && (chart as TJAChart).chart;
     });
 
     await page.evaluate((tja) => {
       window.loadChart(tja, "oni");
       window.setOptions({ showAttribution: true, beatsPerLine: 16 });
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element property
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       if (chart) {
         chart.insetsOverride = {
           top: 80,
@@ -39,8 +38,7 @@ test.describe("Large Vertical Insets with Attribution", () => {
     }, SIMPLE_TJA);
 
     await page.waitForFunction(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element property
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       return chart?.layout?.insets.top === 80;
     });
 
@@ -53,8 +51,7 @@ test.describe("Content Inset", () => {
     await page.goto("/chart-only.html");
     await page.waitForFunction(() => {
       const chart = document.querySelector("tja-chart");
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing internal chart property for test readiness check
-      return chart && (chart as any).chart;
+      return chart && (chart as TJAChart).chart;
     });
     await page.evaluate((tja) => {
       window.loadChart(tja, "oni");

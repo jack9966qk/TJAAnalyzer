@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import type { TJAChart } from "../src/components/tja-chart.js";
 
 test("Full App - Annotation click works on Annotate tab", async ({ page }) => {
   await page.goto("/");
@@ -10,8 +11,7 @@ test("Full App - Annotation click works on Annotate tab", async ({ page }) => {
 
   // Get note coordinates from the chart
   const notePos = await page.evaluate(() => {
-    // biome-ignore lint/suspicious/noExplicitAny: Test helper
-    const chart = document.querySelector("tja-chart") as any;
+    const chart = document.querySelector("tja-chart") as TJAChart;
     if (!chart) return null;
     return chart.getNoteCoordinates(0, 0);
   });

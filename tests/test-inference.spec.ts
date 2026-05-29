@@ -1,9 +1,5 @@
 import { expect, test } from "@playwright/test";
-
-interface TestWindow extends Window {
-  // biome-ignore lint/suspicious/noExplicitAny: Test helper
-  NoteLocationMap: any;
-}
+import type { TJAChart } from "../src/components/tja-chart.js";
 
 test.describe("Annotation Inference", () => {
   test.beforeEach(async ({ page }) => {
@@ -33,15 +29,14 @@ LEVEL:10
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: new (window as unknown as TestWindow).NoteLocationMap(),
+        annotations: new window.NoteLocationMap(),
         isAnnotationMode: true,
         showAllBranches: false,
       });
     }, tja);
 
     await page.waitForFunction(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element property
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       return chart?.layout !== null;
     });
   });
@@ -59,8 +54,7 @@ LEVEL:10
     await expect(chartElement).toBeVisible();
 
     const dimensions = await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element shadow root
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       const layout = chart.layout;
       if (!layout) throw new Error("Layout not available");
 
@@ -94,8 +88,7 @@ LEVEL:10
     await expect(chartElement).toBeVisible();
 
     const dimensions = await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element shadow root
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       const layout = chart.layout;
       if (!layout) throw new Error("Layout not available");
 

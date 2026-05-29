@@ -1,4 +1,5 @@
 import { expect, type Page, test } from "@playwright/test";
+import type { TJAChart } from "../src/components/tja-chart.js";
 
 test.describe("Annotation Interaction (Chart Only)", () => {
   test.beforeEach(async ({ page }) => {
@@ -45,8 +46,7 @@ LEVEL:10
     // But getNoteCoordinates is available on the element.
 
     const notePos = await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element method
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       return chart.getNoteCoordinates(0, 0); // Bar 0, Note 0
     });
 
@@ -205,8 +205,7 @@ LEVEL:10
       window.loadChart(tja, "oni");
       const map = new window.NoteLocationMap();
       map.set({ barIndex: 0, charIndex: 0, branch: "normal" }, { hand: "L" });
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
-      (window as any).testOptions = {
+      window.testOptions = {
         viewMode: "original",
         coloringMode: "categorical",
         visibility: { perfect: true, good: true, poor: true },
@@ -217,8 +216,7 @@ LEVEL:10
         isAnnotationMode: true, // Initially true
         showAllBranches: false,
       };
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
-      window.setOptions((window as any).testOptions);
+      window.setOptions(window.testOptions);
     });
 
     const canvas = page.locator("#chart-component");
@@ -226,10 +224,8 @@ LEVEL:10
     await expect(canvas).toHaveScreenshot("annotation-visible-when-active.png");
 
     await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
-      (window as any).testOptions.isAnnotationMode = false;
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
-      window.setOptions((window as any).testOptions);
+      window.testOptions.isAnnotationMode = false;
+      window.setOptions(window.testOptions);
     });
 
     // Should NOT show 'L'
@@ -295,8 +291,7 @@ LEVEL:10
     await expect(canvas).toBeVisible();
 
     const notePos = await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element method
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       return chart.getNoteCoordinates(0, 0);
     });
 

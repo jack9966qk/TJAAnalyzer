@@ -26,8 +26,7 @@ test.describe("Note Stats Component", () => {
         bars: [["1", "0", "0", "0"]],
       };
 
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom test function
-      (window as any).setStats(hit, chart, renderOptions);
+      window.setStats(hit, chart, renderOptions);
     });
 
     const stats = page.locator("note-stats");
@@ -61,8 +60,7 @@ test.describe("Note Stats Component", () => {
       const judgements = ["good", "perfect"];
       const deltas = [0, 10];
 
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom test function
-      (window as any).setStats(hit, chart, renderOptions, judgements, deltas);
+      window.setStats(hit, chart, renderOptions, judgements, deltas);
     });
 
     const stats = page.locator("note-stats");
@@ -87,8 +85,7 @@ test.describe("Note Stats Component", () => {
         beatsPerLine: 16,
       };
       const chart = { bars: [["1"]] };
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom test function
-      (window as any).setStats(hit, chart, renderOptions);
+      window.setStats(hit, chart, renderOptions);
     });
 
     const stats = page.locator("note-stats");

@@ -1,12 +1,6 @@
 import path from "node:path";
 import { expect, test } from "@playwright/test";
-
-interface TestWindow extends Window {
-  // biome-ignore lint/suspicious/noExplicitAny: Test helper
-  JudgementMap: any;
-  // biome-ignore lint/suspicious/noExplicitAny: Test helper
-  NoteLocationMap: any;
-}
+import type { TJAChart } from "../src/components/tja-chart.js";
 
 test.describe("Visual Regression", () => {
   test("Initial Render", async ({ page }) => {
@@ -42,7 +36,7 @@ test.describe("Visual Regression", () => {
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: { start: { barIndex: 0, charIndex: 0 }, end: null },
-        annotations: new (window as unknown as TestWindow).NoteLocationMap(),
+        annotations: new window.NoteLocationMap(),
         isAnnotationMode: false,
         showAllBranches: false,
       });
@@ -182,10 +176,9 @@ test.describe("Visual Regression", () => {
         }
       }
       // Construct Map
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
-      const tjaChart = document.getElementById("chart-component") as any;
+      const tjaChart = document.getElementById("chart-component") as TJAChart;
       const chart = tjaChart.chart;
-      const map = new (window as unknown as TestWindow).JudgementMap();
+      const map = new window.JudgementMap();
 
       if (chart) {
         let noteCount = 0;
@@ -231,7 +224,7 @@ test.describe("Visual Regression", () => {
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: new (window as unknown as TestWindow).NoteLocationMap(),
+        annotations: new window.NoteLocationMap(),
         isAnnotationMode: false,
         showAllBranches: false,
       });
@@ -254,11 +247,9 @@ test.describe("Visual Regression", () => {
         }
       }
       // Construct Map
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
-      const tjaChart = document.getElementById("chart-component") as any;
+      const tjaChart = document.getElementById("chart-component") as TJAChart;
       const chart = tjaChart.chart;
-      // biome-ignore lint/suspicious/noExplicitAny: Test helper
-      const map = new (window as any).JudgementMap();
+      const map = new window.JudgementMap();
 
       if (chart) {
         let noteCount = 0;
@@ -304,7 +295,7 @@ test.describe("Visual Regression", () => {
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: new (window as unknown as TestWindow).NoteLocationMap(),
+        annotations: new window.NoteLocationMap(),
         isAnnotationMode: false,
         showAllBranches: false,
       });
@@ -327,10 +318,9 @@ test.describe("Visual Regression", () => {
         }
       }
       // Construct Map
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
-      const tjaChart = document.getElementById("chart-component") as any;
+      const tjaChart = document.getElementById("chart-component") as TJAChart;
       const chart = tjaChart.chart;
-      const map = new (window as unknown as TestWindow).JudgementMap();
+      const map = new window.JudgementMap();
 
       if (chart) {
         let noteCount = 0;
@@ -376,7 +366,7 @@ test.describe("Visual Regression", () => {
         collapsedLoop: false,
         beatsPerLine: 16,
         selection: null,
-        annotations: new (window as unknown as TestWindow).NoteLocationMap(),
+        annotations: new window.NoteLocationMap(),
         isAnnotationMode: false,
         showAllBranches: false,
       });
@@ -411,10 +401,9 @@ test.describe("Visual Regression", () => {
       }
 
       // Construct Map
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom property
-      const tjaChart = document.getElementById("chart-component") as any;
+      const tjaChart = document.getElementById("chart-component") as TJAChart;
       const chart = tjaChart.chart;
-      const map = new (window as unknown as TestWindow).JudgementMap();
+      const map = new window.JudgementMap();
 
       if (chart) {
         let noteCount = 0;
@@ -504,7 +493,7 @@ SCOREDIFF:
         selectedLoopIteration: undefined,
         beatsPerLine: 16,
         selection: null,
-        annotations: new (window as unknown as TestWindow).NoteLocationMap(),
+        annotations: new window.NoteLocationMap(),
         isAnnotationMode: false,
       });
     }, loopTJA);
@@ -684,8 +673,7 @@ LEVEL:10
     const width = await page.evaluate(async () => {
       // Force fallback by removing navigator.share if present
       try {
-        // biome-ignore lint/suspicious/noExplicitAny: Need to modify readonly property for testing
-        (navigator as any).share = undefined;
+        Reflect.set(navigator, "share", undefined);
       } catch (_e) {}
 
       try {
@@ -693,17 +681,14 @@ LEVEL:10
       } catch (_e) {}
 
       try {
-        // biome-ignore lint/suspicious/noExplicitAny: Mocking global
-        (window as any).Neutralino = undefined;
+        Reflect.set(window, "Neutralino", undefined);
       } catch (_e) {}
 
       return new Promise<number>((resolve) => {
         const originalCreateElement = document.createElement;
 
-        // biome-ignore lint/suspicious/noExplicitAny: Mocking DOM API
-        document.createElement = (tagName: string, options?: any) => {
-          // biome-ignore lint/suspicious/noExplicitAny: Mocking DOM API
-          const el = originalCreateElement.call(document, tagName, options) as any;
+        document.createElement = ((tagName: string, options?: ElementCreationOptions) => {
+          const el = originalCreateElement.call(document, tagName, options) as HTMLAnchorElement;
           if (tagName.toLowerCase() === "a") {
             el.click = () => {
               const href = el.href;
@@ -720,7 +705,7 @@ LEVEL:10
             };
           }
           return el;
-        };
+        }) as typeof document.createElement;
 
         const host = document.querySelector("#export-image-footer-btn");
         if (host?.shadowRoot) {
@@ -982,8 +967,7 @@ test.describe("UI Logic", () => {
     // The mapping fetch is async, wait until the title matches expectation
     await page.waitForFunction(
       () => {
-        // biome-ignore lint/suspicious/noExplicitAny: internal testing
-        const tjaChart = document.getElementById("chart-component") as any;
+        const tjaChart = document.getElementById("chart-component") as TJAChart;
         return tjaChart?.renderOptions?.titleOverride === "Sample Song (English)";
       },
       undefined,
@@ -991,8 +975,7 @@ test.describe("UI Logic", () => {
     );
 
     const chartTitleInfo = await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: internal testing
-      const tjaChart = document.getElementById("chart-component") as any;
+      const tjaChart = document.getElementById("chart-component") as TJAChart;
       return {
         title: tjaChart.renderOptions?.titleOverride,
       };
@@ -1238,12 +1221,11 @@ test.describe("Selection Interaction", () => {
 
     // 1. Click Start Note (Bar 0, Note 0)
     const p0 = await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       return chart.getNoteCoordinates(0, 0);
     });
     expect(p0).not.toBeNull();
-    await canvas.click({ position: p0, force: true });
+    await canvas.click({ position: p0 ?? undefined, force: true });
 
     const stats = page.locator("note-stats");
     await expect(stats.locator(".stat-value").nth(1)).not.toHaveText("-"); // BPM has a value when a note is selected
@@ -1252,22 +1234,20 @@ test.describe("Selection Interaction", () => {
 
     // 2. Click End Note (Bar 1, Note 0)
     const p1 = await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       return chart.getNoteCoordinates(1, 0);
     });
     expect(p1).not.toBeNull();
-    await canvas.click({ position: p1, force: true });
+    await canvas.click({ position: p1 ?? undefined, force: true });
     await expect(stats.locator(".stat-value").nth(1)).not.toHaveText("-"); // BPM has a value when a note is selected
 
     // 3. Click Third Note (Bar 2, Note 0 - Balloon) (Restart Selection)
     const p2 = await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       return chart.getNoteCoordinates(2, 0);
     });
     expect(p2).not.toBeNull();
-    await canvas.click({ position: p2, force: true });
+    await canvas.click({ position: p2 ?? undefined, force: true });
     await expect(stats.locator(".stat-value").nth(1)).not.toHaveText("-"); // BPM has a value when a note is selected
   });
 
@@ -1307,17 +1287,15 @@ test.describe("Selection Interaction", () => {
 
     // 1. Hover over a note
     const p0 = await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       return chart.getNoteCoordinates(0, 0);
     });
     expect(p0).not.toBeNull();
-    await canvas.hover({ position: p0, force: true });
+    await canvas.hover({ position: p0 ?? undefined, force: true });
 
     // Verify renderOptions.hoveredNote is set
     const hoveredNote = await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       return chart.hoveredNote;
     });
     expect(hoveredNote).toEqual({ barIndex: 0, charIndex: 0, branch: "normal" });
@@ -1327,8 +1305,7 @@ test.describe("Selection Interaction", () => {
 
     // Verify hoveredNote is NOT cleared because click handler is still present
     const hoveredNoteHidden = await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       return chart.hoveredNote;
     });
     expect(hoveredNoteHidden).not.toBeNull();
@@ -1336,11 +1313,10 @@ test.describe("Selection Interaction", () => {
 
     // 3. Hover again (stats hidden)
     await canvas.hover({ position: { x: 0, y: 0 }, force: true }); // Move away
-    await canvas.hover({ position: p0, force: true }); // Move back
+    await canvas.hover({ position: p0 ?? undefined, force: true }); // Move back
 
     const hoveredNoteStillNull = await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
-      const chart = document.getElementById("chart-component") as any;
+      const chart = document.getElementById("chart-component") as TJAChart;
       return chart.hoveredNote;
     });
     expect(hoveredNoteStillNull).not.toBeNull();

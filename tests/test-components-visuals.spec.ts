@@ -1,4 +1,8 @@
 import { expect, test } from "@playwright/test";
+import type { ChartListPanel } from "../src/components/chart-list-panel.js";
+import type { CourseBranchSelect } from "../src/components/course-branch-select.js";
+import type { SelectOptions } from "../src/components/select-options.js";
+import type { AppState } from "../src/state/app-state.js";
 
 test.describe("Web Components Visual Regression", () => {
   test("Chart List Panel", async ({ page }) => {
@@ -7,11 +11,12 @@ test.describe("Web Components Visual Regression", () => {
 
     // Mock ESE tree
     await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Mocking global objects
-      (window as any).appState.eseTree = [{ path: "Category/Song 1.tja" }, { path: "Category/Song 2.tja" }];
+      window.appState.eseTree = [
+        { path: "Category/Song 1.tja" },
+        { path: "Category/Song 2.tja" },
+      ] as unknown as AppState["eseTree"];
       // Trigger render
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
-      const el = document.querySelector("chart-list-panel") as any;
+      const el = document.querySelector("chart-list-panel") as ChartListPanel;
       if (el) el.render();
     });
 
@@ -39,8 +44,7 @@ test.describe("Web Components Visual Regression", () => {
 
     // Populate with mock data
     await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
-      const el = document.querySelector("course-branch-select") as any;
+      const el = document.querySelector("course-branch-select") as CourseBranchSelect;
       if (el) {
         el.setDifficultyOptions(["oni", "hard", "normal", "easy"]);
         el.difficulty = "oni";
@@ -79,20 +83,17 @@ test.describe("Web Components Visual Regression", () => {
 
     await page.evaluate(() => {
       // Mock branched chart showing all branches
-      // biome-ignore lint/suspicious/noExplicitAny: Mocking global objects
-      (window as any).appState.currentChart = {
+      window.appState.currentChart = {
         branches: {
           normal: {},
           expert: {},
           master: {},
         },
-      };
-      // biome-ignore lint/suspicious/noExplicitAny: Mocking global objects
-      (window as any).appState.renderOptions.showAllBranches = true;
+      } as unknown as AppState["currentChart"];
+      window.appState.renderOptions.showAllBranches = true;
 
       // Trigger render
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
-      const el = document.querySelector("select-options") as any;
+      const el = document.querySelector("select-options") as SelectOptions;
       if (el) el.render();
     });
 

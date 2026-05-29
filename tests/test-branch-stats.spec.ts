@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import type { NoteStatsDisplay } from "../src/components/note-stats.js";
 
 test.describe("Branch Stats in Note Stats Component", () => {
   test("Displays info when hovering branch start", async ({ page }) => {
@@ -6,8 +7,7 @@ test.describe("Branch Stats in Note Stats Component", () => {
 
     // Populate data
     await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: accessing custom element props
-      const el = document.getElementById("test-component") as any;
+      const el = document.getElementById("test-component") as NoteStatsDisplay;
 
       const chart = {
         branches: {
@@ -33,9 +33,9 @@ test.describe("Branch Stats in Note Stats Component", () => {
         },
       };
 
-      el.chart = chart;
+      el.chart = chart as unknown as NoteStatsDisplay["chart"];
       el.hit = null; // No note hit
-      el.branchHit = branchHit;
+      el.branchHit = branchHit as unknown as NoteStatsDisplay["branchHit"];
     });
 
     const stats = page.locator("note-stats");
@@ -50,9 +50,8 @@ test.describe("Branch Stats in Note Stats Component", () => {
     await page.goto("/component-test.html?component=note-stats");
 
     await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: accessing custom element props
-      const el = document.getElementById("test-component") as any;
-      el.chart = {};
+      const el = document.getElementById("test-component") as NoteStatsDisplay;
+      el.chart = {} as unknown as NoteStatsDisplay["chart"];
       el.hit = null;
       el.branchHit = null;
     });
@@ -68,9 +67,8 @@ test.describe("Branch Stats in Note Stats Component", () => {
     await page.goto("/component-test.html?component=note-stats");
 
     await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: accessing custom element props
-      const el = document.getElementById("test-component") as any;
-      el.chart = { branches: {} };
+      const el = document.getElementById("test-component") as NoteStatsDisplay;
+      el.chart = { branches: {} } as unknown as NoteStatsDisplay["chart"];
       el.hit = null;
       el.branchHit = null;
     });

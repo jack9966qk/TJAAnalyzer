@@ -13,7 +13,7 @@ type NoteLocationMap<V> = Renderer.Private.NoteLocationMap<V>;
 type ParsedChart = Renderer.Private.ParsedChart;
 type RenderOptions = Renderer.Private.RenderOptions;
 
-interface AppState {
+export interface AppState {
   parsedTJACharts: Record<string, ParsedChart> | null;
   currentChart: ParsedChart | null;
   renderOptions: RenderOptions & { autoZoom?: boolean };

@@ -1,9 +1,5 @@
 import { expect, test } from "@playwright/test";
-
-interface TestWindow extends Window {
-  // biome-ignore lint/suspicious/noExplicitAny: Test helper
-  JudgementMap: any;
-}
+import type { TJAChart } from "../src/components/tja-chart.js";
 
 test.describe("Judgement View Edge Cases", () => {
   test.beforeEach(async ({ page }) => {
@@ -22,13 +18,12 @@ test.describe("Judgement View Edge Cases", () => {
 
     // 1. Set View Mode to Judgements Underline
     await page.evaluate(() => {
-      // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
-      const tjaChart = document.getElementById("chart-component") as any;
+      const tjaChart = document.getElementById("chart-component") as TJAChart;
       tjaChart.renderOptions = {
         ...tjaChart.renderOptions,
         viewMode: "judgements-underline",
         visibility: { perfect: true, good: true, poor: true },
-      };
+      } as NonNullable<TJAChart["renderOptions"]>;
     });
 
     // 2. Set Judgements (perfect, miss, good)
@@ -39,10 +34,9 @@ test.describe("Judgement View Edge Cases", () => {
 
     await page.evaluate(
       ({ judgements, deltas }) => {
-        // biome-ignore lint/suspicious/noExplicitAny: Accessing custom element
-        const tjaChart = document.getElementById("chart-component") as any;
+        const tjaChart = document.getElementById("chart-component") as TJAChart;
         const chart = tjaChart.chart;
-        const map = new (window as unknown as TestWindow).JudgementMap();
+        const map = new window.JudgementMap();
 
         if (chart) {
           let noteCount = 0;
