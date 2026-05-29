@@ -292,12 +292,81 @@ export class TJAChart extends HTMLElement {
   exitFullscreen() {
     const doc = document as VendorDocument;
     if (doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement) {
+      // Native fullscreen: the browser animates the exit itself.
       if (doc.exitFullscreen) doc.exitFullscreen().catch(() => {});
       else if (doc.webkitExitFullscreen) doc.webkitExitFullscreen();
       else if (doc.mozCancelFullScreen) doc.mozCancelFullScreen();
       else if (doc.msExitFullscreen) doc.msExitFullscreen();
+      return;
     }
+    this.exitPseudoFullscreen();
+  }
+
+  /**
+   * Pseudo-fullscreen (iOS / no element-fullscreen support) has no built-in
+   * exit transition. The chart element *is* the fullscreen element, so simply
+   * fading it out would reveal the chart-less inline layout behind it (the
+   * chart is `position: fixed`, so #chart-container has collapsed). Instead:
+   * snapshot the current fullscreen view into a fixed overlay, return the real
+   * chart to inline flow immediately (rendered synchronously so there's no
+   * blank frame), then fade the snapshot out on top.
+   */
+  private exitPseudoFullscreen() {
+    if (!this.classList.contains("pseudo-fullscreen")) return;
+
+    const overlay = this.createFullscreenExitOverlay();
+
     this.classList.remove("pseudo-fullscreen");
+    // Re-render the inline chart synchronously (in this same task) so the
+    // browser paints it the moment the fullscreen layout is dropped.
+    if (this._renderTask !== null) {
+      cancelAnimationFrame(this._renderTask);
+      this._renderTask = null;
+    }
+    this._pendingFullRender = true;
+    this.render();
+
+    if (!overlay) return;
+    const remove = () => overlay.remove();
+    overlay.addEventListener("transitionend", remove, { once: true });
+    window.setTimeout(remove, 400); // fallback if transitionend doesn't fire
+    // Commit the opaque start frame, then fade out (mirrors the enter animation).
+    requestAnimationFrame(() => {
+      overlay.style.opacity = "0";
+      overlay.style.transform = "scale(0.98)";
+    });
+  }
+
+  /**
+   * Capture what's currently shown in fullscreen (chart canvas over its
+   * background) into a fixed, viewport-sized canvas appended to <body>, so it
+   * can be faded out independently of the chart returning to inline flow.
+   */
+  private createFullscreenExitOverlay(): HTMLCanvasElement | null {
+    if (!this.canvas) return null;
+    const rect = this.canvas.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    const overlay = document.createElement("canvas");
+    overlay.width = Math.round(window.innerWidth * dpr);
+    overlay.height = Math.round(window.innerHeight * dpr);
+    const ctx = overlay.getContext("2d");
+    if (!ctx) return null;
+    ctx.scale(dpr, dpr);
+    // Match the fullscreen background (resolved while the class is still set).
+    ctx.fillStyle = getComputedStyle(this).backgroundColor || "#fafafa";
+    ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    try {
+      // getBoundingClientRect is viewport-relative (accounts for scroll), so
+      // this reproduces exactly what's on screen.
+      ctx.drawImage(this.canvas, rect.left, rect.top, rect.width, rect.height);
+    } catch {
+      return null;
+    }
+    overlay.style.cssText =
+      "position:fixed;inset:0;width:100vw;height:100vh;z-index:9999;pointer-events:none;" +
+      "transform-origin:center;opacity:1;transform:scale(1);transition:opacity 0.15s ease,transform 0.15s ease;";
+    document.body.appendChild(overlay);
+    return overlay;
   }
 
   private upgradeProperty(prop: string) {
