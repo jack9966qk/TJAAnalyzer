@@ -32,26 +32,18 @@ function update() {
 }
 
 /**
- * A sheet height change moves the pill: instantly while dragging (its CSS
- * transition is disabled) or animated over the snap transition. Re-evaluate on
- * every frame until the pill settles so visibility tracks the moving pill.
+ * A sheet height change moves the pill. Coalesce updates to one per frame
+ * (rAF) so a drag — which fires this every pointer move — triggers a single
+ * layout read per frame instead of a per-frame polling loop. The snap is a CSS
+ * transition that emits no further events, so we also re-check once it ends.
  */
-let trackingRaf = 0;
-function trackSheetMotion() {
-  if (!wrapper || !pill || !chart) return;
-  let lastBottom = pill.getBoundingClientRect().bottom;
-  let stableFrames = 0;
-  cancelAnimationFrame(trackingRaf);
-  const tick = () => {
+let scheduledRaf = 0;
+function scheduleUpdate() {
+  if (scheduledRaf) return;
+  scheduledRaf = requestAnimationFrame(() => {
+    scheduledRaf = 0;
     update();
-    const bottom = pill.getBoundingClientRect().bottom;
-    // Stop once the pill has held still for a couple of frames (transition done).
-    stableFrames = Math.abs(bottom - lastBottom) < 0.5 ? stableFrames + 1 : 0;
-    lastBottom = bottom;
-    if (stableFrames >= 2) return;
-    trackingRaf = requestAnimationFrame(tick);
-  };
-  trackingRaf = requestAnimationFrame(tick);
+  });
 }
 
 export function initFloatingActionsVisibility() {
@@ -60,7 +52,13 @@ export function initFloatingActionsVisibility() {
   window.addEventListener("scroll", update, { passive: true, capture: true });
   window.addEventListener("resize", update);
   window.addEventListener("layout-change", update);
-  window.addEventListener("sheet-height-change", trackSheetMotion);
+  window.addEventListener("sheet-height-change", scheduleUpdate);
+  // The sheet's translateY transition (snap) settles silently — re-evaluate
+  // once it finishes to catch the final pill position.
+  const sheet = document.getElementById("chart-options-panel");
+  sheet?.addEventListener("transitionend", (e) => {
+    if ((e as TransitionEvent).propertyName === "transform") update();
+  });
   if (typeof ResizeObserver !== "undefined") {
     const ro = new ResizeObserver(update);
     ro.observe(chart);

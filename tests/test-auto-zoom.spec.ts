@@ -49,6 +49,15 @@ test.describe("Auto Zoom Feature", () => {
     // Verify Auto is still active
     await expect(zoomAutoCheckbox).toBeChecked();
 
+    // This viewport is narrow enough to use vertical layout, where the zoom
+    // controls live inside the bottom sheet. Expand it so they're on-screen
+    // and actionable (collapsed = controls below the fold).
+    const optionsPanel = page.locator("#chart-options-panel");
+    if (!((await optionsPanel.getAttribute("class")) ?? "").includes("sheet-expanded")) {
+      await page.click("#options-panel-header");
+      await page.waitForTimeout(400);
+    }
+
     // Manual Zoom Out -> Should disable Auto
     await zoomOutBtn.click();
     await expect(zoomAutoCheckbox).not.toBeChecked();

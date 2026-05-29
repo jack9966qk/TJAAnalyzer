@@ -55,6 +55,12 @@ function collapsedHeight(): number {
   return handleHeight + tabBarHeight + safeAreaBottom();
 }
 
+// Exposed to CSS so #app can reserve only the always-visible sheet height
+// (constant during drag/expand), keeping the expanded sheet a pure overlay.
+function syncCollapsedHeightVar() {
+  docRoot.style.setProperty("--sheet-collapsed-height", `${collapsedHeight()}px`);
+}
+
 function expandedHeight() {
   const viewportMax = window.innerHeight * EXPANDED_FRACTION;
   const contentH = getContentHeight();
@@ -126,6 +132,7 @@ function measureTabBar() {
   const h = tabs.offsetHeight;
   optionsBody.style.height = prev;
   if (h > 0) tabBarHeight = h;
+  syncCollapsedHeightVar();
 }
 
 function measureHandle() {
@@ -135,6 +142,7 @@ function measureHandle() {
     handleHeight = h;
     docRoot.style.setProperty("--sheet-handle-height", `${h}px`);
   }
+  syncCollapsedHeightVar();
   if (!expanded && dragMode !== "drag") setSheetHeightPx(collapsedHeight());
 }
 
@@ -273,6 +281,7 @@ export function initBottomSheet() {
       docRoot.style.removeProperty("--sheet-height");
       docRoot.style.removeProperty("--sheet-max-height");
       docRoot.style.removeProperty("--sheet-handle-height");
+      docRoot.style.removeProperty("--sheet-collapsed-height");
       sheet.classList.remove("dragging", "sheet-expanded");
       expanded = false;
       cancelTracking();

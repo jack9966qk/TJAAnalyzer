@@ -1202,7 +1202,11 @@ body.horizontal-layout.controls-collapsed #layout-toggle-btn {
 body:not(.horizontal-layout) #app {
   display: flex;
   flex-direction: column;
-  padding-bottom: var(--sheet-height, 50px);
+  /* Reserve only the always-visible (collapsed) sheet height. The expanded
+     sheet overlays content rather than pushing it, so dragging/expanding the
+     sheet never reflows #app (and the chart canvas) — only the sheet's own
+     compositor transform moves. */
+  padding-bottom: var(--sheet-collapsed-height, 50px);
 }
 
 body:not(.horizontal-layout) #sticky-header {
@@ -1219,6 +1223,9 @@ body:not(.horizontal-layout) #chart-options-panel {
      Completely GPU-compositable — no layout recalculation during animation. */
   height: var(--sheet-max-height, 300px);
   transform: translateY(calc(var(--sheet-max-height, 300px) - var(--sheet-height, 50px)));
+  /* Promote to its own compositor layer so the transform animates off the
+     main thread (smooth at high refresh rates / ProMotion). */
+  will-change: transform;
   overflow: hidden;
   touch-action: none;
   transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
@@ -1251,9 +1258,10 @@ body:not(.horizontal-layout) #chart-options-panel #options-body {
   display: block;
   opacity: 1;
   overflow-y: auto;
-  /* Sheet uses box-sizing: border-box, so the sheet's bottom safe-area
-     padding eats into the content area. Subtract it here so options-body
-     occupies only the visible region above the home indicator. */
+  /* Size to the visible region so that, when collapsed, the body is exactly
+     the tab bar tall and the bottom safe-area strip stays empty sheet
+     background (no tab content bleeding into the home-indicator area). Sheet
+     uses box-sizing: border-box, so subtract the bottom safe-area padding. */
   height: calc(var(--sheet-height, 50px) - var(--sheet-handle-height, 50px) - env(safe-area-inset-bottom));
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
@@ -1350,12 +1358,28 @@ body:not(.horizontal-layout) #chart-options-panel.sheet-expanded #chart-mode-sta
 }
 body:not(.horizontal-layout) #note-stats-display {
   position: fixed;
-  bottom: calc(var(--sheet-height, 50px) + 10px);
+  bottom: 10px;
   left: max(12px, env(safe-area-inset-left));
   right: max(12px, env(safe-area-inset-right));
   z-index: 99;
   background-color: var(--bg-body);
   box-shadow: 0 -2px 4px var(--shadow-color);
+  /* Track the sheet via transform (compositor) instead of animating `bottom`
+     (layout). Keep the existing opacity/max-height show-hide transitions. */
+  transform: translateY(calc(-1 * var(--sheet-height, 50px)));
+  will-change: transform;
+  transition:
+    transform 0.28s cubic-bezier(0.32, 0.72, 0, 1),
+    opacity var(--anim-duration-fast) ease-out,
+    max-height var(--anim-duration-fast) ease-out;
+}
+
+/* During a sheet drag the position must track the finger instantly, so drop
+   the transform transition (matches the sheet's own .dragging behavior). */
+body:not(.horizontal-layout) #chart-options-panel.dragging ~ #note-stats-display {
+  transition:
+    opacity var(--anim-duration-fast) ease-out,
+    max-height var(--anim-duration-fast) ease-out;
 }
 
 #data-source-panel {
