@@ -1,5 +1,45 @@
 [
   {
+    "hash": "c26ef08",
+    "message": "Update version to 0.12.0.",
+    "date": "2026-05-29"
+  },
+  {
+    "hash": "11e4843",
+    "message": "Avoid bottom sheet expansion if tab switch is triggered programmatically.",
+    "date": "2026-05-29"
+  },
+  {
+    "hash": "e37ef1b",
+    "message": "Move the exit full screen button to the bottom of the screen.",
+    "date": "2026-05-29"
+  },
+  {
+    "hash": "d725b31",
+    "message": "Auto-hide the floating chart action buttons (with fade) when they would extend outside the chart's visible region; show again when fully inside.",
+    "date": "2026-05-29"
+  },
+  {
+    "hash": "7d65e26",
+    "message": "Add vertical layout test cases: mutually exclusive panel expansion logic and mobile-sized snapshot regressions.",
+    "date": "2026-05-29"
+  },
+  {
+    "hash": "3ed2d2e",
+    "message": "Update floating buttons styling.",
+    "date": "2026-05-28"
+  },
+  {
+    "hash": "5d72036",
+    "message": "Moved full screen, image share and wiki buttons as floating buttons above bottom sheet in vertical layout. Added smooth position transition; disabled transition during drag.",
+    "date": "2026-05-26"
+  },
+  {
+    "hash": "cc2cb50",
+    "message": "Revamp the chart options layout in vertical mode as a bottom sheet. Make sure only one of data source and chart options panels can be expanded.",
+    "date": "2026-05-23"
+  },
+  {
     "hash": "4789cbb",
     "message": "Update version to 0.11.7.",
     "date": "2026-05-25"
@@ -457,46 +497,6 @@
   {
     "hash": "462dba0",
     "message": "Update tests and snapshots for recent change.",
-    "date": "2026-03-01"
-  },
-  {
-    "hash": "f48f599",
-    "message": "Further simplify the chart options status panel.",
-    "date": "2026-03-01"
-  },
-  {
-    "hash": "a78f375",
-    "message": "Remove note type stat panel, extend the gap stat panel to include gap in seconds. Improve consistency of labels across the app.",
-    "date": "2026-03-01"
-  },
-  {
-    "hash": "a36d801",
-    "message": "Basic support for rating.taiko.wiki playdata import.",
-    "date": "2026-03-01"
-  },
-  {
-    "hash": "7d830a9",
-    "message": "Update long notes rendering so that it has the same hover style as the other notes.",
-    "date": "2026-03-01"
-  },
-  {
-    "hash": "b29a0e6",
-    "message": "Update version to 0.10.4.",
-    "date": "2026-03-01"
-  },
-  {
-    "hash": "eb5e5c6",
-    "message": "Slightly adjust radio and checkbox inputs style. Make the style consistent across the app.",
-    "date": "2026-03-01"
-  },
-  {
-    "hash": "c623d3d",
-    "message": "Clear annotations when chart difficulty changes.",
-    "date": "2026-03-01"
-  },
-  {
-    "hash": "1f2b91a",
-    "message": "Disable note selection highlighting in exported image when \"display only selected\" is on.",
     "date": "2026-03-01"
   }
 ]
