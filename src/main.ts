@@ -383,6 +383,13 @@ function initEventListeners() {
     });
   });
 
+  // Programmatic tab switch (e.g. auto-annotate on chart load). Unlike a user
+  // tap, this never expands the bottom sheet even if the tab is already active.
+  window.addEventListener("switch-display-option-tab", (e: Event) => {
+    const mode = (e as CustomEvent<{ mode: string }>).detail?.mode;
+    if (mode) switchDisplayOptionTab(mode);
+  });
+
   // Setup Collapse Button
 
   if (dsPanelHeader && dsBody && dsCollapseIcon) {

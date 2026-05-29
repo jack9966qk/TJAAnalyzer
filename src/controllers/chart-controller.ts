@@ -267,11 +267,10 @@ export function updateParsedCharts(content: string, fromStream = false) {
     if (profile.autoAnnotateOnLoad) {
       // Use setTimeout to ensure chart is fully loaded first
       setTimeout(() => {
-        // Switch to annotation tab
-        const annotateTab = document.querySelector('.panel-tab[data-do-tab="annotation"]') as HTMLElement;
-        if (annotateTab) {
-          annotateTab.click();
-        }
+        // Switch to annotation tab programmatically. We avoid simulating a tab
+        // click here: clicking the already-active tab is the user gesture that
+        // expands the bottom sheet, which we don't want on chart load.
+        window.dispatchEvent(new CustomEvent("switch-display-option-tab", { detail: { mode: "annotation" } }));
         // Trigger auto-annotate
         if (tjaChart && typeof tjaChart.autoAnnotate === "function") {
           tjaChart.autoAnnotate();
