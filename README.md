@@ -2,6 +2,10 @@
 
 A versatile tool for visualizing, analyzing, and annotating TJA charts.
 
+<p>
+  <img src="assets/screenshots/devices.png" alt="TJA Analyzer on laptop and phone" width="85%">
+</p>
+
 ## Features
 
 ### Chart rendering

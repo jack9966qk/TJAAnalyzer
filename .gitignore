@@ -1,4 +1,5 @@
 .pi/
+AGENTS.md
 .agents/
 .gemini/
 .claude/
