@@ -8,7 +8,7 @@ import "./action-button.js";
 import type { ModalPage } from "./modal-page.js";
 import "./stepper-control.js";
 
-const { NoteLocationMap } = Renderer.Private;
+const { NoteLocationMap, HandType } = Renderer.Private;
 
 export class AnnotateOptions extends HTMLElement {
   private readonly ALT_THRESHOLDS = [1 / 32, 1 / 16, 1 / 12, 1 / 8, 1 / 4, 1, 2, 4, Infinity];
@@ -104,6 +104,12 @@ export class AnnotateOptions extends HTMLElement {
     this.render();
   }
 
+  private handleMainHandSelect(hand: Renderer.Private.HandType) {
+    appState.renderOptions.autoAnnotateMainHand = hand;
+    refreshChart();
+    this.render();
+  }
+
   private openConfigModal() {
     this._isConfigModalOpen = true;
     this.render();
@@ -126,6 +132,9 @@ export class AnnotateOptions extends HTMLElement {
     const mode = appState.renderOptions.autoAnnotateMode || "partial";
     const isPartialSelected = (mode === "partial") as boolean | undefined;
     const isFullSelected = (mode === "full") as boolean | undefined;
+    const mainHand = appState.renderOptions.autoAnnotateMainHand ?? HandType.R;
+    const isLeftStarter = mainHand === HandType.L;
+    const isRightStarter = mainHand === HandType.R;
     const toolType = appState.renderOptions.annotationToolType || "hand";
     const isHandTool = toolType === "hand";
     const isSeparatorTool = toolType === "separator";
@@ -255,6 +264,25 @@ export class AnnotateOptions extends HTMLElement {
                   {i18n.t("ui.autoAnnotateMode.full") || "All notes"}
                 </option>
               </select>
+            </div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 0.9em; color: var(--text-secondary);">{i18n.t("ui.handStarter")}</span>
+              <div className="segmented-control">
+                <button
+                  type="button"
+                  className={`segmented-control-option${isLeftStarter ? " active" : ""}`}
+                  onclick={() => this.handleMainHandSelect(HandType.L)}
+                >
+                  {i18n.t("ui.handStarter.left")}
+                </button>
+                <button
+                  type="button"
+                  className={`segmented-control-option${isRightStarter ? " active" : ""}`}
+                  onclick={() => this.handleMainHandSelect(HandType.R)}
+                >
+                  {i18n.t("ui.handStarter.right")}
+                </button>
+              </div>
             </div>
           </div>
         </div>

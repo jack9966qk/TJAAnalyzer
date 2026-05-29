@@ -763,6 +763,7 @@ export class TJAChart extends HTMLElement {
       this._renderOptions?.handAlternationThreshold,
       this._renderOptions?.handResetThreshold,
       this._renderOptions?.autoAnnotateMode,
+      this._renderOptions?.autoAnnotateMainHand,
     );
 
     this.dispatchEvent(

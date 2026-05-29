@@ -54,6 +54,7 @@ export const appState: AppState = {
     showTextInAnnotationMode: false,
     alwaysShowAnnotations: false,
     autoAnnotateMode: "partial",
+    autoAnnotateMainHand: Renderer.Private.HandType.R,
     annotationToolType: "hand",
     autoZoom: false,
     hideUnreachableBranches: true,
