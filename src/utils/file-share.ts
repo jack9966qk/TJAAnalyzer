@@ -22,11 +22,11 @@ export async function shareFile(
   try {
     if (navigator.share && navigator.canShare) {
       const file = new File([blob], fileName, { type: mimeType });
-      if (navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: fileName,
-        });
+      // Share files only — including a `title` makes iOS treat the share as
+      // text and hand the destination the file name string instead of the file.
+      const shareData: ShareData = { files: [file] };
+      if (navigator.canShare(shareData)) {
+        await navigator.share(shareData);
         return;
       }
     }
