@@ -91,6 +91,18 @@ export class AnnotateOptions extends HTMLElement {
     this.render();
   }
 
+  private handleRollGapChange(bpm: number) {
+    appState.renderOptions.rollGapThresholdBpm = Math.round(bpm);
+    refreshChart();
+    this.render();
+  }
+
+  private handleRollLengthChange(length: number) {
+    appState.renderOptions.rollMinSegmentLength = Math.round(length);
+    refreshChart();
+    this.render();
+  }
+
   private handleToolTypeSelect(value: "hand" | "separator") {
     appState.renderOptions.annotationToolType = value;
     refreshChart();
@@ -135,6 +147,8 @@ export class AnnotateOptions extends HTMLElement {
     const mainHand = appState.renderOptions.autoAnnotateMainHand ?? HandType.R;
     const isLeftStarter = mainHand === HandType.L;
     const isRightStarter = mainHand === HandType.R;
+    const rollGapBpm = appState.renderOptions.rollGapThresholdBpm ?? 300;
+    const rollMinLength = appState.renderOptions.rollMinSegmentLength ?? 4;
     const toolType = appState.renderOptions.annotationToolType || "hand";
     const isHandTool = toolType === "hand";
     const isSeparatorTool = toolType === "separator";
@@ -283,6 +297,35 @@ export class AnnotateOptions extends HTMLElement {
                   {i18n.t("ui.handStarter.right")}
                 </button>
               </div>
+            </div>
+            <div style="width: 100%; border-top: 1px solid var(--border-lighter); padding-top: 5px;"></div>
+            <div className="section-main">
+              <span className="sub-label" style="min-width: auto;">
+                {i18n.t("ui.rollGapThreshold")}
+              </span>
+              <stepper-control
+                value={rollGapBpm}
+                min={60}
+                max={600}
+                step={10}
+                baseline={300}
+                format={(v: number) => `BPM ${Math.round(v)}`}
+                changeCallback={(v: number) => this.handleRollGapChange(v)}
+              ></stepper-control>
+            </div>
+            <div className="section-main">
+              <span className="sub-label" style="min-width: auto;">
+                {i18n.t("ui.rollMinSegmentLength")}
+              </span>
+              <stepper-control
+                value={rollMinLength}
+                min={2}
+                max={16}
+                step={1}
+                baseline={4}
+                format={(v: number) => `${Math.round(v)}`}
+                changeCallback={(v: number) => this.handleRollLengthChange(v)}
+              ></stepper-control>
             </div>
           </div>
         </div>

@@ -764,6 +764,8 @@ export class TJAChart extends HTMLElement {
       this._renderOptions?.handResetThreshold,
       this._renderOptions?.autoAnnotateMode,
       this._renderOptions?.autoAnnotateMainHand,
+      this._renderOptions?.rollGapThresholdBpm,
+      this._renderOptions?.rollMinSegmentLength,
     );
 
     this.dispatchEvent(
