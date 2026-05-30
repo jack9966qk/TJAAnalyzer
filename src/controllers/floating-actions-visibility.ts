@@ -12,6 +12,11 @@ import { appState } from "../state/app-state.js";
 const wrapper = document.getElementById("floating-actions-wrapper");
 const pill = document.getElementById("floating-chart-actions");
 const chart = document.getElementById("chart-component");
+const noteStats = document.getElementById("note-stats-display");
+
+// The note stats panel floats this many px above the sheet (its `bottom`
+// offset in vertical layout — keep in sync with `#note-stats-display`'s CSS).
+const NOTE_STATS_GAP = 10;
 
 function rectContains(outer: DOMRect, inner: DOMRect): boolean {
   return (
@@ -19,8 +24,22 @@ function rectContains(outer: DOMRect, inner: DOMRect): boolean {
   );
 }
 
+/**
+ * The floating pill is anchored above the note stats panel so the two never
+ * overlap. Expose the space the panel occupies above the sheet as a CSS var
+ * (`--note-stats-height`) that the pill's `bottom` adds on. A hidden/collapsed
+ * panel measures ~0, dropping the pill back to just above the sheet.
+ */
+function syncNoteStatsHeight() {
+  if (!noteStats) return;
+  const rect = noteStats.getBoundingClientRect();
+  const occupied = !appState.isHorizontalLayout && rect.height > 0 ? rect.height + NOTE_STATS_GAP : 0;
+  document.documentElement.style.setProperty("--note-stats-height", `${occupied}px`);
+}
+
 function update() {
   if (!wrapper || !pill || !chart) return;
+  syncNoteStatsHeight();
   if (appState.isHorizontalLayout) {
     wrapper.classList.remove("floating-hidden");
     return;
@@ -63,5 +82,8 @@ export function initFloatingActionsVisibility() {
     const ro = new ResizeObserver(update);
     ro.observe(chart);
     ro.observe(pill);
+    // Note stats show/hide and content changes its height, which shifts the
+    // pill's anchor — re-measure and re-evaluate when it resizes.
+    if (noteStats) ro.observe(noteStats);
   }
 }

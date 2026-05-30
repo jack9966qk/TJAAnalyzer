@@ -152,6 +152,35 @@ test.describe("Vertical Layout: Floating Actions Auto-Hide", () => {
     await page.waitForTimeout(500);
     await expect(wrapper).toHaveClass(/floating-hidden/);
   });
+
+  test("Floating actions sit above the note stats panel, not overlapping it", async ({ page }) => {
+    await gotoVertical(page);
+
+    // Note stats default off in vertical layout; enabling it floats the panel
+    // above the sheet, where the pill previously overlapped it.
+    await page.evaluate(() => {
+      const vo = document.querySelector("view-options") as { statsVisible?: boolean } | null;
+      if (vo) vo.statsVisible = true;
+    });
+    // Let the pill's `bottom` transition settle after the height var updates.
+    await page.waitForTimeout(400);
+
+    const { statsHeight, statsTop, pillBottom } = await page.evaluate(() => {
+      const pill = document.getElementById("floating-chart-actions")?.getBoundingClientRect();
+      const stats = document.getElementById("note-stats-display")?.getBoundingClientRect();
+      return {
+        statsHeight: stats?.height ?? 0,
+        statsTop: stats?.top ?? 0,
+        pillBottom: pill?.bottom ?? 0,
+      };
+    });
+
+    // The panel is actually shown (has height) ...
+    expect(statsHeight).toBeGreaterThan(0);
+    // ... and the pill's bottom edge clears the panel's top edge (no overlap;
+    // smaller y is higher on screen, so the pill bottom is at/above stats top).
+    expect(pillBottom).toBeLessThanOrEqual(statsTop + 1);
+  });
 });
 
 test.describe("Vertical Layout: Visual Regression", () => {
