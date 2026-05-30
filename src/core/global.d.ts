@@ -69,7 +69,7 @@ declare global {
       "advanced-search-modal": HtmlTag;
       "modal-page": HtmlTag & {
         open?: boolean | null;
-        title?: string;
+        heading?: string;
         "max-width"?: string;
         onclose?: () => void;
       };

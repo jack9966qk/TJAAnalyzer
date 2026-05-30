@@ -487,7 +487,7 @@ export class AdvancedSearchModal extends HTMLElement {
       <modal-page
         id="advanced-search-modal"
         open={this.isOpen || null}
-        title={i18n.t("ui.advSearch.title")}
+        heading={i18n.t("ui.advSearch.title")}
         max-width="500px"
         onclose={this.close.bind(this)}
       >

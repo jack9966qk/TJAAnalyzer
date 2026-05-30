@@ -5,7 +5,7 @@ import { i18n } from "../utils/i18n.js";
 
 export class ModalPage extends HTMLElement {
   private _isOpen = false;
-  private _title = "";
+  private _heading = "";
   private _maxWidth = "800px";
   private _isHorizontal = appState.isHorizontalLayout;
   private _anchorElement: Element | null = null;
@@ -15,7 +15,10 @@ export class ModalPage extends HTMLElement {
   };
 
   static get observedAttributes() {
-    return ["open", "title", "max-width"];
+    // Use "heading" rather than the native "title" attribute: a `title` on the
+    // host element triggers an OS-native tooltip/popover showing the modal's
+    // title, which is redundant with the rendered <h2> header.
+    return ["open", "heading", "max-width"];
   }
 
   constructor() {
@@ -42,8 +45,8 @@ export class ModalPage extends HTMLElement {
       this._isOpen = newValue !== null;
       this.classList.toggle("open", this._isOpen);
       this.updateBodyScroll();
-    } else if (name === "title") {
-      this._title = newValue || "";
+    } else if (name === "heading") {
+      this._heading = newValue || "";
     } else if (name === "max-width") {
       this._maxWidth = newValue || "800px";
     }
@@ -75,12 +78,12 @@ export class ModalPage extends HTMLElement {
     }
   }
 
-  get title() {
-    return this._title;
+  get heading() {
+    return this._heading;
   }
 
-  set title(val: string) {
-    this.setAttribute("title", val);
+  set heading(val: string) {
+    this.setAttribute("heading", val);
   }
 
   get maxWidth() {
@@ -165,7 +168,7 @@ export class ModalPage extends HTMLElement {
           style={`max-width: ${this._maxWidth}${anchoredContentStyle ? `; ${anchoredContentStyle}` : ""}`}
         >
           <div className="modal-header">
-            <h2>{this._title}</h2>
+            <h2>{this._heading}</h2>
             <button
               type="button"
               className="close-btn"

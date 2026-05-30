@@ -213,7 +213,7 @@ export class AnnotateOptions extends HTMLElement {
       <modal-page
         id="auto-annotate-settings-modal"
         open={this._isConfigModalOpen || null}
-        title={i18n.t("ui.autoAnnotateSettings")}
+        heading={i18n.t("ui.autoAnnotateSettings")}
         max-width="400px"
         onclose={this.closeConfigModal.bind(this)}
       >
