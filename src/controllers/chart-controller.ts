@@ -65,26 +65,10 @@ export function updatePageUrl() {
     // Clear URL parameters if not loading from ESE
     url.searchParams.delete("ese");
     url.searchParams.delete("diff");
-    // Also clear search state params
-    for (const p of [
-      "q",
-      "adv_diff",
-      "adv_title",
-      "adv_artist",
-      "adv_subtitle",
-      "adv_stars",
-      "adv_ncmin",
-      "adv_ncmax",
-      "adv_bpmmin",
-      "adv_bpmmax",
-      "adv_bpmrangemin",
-      "adv_bpmrangemax",
-      "adv_platform",
-      "adv_region",
-      "adv_playdata",
-      "adv_dfc",
-    ]) {
-      url.searchParams.delete(p);
+    // Also clear search state params.
+    url.searchParams.delete("q");
+    for (const key of [...url.searchParams.keys()]) {
+      if (key.startsWith("adv_")) url.searchParams.delete(key);
     }
   }
 

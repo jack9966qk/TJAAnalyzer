@@ -49,27 +49,11 @@ import {
   type SongMappingEntry,
 } from "../models/song-mapping.js";
 
-const SEARCH_PARAMS = [
-  "q",
-  "adv_diff",
-  "adv_title",
-  "adv_artist",
-  "adv_subtitle",
-  "adv_stars",
-  "adv_ncmin",
-  "adv_ncmax",
-  "adv_bpmmin",
-  "adv_bpmmax",
-  "adv_bpmrangemin",
-  "adv_bpmrangemax",
-  "adv_platform",
-  "adv_region",
-  "adv_playdata",
-  "adv_dfc",
-];
-
 function clearSearchParams(url: URL) {
-  for (const p of SEARCH_PARAMS) url.searchParams.delete(p);
+  url.searchParams.delete("q");
+  for (const key of [...url.searchParams.keys()]) {
+    if (key.startsWith("adv_")) url.searchParams.delete(key);
+  }
 }
 
 export class ChartListPanel extends HTMLElement {

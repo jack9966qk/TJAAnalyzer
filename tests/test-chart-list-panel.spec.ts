@@ -316,6 +316,46 @@ test.describe("Chart List Panel Component", () => {
     await expect(page.locator(".ese-result-item")).toHaveCount(3);
   });
 
+  test("Clearing advanced search removes all adv_ params from URL and saved state", async ({ page }) => {
+    const mockIndex = [{ path: "cat1/song10.tja", title: "Song Ten", courses: { oni: { level: 10, maxCombo: 1000 } } }];
+    await page.route("**/ese_index.json", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(mockIndex) }),
+    );
+
+    await page.goto("/");
+
+    const dsBody = page.locator("#ds-body");
+    if ((await dsBody.count()) > 0) {
+      const classes = await dsBody.getAttribute("class");
+      if (classes?.includes("collapsed")) {
+        await page.click("#ds-panel-header");
+      }
+    }
+    await page.locator('button[data-mode="list"]').click();
+    await expect(page.locator(".ese-result-item").first()).toBeVisible();
+
+    // Apply a stars range (writes adv_starsmin / adv_starsmax to the URL).
+    await page.locator(".adv-search-open-btn").click();
+    await expect(page.locator("#advanced-search-modal.open")).toBeVisible();
+    const starsMin = page.locator('#advanced-search-modal.open input[type="number"]').first();
+    await starsMin.fill("8");
+    await starsMin.dispatchEvent("input");
+    const starsMax = page.locator('#advanced-search-modal.open input[type="number"]').nth(1);
+    await starsMax.fill("10");
+    await starsMax.dispatchEvent("input");
+    await page.locator("#advanced-search-modal.open").getByText("Apply").click();
+
+    await expect.poll(() => new URL(page.url()).searchParams.get("adv_starsmax")).toBe("10");
+
+    // Clearing must remove every adv_ param — from the URL and the persisted state.
+    await page.locator(".adv-search-clear-btn").click();
+    await expect
+      .poll(() => [...new URL(page.url()).searchParams.keys()].filter((k) => k.startsWith("adv_")).length)
+      .toBe(0);
+    const savedState = await page.evaluate(() => localStorage.getItem("tja_analyzer_url_state"));
+    expect(savedState ?? "").not.toContain("adv_");
+  });
+
   test("Advanced Search Difficulty-Specific Results", async ({ page }) => {
     // Mock ESE index with a song that has both oni and ura courses, different DFC ratings
     const mockIndex = [
