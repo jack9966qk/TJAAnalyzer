@@ -94,4 +94,9 @@ fi
 echo "Creating GitHub release..."
 gh release create "$VERSION" TJAAnalyzer-*-"$VERSION".zip --generate-notes
 
+# Clean up the Neutralino build artifacts now that the release is published
+echo "Cleaning up Neutralino build artifacts..."
+rm -rf release
+rm -f TJAAnalyzer-*-"$VERSION".zip
+
 echo "Release $VERSION created successfully!"
