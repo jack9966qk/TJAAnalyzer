@@ -86,8 +86,16 @@ function recalcMaxHeight() {
 }
 
 function syncExpandedHeight() {
+  // Only matters while expanded: re-measure content and grow/shrink the sheet
+  // to fit (e.g. after a tab switch). While collapsed the sheet's max-height is
+  // (re)computed when it next expands (snapTo), so recomputing it now is
+  // pointless — and harmful: the sheet element's height is --sheet-max-height
+  // (changes instantly) while its transform is transitioned, so retargeting
+  // max-height mid-collapse briefly reveals an expanded sheet before the
+  // transform settles back. Skipping it avoids that transient expand.
+  if (!expanded) return;
   recalcMaxHeight();
-  if (expanded) setSheetHeightPx(expandedHeight());
+  setSheetHeightPx(expandedHeight());
 }
 
 function snapTo(toExpanded: boolean) {

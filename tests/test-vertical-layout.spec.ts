@@ -101,6 +101,33 @@ test.describe("Vertical Layout: Mutually Exclusive Panel Expansion", () => {
     expect(await sheetIsExpanded(page)).toBe(true);
     expect(await dsIsCollapsed(page)).toBe(true);
   });
+
+  test("Switching tabs while collapsed does not transiently expand the sheet", async ({ page }) => {
+    await gotoVertical(page);
+    const sheet = page.locator("#chart-options-panel");
+    // Sheet starts collapsed (only the tab bar is shown).
+    await expect(sheet).not.toHaveClass(/sheet-expanded/);
+
+    const transform = () =>
+      page.evaluate(() => {
+        const s = document.getElementById("chart-options-panel");
+        return s ? getComputedStyle(s).transform : "";
+      });
+    const before = await transform();
+
+    // Tap a different (non-active) tab: switches content but must stay
+    // collapsed. A transient expand would change the sheet's transform target,
+    // so the transform must not move at any point during/after the switch.
+    await page.click("button.panel-tab[data-do-tab='annotation']");
+    await page.waitForTimeout(80); // sample mid-transition window
+    const during = await transform();
+    await waitForSheetSettled(page);
+    const after = await transform();
+
+    await expect(sheet).not.toHaveClass(/sheet-expanded/);
+    expect(during).toBe(before);
+    expect(after).toBe(before);
+  });
 });
 
 test.describe("Vertical Layout: Floating Actions Auto-Hide", () => {
