@@ -34,7 +34,12 @@ export class ChartOptionsFooter extends HTMLElement {
       }
     }
   };
-  private handleScroll = () => {
+  // The dropdown is position:fixed and anchored to the button's measured rect,
+  // so it detaches once anything moves the button. Dismiss it on scroll and on
+  // bottom-sheet height changes (a drag/slide of the sheet moves the floating
+  // pill but fires neither a click nor a scroll, so tapping was the only way to
+  // close it before).
+  private dismissDropdown = () => {
     if (this.wikiDropdownVisible) {
       this.wikiDropdownVisible = false;
       this.render();
@@ -51,14 +56,16 @@ export class ChartOptionsFooter extends HTMLElement {
     // would never see taps on the sheet handle. Capture runs before that, so
     // the dropdown still closes when toggling the sheet.
     document.addEventListener("click", this.handleDocumentClick, { capture: true });
-    window.addEventListener("scroll", this.handleScroll, true);
+    window.addEventListener("scroll", this.dismissDropdown, true);
+    window.addEventListener("sheet-height-change", this.dismissDropdown);
   }
 
   disconnectedCallback() {
     window.removeEventListener("status-change", this.handleStatusChange);
     window.removeEventListener("difficulty-change", this.handleDifficultyChange);
     document.removeEventListener("click", this.handleDocumentClick, { capture: true });
-    window.removeEventListener("scroll", this.handleScroll, true);
+    window.removeEventListener("scroll", this.dismissDropdown, true);
+    window.removeEventListener("sheet-height-change", this.dismissDropdown);
   }
 
   private toggleWikiDropdown(e: Event) {
