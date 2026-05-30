@@ -1,5 +1,50 @@
 [
   {
+    "hash": "5c3e09b",
+    "message": "Update version to 0.12.2.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "79d966f",
+    "message": "Clean up artifacts after npm run release.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "079c35b",
+    "message": "Avoid the transient expanded state when switching bottom sheet tabs while collapsed.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "e8acbd7",
+    "message": "Dismiss the Wiki dropdown when the bottom sheet is dragged.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "e96ff84",
+    "message": "Stop the floating action pill overlapping the note stats panel in vertical layout.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "ba11921",
+    "message": "Add a script to generate a composed screenshot with device bezels, and add the image to README.",
+    "date": "2026-05-30"
+  },
+  {
+    "hash": "8474b80",
+    "message": "Reduce `Any` usages in tests.",
+    "date": "2026-05-30"
+  },
+  {
+    "hash": "4eb81cd",
+    "message": "Attempt to fix a flaky test.",
+    "date": "2026-05-30"
+  },
+  {
+    "hash": "44f34f6",
+    "message": "Allow customizing starting hand for annotations.",
+    "date": "2026-05-30"
+  },
+  {
     "hash": "87e955c",
     "message": "Update version to 0.12.1.",
     "date": "2026-05-30"
@@ -453,50 +498,5 @@
     "hash": "b308552",
     "message": "Allow customizing hand inference during auto annotation to accomodate different hand alternation styles.",
     "date": "2026-03-07"
-  },
-  {
-    "hash": "8914b90",
-    "message": "Slightly update the style of the zoom stepper controls, and make a reusable component from it.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "26c50c5",
-    "message": "Update version to 0.10.6.",
-    "date": "2026-03-02"
-  },
-  {
-    "hash": "55e9a55",
-    "message": "Attempt to preserve app state for the PWA version.",
-    "date": "2026-03-02"
-  },
-  {
-    "hash": "07b8824",
-    "message": "Update URL scheme to support search parameters. Use this to preserve search state by dynamically updating the current URL.",
-    "date": "2026-03-02"
-  },
-  {
-    "hash": "95e0489",
-    "message": "Add a subheading and divider for the selection export section.",
-    "date": "2026-03-02"
-  },
-  {
-    "hash": "e250aaa",
-    "message": "Improve styling consistency of text input elements. Make sure it has enough font size to avoid zooming on tap on iOS.",
-    "date": "2026-03-01"
-  },
-  {
-    "hash": "f805ddc",
-    "message": "Support selection of charts with different player sides by extending the parser and app UI.",
-    "date": "2026-03-01"
-  },
-  {
-    "hash": "dc96ca3",
-    "message": "Slight adjustment to wiki hyperlink style on hover.",
-    "date": "2026-03-01"
-  },
-  {
-    "hash": "8dd89a5",
-    "message": "Update version to 0.10.5.",
-    "date": "2026-03-01"
   }
 ]
