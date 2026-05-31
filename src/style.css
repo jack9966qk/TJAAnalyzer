@@ -1216,8 +1216,10 @@ body:not(.horizontal-layout) #sticky-header {
 body:not(.horizontal-layout) #chart-options-panel {
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
+  /* Keep the sheet's width out of the left/right safe areas (e.g. landscape
+     notch / rounded corners); these insets are 0 in portrait. */
+  left: env(safe-area-inset-left);
+  right: env(safe-area-inset-right);
   z-index: 100;
   /* Always render at max height; translateY slides it down to reveal only the visible portion.
      Completely GPU-compositable — no layout recalculation during animation. */
