@@ -231,10 +231,10 @@ export function updateParsedCharts(content: string, fromStream = false) {
     const profile = loadUserProfile();
     if (profile.defaultViewOptions) {
       const defaults = profile.defaultViewOptions;
-      // Apply zoom
+      // Apply zoom. When zoom is unset, leave the app default (auto) untouched.
       if (defaults.zoom === "auto") {
         appState.renderOptions.autoZoom = true;
-      } else {
+      } else if (typeof defaults.zoom === "number") {
         appState.renderOptions.autoZoom = false;
         appState.renderOptions.beatsPerLine = defaults.zoom;
       }

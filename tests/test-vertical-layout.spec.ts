@@ -36,6 +36,9 @@ async function gotoVertical(page: import("@playwright/test").Page) {
   await page.goto("/");
   await page.waitForLoadState("networkidle");
   await expect(page.locator("body")).not.toHaveClass(/horizontal-layout/);
+  // Pin the zoom to 200% so chart geometry is deterministic and independent of
+  // the auto-zoom default (which scales with viewport width).
+  await page.evaluate(() => window.setRenderOptions({ autoZoom: false, beatsPerLine: 8 }));
   await waitForSheetSettled(page);
 }
 
@@ -138,8 +141,8 @@ test.describe("Vertical Layout: Floating Actions Auto-Hide", () => {
     // Visible while pill sits over the chart preview.
     await expect(wrapper).not.toHaveClass(/floating-hidden/);
 
-    // Scroll far enough that the chart's bottom rises above the pill.
-    await page.evaluate(() => window.scrollTo(0, 1000));
+    // Scroll to the bottom so the chart's bottom edge rises above the pill.
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
     await page.waitForTimeout(300);
     await expect(wrapper).toHaveClass(/floating-hidden/);
 

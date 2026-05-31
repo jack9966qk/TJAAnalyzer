@@ -157,6 +157,10 @@ LEVEL:8
 
     await page.waitForTimeout(1000);
 
+    // Pin zoom to 100% so geometry is independent of the auto-zoom default.
+    await page.evaluate(() => window.setRenderOptions({ autoZoom: false, beatsPerLine: 16 }));
+    await page.waitForTimeout(300);
+
     // Ensure we are in "All Branches" mode (default for branched chart)
     const branchSelector = page.locator("#branch-selector-internal");
     await expect(branchSelector).toBeVisible();

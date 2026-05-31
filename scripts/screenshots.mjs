@@ -55,10 +55,10 @@ const PLAYDATA_JSON = fs.readFileSync(PLAYDATA_PATH, "utf-8");
 // a partial object may lose overrides if a legacy migration path rewrites it.
 const PROFILE_JSON = JSON.stringify({
   isTesterMode: false,
-  // Auto-zoom on load so the chart fills the available width. Applied via the
-  // profile (not window.setRenderOptions) so it survives the async chart load
-  // triggered by the URL — see chart-controller's defaultViewOptions handling.
-  defaultViewOptions: { zoom: "auto", showNoteStats: true },
+  // Auto-zoom is the app default, so it needs no explicit setup here; omitting
+  // `zoom` leaves it untouched on chart load (see chart-controller's
+  // defaultViewOptions handling).
+  defaultViewOptions: { showNoteStats: true },
   autoAnnotateOnLoad: false,
   showFullPathInChartList: false,
   chartListStripMode: "dnCategory",
@@ -88,7 +88,6 @@ async function waitForServer(url, timeoutMs = 15_000) {
  * Navigate to the app, customise its state, then return a screenshot Buffer.
  *
  *  - Injects playdata into localStorage so scores/badges are visible.
- *  - Enables auto-zoom.
  *  - On mobile, expands the bottom sheet (chart options panel).
  */
 async function takeAppScreenshot(browser, viewport, safeArea, { isMobile }) {
@@ -133,10 +132,7 @@ async function takeAppScreenshot(browser, viewport, safeArea, { isMobile }) {
   await page.waitForTimeout(APP_SETTLE_MS);
 
   // ── App state customisation ───────────────────────────────────────
-  // Auto zoom so the chart fills the available space.
-  await page.evaluate(() => {
-    window.setRenderOptions({ autoZoom: true });
-  });
+  // Auto zoom (now the app default) fills the chart to the available width.
 
   if (isMobile) {
     // Let the bottom-sheet controller finish init before clicking.
@@ -212,7 +208,8 @@ async function takeAppScreenshot(browser, viewport, safeArea, { isMobile }) {
  */
 const IPAD_PROFILE = JSON.stringify({
   isTesterMode: false,
-  defaultViewOptions: { zoom: "auto", showNoteStats: true },
+  // No defaultViewOptions needed: the iPad capture is in full-screen mode (no
+  // note stats) and auto-zoom is the app default.
   autoAnnotateOnLoad: true,
   showFullPathInChartList: false,
   chartListStripMode: "dnCategory",

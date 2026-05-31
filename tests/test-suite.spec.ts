@@ -79,6 +79,12 @@ test.describe("Visual Regression", () => {
     }
     const canvas = page.locator("#chart-component");
     await expect(canvas).toBeVisible();
+    // Pin zoom to 100% so geometry is independent of the auto-zoom default;
+    // re-render the options panel so its zoom checkbox reflects auto = off.
+    await page.evaluate(() => {
+      window.setRenderOptions({ autoZoom: false, beatsPerLine: 16 });
+      document.dispatchEvent(new Event("view-options-update"));
+    });
     await page.waitForTimeout(1000);
 
     const box = await canvas.boundingBox();
@@ -122,6 +128,12 @@ test.describe("Visual Regression", () => {
     }
     const canvas = page.locator("#chart-component");
     await expect(canvas).toBeVisible();
+    // Pin zoom to 100% so geometry is independent of the auto-zoom default;
+    // re-render the options panel so its zoom checkbox reflects auto = off.
+    await page.evaluate(() => {
+      window.setRenderOptions({ autoZoom: false, beatsPerLine: 16 });
+      document.dispatchEvent(new Event("view-options-update"));
+    });
     await page.waitForTimeout(1000);
 
     const box = await canvas.boundingBox();
@@ -1096,7 +1108,9 @@ test.describe("Zoom Controls", () => {
     const zoomInBtn = stepper.locator(".tiny-btn").nth(2);
     await stepper.waitFor({ state: "attached" });
 
-    // Initial State
+    // Auto zoom is the default; reset to the 100% manual baseline first
+    // (clicking reset also turns auto off).
+    await zoomResetBtn.click();
     await expect(zoomResetBtn).toHaveText("100%");
 
     // Zoom In (Decrease beats per line)

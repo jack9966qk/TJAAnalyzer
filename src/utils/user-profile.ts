@@ -10,8 +10,9 @@ export enum ChartLanguage {
 }
 
 export interface DefaultViewOptions {
-  /** Beats per line value, or 'auto' for auto-zoom */
-  zoom: number | "auto";
+  /** Beats per line value, or 'auto' for auto-zoom. When omitted, the app's
+   *  default zoom (auto) is left untouched on chart load. */
+  zoom?: number | "auto";
   /** Whether note stats panel is visible */
   showNoteStats: boolean;
 }

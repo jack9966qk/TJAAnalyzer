@@ -18,6 +18,10 @@ test.describe("Advanced Search Snapshot", () => {
 
     await page.goto("/");
 
+    // Pin zoom to 100% so the chart behind the modal (visible through its
+    // rounded corners) is independent of the auto-zoom default.
+    await page.evaluate(() => window.setRenderOptions({ autoZoom: false, beatsPerLine: 16 }));
+
     // Expand panel if needed
     const dsBody = page.locator("#ds-body");
     if ((await dsBody.count()) > 0) {

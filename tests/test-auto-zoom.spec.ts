@@ -23,10 +23,7 @@ test.describe("Auto Zoom Feature", () => {
     const zoomInBtn = stepper.locator(".tiny-btn").nth(2);
 
     await expect(zoomAutoCheckbox).toBeVisible();
-    await expect(zoomAutoCheckbox).not.toBeChecked();
-
-    // Enable Auto Zoom
-    await zoomAutoCheckbox.check();
+    // Auto zoom is the app default.
     await expect(zoomAutoCheckbox).toBeChecked();
 
     await page.setViewportSize({ width: 1920, height: 1080 });

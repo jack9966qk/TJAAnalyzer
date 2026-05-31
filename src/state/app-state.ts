@@ -56,7 +56,7 @@ export const appState: AppState = {
     autoAnnotateMode: "partial",
     autoAnnotateMainHand: Renderer.Private.HandType.R,
     annotationToolType: "hand",
-    autoZoom: false,
+    autoZoom: true,
     hideUnreachableBranches: true,
   },
   loadedTJAContent: exampleTJA,
