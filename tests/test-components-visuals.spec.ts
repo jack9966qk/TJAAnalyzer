@@ -120,6 +120,15 @@ test.describe("Web Components Visual Regression", () => {
   });
 
   test("Changelog Panel", async ({ page }) => {
+    // Mock version.json with a placeholder so the snapshot stays stable across version bumps
+    await page.route("**/version.json", (route) => {
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ version: "0.0.0" }),
+      });
+    });
+
     // Mock changelog.json
     await page.route("**/changelog.json", (route) => {
       route.fulfill({
