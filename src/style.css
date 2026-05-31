@@ -1254,6 +1254,16 @@ body:not(.horizontal-layout).chart-options-hidden #floating-actions-wrapper {
   display: none;
 }
 
+/* A modal page overlays the whole viewport above the sheet; slide the sheet
+   fully off-screen and hide the floating action pill so neither shows through
+   the dimmed overlay. Adding .modal-active outranks the base transform rule. */
+body:not(.horizontal-layout).modal-active #chart-options-panel {
+  transform: translateY(100%);
+}
+body:not(.horizontal-layout).modal-active #floating-actions-wrapper {
+  display: none;
+}
+
 /* Inside the sheet: panel-header (drag handle) at top, options-body fills
    the remaining space. Content scrolling is handled by JS for proper
    sheet-drag vs content-scroll disambiguation. */
