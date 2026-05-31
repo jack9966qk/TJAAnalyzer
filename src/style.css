@@ -934,7 +934,14 @@ modal-page[open] {
   border-bottom: none;
   max-height: 90%;
   transform: translateY(100%);
-  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Bottom safe area (home indicator). Fold the inset into the scroll area's
+   bottom padding rather than padding the content box: the modal background then
+   runs to the screen edge and the inset scrolls with the content instead of
+   leaving a fixed empty strip below it. */
+.modal.layout-vertical .modal-scroll-area {
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
 }
 
 .modal.open .modal-content {
