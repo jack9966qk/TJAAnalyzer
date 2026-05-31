@@ -6,6 +6,7 @@ const {
   calculateAutoZoomBeats,
   createChartView,
   createCycleHandHandler,
+  createToggleRollingHandler,
   createToggleSeparatorHandler,
   generateAutoAnnotations,
   getNotePosition,
@@ -89,6 +90,7 @@ export class TJAChart extends HTMLElement {
   private _hoverStyleEnabled: boolean = false;
   private _cycleHandHandler: NoteInteractionHandler;
   private _toggleSeparatorHandler: NoteInteractionHandler;
+  private _toggleRollingHandler: NoteInteractionHandler;
 
   get layout(): ChartLayout | null {
     return this._chartView?.layout ?? null;
@@ -116,6 +118,7 @@ export class TJAChart extends HTMLElement {
     };
     this._cycleHandHandler = createCycleHandHandler(getAnnotations, onAnnotationsChange);
     this._toggleSeparatorHandler = createToggleSeparatorHandler(getAnnotations, onAnnotationsChange);
+    this._toggleRollingHandler = createToggleRollingHandler(getAnnotations, onAnnotationsChange);
 
     this.resizeObserver = new ResizeObserver(() => {
       this._pendingFullRender = true;
@@ -740,7 +743,12 @@ export class TJAChart extends HTMLElement {
     // Handle Annotation Mode Click
     if (this._renderOptions.isAnnotationMode) {
       const toolType = this._renderOptions.annotationToolType || "hand";
-      const handler = toolType === "separator" ? this._toggleSeparatorHandler : this._cycleHandHandler;
+      const handler =
+        toolType === "separator"
+          ? this._toggleSeparatorHandler
+          : toolType === "rolling"
+            ? this._toggleRollingHandler
+            : this._cycleHandHandler;
       handler({ x, y, hit, originalEvent });
       // Don't return, still emit chart-click for generic listeners
     }

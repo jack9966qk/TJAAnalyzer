@@ -103,7 +103,7 @@ export class AnnotateOptions extends HTMLElement {
     this.render();
   }
 
-  private handleToolTypeSelect(value: "hand" | "separator") {
+  private handleToolTypeSelect(value: "hand" | "separator" | "rolling") {
     appState.renderOptions.annotationToolType = value;
     refreshChart();
     this.render();
@@ -152,7 +152,12 @@ export class AnnotateOptions extends HTMLElement {
     const toolType = appState.renderOptions.annotationToolType || "hand";
     const isHandTool = toolType === "hand";
     const isSeparatorTool = toolType === "separator";
-    const descKey = isHandTool ? "ui.annotation.desc" : "ui.annotation.desc.separator";
+    const isRollingTool = toolType === "rolling";
+    const descKey = isSeparatorTool
+      ? "ui.annotation.desc.separator"
+      : isRollingTool
+        ? "ui.annotation.desc.rolling"
+        : "ui.annotation.desc";
 
     const vdom = (
       <div className="control-group" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
@@ -170,6 +175,13 @@ export class AnnotateOptions extends HTMLElement {
             onclick={() => this.handleToolTypeSelect("separator")}
           >
             {i18n.t("ui.annotationToolType.separator")}
+          </button>
+          <button
+            type="button"
+            className={`segmented-control-option${isRollingTool ? " active" : ""}`}
+            onclick={() => this.handleToolTypeSelect("rolling")}
+          >
+            {i18n.t("ui.annotationToolType.rolling")}
           </button>
         </div>
 
