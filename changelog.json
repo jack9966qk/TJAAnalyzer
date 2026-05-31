@@ -1,5 +1,50 @@
 [
   {
+    "hash": "1be6316",
+    "message": "Mock version.json in changelog panel visual test to keep its snapshot stable across version bumps.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "5612478",
+    "message": "Make auto zoom the default and drop the now-redundant auto-zoom setup from the README screenshot script.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "6b46c64",
+    "message": "Lock base page scroll when presenting modal.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "23eee42",
+    "message": "Inset the vertical-layout bottom sheet by the left/right safe areas so its width stays out of them.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "414af76",
+    "message": "Hide the vertical-layout bottom sheet and floating actions while a modal page is presenting.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "64b9415",
+    "message": "Clear all advanced search params on reset so stars range no longer persists in saved URL state.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "2691512",
+    "message": "Prevent OS mouse hovering popover for modal page title.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "b3cd78c",
+    "message": "Rename \"download .tja file\" action to \"export .tja file\".",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "5dd696d",
+    "message": "Remove file title from iOS image sharing so that destination apps perceive it better.",
+    "date": "2026-05-31"
+  },
+  {
     "hash": "5c3e09b",
     "message": "Update version to 0.12.2.",
     "date": "2026-05-31"
@@ -452,51 +497,6 @@
   {
     "hash": "45889bf",
     "message": "Keep font size consistent on iOS potriat and landscape modes.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "4a14b27",
-    "message": "Update version to 0.11.0.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "3db73b3",
-    "message": "Update the layout of the two steppers in annotation tab to make them two separate rows.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "dac36c2",
-    "message": "Update annotation tool selection UI to a custom segmented control element. Fix annotation click handling from previous commit.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "74afb2d",
-    "message": "Refactor chart annotation definitions and usage, replacing string with custom types. Add a missing snapshot change.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "6b12e4e",
-    "message": "Support a note separator annotation type. Allow switching between separator and hand annotation types, and adding/removing the separtor by clicking on the notes.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "c27c10f",
-    "message": "Reduce panels horiztonal padding. Adjust panel and page background colors. Adjust spacing between panels and remove unnecessary top/bottom padding in vertical layout.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "148efea",
-    "message": "Add an option to auto annotate all notes.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "8075900",
-    "message": "Update the layout of the annotate tab content to be more consistent with other tabs.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "b308552",
-    "message": "Allow customizing hand inference during auto annotation to accomodate different hand alternation styles.",
     "date": "2026-03-07"
   }
 ]
