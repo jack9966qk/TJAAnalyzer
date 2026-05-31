@@ -3,6 +3,28 @@ import { appState } from "../state/app-state.js";
 import styleUrl from "../style.css?url";
 import { i18n } from "../utils/i18n.js";
 
+// Body scroll-lock state, shared across all modal-page instances. While a modal
+// is open the body is pinned (`position: fixed` via the `.modal-active` rule)
+// and offset by the saved scroll position so the page behind cannot scroll —
+// `overflow: hidden` alone is not enough on iOS Safari / PWA. On unlock the
+// scroll position is restored.
+let bodyScrollLocked = false;
+let lockedScrollY = 0;
+
+function setBodyScrollLock(lock: boolean) {
+  if (lock === bodyScrollLocked) return;
+  bodyScrollLocked = lock;
+  if (lock) {
+    lockedScrollY = window.scrollY;
+    document.body.style.top = `-${lockedScrollY}px`;
+    document.body.classList.add("modal-active");
+  } else {
+    document.body.classList.remove("modal-active");
+    document.body.style.top = "";
+    window.scrollTo(0, lockedScrollY);
+  }
+}
+
 export class ModalPage extends HTMLElement {
   private _isOpen = false;
   private _heading = "";
@@ -71,11 +93,7 @@ export class ModalPage extends HTMLElement {
 
   private updateBodyScroll() {
     const anyOpen = document.querySelectorAll("modal-page[open]").length > 0;
-    if (anyOpen) {
-      document.body.classList.add("modal-active");
-    } else {
-      document.body.classList.remove("modal-active");
-    }
+    setBodyScrollLock(anyOpen);
   }
 
   get heading() {

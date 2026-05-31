@@ -1087,6 +1087,19 @@ body.modal-active {
   overflow: hidden;
 }
 
+/* `overflow: hidden` alone does not stop touch scroll / rubber-banding of the
+   document behind a modal on iOS Safari (incl. installed PWA). Pin the body so
+   the page underneath cannot scroll; modal-page.tsx sets `top: -<scrollY>px`
+   while locked and restores the scroll position on unlock. Horizontal layout
+   never scrolls the body (its panes scroll internally), so scope this to
+   vertical to avoid disturbing it. */
+body:not(.horizontal-layout).modal-active {
+  position: fixed;
+  left: 0;
+  right: 0;
+  width: 100%;
+}
+
 body.horizontal-layout #app {
   max-width: none;
   margin: 0;
