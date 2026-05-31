@@ -900,6 +900,21 @@ modal-page[open] {
   padding: 0; /* Let content handle its own padding/safe areas */
 }
 
+/* While the modal is open the body is scroll-locked via `position: fixed`. The
+   global default is `touch-action: manipulation`, so dragging the modal's
+   non-scrollable areas lets iOS rubber-band the whole fixed layer — which
+   briefly slides the off-screen bottom sheet (fixed just below the edge) into
+   view. Block the browser pan here (as the bottom sheet does for itself) and
+   let only the scroll area pan vertically. */
+.modal.layout-vertical,
+.modal.layout-vertical .modal-content {
+  touch-action: none;
+}
+
+.modal.layout-vertical .modal-scroll-area {
+  touch-action: pan-y;
+}
+
 .modal.open {
   visibility: visible;
   opacity: 1;
