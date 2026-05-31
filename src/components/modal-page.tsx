@@ -2,28 +2,21 @@ import * as webjsx from "webjsx";
 import { appState } from "../state/app-state.js";
 import styleUrl from "../style.css?url";
 import { i18n } from "../utils/i18n.js";
-import { startupLog } from "../utils/startup-log.js";
 
 // Body scroll-lock state, shared across all modal-page instances. While a modal
-// is open the body is pinned (`position: fixed` via the `.modal-active` rule)
-// and offset by the saved scroll position so the page behind cannot scroll —
-// `overflow: hidden` alone is not enough on iOS Safari / PWA. On unlock the
-// scroll position is restored.
+// is open the page behind is locked via the `.modal-active` rule (overflow +
+// overscroll-behavior on the root and body; see style.css). We intentionally do
+// NOT pin the body with `position: fixed`: on iOS that shrinks the layout
+// viewport for fixed descendants so the modal can't reach the bottom safe area.
+// overflow-locking does not move the scroll position, so no offset bookkeeping
+// is needed.
 let bodyScrollLocked = false;
-let lockedScrollY = 0;
 
 function setBodyScrollLock(lock: boolean) {
   if (lock === bodyScrollLocked) return;
   bodyScrollLocked = lock;
-  if (lock) {
-    lockedScrollY = window.scrollY;
-    document.body.style.top = `-${lockedScrollY}px`;
-    document.body.classList.add("modal-active");
-  } else {
-    document.body.classList.remove("modal-active");
-    document.body.style.top = "";
-    window.scrollTo(0, lockedScrollY);
-  }
+  document.documentElement.classList.toggle("modal-active", lock);
+  document.body.classList.toggle("modal-active", lock);
 }
 
 export class ModalPage extends HTMLElement {
@@ -68,7 +61,6 @@ export class ModalPage extends HTMLElement {
       this._isOpen = newValue !== null;
       this.classList.toggle("open", this._isOpen);
       this.updateBodyScroll();
-      if (this._isOpen) this.scheduleGeometryDebugLog();
     } else if (name === "heading") {
       this._heading = newValue || "";
     } else if (name === "max-width") {
@@ -96,65 +88,6 @@ export class ModalPage extends HTMLElement {
   private updateBodyScroll() {
     const anyOpen = document.querySelectorAll("modal-page[open]").length > 0;
     setBodyScrollLock(anyOpen);
-  }
-
-  // Debug instrumentation: records modal + bottom-sheet geometry to the Settings
-  // Debug Log once the open transition has settled, so an on-device tester can
-  // copy it. Diagnoses why the off-screen bottom sheet appears below a vertical
-  // modal on iOS (where layout/visual-viewport and safe-area behaviour differs
-  // from the desktop emulator).
-  private scheduleGeometryDebugLog() {
-    // Wait past the slide-up transition so rects reflect the at-rest state.
-    window.setTimeout(() => this.logGeometryDebug(), 450);
-  }
-
-  private logGeometryDebug() {
-    if (!this._isOpen) return;
-    const rect = (el: Element | null | undefined) => {
-      if (!el) return "null";
-      const r = el.getBoundingClientRect();
-      return `top=${r.top.toFixed(1)} bottom=${r.bottom.toFixed(1)} h=${r.height.toFixed(1)}`;
-    };
-    const root = this.shadowRoot;
-    const overlay = root?.querySelector(".modal") ?? null;
-    const content = root?.querySelector(".modal-content") ?? null;
-    const sheet = document.getElementById("chart-options-panel");
-
-    // Read the live safe-area-inset-bottom via a throwaway probe element.
-    const probe = document.createElement("div");
-    probe.style.cssText = "position:fixed;padding-bottom:env(safe-area-inset-bottom);visibility:hidden;";
-    document.body.appendChild(probe);
-    const safeAreaBottom = getComputedStyle(probe).paddingBottom;
-    probe.remove();
-
-    const docStyle = getComputedStyle(document.documentElement);
-    const vv = window.visualViewport;
-
-    startupLog.record(
-      `[modal-debug] open: ${this._heading || "(no heading)"}`,
-      this._isHorizontal ? "horizontal" : "vertical",
-    );
-    startupLog.record(
-      "[modal-debug] viewport",
-      `innerH=${window.innerHeight} innerW=${window.innerWidth} dpr=${window.devicePixelRatio} vv=${vv ? `${vv.width.toFixed(0)}x${vv.height.toFixed(0)} offTop=${vv.offsetTop.toFixed(1)} pageTop=${vv.pageTop.toFixed(1)}` : "n/a"}`,
-    );
-    startupLog.record("[modal-debug] safe-area-inset-bottom", safeAreaBottom);
-    startupLog.record("[modal-debug] body.class", document.body.className || "(none)");
-    startupLog.record("[modal-debug] overlay .modal", rect(overlay));
-    startupLog.record("[modal-debug] .modal-content", rect(content));
-    startupLog.record("[modal-debug] #chart-options-panel", rect(sheet));
-    if (sheet) {
-      const cs = getComputedStyle(sheet);
-      startupLog.record("[modal-debug] sheet transform", cs.transform);
-      startupLog.record(
-        "[modal-debug] sheet height/visibility/display",
-        `${cs.height} / ${cs.visibility} / ${cs.display}`,
-      );
-    }
-    startupLog.record(
-      "[modal-debug] sheet vars",
-      `--sheet-height=${docStyle.getPropertyValue("--sheet-height").trim() || "(unset)"} --sheet-max-height=${docStyle.getPropertyValue("--sheet-max-height").trim() || "(unset)"} --sheet-collapsed-height=${docStyle.getPropertyValue("--sheet-collapsed-height").trim() || "(unset)"}`,
-    );
   }
 
   get heading() {

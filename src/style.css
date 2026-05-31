@@ -900,12 +900,10 @@ modal-page[open] {
   padding: 0; /* Let content handle its own padding/safe areas */
 }
 
-/* While the modal is open the body is scroll-locked via `position: fixed`. The
-   global default is `touch-action: manipulation`, so dragging the modal's
-   non-scrollable areas lets iOS rubber-band the whole fixed layer — which
-   briefly slides the off-screen bottom sheet (fixed just below the edge) into
-   view. Block the browser pan here (as the bottom sheet does for itself) and
-   let only the scroll area pan vertically. */
+/* The global default is `touch-action: manipulation`, so a drag on the modal's
+   non-scrollable areas can let iOS pan/rubber-band the page underneath. Block
+   the browser pan here (as the bottom sheet does for itself) and let only the
+   scroll area pan vertically. */
 .modal.layout-vertical,
 .modal.layout-vertical .modal-content {
   touch-action: none;
@@ -940,7 +938,12 @@ modal-page[open] {
   overflow: hidden;
 }
 
-/* Vertical layout content adjustments */
+/* Vertical layout content adjustments. The flex-end content reaches the
+   viewport bottom and `padding-bottom` fills the home-indicator safe area with
+   modal background while keeping controls clear of the indicator — this only
+   works because the page is scroll-locked without `position: fixed` (see the
+   `.modal-active` rule), which would otherwise shrink the viewport so the
+   content stops short of the physical edge. */
 .modal.layout-vertical .modal-content {
   width: 100%;
   max-width: none;
@@ -949,14 +952,7 @@ modal-page[open] {
   border-bottom: none;
   max-height: 90%;
   transform: translateY(100%);
-}
-
-/* Bottom safe area (home indicator). Fold the inset into the scroll area's
-   bottom padding rather than padding the content box: the modal background then
-   runs to the screen edge and the inset scrolls with the content instead of
-   leaving a fixed empty strip below it. */
-.modal.layout-vertical .modal-scroll-area {
-  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .modal.open .modal-content {
@@ -1105,21 +1101,21 @@ body.horizontal-layout {
   overflow: hidden; /* Prevent body scroll */
 }
 
+/* Lock the page behind a modal. `overflow: hidden` stops the scroll;
+   `overscroll-behavior: none` stops iOS Safari / PWA rubber-banding the
+   document underneath (which plain `overflow: hidden` does not). Applied to
+   both the root and the body since iOS treats either as the scroll container.
+
+   We deliberately DO NOT pin the body with `position: fixed`: on iOS a fixed
+   body shrinks the layout viewport for fixed descendants (innerHeight drops by
+   the bottom safe-area inset), so the modal — and any fixed element — can no
+   longer reach the home-indicator strip and its background stops short of the
+   physical edge. `overflow`/`overscroll-behavior` lock without that side
+   effect, so the modal fills the safe area like the chart-options sheet. */
+html.modal-active,
 body.modal-active {
   overflow: hidden;
-}
-
-/* `overflow: hidden` alone does not stop touch scroll / rubber-banding of the
-   document behind a modal on iOS Safari (incl. installed PWA). Pin the body so
-   the page underneath cannot scroll; modal-page.tsx sets `top: -<scrollY>px`
-   while locked and restores the scroll position on unlock. Horizontal layout
-   never scrolls the body (its panes scroll internally), so scope this to
-   vertical to avoid disturbing it. */
-body:not(.horizontal-layout).modal-active {
-  position: fixed;
-  left: 0;
-  right: 0;
-  width: 100%;
+  overscroll-behavior: none;
 }
 
 body.horizontal-layout #app {
@@ -1293,9 +1289,13 @@ body:not(.horizontal-layout).chart-options-hidden #floating-actions-wrapper {
 
 /* A modal page overlays the whole viewport above the sheet; slide the sheet
    fully off-screen and hide the floating action pill so neither shows through
-   the dimmed overlay. Adding .modal-active outranks the base transform rule. */
+   the dimmed overlay. Adding .modal-active outranks the base transform rule.
+   `visibility: hidden` guarantees the sheet never paints behind the modal even
+   if its own compositor layer (`will-change: transform`) would otherwise show
+   through near the screen edge. */
 body:not(.horizontal-layout).modal-active #chart-options-panel {
   transform: translateY(100%);
+  visibility: hidden;
 }
 body:not(.horizontal-layout).modal-active #floating-actions-wrapper {
   display: none;
