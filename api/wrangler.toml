@@ -1,0 +1,6 @@
+# Cloudflare Worker for the TJA note-gap service.
+# Deploy from this directory:  npx wrangler deploy
+# Local dev:                   npx wrangler dev
+name = "tja-note-gaps"
+main = "worker.ts"
+compatibility_date = "2025-01-01"
