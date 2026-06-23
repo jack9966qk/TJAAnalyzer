@@ -22,3 +22,6 @@ neutralino-build-scripts/
 database/
 data/external/
 offline-analysis/output/
+offline-analysis/__pycache__/
+__pycache__/
+*.pyc
