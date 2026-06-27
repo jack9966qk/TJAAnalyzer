@@ -1,48 +1,98 @@
 [
   {
-    "hash": "1be6316",
+    "hash": "b90b6d1",
+    "message": "Add an \"∞\" BPM option to the roll gap-threshold stepper that disables auto rolling annotation, and make it the default.",
+    "date": "2026-06-27"
+  },
+  {
+    "hash": "9048496",
+    "message": "Make the vertical modal fill the bottom safe-area strip like the chart-options sheet: anchor its content with position:fixed bottom:0 (only a bottom-anchored fixed element paints into the home-indicator strip iOS keeps below the layout viewport) and keep the off-screen sheet visibility:hidden behind it.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "87183de",
+    "message": "Log vertical modal and bottom-sheet geometry to the Settings debug log to diagnose the on-device sheet-peek.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "c447c06",
+    "message": "Block native touch-pan on the vertical modal so dragging it no longer rubber-bands the fixed layer (which briefly revealed the bottom sheet on iOS).",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "b0c57c3",
+    "message": "Fill the vertical modal's bottom safe-area band with scrollable content padding instead of a dead strip.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "53693a8",
+    "message": "Add rolling manual annotation mode.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "9f49cae",
+    "message": "Support 2-2 rolling in auto annotation and hand inference.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "4244089",
+    "message": "Update version to 0.12.3.",
+    "date": "2026-05-31"
+  },
+  {
+    "hash": "8a88932",
     "message": "Mock version.json in changelog panel visual test to keep its snapshot stable across version bumps.",
     "date": "2026-05-31"
   },
   {
-    "hash": "5612478",
+    "hash": "1091f75",
     "message": "Make auto zoom the default and drop the now-redundant auto-zoom setup from the README screenshot script.",
     "date": "2026-05-31"
   },
   {
-    "hash": "6b46c64",
+    "hash": "163aecb",
     "message": "Lock base page scroll when presenting modal.",
     "date": "2026-05-31"
   },
   {
-    "hash": "23eee42",
+    "hash": "ec50905",
     "message": "Inset the vertical-layout bottom sheet by the left/right safe areas so its width stays out of them.",
     "date": "2026-05-31"
   },
   {
-    "hash": "414af76",
+    "hash": "edb2fe3",
     "message": "Hide the vertical-layout bottom sheet and floating actions while a modal page is presenting.",
     "date": "2026-05-31"
   },
   {
-    "hash": "64b9415",
+    "hash": "659ae7d",
     "message": "Clear all advanced search params on reset so stars range no longer persists in saved URL state.",
     "date": "2026-05-31"
   },
   {
-    "hash": "2691512",
+    "hash": "75fa2c4",
     "message": "Prevent OS mouse hovering popover for modal page title.",
     "date": "2026-05-31"
   },
   {
-    "hash": "b3cd78c",
+    "hash": "5daa3b1",
     "message": "Rename \"download .tja file\" action to \"export .tja file\".",
     "date": "2026-05-31"
   },
   {
-    "hash": "5dd696d",
+    "hash": "4355ba1",
     "message": "Remove file title from iOS image sharing so that destination apps perceive it better.",
     "date": "2026-05-31"
+  },
+  {
+    "hash": "f95e7bb",
+    "message": "Add a web service for note gaps calculation.",
+    "date": "2026-06-24"
+  },
+  {
+    "hash": "c897a6f",
+    "message": "Add a Python wrapper for the note gaps analysis.",
+    "date": "2026-06-23"
   },
   {
     "hash": "5c3e09b",
@@ -448,55 +498,5 @@
     "hash": "c386be9",
     "message": "Impove import process to skip the manual paste of HTML when importing to the web version of the app.",
     "date": "2026-03-08"
-  },
-  {
-    "hash": "90bf125",
-    "message": "Update version to 0.11.2.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "4dc3bc5",
-    "message": "Fix status message style in action button when there is a split dropdown button.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "4ab8a1e",
-    "message": "Add an advanced search option to filter by a BPM range.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "3889b75",
-    "message": "Fix some test failures.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "863ede2",
-    "message": "Extend the modal page for a variant that anchors at a given element. Update annotation tab to display auto annotation settings in a modal page.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "a5b63c2",
-    "message": "Update action button to support both a primary action and a dropdown menu. Use this for the \"share current chart\" button to allow sharing with search options. Fix top/bottom inset of the rendered chart.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "617015f",
-    "message": "Update version to 0.11.1.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "49827c2",
-    "message": "Apply page background color to status bar area for PWA. Let full screeen rendered chart fill the entire screen.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "8cda50a",
-    "message": "Consolidate button implementations across the app. Slightly adjust some styles.",
-    "date": "2026-03-07"
-  },
-  {
-    "hash": "45889bf",
-    "message": "Keep font size consistent on iOS potriat and landscape modes.",
-    "date": "2026-03-07"
   }
 ]
