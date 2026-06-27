@@ -14,6 +14,13 @@ export class AnnotateOptions extends HTMLElement {
   private readonly ALT_THRESHOLDS = [1 / 32, 1 / 16, 1 / 12, 1 / 8, 1 / 4, 1, 2, 4, Infinity];
   private readonly RESET_THRESHOLDS = [0, 1 / 32, 1 / 16, 1 / 12, 1 / 8, 1 / 4, 1, 2, 4, Infinity];
 
+  // Roll gap-threshold BPM stepper. The sentinel one step above the max represents "∞",
+  // an infinitely high BPM makes a 16th note last no time, so no segment ever rolls.
+  private readonly ROLL_GAP_MIN = 60;
+  private readonly ROLL_GAP_MAX = 600;
+  private readonly ROLL_GAP_STEP = 10;
+  private readonly ROLL_GAP_INF = this.ROLL_GAP_MAX + this.ROLL_GAP_STEP;
+
   private _isConfigModalOpen = false;
   private _modalContainer: HTMLDivElement;
 
@@ -92,7 +99,7 @@ export class AnnotateOptions extends HTMLElement {
   }
 
   private handleRollGapChange(bpm: number) {
-    appState.renderOptions.rollGapThresholdBpm = Math.round(bpm);
+    appState.renderOptions.rollGapThresholdBpm = bpm > this.ROLL_GAP_MAX ? Infinity : Math.round(bpm);
     refreshChart();
     this.render();
   }
@@ -147,7 +154,8 @@ export class AnnotateOptions extends HTMLElement {
     const mainHand = appState.renderOptions.autoAnnotateMainHand ?? HandType.R;
     const isLeftStarter = mainHand === HandType.L;
     const isRightStarter = mainHand === HandType.R;
-    const rollGapBpm = appState.renderOptions.rollGapThresholdBpm ?? 300;
+    const rollGapStored = appState.renderOptions.rollGapThresholdBpm ?? Infinity;
+    const rollGapBpm = Number.isFinite(rollGapStored) ? rollGapStored : this.ROLL_GAP_INF;
     const rollMinLength = appState.renderOptions.rollMinSegmentLength ?? 4;
     const toolType = appState.renderOptions.annotationToolType || "hand";
     const isHandTool = toolType === "hand";
@@ -317,11 +325,11 @@ export class AnnotateOptions extends HTMLElement {
               </span>
               <stepper-control
                 value={rollGapBpm}
-                min={60}
-                max={600}
-                step={10}
-                baseline={300}
-                format={(v: number) => `BPM ${Math.round(v)}`}
+                min={this.ROLL_GAP_MIN}
+                max={this.ROLL_GAP_INF}
+                step={this.ROLL_GAP_STEP}
+                baseline={this.ROLL_GAP_INF}
+                format={(v: number) => (v > this.ROLL_GAP_MAX ? "∞" : `BPM ${Math.round(v)}`)}
                 changeCallback={(v: number) => this.handleRollGapChange(v)}
               ></stepper-control>
             </div>

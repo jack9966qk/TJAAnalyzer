@@ -55,7 +55,7 @@ export const appState: AppState = {
     alwaysShowAnnotations: false,
     autoAnnotateMode: "partial",
     autoAnnotateMainHand: Renderer.Private.HandType.R,
-    rollGapThresholdBpm: 300,
+    rollGapThresholdBpm: Infinity,
     rollMinSegmentLength: 4,
     annotationToolType: "hand",
     autoZoom: true,
