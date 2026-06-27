@@ -1,11 +1,16 @@
 import { analyzeTJA, type GapUnit, LongNoteHandling } from "../offline-analysis/tja-gaps.js";
 
-// Cloudflare Worker: POST a TJA string, get back the note-gap analysis as JSON.
+// Cloudflare Worker: POST a TJA string, get back the full analysis as JSON.
 //
 //   curl -X POST --data-binary @chart.tja "https://<worker>/?unit=ms&longNoteHandling=skip"
 //
-// The response matches the offline analyzer / note_gaps.py shape:
-//   { "courses": { "<course>": { "<branch>": [[gap, ...], ...] } } }
+// Response shape:
+//   {
+//     "courses": { "<course>": { "<branch>": [[gap, ...], ...] } },
+//     "noteTypes": { "<course>": { "<branch>": [1, 2, 1, 2, ...] } }
+//   }
+// Gaps are per-bar arrays of gap values (in ms or measures) for judgeable notes only.
+// noteTypes are flat arrays: 1 = Don/DonBig, 2 = Ka/KaBig.
 
 const CORS_HEADERS = {
   "access-control-allow-origin": "*",
@@ -18,6 +23,7 @@ const LONG_NOTE_HANDLINGS = Object.values(LongNoteHandling) as string[];
 const USAGE =
   "POST the TJA chart as the request body. Optional query: ?unit=measures|ms (default measures) " +
   `and ?longNoteHandling=${LONG_NOTE_HANDLINGS.join("|")} (default strict). ` +
+  "Returns { courses, noteTypes } with gap arrays and simplified note types (1=Don, 2=Ka) for each branch. " +
   'Example: curl -X POST --data-binary @chart.tja "https://<worker>/?unit=ms&longNoteHandling=skip"';
 
 function json(body: unknown, status = 200): Response {
