@@ -24,7 +24,8 @@ export type CourseGaps = ChartGaps | Record<string, ChartGaps>;
 
 /**
  * Simplified note types for calculator input.
- * 1 = Don/DonBig (right hand), 2 = Ka/KaBig (left hand).
+ * For playing, Don and DonBig are treated the same, as are Ka and KaBig.
+ * 1 = Don/DonBig, 2 = Ka/KaBig.
  * This is a flat array, one entry per judgeable note (Don/Ka/DonBig/KaBig),
  * matching the order notes appear in the chart.
  */
