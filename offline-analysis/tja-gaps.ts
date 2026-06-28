@@ -37,9 +37,11 @@ export type ChartNoteTypes = Record<string, SimplifiedNoteTypes>;
 /** Course-level note types: ChartNoteTypes or player-side → ChartNoteTypes for STYLE:Double. */
 export type CourseNoteTypes = ChartNoteTypes | Record<string, ChartNoteTypes>;
 
+// Final output: everything is flat — no nested player-side structures.
+// STYLE:Double courses are flattened to keys like "oni_p1", "oni_p2", "oni_single".
 export interface TJAAnalysis {
-  courses: Record<string, CourseGaps>;
-  noteTypes: Record<string, CourseNoteTypes>;
+  courses: Record<string, ChartGaps>;
+  noteTypes: Record<string, ChartNoteTypes>;
 }
 
 const JUDGEABLE_NOTE_TYPES = [NoteType.Don, NoteType.Ka, NoteType.DonBig, NoteType.KaBig];
@@ -118,8 +120,19 @@ function analyzeChart(chart: ParsedChart, unit: GapUnit, longNoteHandling: LongN
   return analyzeLeafChart(chart, unit, longNoteHandling);
 }
 
+function isPlayerSide(gaps: CourseGaps): gaps is Record<string, ChartGaps> {
+  const firstVal = Object.values(gaps)[0];
+  return firstVal !== undefined && !Array.isArray(firstVal);
+}
+
+function isPlayerSideNT(nt: CourseNoteTypes): nt is Record<string, ChartNoteTypes> {
+  const firstVal = Object.values(nt)[0];
+  return firstVal !== undefined && !Array.isArray(firstVal);
+}
+
 /**
  * Parse a TJA string and return the note gaps and note types for every course.
+ * STYLE:Double courses are flattened: "3" with p1/p2/single becomes "oni_p1", "oni_p2", etc.
  * `longNoteHandling` controls how drumrolls/balloons are treated when walking back to the
  * previous note (see LongNoteHandling); defaults to Strict (long notes reset the gap to null).
  */
@@ -129,13 +142,27 @@ export function analyzeTJA(
   longNoteHandling: LongNoteHandling = LongNoteHandling.Strict,
 ): TJAAnalysis {
   const parsed = parseTJA(content);
-  const courses: Record<string, CourseGaps> = {};
-  const noteTypes: Record<string, CourseNoteTypes> = {};
+  const courses: Record<string, ChartGaps> = {};
+  const noteTypes: Record<string, ChartNoteTypes> = {};
 
   for (const [courseName, chart] of Object.entries(parsed)) {
     const analyzed = analyzeChart(chart, unit, longNoteHandling);
-    courses[courseName] = analyzed.gaps;
-    noteTypes[courseName] = analyzed.noteTypes;
+
+    if (isPlayerSide(analyzed.gaps)) {
+      for (const [side, sideGaps] of Object.entries(analyzed.gaps)) {
+        courses[`${courseName}_${side}`] = sideGaps;
+      }
+    } else {
+      courses[courseName] = analyzed.gaps;
+    }
+
+    if (isPlayerSideNT(analyzed.noteTypes)) {
+      for (const [side, sideNT] of Object.entries(analyzed.noteTypes)) {
+        noteTypes[`${courseName}_${side}`] = sideNT;
+      }
+    } else {
+      noteTypes[courseName] = analyzed.noteTypes;
+    }
   }
 
   return { courses, noteTypes };

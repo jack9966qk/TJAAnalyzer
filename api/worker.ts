@@ -4,11 +4,12 @@ import { analyzeTJA, type GapUnit, LongNoteHandling } from "../offline-analysis/
 //
 //   curl -X POST --data-binary @chart.tja "https://<worker>/?unit=ms&longNoteHandling=skip"
 //
-// Response shape:
+// Response shape (always flat, no nested player-side):
 //   {
 //     "courses": { "<course>": { "<branch>": [[gap, ...], ...] } },
 //     "noteTypes": { "<course>": { "<branch>": [1, 2, 1, 2, ...] } }
 //   }
+// STYLE:Double courses are flattened: e.g. "3" → "oni_p1", "oni_p2", "oni_single".
 // Gaps are per-bar arrays of gap values (in ms or measures) for judgeable notes only.
 // noteTypes are flat arrays: 1 = Don/DonBig, 2 = Ka/KaBig.
 
