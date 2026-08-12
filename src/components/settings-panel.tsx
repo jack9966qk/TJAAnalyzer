@@ -31,6 +31,8 @@ export class SettingsPanel extends HTMLElement {
   private isExporting = false;
   private isImporting = false;
   private manualPasteContent = "";
+  private importedHtml = "";
+  private importCopyStatus: "idle" | "success" | "error" = "idle";
 
   private showDebugLog = false;
 
@@ -99,7 +101,8 @@ export class SettingsPanel extends HTMLElement {
       this.isListeningForMessage = false;
       this.isImporting = true;
       this.render();
-      this.handleImportResult(await processImport(e.data.html));
+      const html = e.data.html;
+      this.handleImportResult(await processImport(html), html);
       this.isImporting = false;
     };
 
@@ -148,6 +151,8 @@ export class SettingsPanel extends HTMLElement {
     this.loadSettings();
     this.isModalOpen = true;
     this.importStatus = { type: "none", message: "" };
+    this.importedHtml = "";
+    this.importCopyStatus = "idle";
     this.render();
   }
 
@@ -158,6 +163,8 @@ export class SettingsPanel extends HTMLElement {
     this.isFromBookmarklet = false;
     this.isListeningForMessage = false;
     this.resolutionState = null;
+    this.importedHtml = "";
+    this.importCopyStatus = "idle";
     this.render();
   }
 
@@ -253,17 +260,24 @@ export class SettingsPanel extends HTMLElement {
     const appUrl = window.location.origin + window.location.pathname;
 
     // The bookmarklet:
-    // 1. Opens the app window synchronously (required on iOS Safari — window.open must be
-    //    called directly from a user gesture, not inside an async callback).
-    // 2. Also copies the raw HTML to clipboard as a fallback for PWA/desktop users
-    //    who cannot receive the postMessage (e.g. iOS PWA opens in a separate context).
+    // 1. Copies the raw HTML while the user gesture is still active for iOS Safari.
+    // 2. Opens the app window synchronously so window.open remains inside that gesture.
     // 3. Listens for a 'tja-importer-ready' signal from the app, then sends the HTML
     //    via postMessage so the app can parse it with its own parser code.
     const bookmarkletScript = `
 (function(){
   var html = document.documentElement.outerHTML;
+  var textarea = document.createElement('textarea');
+  textarea.value = html;
+  textarea.setAttribute('readonly', '');
+  textarea.style.cssText = 'position:fixed;left:0;top:0;width:1px;height:1px;opacity:0;font-size:16px';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  textarea.setSelectionRange(0, html.length);
+  try { document.execCommand('copy'); } catch (e) {}
+  textarea.remove();
   var appWin = window.open('${appUrl}?import=playdata', '_blank');
-  navigator.clipboard.writeText(html).catch(function(){});
   if (!appWin) return;
   var done = false;
   window.addEventListener('message', function handler(e) {
@@ -318,8 +332,10 @@ export class SettingsPanel extends HTMLElement {
     );
   }
 
-  private handleImportResult(result: ImportResult) {
+  private handleImportResult(result: ImportResult, html: string) {
     if (result.type === "invalid") {
+      this.importedHtml = "";
+      this.importCopyStatus = "idle";
       this.importStatus = { type: "error", message: i18n.t("ui.playdata.importFailed") };
       this.render();
       return;
@@ -329,6 +345,8 @@ export class SettingsPanel extends HTMLElement {
     saveUserProfile({ playdata: result.playdata });
     this.playdata = result.playdata;
     this.manualPasteContent = "";
+    this.importedHtml = html;
+    this.importCopyStatus = "idle";
     window.dispatchEvent(new Event("settings-change"));
 
     if (result.unmatched.length > 0) {
@@ -344,18 +362,82 @@ export class SettingsPanel extends HTMLElement {
     this.render();
   }
 
+  private copyTextWithExecCommand(text: string): boolean {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.readOnly = true;
+    textarea.style.position = "fixed";
+    textarea.style.left = "0";
+    textarea.style.top = "0";
+    textarea.style.width = "1px";
+    textarea.style.height = "1px";
+    textarea.style.opacity = "0";
+    textarea.style.fontSize = "16px";
+    document.body.appendChild(textarea);
+    textarea.focus({ preventScroll: true });
+    textarea.select();
+    textarea.setSelectionRange(0, text.length);
+
+    try {
+      return document.execCommand("copy");
+    } catch (err) {
+      console.error("Failed to copy imported HTML with execCommand:", err);
+      return false;
+    } finally {
+      textarea.remove();
+    }
+  }
+
+  private async handleCopyImportedHtml() {
+    if (!this.importedHtml) return;
+
+    try {
+      const copiedSynchronously = this.isIOS() && this.copyTextWithExecCommand(this.importedHtml);
+      if (!copiedSynchronously) {
+        await navigator.clipboard.writeText(this.importedHtml);
+      }
+      this.importCopyStatus = "success";
+    } catch (err) {
+      console.error("Failed to copy imported HTML:", err);
+      this.importCopyStatus = "error";
+    }
+    this.render();
+  }
+
+  private renderCopyImportedHtmlButton() {
+    if (!this.importedHtml || this.isStandaloneOrDesktop()) return null;
+
+    const label =
+      this.importCopyStatus === "success"
+        ? i18n.t("ui.playdata.copied")
+        : this.importCopyStatus === "error"
+          ? i18n.t("ui.playdata.copyResultFailed")
+          : i18n.t("ui.playdata.copyResult");
+
+    return (
+      <action-button
+        id="copy-imported-playdata-btn"
+        button-variant="secondary"
+        action={() => this.handleCopyImportedHtml()}
+      >
+        {label}
+      </action-button>
+    );
+  }
+
   private async handleManualImport() {
     if (!this.manualPasteContent || this.isImporting) return;
+    const html = this.manualPasteContent;
     this.isImporting = true;
     this.render();
-    this.handleImportResult(await processImport(this.manualPasteContent));
+    this.handleImportResult(await processImport(html), html);
     this.isImporting = false;
   }
 
   private async handlePasteImport() {
     try {
       const clipboardText = await navigator.clipboard.readText();
-      this.handleImportResult(await processImport(clipboardText));
+      this.handleImportResult(await processImport(clipboardText), clipboardText);
     } catch (err) {
       console.error("Failed to read clipboard:", err);
       this.importStatus = {
@@ -516,7 +598,8 @@ export class SettingsPanel extends HTMLElement {
         )}
 
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-          <div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            {this.renderCopyImportedHtmlButton()}
             {appState.isTesterMode && (
               <action-button
                 button-variant="secondary"
@@ -575,6 +658,7 @@ export class SettingsPanel extends HTMLElement {
                 </action-button>
               )}
               <action-button
+                id="import-playdata-btn"
                 button-variant="primary"
                 disabled={!this.manualPasteContent || this.isImporting}
                 action={async () => this.handleManualImport()}
@@ -602,8 +686,11 @@ export class SettingsPanel extends HTMLElement {
         )}
 
         {this.importStatus.type === "success" && !this.isStandaloneOrDesktop() && (
-          <div style="margin-top: 10px; font-size: 13px; color: var(--text-secondary);">
-            {i18n.t("ui.playdata.importSuccessPwaReminder")}
+          <div style="margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 10px;">
+            <div style="font-size: 13px; color: var(--text-secondary);">
+              {i18n.t("ui.playdata.importSuccessPwaReminder")}
+            </div>
+            {this.renderCopyImportedHtmlButton()}
           </div>
         )}
       </div>

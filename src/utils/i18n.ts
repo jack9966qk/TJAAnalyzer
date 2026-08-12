@@ -192,6 +192,8 @@ const resources: Resources = {
       "The app will open and import automatically. If using a PWA or desktop app, return here and paste manually.",
     "ui.playdata.copyBookmarklet": "Copy Bookmarklet",
     "ui.playdata.copied": "Copied",
+    "ui.playdata.copyResult": "Copy HTML",
+    "ui.playdata.copyResultFailed": "Copy Failed. Tap to Retry",
     "ui.playdata.pasteImport": "Paste from Clipboard",
     "ui.playdata.clearData": "Clear Playdata",
     "ui.playdata.stats": "Current Playdata",
@@ -217,8 +219,7 @@ const resources: Resources = {
       "Note: If using a PWA or desktop app, the link may not open automatically. Return here and paste the clipboard content manually.",
     "ui.playdata.bookmarkletConnecting":
       "Importing automatically from the bookmarklet. You can also paste manually below.",
-    "ui.playdata.importSuccessPwaReminder":
-      "If you also use a PWA or desktop app, switch to it and paste from clipboard to import there as well.",
+    "ui.playdata.importSuccessPwaReminder": "Copy the HTML, then switch to the PWA or desktop app and paste it there.",
     "ui.playdata.import": "Import",
     "ui.playdata.importing": "Importing...",
     "ui.playdata.goToImport": "Import Playdata",
@@ -497,6 +498,8 @@ const resources: Resources = {
     "ui.playdata.step4": "应用将自动打开并导入数据。如果使用 PWA 或桌面版，请手动返回此处粘贴。",
     "ui.playdata.copyBookmarklet": "复制书签代码",
     "ui.playdata.copied": "已复制",
+    "ui.playdata.copyResult": "复制 HTML",
+    "ui.playdata.copyResultFailed": "复制失败，请点击重试",
     "ui.playdata.pasteImport": "从剪贴板粘贴",
     "ui.playdata.clearData": "清除成绩数据",
     "ui.playdata.stats": "当前成绩数据",
@@ -521,7 +524,7 @@ const resources: Resources = {
     "ui.playdata.pwaDesktopNotice":
       "注意：如果使用 PWA 或桌面版，链接可能无法自动打开。请手动返回此处并粘贴剪贴板内容。",
     "ui.playdata.bookmarkletConnecting": "正在从书签自动导入，您也可以在下方手动粘贴。",
-    "ui.playdata.importSuccessPwaReminder": "如果您同时使用 PWA 或桌面版，请切换到该应用并从剪贴板粘贴以在那里导入。",
+    "ui.playdata.importSuccessPwaReminder": "复制 HTML，然后切换到 PWA 或桌面版并粘贴导入。",
     "ui.playdata.import": "导入",
     "ui.playdata.importing": "导入中...",
     "ui.playdata.goToImport": "导入成绩数据",
@@ -799,6 +802,8 @@ const resources: Resources = {
       "アプリが自動で開きインポートされます。PWAまたはデスクトップ版の場合は、手動で戻って貼り付けてください。",
     "ui.playdata.copyBookmarklet": "ブックマークレットをコピー",
     "ui.playdata.copied": "コピーしました",
+    "ui.playdata.copyResult": "HTML をコピー",
+    "ui.playdata.copyResultFailed": "コピーに失敗しました。タップして再試行",
     "ui.playdata.pasteImport": "クリップボードから貼り付け",
     "ui.playdata.clearData": "プレイデータを削除",
     "ui.playdata.stats": "現在のプレイデータ",
@@ -825,7 +830,7 @@ const resources: Resources = {
     "ui.playdata.bookmarkletConnecting":
       "ブックマークレットから自動インポート中です。以下に手動で貼り付けることもできます。",
     "ui.playdata.importSuccessPwaReminder":
-      "PWAまたはデスクトップ版も使用している場合は、そちらに切り替えてクリップボードから貼り付けてインポートしてください。",
+      "HTML をコピーしてから、PWAまたはデスクトップ版に切り替えて貼り付けてください。",
     "ui.playdata.import": "インポート",
     "ui.playdata.importing": "インポート中...",
     "ui.playdata.goToImport": "プレイデータをインポート",
