@@ -146,6 +146,14 @@ test.describe("Vertical Layout: Floating Actions Auto-Hide", () => {
     await page.waitForTimeout(300);
     await expect(wrapper).toHaveClass(/floating-hidden/);
 
+    const fullscreenAction = page.locator("#floating-chart-actions action-button[button-title='Fullscreen']");
+    const hitsFullscreenAction = await fullscreenAction.evaluate((action) => {
+      const rect = action.getBoundingClientRect();
+      const target = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      return target === action || (target !== null && action.contains(target));
+    });
+    expect(hitsFullscreenAction).toBe(false);
+
     // Scroll back; visibility restores.
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(300);

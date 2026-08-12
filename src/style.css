@@ -1374,6 +1374,9 @@ body:not(.horizontal-layout) #floating-actions-wrapper {
   opacity: 0;
   pointer-events: none;
 }
+#floating-actions-wrapper.floating-hidden #floating-chart-actions {
+  pointer-events: none;
+}
 body:not(.horizontal-layout) #floating-chart-actions {
   display: flex;
   align-items: center;
