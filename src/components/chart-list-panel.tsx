@@ -12,6 +12,8 @@ import {
   type PlaydataContext,
 } from "./advanced-search-modal.js";
 import "./advanced-search-modal.js";
+import type { DifficultyChartItem, DifficultyChartModal, DifficultyChartSelection } from "./difficulty-chart-modal.js";
+import "./difficulty-chart-modal.js";
 import type { EseIndexEntry } from "../clients/ese-client.js";
 import {
   saveUrlState,
@@ -79,6 +81,7 @@ export class ChartListPanel extends HTMLElement {
   private _isAdvancedSearchActive = false;
   private _advancedCriteria: AdvancedSearchCriteria = {};
   private _advancedSearchModal: AdvancedSearchModal | null = null;
+  private _difficultyChartModal: DifficultyChartModal | null = null;
 
   connectedCallback() {
     this.loadSettings();
@@ -111,6 +114,12 @@ export class ChartListPanel extends HTMLElement {
       this.filterResults();
       this.updateSearchUrl();
       this.render();
+    }) as EventListener);
+    this.addEventListener("difficulty-chart-open", (() => {
+      this.openDifficultyChart();
+    }) as EventListener);
+    this.addEventListener("difficulty-chart-select", ((e: CustomEvent<DifficultyChartSelection>) => {
+      this.handleDifficultyChartSelect(e.detail);
     }) as EventListener);
   }
 
@@ -312,6 +321,51 @@ export class ChartListPanel extends HTMLElement {
   private getDifficultyLabel(diff: Difficulty): string {
     const key = diff === "ura" ? "ui.difficulty.ura" : `ui.difficulty.${diff}`;
     return i18n.t(key);
+  }
+
+  private buildDifficultyChartItems(): DifficultyChartItem[] {
+    const items: DifficultyChartItem[] = [];
+    const difficulties: Difficulty[] = ["oni", "ura"];
+
+    for (const node of appState.eseTree ?? []) {
+      for (const difficulty of difficulties) {
+        const section = node.dfcDifficulty?.[difficulty];
+        if (!section || node.courses?.[difficulty]?.level !== 10) continue;
+
+        items.push({
+          node,
+          difficulty,
+          section,
+          title: this.getLocalizedTitle(node) ?? node.path,
+          playdata: getPlayEntrySync(
+            node.path,
+            this._cachedPlaydata,
+            this._songIdToEntriesCache,
+            difficultyToNumber[difficulty],
+          ),
+        });
+      }
+    }
+
+    return items.sort((a, b) => a.title.localeCompare(b.title, i18n.language));
+  }
+
+  private async openDifficultyChart() {
+    await this.refreshPlaydataCaches();
+    this._difficultyChartModal = this.querySelector("difficulty-chart-modal") as DifficultyChartModal | null;
+    this._difficultyChartModal?.open(this.buildDifficultyChartItems());
+  }
+
+  private handleDifficultyChartSelect(selection: DifficultyChartSelection) {
+    this._advancedCriteria = {
+      starsMin: 10,
+      starsMax: 10,
+      dfcDifficulty: selection.section,
+    };
+    this._isAdvancedSearchActive = true;
+    this.filterResults();
+    this.updateSearchUrl();
+    this.handleResultClick(selection.node, selection.difficulty);
   }
 
   setPendingLoad(path: string, diff: string) {
@@ -795,6 +849,7 @@ export class ChartListPanel extends HTMLElement {
         </div>
 
         <advanced-search-modal />
+        <difficulty-chart-modal />
       </div>
     );
 

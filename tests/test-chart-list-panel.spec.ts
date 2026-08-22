@@ -316,6 +316,136 @@ test.describe("Chart List Panel Component", () => {
     await expect(page.locator(".ese-result-item")).toHaveCount(3);
   });
 
+  test("Difficulty Chart View", async ({ page }) => {
+    const mockMapping = {
+      "400": { esePath: "cat1/song_cyan.tja", defaultTitle: "Song Cyan" },
+      "401": { esePath: "cat1/song_ura.tja", defaultTitle: "Song Ura" },
+      "402": { esePath: "cat1/song_gold.tja", defaultTitle: "Song Gold" },
+    };
+    const mockPlaydata = {
+      version: 2,
+      updatedAt: "2023-01-01",
+      source: "fumen-database",
+      entries: [
+        {
+          songId: "400",
+          difficulty: 4,
+          score: 1000000,
+          crown: 3,
+          scoreRank: 7,
+          great: 1000,
+          good: 0,
+          bad: 0,
+          combo: 1000,
+          drumroll: 0,
+        },
+        {
+          songId: "402",
+          difficulty: 4,
+          score: 950000,
+          crown: 2,
+          scoreRank: 5,
+          great: 790,
+          good: 10,
+          bad: 0,
+          combo: 800,
+          drumroll: 0,
+        },
+      ],
+    };
+    const mockIndex = [
+      {
+        path: "cat1/song_cyan.tja",
+        title: "Song Cyan",
+        courses: { oni: { level: 10 } },
+        dfcDifficulty: { oni: "SS" },
+      },
+      {
+        path: "cat1/song_ura.tja",
+        title: "Song Ura",
+        courses: { ura: { level: 10 } },
+        dfcDifficulty: { ura: "SS" },
+      },
+      {
+        path: "cat1/song_gold.tja",
+        title: "Song Gold",
+        courses: { oni: { level: 10 } },
+        dfcDifficulty: { oni: "iA" },
+      },
+      {
+        path: "cat1/song_nine.tja",
+        title: "Song Nine",
+        courses: { oni: { level: 9 } },
+        dfcDifficulty: { oni: "SS" },
+      },
+      {
+        path: "cat1/song_unrated.tja",
+        title: "Song Unrated",
+        courses: { oni: { level: 10 } },
+      },
+    ];
+
+    await page.route("**/data/song_mapping.json", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(mockMapping) }),
+    );
+    await page.route("**/ese_index.json", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(mockIndex) }),
+    );
+    await page.route("**/ese/cat1/song_cyan.tja", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "text/plain",
+        body: "TITLE:Song Cyan\nBPM:120\nCOURSE:Oni\nLEVEL:10\n#START\n1111,\n#END",
+      }),
+    );
+    await page.addInitScript((data) => {
+      localStorage.setItem("tja_analyzer_playdata", JSON.stringify(data));
+    }, mockPlaydata);
+
+    await page.goto("/");
+    const dsBody = page.locator("#ds-body");
+    if ((await dsBody.count()) > 0 && (await dsBody.getAttribute("class"))?.includes("collapsed")) {
+      await page.click("#ds-panel-header");
+    }
+    await page.locator('button[data-mode="list"]').click();
+    await expect(page.locator(".ese-result-item").first()).toBeVisible();
+
+    await page.locator(".adv-search-open-btn").click();
+    await page.locator("#advanced-search-modal.open").getByText("View ★10 Difficulty Chart").click();
+
+    const modal = page.locator("#difficulty-chart-modal.open");
+    await expect(modal).toBeVisible();
+    await expect(modal.locator(".difficulty-chart-section h3")).toHaveText(["SS", "Competence A"]);
+    await expect(modal.locator(".difficulty-chart-item")).toHaveCount(3);
+    await expect(modal.getByText("Song Nine")).toHaveCount(0);
+    await expect(modal.getByText("Song Unrated")).toHaveCount(0);
+
+    const cyanItem = modal.locator(".difficulty-chart-item").filter({ hasText: "Song Cyan" });
+    await expect(cyanItem).toHaveClass(/dn-cyan/);
+    await expect(cyanItem.locator(".difficulty-chart-score")).toHaveText("1000000");
+    await expect(cyanItem).toContainText("極");
+    await expect(cyanItem.locator(".difficulty-chart-counts")).toHaveText("0 (0)");
+    await expect(cyanItem).not.toContainText("Score");
+    await expect(cyanItem).not.toContainText("OK");
+    await expect(cyanItem).not.toContainText("BAD");
+    const unplayedItem = modal.locator(".difficulty-chart-item").filter({ hasText: "Song Ura" });
+    await expect(unplayedItem).toHaveClass(/dn-white/);
+    await expect(unplayedItem.locator(".difficulty-chart-item-stats")).toHaveCount(0);
+    await expect(unplayedItem).not.toContainText("N/A");
+    await expect(modal.locator(".difficulty-chart-item").filter({ hasText: "Song Gold" })).toHaveClass(/dn-gold/);
+
+    await cyanItem.click();
+    await expect(modal).not.toBeVisible();
+    await expect(page.locator("#status-display")).toContainText(/Chart loaded/i);
+    await expect(page.locator(".ese-result-item")).toHaveCount(2);
+    await expect(page.locator(".ese-result-item").filter({ hasText: "Song Cyan (Oni)" })).toBeVisible();
+    await expect(page.locator(".ese-result-item").filter({ hasText: "Song Ura (Ura)" })).toBeVisible();
+    await expect.poll(() => new URL(page.url()).searchParams.get("adv_dfc")).toBe("SS");
+    await expect.poll(() => new URL(page.url()).searchParams.get("adv_starsmin")).toBe("10");
+    await expect.poll(() => new URL(page.url()).searchParams.get("adv_starsmax")).toBe("10");
+    await expect.poll(() => new URL(page.url()).searchParams.get("diff")).toBe("oni");
+  });
+
   test("Clearing advanced search removes all adv_ params from URL and saved state", async ({ page }) => {
     const mockIndex = [{ path: "cat1/song10.tja", title: "Song Ten", courses: { oni: { level: 10, maxCombo: 1000 } } }];
     await page.route("**/ese_index.json", (route) =>

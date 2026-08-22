@@ -313,7 +313,7 @@ export function getAdvancedSearchSummary(criteria: AdvancedSearchCriteria): stri
 }
 
 /** All possible DFC section names in order from hardest to easiest. */
-const DFC_SECTIONS = [
+export const DFC_SECTIONS = [
   "SS",
   "iS+",
   "pS+",
@@ -335,7 +335,7 @@ const DFC_SECTIONS = [
 ] as const;
 
 /** Convert a DFC section code to a user-friendly display name. */
-function dfcDisplayName(code: string): string {
+export function dfcDisplayName(code: string): string {
   // "i" prefix -> Competence, "p" prefix -> Individual, no prefix -> as-is
   if (code.startsWith("i")) {
     const rank = code.slice(1);
@@ -402,6 +402,16 @@ export class AdvancedSearchModal extends HTMLElement {
     this.criteria = {};
     this.dispatchEvent(
       new CustomEvent("advanced-search-clear", {
+        bubbles: true,
+        composed: true,
+      }),
+    );
+    this.close();
+  }
+
+  private handleOpenDifficultyChart() {
+    this.dispatchEvent(
+      new CustomEvent("difficulty-chart-open", {
         bubbles: true,
         composed: true,
       }),
@@ -584,21 +594,30 @@ export class AdvancedSearchModal extends HTMLElement {
           {/* DFC Difficulty (only relevant for 10-star) */}
           <div className="adv-search-field">
             <span className="adv-search-label">{i18n.t("ui.advSearch.dfcDifficulty")}</span>
-            <select
-              value={c.dfcDifficulty || ""}
-              onchange={(e: Event) =>
-                this.updateField("dfcDifficulty", (e.target as HTMLSelectElement).value || undefined)
-              }
-            >
-              <option value="" selected={!c.dfcDifficulty}>
-                {i18n.t("ui.advSearch.any")}
-              </option>
-              {DFC_SECTIONS.map((s) => (
-                <option value={s} selected={s === c.dfcDifficulty}>
-                  {dfcDisplayName(s)}
+            <div className="adv-search-dfc-controls">
+              <select
+                value={c.dfcDifficulty || ""}
+                onchange={(e: Event) =>
+                  this.updateField("dfcDifficulty", (e.target as HTMLSelectElement).value || undefined)
+                }
+              >
+                <option value="" selected={!c.dfcDifficulty}>
+                  {i18n.t("ui.advSearch.any")}
                 </option>
-              ))}
-            </select>
+                {DFC_SECTIONS.map((s) => (
+                  <option value={s} selected={s === c.dfcDifficulty}>
+                    {dfcDisplayName(s)}
+                  </option>
+                ))}
+              </select>
+              <button
+                type="button"
+                className="btn-secondary difficulty-chart-open-btn"
+                onclick={this.handleOpenDifficultyChart.bind(this)}
+              >
+                {i18n.t("ui.difficultyChart.open")}
+              </button>
+            </div>
           </div>
 
           {/* BPM (paired) */}

@@ -67,6 +67,7 @@ declare global {
       "action-button": HtmlTag & ActionButtonProps;
       "stepper-control": HtmlTag & StepperControlProps;
       "advanced-search-modal": HtmlTag;
+      "difficulty-chart-modal": HtmlTag;
       "modal-page": HtmlTag & {
         open?: boolean | null;
         heading?: string;

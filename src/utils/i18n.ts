@@ -304,6 +304,10 @@ const resources: Resources = {
     "ui.advSearch.dfcDifficulty": "★10 DFC Difficulty",
     "ui.advSearch.dfcCompetence": "Competence",
     "ui.advSearch.dfcIndividual": "Individual",
+    "ui.difficultyChart.open": "View ★10 Difficulty Chart",
+    "ui.difficultyChart.title": "★10 Difficulty Chart",
+    "ui.difficultyChart.score": "Score",
+    "ui.difficultyChart.empty": "No rated ★10 charts are available.",
 
     "ui.settings.chartLanguage": "Chart Info Language",
     "ui.settings.langAuto": "Auto",
@@ -607,6 +611,10 @@ const resources: Resources = {
     "ui.advSearch.dfcDifficulty": "★10 全良难易度",
     "ui.advSearch.dfcCompetence": "地力",
     "ui.advSearch.dfcIndividual": "个人差",
+    "ui.difficultyChart.open": "查看 ★10 难易度表",
+    "ui.difficultyChart.title": "★10 难易度表",
+    "ui.difficultyChart.score": "得分",
+    "ui.difficultyChart.empty": "没有可用的 ★10 难易度数据。",
 
     "ui.settings.chartLanguage": "谱面信息语言",
     "ui.settings.langAuto": "自动",
@@ -914,6 +922,10 @@ const resources: Resources = {
     "ui.advSearch.dfcDifficulty": "★10 全良難易度",
     "ui.advSearch.dfcCompetence": "地力",
     "ui.advSearch.dfcIndividual": "個人差",
+    "ui.difficultyChart.open": "★10 難易度表を表示",
+    "ui.difficultyChart.title": "★10 難易度表",
+    "ui.difficultyChart.score": "スコア",
+    "ui.difficultyChart.empty": "★10 難易度データがありません。",
 
     "ui.settings.chartLanguage": "譜面情報の言語",
     "ui.settings.langAuto": "自動",
