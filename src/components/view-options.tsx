@@ -96,6 +96,12 @@ export class ViewOptions extends HTMLElement {
     this.render();
   }
 
+  private handleScrollSpacing(e: Event) {
+    appState.renderOptions.scrollSpacing = (e.target as HTMLInputElement).checked;
+    refreshChart();
+    this.render();
+  }
+
   private handleStatsToggle(e: Event) {
     this.statsVisible = (e.target as HTMLInputElement).checked;
     this.handleStatsChange();
@@ -211,6 +217,15 @@ export class ViewOptions extends HTMLElement {
                 onchange={this.handleStatsToggle.bind(this)}
               />
               <span>{i18n.t("ui.showStats")}</span>
+            </label>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                id="scroll-spacing-checkbox"
+                checked={!!appState.renderOptions.scrollSpacing}
+                onchange={this.handleScrollSpacing.bind(this)}
+              />
+              <span>{i18n.t("ui.scrollSpacing")}</span>
             </label>
           </div>
         </div>

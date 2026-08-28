@@ -60,6 +60,7 @@ export const appState: AppState = {
     annotationToolType: "hand",
     autoZoom: true,
     hideUnreachableBranches: true,
+    scrollSpacing: false,
   },
   loadedTJAContent: exampleTJA,
   activeDataSourceMode: "list",
