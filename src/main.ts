@@ -753,32 +753,23 @@ function initializePanelVisibility() {
   const viewportHeight = window.innerHeight;
 
   const totalExpandedHeight = dsHeight + optionsHeight;
+  const expand = totalExpandedHeight < viewportHeight / 2;
 
-  if (totalExpandedHeight < viewportHeight / 2) {
-    // Expand
-    dsBody.classList.remove("collapsed");
-    optionsBody.classList.remove("collapsed");
-    if (dsCollapseIcon) {
-      dsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-up.svg";
-      dsCollapseIcon.alt = i18n.t("ui.collapse");
-    }
-    if (optionsCollapseIcon) {
-      optionsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-up.svg";
-      optionsCollapseIcon.alt = i18n.t("ui.collapse");
-    }
-  } else {
-    // Collapse
-    dsBody.classList.add("collapsed");
-    optionsBody.classList.add("collapsed");
-    if (dsCollapseIcon) {
-      dsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-down.svg";
-      dsCollapseIcon.alt = i18n.t("ui.expand");
-    }
-    if (optionsCollapseIcon) {
-      optionsCollapseIcon.src = "assets/heroicons/optimized/24/outline/chevron-down.svg";
-      optionsCollapseIcon.alt = i18n.t("ui.expand");
-    }
-  }
+  setPanelCollapsed(dsBody, dsCollapseIcon, !expand);
+
+  // In vertical layout the chart options panel is a bottom sheet owned by the
+  // sheet controller, which starts it collapsed. This sidebar heuristic does
+  // not apply there, so keep the panel in its collapsed base state.
+  setPanelCollapsed(optionsBody, optionsCollapseIcon, appState.isHorizontalLayout ? !expand : true);
+}
+
+function setPanelCollapsed(body: HTMLElement, icon: HTMLImageElement | null, collapsed: boolean) {
+  body.classList.toggle("collapsed", collapsed);
+  if (!icon) return;
+  icon.src = collapsed
+    ? "assets/heroicons/optimized/24/outline/chevron-down.svg"
+    : "assets/heroicons/optimized/24/outline/chevron-up.svg";
+  icon.alt = collapsed ? i18n.t("ui.expand") : i18n.t("ui.collapse");
 }
 
 // Handle resizing

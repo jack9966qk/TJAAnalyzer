@@ -120,6 +120,12 @@ function collapseDSPanel() {
   }
 }
 
+function collapseOptionsBody() {
+  optionsBody?.classList.add("collapsed");
+  const icon = document.getElementById("options-collapse-icon") as HTMLImageElement | null;
+  if (icon) icon.src = "assets/heroicons/optimized/24/outline/chevron-down.svg";
+}
+
 export function collapseSheet() {
   if (!expanded || !sheet) return;
   snapTo(false);
@@ -294,6 +300,10 @@ export function initBottomSheet() {
       expanded = false;
       cancelTracking();
     } else {
+      // Vertical layout starts collapsed, and its CSS rotates the collapse
+      // icon relative to the chevron down artwork. Resetting the panel here
+      // restores that baseline, otherwise the rotation points it backwards.
+      collapseOptionsBody();
       measureHandle();
       snapTo(false);
     }

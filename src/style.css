@@ -1353,9 +1353,13 @@ body:not(.horizontal-layout) #chart-options-panel.dragging #options-panel-header
 }
 
 body:not(.horizontal-layout) #chart-options-panel #options-body {
-  /* Override the grid-collapse behavior — sheet height controls visibility */
+  /* Override the grid-collapse behavior, the sheet height controls visibility.
+     max-height has to be neutralized as well: the panel keeps the .collapsed
+     marker that the horizontal sidebar uses, and its max-height: 0 would
+     otherwise flatten the body and leave the sheet showing nothing. */
   display: block;
   opacity: 1;
+  max-height: none;
   overflow-y: auto;
   /* Size to the visible region so that, when collapsed, the body is exactly
      the tab bar tall and the bottom safe-area strip stays empty sheet
@@ -1458,8 +1462,9 @@ body:not(.horizontal-layout) #chart-options-panel.dragging ~ #floating-actions-w
   transition: none;
 }
 
-/* Show the mode chip only when collapsed; tabs indicate the mode when open. */
-body:not(.horizontal-layout) #chart-options-panel.sheet-expanded #chart-mode-status {
+/* The sheet keeps its tab bar visible in both snap states, so the mode chip
+   would only repeat the active tab. Hide it throughout. */
+body:not(.horizontal-layout) #chart-options-panel #chart-mode-status {
   opacity: 0;
 }
 body:not(.horizontal-layout) #note-stats-display {

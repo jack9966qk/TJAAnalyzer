@@ -31,8 +31,8 @@ async function waitForSheetSettled(page: import("@playwright/test").Page) {
   );
 }
 
-async function gotoVertical(page: import("@playwright/test").Page) {
-  await page.setViewportSize(MOBILE_VIEWPORT);
+async function gotoVertical(page: import("@playwright/test").Page, viewport = MOBILE_VIEWPORT) {
+  await page.setViewportSize(viewport);
   await page.goto("/");
   await page.waitForLoadState("networkidle");
   await expect(page.locator("body")).not.toHaveClass(/horizontal-layout/);
@@ -103,6 +103,26 @@ test.describe("Vertical Layout: Mutually Exclusive Panel Expansion", () => {
 
     expect(await sheetIsExpanded(page)).toBe(true);
     expect(await dsIsCollapsed(page)).toBe(true);
+  });
+
+  // A short viewport makes the startup panel heuristic collapse the chart
+  // options panel, which used to flatten the sheet body and leave the expanded
+  // sheet blank.
+  test("Expanded sheet shows its content on a short viewport", async ({ page }) => {
+    await gotoVertical(page, { width: 375, height: 667 });
+
+    await page.click("#options-panel-header");
+    await waitForSheetSettled(page);
+    expect(await sheetIsExpanded(page)).toBe(true);
+
+    const bodyHeight = await page.locator("#options-body").evaluate((el) => el.getBoundingClientRect().height);
+    const tabsHeight = await page
+      .locator("#options-body .panel-tabs")
+      .evaluate((el) => el.getBoundingClientRect().height);
+    expect(tabsHeight).toBeGreaterThan(0);
+    expect(bodyHeight).toBeGreaterThan(tabsHeight);
+    await expect(page.locator("#options-body .panel-tabs")).toBeInViewport();
+    await expect(page.locator("#do-tab-view")).toBeInViewport();
   });
 
   test("Switching tabs while collapsed does not transiently expand the sheet", async ({ page }) => {
