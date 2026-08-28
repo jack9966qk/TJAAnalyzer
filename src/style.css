@@ -516,6 +516,44 @@ button:disabled {
   margin-bottom: 12px;
 }
 
+/* Playdata import progress */
+.import-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 14px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: var(--bg-panel);
+  font-size: 16px;
+  color: var(--text-primary);
+  text-align: left;
+}
+
+.import-progress-spinner {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--border-light);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: importProgressSpin 0.8s linear infinite;
+}
+
+@keyframes importProgressSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .import-progress-spinner {
+    animation-duration: 2.4s;
+  }
+}
+
 /* Loop Controls */
 .loop-subs {
   display: flex;

@@ -64,4 +64,79 @@ test.describe("Settings Panel", () => {
     expect(await page.evaluate(() => sessionStorage.getItem("async-clipboard-used"))).toBeNull();
     await expect(copyButton).toContainText("Copied");
   });
+
+  test("bookmarklet opens the app window before the blocking copy", async ({ page }) => {
+    await page.goto("/");
+    const bookmarklet = await page
+      .locator("settings-panel")
+      .evaluate((panel) => (panel as unknown as { getBookmarkletCode: () => string }).getBookmarkletCode());
+
+    await page.setContent(
+      `<html><body><a id="run" href="${bookmarklet}">run</a><div class="table_song_name">Source Page</div></body></html>`,
+    );
+
+    await page.evaluate(() => {
+      const probe = window as unknown as { events: string[]; copied: string | null; activeOnOpen: boolean };
+      probe.events = [];
+      probe.copied = null;
+      probe.activeOnOpen = false;
+
+      document.execCommand = (command) => {
+        if (command !== "copy" || !navigator.userActivation.isActive) return false;
+        const textarea = document.activeElement;
+        if (!(textarea instanceof HTMLTextAreaElement)) return false;
+        probe.copied = textarea.value;
+        probe.events.push("copied");
+        return true;
+      };
+
+      window.open = ((url: string) => {
+        probe.activeOnOpen = navigator.userActivation.isActive;
+        probe.events.push(`opened:${url}`);
+        return { postMessage: () => {} };
+      }) as unknown as typeof window.open;
+    });
+
+    await page.click("#run");
+
+    // window.open must come first and stay inside the gesture, otherwise popup blockers
+    // reject it and the tab switch waits on the copy.
+    const readEvents = () =>
+      page.evaluate(() => (window as unknown as { events: string[] }).events.map((e) => e.split("?")[0]));
+    await expect.poll(readEvents).toEqual([`opened:${new URL(page.url()).origin}/`, "copied"]);
+
+    const { copied, activeOnOpen } = await page.evaluate(() => {
+      const probe = window as unknown as { copied: string | null; activeOnOpen: boolean };
+      return { copied: probe.copied, activeOnOpen: probe.activeOnOpen };
+    });
+    expect(activeOnOpen).toBe(true);
+    expect(copied).toContain("Source Page");
+  });
+
+  test("shows a progress indicator while waiting for the bookmarklet HTML", async ({ page }) => {
+    await page.goto("/");
+
+    // The bookmarklet path needs a real window.opener, so drive the panel into the state
+    // checkImportParameter() reaches when one is present.
+    await page.locator("settings-panel").evaluate((panel) => {
+      const settings = panel as unknown as {
+        isModalOpen: boolean;
+        isImportMode: boolean;
+        isListeningForMessage: boolean;
+        render: () => void;
+      };
+      settings.isModalOpen = true;
+      settings.isImportMode = true;
+      settings.isListeningForMessage = true;
+      settings.render();
+    });
+
+    const progress = page.locator("#import-progress");
+    await expect(progress).toBeVisible();
+    await expect(progress).toContainText("Importing automatically from the bookmarklet");
+    await expect(progress.locator(".import-progress-spinner")).toBeVisible();
+
+    // The plain instruction line is replaced by the progress block, not shown alongside it.
+    await expect(page.locator("#settings-modal")).not.toContainText("Paste HTML content from fumen-database below");
+  });
 });

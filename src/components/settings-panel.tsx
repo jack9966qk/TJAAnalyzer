@@ -260,12 +260,16 @@ export class SettingsPanel extends HTMLElement {
     const appUrl = window.location.origin + window.location.pathname;
 
     // The bookmarklet:
-    // 1. Copies the raw HTML while the user gesture is still active for iOS Safari.
-    // 2. Opens the app window synchronously so window.open remains inside that gesture.
+    // 1. Opens the app window as the very first statement, synchronously inside the user
+    //    gesture. Popup blockers reject window.open once it is deferred to a timer, and
+    //    opening before the copy lets the browser start switching tabs while the copy runs.
+    // 2. Copies the raw HTML in the same task, while the user gesture is still active,
+    //    as the fallback for PWA and desktop users who never receive the postMessage.
     // 3. Listens for a 'tja-importer-ready' signal from the app, then sends the HTML
     //    via postMessage so the app can parse it with its own parser code.
     const bookmarkletScript = `
 (function(){
+  var appWin = window.open('${appUrl}?import=playdata', '_blank');
   var html = document.documentElement.outerHTML;
   var textarea = document.createElement('textarea');
   textarea.value = html;
@@ -277,7 +281,6 @@ export class SettingsPanel extends HTMLElement {
   textarea.setSelectionRange(0, html.length);
   try { document.execCommand('copy'); } catch (e) {}
   textarea.remove();
-  var appWin = window.open('${appUrl}?import=playdata', '_blank');
   if (!appWin) return;
   var done = false;
   window.addEventListener('message', function handler(e) {
@@ -624,15 +627,21 @@ export class SettingsPanel extends HTMLElement {
       return this.renderResolutionUI();
     }
 
-    const instructionKey = this.isListeningForMessage
-      ? "ui.playdata.bookmarkletConnecting"
-      : this.isFromBookmarklet
-        ? "ui.playdata.importReady"
-        : "ui.playdata.pasteHereInstruction";
+    const inProgress = this.isListeningForMessage || this.isImporting;
+    const instructionKey = this.isFromBookmarklet ? "ui.playdata.importReady" : "ui.playdata.pasteHereInstruction";
 
     return (
       <div style="text-align: center; padding: 0;">
-        <div style="font-size: 16px; margin-bottom: 20px; color: var(--text-primary);">{i18n.t(instructionKey)}</div>
+        {inProgress ? (
+          <div className="import-progress" id="import-progress">
+            <span className="import-progress-spinner" />
+            <span>
+              {this.isImporting ? i18n.t("ui.playdata.importing") : i18n.t("ui.playdata.bookmarkletConnecting")}
+            </span>
+          </div>
+        ) : (
+          <div style="font-size: 16px; margin-bottom: 20px; color: var(--text-primary);">{i18n.t(instructionKey)}</div>
+        )}
 
         {this.importStatus.type !== "success" && (
           <>
