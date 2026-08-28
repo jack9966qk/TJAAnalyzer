@@ -578,14 +578,47 @@ export class ChartListPanel extends HTMLElement {
   }
 
   private getShareDropdownItems(): DropdownItem[] {
-    const hasSearch = this._searchQuery || this._isAdvancedSearchActive;
-    if (!hasSearch) return [];
-    return [
-      {
+    const items: DropdownItem[] = [];
+
+    if (this._searchQuery || this._isAdvancedSearchActive) {
+      items.push({
         label: i18n.t("ui.ese.shareWithSearch"),
         action: () => this.handleShareWithSearch(),
-      },
-    ];
+      });
+    }
+
+    if (this.getCurrentSongName()) {
+      items.push({
+        label: i18n.t("ui.ese.copySongName"),
+        successLabel: i18n.t("ui.ese.copySongNameSuccess"),
+        action: () => this.handleCopySongName(),
+      });
+    }
+
+    return items;
+  }
+
+  /** Title of the loaded chart in the language the list is currently rendering. */
+  private getCurrentSongName(): string | undefined {
+    const path = appState.currentEsePath;
+    if (!path) return undefined;
+
+    const node = appState.eseTree?.find((entry) => entry.path === path);
+    if (!node) return undefined;
+
+    return this.getLocalizedTitle(node);
+  }
+
+  private async handleCopySongName() {
+    const name = this.getCurrentSongName();
+    if (!name) return;
+
+    try {
+      await navigator.clipboard.writeText(name);
+    } catch (e) {
+      console.error("Failed to copy song name:", e);
+      throw e;
+    }
   }
 
   private async handleShareWithSearch() {

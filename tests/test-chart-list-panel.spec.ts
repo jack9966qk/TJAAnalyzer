@@ -621,4 +621,55 @@ test.describe("Chart List Panel Component", () => {
     await expect(page.locator(".ese-result-item")).toHaveCount(1);
     await expect(page.locator(".ese-result-item").first()).toContainText("Song Diff (Ura)");
   });
+
+  test("Copy Song Name from the share dropdown", async ({ page }) => {
+    const mockData = [
+      { path: "cat1/song1.tja", title: "Song One", titleJp: "曲１", url: "ese/cat1/song1.tja", type: "blob" },
+    ];
+    await page.route("**/ese_index.json", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(mockData) }),
+    );
+    await page.route("**/ese/cat1/song1.tja", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "text/plain",
+        body: "TITLE:Song One\nBPM:120\nWAVE:song.ogg\nCOURSE:Oni\nLEVEL:8\n#START\n10101010,\n#END",
+      }),
+    );
+
+    await page.goto("/");
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: {
+          writeText: (text: string) => {
+            sessionStorage.setItem("copied-text", text);
+            return Promise.resolve();
+          },
+        },
+      });
+    });
+
+    await page.locator('button[data-mode="list"]').click();
+    await page.locator(".ese-result-item").first().click();
+
+    const shareBtn = page.locator("#ese-share-btn");
+    await expect(shareBtn).not.toBeDisabled();
+
+    await shareBtn.locator(".split-btn-dropdown").click();
+    const copyOption = shareBtn.locator(".split-dropdown-option", { hasText: "Copy Song Name" });
+    await expect(copyOption).toBeVisible();
+    await copyOption.click();
+
+    await expect.poll(() => page.evaluate(() => sessionStorage.getItem("copied-text"))).toBe("Song One");
+    // The item overrides the button success label, which otherwise reports a copied link.
+    await expect(shareBtn).toContainText("Copied Name");
+
+    // The copied name follows the language the list renders in.
+    await page.locator("#language-selector select").selectOption("ja");
+    await expect(shareBtn).not.toContainText("Copied Name");
+    await shareBtn.locator(".split-btn-dropdown").click();
+    await shareBtn.locator(".split-dropdown-option", { hasText: "曲名をコピー" }).click();
+    await expect.poll(() => page.evaluate(() => sessionStorage.getItem("copied-text"))).toBe("曲１");
+  });
 });

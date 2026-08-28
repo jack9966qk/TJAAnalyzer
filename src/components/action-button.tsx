@@ -4,6 +4,8 @@ import styleUrl from "../style.css?url";
 export interface DropdownItem {
   label: string;
   action: () => Promise<void>;
+  /** Overrides the button success label while this item's action reports success. */
+  successLabel?: string;
 }
 
 export interface ActionButtonProps {
@@ -32,6 +34,7 @@ export class ActionButton extends HTMLElement {
   private isFading = false;
   private _disabled = false;
   private dropdownVisible = false;
+  private activeSuccessLabel: string | null = null;
   private _renderSuspended = false;
   private _connected = false;
 
@@ -120,13 +123,19 @@ export class ActionButton extends HTMLElement {
   }
 
   // Public method to trigger action with feedback
-  public async runAction(action: () => Promise<void>) {
+  public async runAction(action: () => Promise<void>, successLabel?: string) {
     if (this.disabled || this.status !== "idle") return;
 
+    this.activeSuccessLabel = successLabel ?? null;
     await this.transitionToResult(async () => {
       await action();
       return "success";
     });
+    this.activeSuccessLabel = null;
+  }
+
+  private get currentSuccessLabel(): string {
+    return this.activeSuccessLabel ?? this.successLabel;
   }
 
   connectedCallback() {
@@ -144,7 +153,7 @@ export class ActionButton extends HTMLElement {
   }
 
   private async transitionToResult(action: () => Promise<"success" | "error">) {
-    const hasFeedback = !!(this.successLabel || this.errorLabel);
+    const hasFeedback = !!(this.currentSuccessLabel || this.errorLabel);
 
     if (hasFeedback) {
       this.isFading = true;
@@ -170,7 +179,7 @@ export class ActionButton extends HTMLElement {
     }
 
     // Show status only when there's a label for this result
-    const hasLabel = (result === "success" && this.successLabel) || (result === "error" && this.errorLabel);
+    const hasLabel = (result === "success" && this.currentSuccessLabel) || (result === "error" && this.errorLabel);
 
     if (!hasLabel) {
       this.status = "idle";
@@ -218,7 +227,7 @@ export class ActionButton extends HTMLElement {
   private async handleDropdownItemClick(item: DropdownItem) {
     this.dropdownVisible = false;
     this.render();
-    await this.runAction(item.action);
+    await this.runAction(item.action, item.successLabel);
   }
 
   render() {
@@ -227,9 +236,9 @@ export class ActionButton extends HTMLElement {
     let showSlot = true;
     let message = "";
 
-    if (this.status === "success" && this.successLabel) {
+    if (this.status === "success" && this.currentSuccessLabel) {
       className = "status-message success";
-      message = this.successLabel;
+      message = this.currentSuccessLabel;
       showSlot = false;
     } else if (this.status === "error" && this.errorLabel) {
       className = "status-message error";
