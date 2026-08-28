@@ -1,7 +1,7 @@
 {
   "commit": {
-    "sha": "a636de64b04b4c9cf67b350f10c37613c57c39cb",
-    "date": "2026-06-20T17:00:28+02:00"
+    "sha": "1154bc7fcb1adf512df4d25bde03e49a2bb81e86",
+    "date": "2026-08-28T14:30:41+02:00"
   },
   "files": [
     {
@@ -171,7 +171,7 @@
     {
       "path": "01 Pop/AV-A-MI/AV-A-MI.tja",
       "type": "blob",
-      "sha": "eea5618cf4dc4ae25ed0015df97d416a7ba5b450",
+      "sha": "e3bb5b901f0128066ab130ee935e497a92733a44",
       "url": "ese/01 Pop/AV-A-MI/AV-A-MI.tja",
       "title": "AV-A-MI",
       "titleJp": "アバみ",
@@ -677,11 +677,10 @@
     {
       "path": "01 Pop/Ao to Natsu/Ao to Natsu.tja",
       "type": "blob",
-      "sha": "e323a0aae08a1f1f073c58353bd637bd90749d97",
+      "sha": "15e7ab45d0728873ee9211482a980c85541e3710",
       "url": "ese/01 Pop/Ao to Natsu/Ao to Natsu.tja",
       "title": "Ao to Natsu",
       "titleJp": "青と夏",
-      "subtitle": "Mrs. GREEN APPLE/Ao Natsu Kimi ni Koi Shita 30-Nichi",
       "titleCn": "Ao to Natsu",
       "titleKo": "Ao to Natsu",
       "artist": "大森元貴, Mrs. GREEN APPLE",
@@ -1361,11 +1360,11 @@
     {
       "path": "01 Pop/Byoushin wo Kamu/Byoushin wo Kamu.tja",
       "type": "blob",
-      "sha": "0d220d04d79ab9350b07f121f47324f5c7f5e05a",
+      "sha": "68c261810ea70cb26ac9208544df5fdc0c4cdf06",
       "url": "ese/01 Pop/Byoushin wo Kamu/Byoushin wo Kamu.tja",
-      "title": "Byoushin wo Kamu",
+      "title": "Byoushinwo Kamu",
       "titleJp": "秒針を噛む",
-      "subtitle": "Zutomayo/Jujutsu Kaisen",
+      "subtitle": "ZUTOMAYO",
       "subtitleJp": "ずっと真夜中でいいのに。",
       "titleCn": "Byoushinwo Kamu",
       "titleKo": "Byoushinwo Kamu",
@@ -1429,6 +1428,41 @@
       "titleJp": "CANDY CANDY",
       "subtitle": "Kyary Pamyu Pamyu",
       "subtitleJp": "きゃりーぱみゅぱみゅ"
+    },
+    {
+      "path": "01 Pop/CHARISMAX/CHARISMAX.tja",
+      "type": "blob",
+      "sha": "82fafda45fa6e47e1796016772885fee2909ed3d",
+      "url": "ese/01 Pop/CHARISMAX/CHARISMAX.tja",
+      "title": "CHARISMAX",
+      "titleJp": "カリスマックス",
+      "titleKo": "CHARISMAX",
+      "artist": "Snow Man, MUTEKI DEAD SNAKE, 鈴木まなか, Hiroki Sagawa",
+      "courses": {
+        "easy": {
+          "level": 2,
+          "maxCombo": 102
+        },
+        "normal": {
+          "level": 4,
+          "maxCombo": 172
+        },
+        "hard": {
+          "level": 5,
+          "maxCombo": 257
+        },
+        "oni": {
+          "level": 7,
+          "maxCombo": 361
+        }
+      },
+      "bpm": {
+        "min": 156,
+        "max": 156
+      },
+      "platforms": [
+        "NAC"
+      ]
     },
     {
       "path": "01 Pop/CITRUS/CITRUS.tja",
@@ -1918,27 +1952,19 @@
       "courses": {
         "easy": {
           "level": 3,
-          "maxCombo": 80,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/DREAMERS%27%20PARADISE",
-          "urlKo": "https://taiko.wiki/song/515?diff=easy"
+          "maxCombo": 80
         },
         "normal": {
           "level": 4,
-          "maxCombo": 123,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/DREAMERS%27%20PARADISE",
-          "urlKo": "https://taiko.wiki/song/515?diff=normal"
+          "maxCombo": 123
         },
         "hard": {
           "level": 6,
-          "maxCombo": 339,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/DREAMERS%27%20PARADISE",
-          "urlKo": "https://taiko.wiki/song/515?diff=hard"
+          "maxCombo": 339
         },
         "oni": {
           "level": 7,
-          "maxCombo": 488,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/DREAMERS%27%20PARADISE",
-          "urlKo": "https://taiko.wiki/song/515?diff=oni"
+          "maxCombo": 488
         }
       },
       "bpm": {
@@ -1949,14 +1975,7 @@
         "NAC",
         "WiiU3",
         "PLUS"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 0,
-        "UnitedStates": 0,
-        "China": 0
-      }
+      ]
     },
     {
       "path": "01 Pop/Daddy's Style -Konya wa Daddy Daddy-/Daddy's Style -Konya wa Daddy Daddy-.tja",
@@ -1967,6 +1986,7 @@
       "titleJp": "Daddy's Style -今夜はダディダディ-",
       "subtitle": "Nishiyama Daddy Daddy",
       "subtitleJp": "西山ダディダディ",
+      "titleCn": "Daddy's Style",
       "titleKo": "Daddy's Style",
       "artist": "西山ダディダディ, Daddy, 東山マミィ, 黒田広人, SUNNY-PLAY, VinceBabyKid",
       "courses": {
@@ -2144,23 +2164,21 @@
     {
       "path": "01 Pop/Dakara Boku wa Ongaku wo Yameta/Dakara Boku wa Ongaku wo Yameta -Cover Version-.tja",
       "type": "blob",
-      "sha": "650758d4e4c12f5aec897c729825c6e34c0670b1",
+      "sha": "0d6a73e97fe618c2d1aec0171880e72366ab5e8b",
       "url": "ese/01 Pop/Dakara Boku wa Ongaku wo Yameta/Dakara Boku wa Ongaku wo Yameta -Cover Version-.tja",
-      "title": "Dakara Boku wa Ongaku wo Yameta -Cover Version-",
-      "titleJp": "だから僕は音楽を辞めた -Cover Version-",
-      "subtitle": "Yorushika",
-      "subtitleJp": "ヨルシカ"
+      "title": "Dakara Boku wa Ongaku wo Yameta -Cover Audio-",
+      "titleJp": "だから僕は音楽を辞めた",
+      "subtitleJp": "カバー音源"
     },
     {
       "path": "01 Pop/Dakara Boku wa Ongaku wo Yameta/Dakara Boku wa Ongaku wo Yameta -Original Version-.tja",
       "type": "blob",
-      "sha": "04f0a1b724bd10884d0c44df7edcfcdc3c7b607f",
+      "sha": "43ad5adcea15154ccff406ad58252a785fed9cfc",
       "url": "ese/01 Pop/Dakara Boku wa Ongaku wo Yameta/Dakara Boku wa Ongaku wo Yameta -Original Version-.tja",
-      "title": "Dakara Boku wa Ongaku wo Yameta -Original Version-",
-      "titleJp": "だから僕は音楽を辞めた -Original Version-",
+      "title": "Dakara Boku wa Ongaku wo Yameta",
+      "titleJp": "だから僕は音楽を辞めた",
       "subtitle": "Yorushika",
       "subtitleJp": "ヨルシカ",
-      "titleOfficial": "だから僕は音楽を辞めた",
       "titleCn": "月光",
       "titleKo": "Moonlight",
       "artist": "ヨルシカ, n-buna",
@@ -2313,11 +2331,12 @@
     {
       "path": "01 Pop/Dejavina -Japanese Version-/Dejavina -Japanese Version-.tja",
       "type": "blob",
-      "sha": "17bf9ffc2229f3dd6df76c028dd7822f845d27f0",
+      "sha": "d2d17cc6746b06a7be29d345b72415b1f3a11b55",
       "url": "ese/01 Pop/Dejavina -Japanese Version-/Dejavina -Japanese Version-.tja",
       "title": "Dejavina -Japanese Version-",
       "titleJp": "Dejavina (Japanese ver.)",
-      "subtitle": "Recitalz/Zenryoku! Datsuryoku Times"
+      "subtitle": "Recitalz/Zenryoku! Datsuryoku Times",
+      "subtitleJp": "リサイタルズ"
     },
     {
       "path": "01 Pop/Densetsu no Otoko ～Viva Guts～/Densetsu no Otoko Viva Guts.tja",
@@ -2602,11 +2621,10 @@
     {
       "path": "01 Pop/Dried Flower/Dried Flower.tja",
       "type": "blob",
-      "sha": "7bd696693e9c910c3bc618f8d18e81f6a6a0f45e",
+      "sha": "381e9cf9390f6a106d8e1fec3246cb178674461b",
       "url": "ese/01 Pop/Dried Flower/Dried Flower.tja",
       "title": "Dried Flower",
       "titleJp": "ドライフラワー",
-      "subtitle": "Yuuri",
       "titleCn": "Dried Flower",
       "titleKo": "Dried Flower",
       "artist": "優里",
@@ -3123,11 +3141,11 @@
     {
       "path": "01 Pop/GODSONG/GODSONG.tja",
       "type": "blob",
-      "sha": "7484eae2058a64ff4036c43e8ff0d3ebf861f387",
+      "sha": "316950fd88c299c759670d2257eebb1718a85b03",
       "url": "ese/01 Pop/GODSONG/GODSONG.tja",
       "title": "GODSONG",
       "titleJp": "ゴッドソング",
-      "subtitle": "Band Ja Naimon! MAXX NAKAYOSHI/Goddotan",
+      "subtitle": "BAND JA NAIMON! MAXX NAKAYOSHI/Goddotan",
       "subtitleJp": "バンドじゃないもん！MAXX NAKAYOSHI",
       "titleCn": "GODSONG",
       "titleKo": "GODSONG",
@@ -3209,6 +3227,25 @@
       "subtitle": "Wang Leehom"
     },
     {
+      "path": "01 Pop/Gakuen Tengoku/Gakuen Tengoku -New Audio Chart-.tja",
+      "type": "blob",
+      "sha": "19f8c3e43c8c4c981f55845435d41448a6afe214",
+      "url": "ese/01 Pop/Gakuen Tengoku/Gakuen Tengoku -New Audio Chart-.tja",
+      "title": "Gakuen Tengoku -New Audio/Chart-",
+      "titleJp": "学園天国",
+      "subtitleJp": "新音源・譜面"
+    },
+    {
+      "path": "01 Pop/Gakuen Tengoku/Gakuen Tengoku -Old Audio Chart-.tja",
+      "type": "blob",
+      "sha": "f9e50b356602a5d952a0950e3cc33a5a727cdcff",
+      "url": "ese/01 Pop/Gakuen Tengoku/Gakuen Tengoku -Old Audio Chart-.tja",
+      "title": "Gakuen Tengoku -Old Audio/Chart-",
+      "titleJp": "学園天国",
+      "subtitle": "Fushigiboshi no Futagohime Gyu!",
+      "subtitleJp": "旧音源・譜面"
+    },
+    {
       "path": "01 Pop/Ge Zhong Qiang Shou/Ge Zhong Qiang Shou.tja",
       "type": "blob",
       "sha": "af095477476831b0ab0e87e99970aeb4adacf5a7",
@@ -3265,11 +3302,12 @@
     {
       "path": "01 Pop/Go!!!/Go!!!.tja",
       "type": "blob",
-      "sha": "eb86f84269a4deac47418db6ce1a9019007577be",
+      "sha": "8cdb987eab2cf16201a2ecc5bf19de272a1caa20",
       "url": "ese/01 Pop/Go!!!/Go!!!.tja",
-      "title": "Go‽",
+      "title": "Go!!!",
       "titleJp": "轟!!!",
       "subtitle": "Mizutamari Bond",
+      "subtitleJp": "水溜りボンド",
       "titleCn": "轟!!!",
       "artist": "水溜りボンド",
       "courses": {
@@ -3462,11 +3500,10 @@
     {
       "path": "01 Pop/HOT LIMIT/HOT LIMIT.tja",
       "type": "blob",
-      "sha": "8c36cbf49541ce9af3fefbc9e1406c59d6ee5959",
+      "sha": "065d76ba49395353b19b641fea1aa255d241ce73",
       "url": "ese/01 Pop/HOT LIMIT/HOT LIMIT.tja",
       "title": "HOT LIMIT",
-      "titleJp": "HOT LIMIT",
-      "subtitle": "T.M.Revolution"
+      "titleJp": "HOT LIMIT"
     },
     {
       "path": "01 Pop/HOTEL PACIFIC/HOTEL PACIFIC.tja",
@@ -3587,9 +3624,46 @@
       }
     },
     {
+      "path": "01 Pop/Hacha Mecha Wacha Life!/Hacha Mecha Wacha Life!.tja",
+      "type": "blob",
+      "sha": "e030211507a54f235172d916c2c3c51a8bf7d584",
+      "url": "ese/01 Pop/Hacha Mecha Wacha Life!/Hacha Mecha Wacha Life!.tja",
+      "title": "Hacha Mecha Wacha Life!",
+      "titleJp": "はちゃめちゃわちゃライフ！",
+      "subtitle": "FRUITS ZIPPER / Crayon Shin-chan",
+      "subtitleJp": "FRUITS ZIPPER 「クレヨンしんちゃん」より",
+      "titleKo": "Hacha Mecha Wacha Life!",
+      "artist": "FRUITS ZIPPER, 玉屋2060%",
+      "courses": {
+        "easy": {
+          "level": 3,
+          "maxCombo": 103
+        },
+        "normal": {
+          "level": 4,
+          "maxCombo": 135
+        },
+        "hard": {
+          "level": 5,
+          "maxCombo": 340
+        },
+        "oni": {
+          "level": 7,
+          "maxCombo": 468
+        }
+      },
+      "bpm": {
+        "min": 176,
+        "max": 176
+      },
+      "platforms": [
+        "NAC"
+      ]
+    },
+    {
       "path": "01 Pop/Hachigatsu no Saka/Hachigatsu no Saka.tja",
       "type": "blob",
-      "sha": "698accbf1627a30a58cd346177c31962c5284cda",
+      "sha": "12487bacfe99e4fcfa93b49e540acd57c8f27549",
       "url": "ese/01 Pop/Hachigatsu no Saka/Hachigatsu no Saka.tja",
       "title": "Hachigatsu no Saka",
       "titleJp": "8月の坂",
@@ -3739,11 +3813,11 @@
     {
       "path": "01 Pop/Hakujitsu/Hakujitsu.tja",
       "type": "blob",
-      "sha": "0cf7d9cdda80edeb70361d459b6c96365e14295e",
+      "sha": "85cc3afd1d6eb4dc5b0363850f40a1743b1ea66c",
       "url": "ese/01 Pop/Hakujitsu/Hakujitsu.tja",
       "title": "Hakujitsu",
       "titleJp": "白日",
-      "subtitle": "King Gnu/Innocence Enzai Bengoushi",
+      "subtitle": "Innocence Enzai Bengoushi",
       "titleCn": "白日",
       "titleKo": "HAKUJITSU",
       "artist": "常田大希, King Gnu",
@@ -3791,7 +3865,7 @@
     {
       "path": "01 Pop/Halzion/Halzion (Cover).tja",
       "type": "blob",
-      "sha": "f62c693619de04f60d08edcdbd438f98da21bbcb",
+      "sha": "9523b2559f547ca2218980c71af6c6d8ae940b13",
       "url": "ese/01 Pop/Halzion/Halzion (Cover).tja",
       "title": "Halzion -Cover Audio/Chart-",
       "titleJp": "ハルジオン",
@@ -3800,7 +3874,7 @@
     {
       "path": "01 Pop/Halzion/Halzion.tja",
       "type": "blob",
-      "sha": "a099f240e3987b095e827b962d0e7f8462ce52c9",
+      "sha": "257e7deec56b52f2da08de252a8db94cfa1c5da3",
       "url": "ese/01 Pop/Halzion/Halzion.tja",
       "title": "Halzion",
       "titleJp": "ハルジオン",
@@ -3965,7 +4039,7 @@
     {
       "path": "01 Pop/Haru wo Tsugeru/Haru wo Tsugeru.tja",
       "type": "blob",
-      "sha": "8936ec8e42b64fa4f851ae08b52dea234c0f1a24",
+      "sha": "e5c4275c0a0da9848ea8dc6f28ca1e96246e17e8",
       "url": "ese/01 Pop/Haru wo Tsugeru/Haru wo Tsugeru.tja",
       "title": "Haru wo Tsugeru",
       "titleJp": "春を告げる",
@@ -4307,6 +4381,43 @@
       "subtitleJp": "Do As Infinity"
     },
     {
+      "path": "01 Pop/Honmayade Nandeyanen Shirankedo/Honmayade Nandeyanen Shirankedo.tja",
+      "type": "blob",
+      "sha": "5fa08e30e868cf40c77cf358650d11324b9e5c2c",
+      "url": "ese/01 Pop/Honmayade Nandeyanen Shirankedo/Honmayade Nandeyanen Shirankedo.tja",
+      "title": "Honmayade☆Nandeyanen☆Shirankedo",
+      "titleJp": "ほんまやで☆なんでやねん☆しらんけど",
+      "subtitle": "Monaki",
+      "subtitleJp": "モナキ",
+      "titleKo": "Honmayade☆Nandeyanen☆Shirankedo",
+      "artist": "モナキ, 岩崎貴文",
+      "courses": {
+        "easy": {
+          "level": 3,
+          "maxCombo": 136
+        },
+        "normal": {
+          "level": 4,
+          "maxCombo": 283
+        },
+        "hard": {
+          "level": 6,
+          "maxCombo": 409
+        },
+        "oni": {
+          "level": 8,
+          "maxCombo": 594
+        }
+      },
+      "bpm": {
+        "min": 142,
+        "max": 142
+      },
+      "platforms": [
+        "NAC"
+      ]
+    },
+    {
       "path": "01 Pop/Honoo to Mori no Carnival/Honoo to Mori no Carnival.tja",
       "type": "blob",
       "sha": "35ce6d5f948e3c1f805489edd1ab30f4b796c225",
@@ -4319,12 +4430,12 @@
     {
       "path": "01 Pop/Hoshikage no Yell/Hoshikage no Yell.tja",
       "type": "blob",
-      "sha": "b14ccc2e711a7f059d6b1f530ca3d894322dcece",
+      "sha": "44929d0ff9db2725eeb5c8bff84f69d0df4a5c2e",
       "url": "ese/01 Pop/Hoshikage no Yell/Hoshikage no Yell.tja",
       "title": "Hoshikage no Yell",
       "titleJp": "星影のエール",
-      "subtitle": "GReeeeN/Yell",
-      "subtitleJp": "「エール」より"
+      "subtitle": "Yell",
+      "subtitleJp": "連続テレビ小説「エール」主題歌"
     },
     {
       "path": "01 Pop/Huo Yuan Jia/Huo Yuan Jia.tja",
@@ -4334,16 +4445,6 @@
       "title": "Huo Yuan Jia",
       "titleJp": "霍元甲",
       "subtitle": "Jay Chou/Fearless"
-    },
-    {
-      "path": "01 Pop/Hypnosis Mic -Division Battle Anthem-/Hypnosis Mic -Division Battle Anthem-.tja",
-      "type": "blob",
-      "sha": "b79bd93d994b96732e0e8e23c8398adbf2783f49",
-      "url": "ese/01 Pop/Hypnosis Mic -Division Battle Anthem-/Hypnosis Mic -Division Battle Anthem-.tja",
-      "title": "Hypnosis Mic -Division Battle Anthem-",
-      "titleJp": "ヒプノシスマイク -Division Battle Anthem-",
-      "subtitle": "Hypnosis Mic Division All Stars",
-      "subtitleJp": "Division All Stars"
     },
     {
       "path": "01 Pop/I LOVE/I LOVE.tja",
@@ -4367,11 +4468,10 @@
     {
       "path": "01 Pop/I Want You Back/I Want You Back.tja",
       "type": "blob",
-      "sha": "dd69e36e763d79b5cffce3f86e4b509bb3fb90f9",
+      "sha": "ab42cfe9115a50a68c365a080acccf5885ffb51d",
       "url": "ese/01 Pop/I Want You Back/I Want You Back.tja",
       "title": "I Want You Back",
-      "titleJp": "I Want You Back",
-      "subtitle": "The Jackson 5"
+      "titleJp": "I Want You Back"
     },
     {
       "path": "01 Pop/I Wish For You/I Wish For You.tja",
@@ -4709,11 +4809,12 @@
     {
       "path": "01 Pop/Iiko Shinkaron/Iiko Shinkaron.tja",
       "type": "blob",
-      "sha": "4090ce45249c3aea24dafaf2bc1823340f905cd2",
+      "sha": "c0a01d7221b8963bba72a16ce6e4eca75431db6f",
       "url": "ese/01 Pop/Iiko Shinkaron/Iiko Shinkaron.tja",
-      "title": "Iiko Shinkaron",
+      "title": "Iiko Shinkaron (feat. O-LuHA)",
       "titleJp": "イイコ進化論(feat. O-LuHA)",
-      "subtitle": "ECCHAN feat. O-LuHA",
+      "subtitle": "ECCHAN",
+      "subtitleJp": "えっちゃん",
       "titleOfficial": "イイコ進化論（feat. O-LuHA）",
       "titleCn": "イイコ進化論（feat. O-LuHA）",
       "titleKo": "イイコ進化論(feat. O-LuHA)",
@@ -4795,7 +4896,7 @@
     {
       "path": "01 Pop/Ima/Ima.tja",
       "type": "blob",
-      "sha": "691ce3cca1f97105e9f4b488d042377d9a25bef3",
+      "sha": "65bf147ba814a0fa02e73fa07fda284fdfe2e13a",
       "url": "ese/01 Pop/Ima/Ima.tja",
       "title": "Ima",
       "titleJp": "今",
@@ -5302,7 +5403,7 @@
     {
       "path": "01 Pop/Kaibutsu/Kaibutsu (Cover).tja",
       "type": "blob",
-      "sha": "68b85badf54cd4e8ca08207b0613767b7cd0b86b",
+      "sha": "f52ed93865e63b4e23db9efd7a2a1959e95c4d8b",
       "url": "ese/01 Pop/Kaibutsu/Kaibutsu (Cover).tja",
       "title": "Kaibutsu -Cover Audio-",
       "titleJp": "怪物",
@@ -5417,7 +5518,7 @@
     {
       "path": "01 Pop/Kamisama no Iutoori ni/Kamisama no Iutoori ni.tja",
       "type": "blob",
-      "sha": "e7e652ccf4c30995800179123a808dab993dd090",
+      "sha": "e90bac246d960edaff1e429d8e123c760176bda2",
       "url": "ese/01 Pop/Kamisama no Iutoori ni/Kamisama no Iutoori ni.tja",
       "title": "Kamisama no Iutoori ni",
       "titleJp": "神様の言うとおりに",
@@ -5475,11 +5576,11 @@
     {
       "path": "01 Pop/Kanden/Kanden.tja",
       "type": "blob",
-      "sha": "66bec0c1169435748b49d00195fa95f498ef27dd",
+      "sha": "7fac9b186c7c8f95da14f27da1810198992fe57c",
       "url": "ese/01 Pop/Kanden/Kanden.tja",
       "title": "Kanden",
       "titleJp": "感電",
-      "subtitle": "Kenshi Yonezu/MIU404",
+      "subtitle": "Kenshi Yonezu / MIU404",
       "subtitleJp": "米津玄師 ／ TBS系金曜ドラマ「MIU404」主題歌"
     },
     {
@@ -5639,6 +5740,7 @@
       "titleJp": "汚れなきクソ野郎ども",
       "subtitle": "Kishidan",
       "subtitleJp": "氣志團",
+      "titleCn": "一帮无暇的败类",
       "titleKo": "순수한 쓰레기들",
       "artist": "氣志團, 綾小路翔",
       "courses": {
@@ -5805,7 +5907,7 @@
     {
       "path": "01 Pop/Kirari/Kirari.tja",
       "type": "blob",
-      "sha": "c4bba1e2b51b14bf3adfe46c9d95074dfe5053b0",
+      "sha": "94db111dc428137d3e97980fda71f8987e5e8b0b",
       "url": "ese/01 Pop/Kirari/Kirari.tja",
       "title": "Kirari",
       "titleJp": "きらり",
@@ -5916,6 +6018,42 @@
       "title": "Koi no Tsubomi",
       "titleJp": "恋のつぼみ",
       "subtitle": "Kumi Koda/Busu no Hitomi ni Koishiteru"
+    },
+    {
+      "path": "01 Pop/Koi no Yakusoku -2025ver.-/Koi no Yakusoku -2025ver.-.tja",
+      "type": "blob",
+      "sha": "2ba95b56a0fbb94103c49330f4049dfbbf9ac516",
+      "url": "ese/01 Pop/Koi no Yakusoku -2025ver.-/Koi no Yakusoku -2025ver.-.tja",
+      "title": "Koi no Yakusoku -2025ver.-",
+      "titleJp": "恋の約束 -2025ver.-",
+      "subtitle": "IRREGULAR DICE",
+      "subtitleJp": "いれいす",
+      "artist": "いれいす, alto",
+      "courses": {
+        "easy": {
+          "level": 3,
+          "maxCombo": 120
+        },
+        "normal": {
+          "level": 4,
+          "maxCombo": 214
+        },
+        "hard": {
+          "level": 6,
+          "maxCombo": 354
+        },
+        "oni": {
+          "level": 9,
+          "maxCombo": 639
+        }
+      },
+      "bpm": {
+        "min": 190,
+        "max": 190
+      },
+      "platforms": [
+        "NAC"
+      ]
     },
     {
       "path": "01 Pop/Koi o Shichaimashita!/Koi o Shichaimashita!.tja",
@@ -6173,11 +6311,10 @@
     {
       "path": "01 Pop/Kousui/Kousui.tja",
       "type": "blob",
-      "sha": "f76e98d8308ff421bebfe1b13fe8e158d85581ba",
+      "sha": "1afeeae2ba5ef676cb86d458489a377bc3a27a59",
       "url": "ese/01 Pop/Kousui/Kousui.tja",
       "title": "Kousui",
       "titleJp": "香水",
-      "subtitle": "Eito",
       "titleCn": "香水",
       "titleKo": "KOUSUI",
       "artist": "瑛人",
@@ -6596,11 +6733,10 @@
     {
       "path": "01 Pop/Last Christmas/Last Christmas.tja",
       "type": "blob",
-      "sha": "f9a8a7d7742629c9b269e0ef888b86fe18a7b5ee",
+      "sha": "c1662437f222acb670cf183f7d233ef1c1bcbfc0",
       "url": "ese/01 Pop/Last Christmas/Last Christmas.tja",
       "title": "Last Christmas",
-      "titleJp": "LAST CHRISTMAS",
-      "subtitle": "Wham!"
+      "titleJp": "LAST CHRISTMAS"
     },
     {
       "path": "01 Pop/Lemon/Lemon.tja",
@@ -6938,11 +7074,11 @@
     {
       "path": "01 Pop/Machigai Sagashi/Machigai Sagashi.tja",
       "type": "blob",
-      "sha": "2a50a5cd09689143fba80d010080e1b0bbc174bb",
+      "sha": "2b024c85623dd370e6600ed8add591f593372754",
       "url": "ese/01 Pop/Machigai Sagashi/Machigai Sagashi.tja",
       "title": "Machigai Sagashi",
       "titleJp": "まちがいさがし",
-      "subtitle": "Masaki Suda & Kenshi Yonezu",
+      "subtitle": "Masaki Suda",
       "subtitleJp": "菅田将暉"
     },
     {
@@ -7551,7 +7687,7 @@
     {
       "path": "01 Pop/Mute Sureba Iijan/Mute Sureba Iijan..tja",
       "type": "blob",
-      "sha": "832c51c8d416905dff65a0905569219d54c192e1",
+      "sha": "da7f0ad6bcb9d87639786ed5c3ffee38d32ba6db",
       "url": "ese/01 Pop/Mute Sureba Iijan/Mute Sureba Iijan..tja",
       "title": "Mute Sureba Iijan.",
       "titleJp": "ミュートすればいいじゃん。",
@@ -7723,6 +7859,14 @@
       "titleJp": "NO MORE CRY",
       "subtitle": "D-51/Gokusen",
       "subtitleJp": "TVドラマ「ごくせん」より"
+    },
+    {
+      "path": "01 Pop/NON STOP/NON STOP.tja",
+      "type": "blob",
+      "sha": "67f9442ae83c9652895a2f517ee9d1ce2dd8f5d4",
+      "url": "ese/01 Pop/NON STOP/NON STOP.tja",
+      "title": "NON STOP",
+      "titleJp": "NON STOP"
     },
     {
       "path": "01 Pop/NaNaNa/NaNaNa.tja",
@@ -8007,7 +8151,7 @@
     {
       "path": "01 Pop/Neko Thank You/Neko Thank You.tja",
       "type": "blob",
-      "sha": "1fa97ffcb63e2716e1644e1e4bc7583842376983",
+      "sha": "1dcc7b45a4657576017b4cc18e7abe7a6ecd3d09",
       "url": "ese/01 Pop/Neko Thank You/Neko Thank You.tja",
       "title": "Neko Thank You",
       "titleJp": "猫サンキュー",
@@ -8059,12 +8203,10 @@
     {
       "path": "01 Pop/Neko/Neko.tja",
       "type": "blob",
-      "sha": "d0aa836dd85b3a7acd94736157e47956487e5dd9",
+      "sha": "87d81a3b662f968f3b0d6995f765e68b874adaa2",
       "url": "ese/01 Pop/Neko/Neko.tja",
       "title": "Neko",
       "titleJp": "猫",
-      "subtitle": "DISH//",
-      "subtitleJp": "｢魔法使いと黒猫のウィズ｣＆｢白猫プロジェクト｣より",
       "titleCn": "猫",
       "titleKo": "고양이",
       "artist": "あいみょん, DISH//",
@@ -8262,7 +8404,7 @@
     {
       "path": "01 Pop/Niji (Aqua Timez)/Niji.tja",
       "type": "blob",
-      "sha": "d656a56a62bf4712a89e14714a99822c342dc287",
+      "sha": "96691fd5ba006a671ce962976a786a935e9a240d",
       "url": "ese/01 Pop/Niji (Aqua Timez)/Niji.tja",
       "title": "Niji",
       "titleJp": "虹",
@@ -8314,7 +8456,7 @@
     {
       "path": "01 Pop/Niji (Fischer’s)/Niji.tja",
       "type": "blob",
-      "sha": "dd221f3b7d6cc30a0be313df6c6abb0462d96f39",
+      "sha": "cda33ddc8fc0edf4c13cda953f6d048ff05c2c3f",
       "url": "ese/01 Pop/Niji (Fischer’s)/Niji.tja",
       "title": "Niji",
       "titleJp": "虹(Fischer's)",
@@ -8539,16 +8681,6 @@
       "title": "Okashi Deka no Uta",
       "titleJp": "お菓子刑事の歌",
       "subtitle": "YMCK"
-    },
-    {
-      "path": "01 Pop/Omae Butamen!/Omae Butamen!.tja",
-      "type": "blob",
-      "sha": "dad599ce2ef0e6ee262d7998d2d6cee99bb9e13f",
-      "url": "ese/01 Pop/Omae Butamen!/Omae Butamen!.tja",
-      "title": "Omae Butamen!",
-      "titleJp": "おまえブタメン！",
-      "subtitle": "Oyatsu Company & The Puh",
-      "subtitleJp": "おやつカンパニー ＆ ザ・ぷー"
     },
     {
       "path": "01 Pop/Omatsuri Ninja/Omatsuri Ninja.tja",
@@ -8917,7 +9049,7 @@
     {
       "path": "01 Pop/Peace Sign/Peace Sign.tja",
       "type": "blob",
-      "sha": "9406d867e30de6ac798df1f85134202f812da7c4",
+      "sha": "50b32092641dea79503200b319f67898218763e5",
       "url": "ese/01 Pop/Peace Sign/Peace Sign.tja",
       "title": "Peace Sign",
       "titleJp": "ピースサイン",
@@ -9092,7 +9224,7 @@
     {
       "path": "01 Pop/Pretender/Pretender.tja",
       "type": "blob",
-      "sha": "e1af1a64282fa39d8ac6d7e58035e9fd68ab65a5",
+      "sha": "80ead7b9b913f7bd9ebf16707d66fd3dd8966f14",
       "url": "ese/01 Pop/Pretender/Pretender.tja",
       "title": "Pretender",
       "titleJp": "Pretender",
@@ -9260,7 +9392,7 @@
     {
       "path": "01 Pop/RESTART/RESTART.tja",
       "type": "blob",
-      "sha": "df38ec4ff58af3a9eeaa02903a2da58c1970905e",
+      "sha": "4ee5c0f9bea7ad0f272cd28eaba308c59bff8eae",
       "url": "ese/01 Pop/RESTART/RESTART.tja",
       "title": "RESTART",
       "titleJp": "RESTART",
@@ -9651,48 +9783,34 @@
       "title": "S",
       "titleJp": "S",
       "subtitle": "SID/Sadako 3D",
-      "titleOfficial": "LIMIT BREAK DREAMERS",
-      "artist": "Special for Princess!, エス, カンナ, ユメ, ライカ, 白戸佑輔",
+      "titleOfficial": "湾岸ミッドナイト マキシマムチューン 6RR PLUS メドレー Vol.1",
+      "titleKo": "WANGAN MIDNIGHT MAXIMUN TUNE 메들리 Vol.1",
+      "artist": "SAK., 古代祐三",
       "courses": {
         "easy": {
           "level": 3,
-          "maxCombo": 107,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/LIMIT%20BREAK%20DREAMERS",
-          "urlKo": "https://taiko.wiki/song/1397?diff=easy"
+          "maxCombo": 114
         },
         "normal": {
-          "level": 3,
-          "maxCombo": 157,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/LIMIT%20BREAK%20DREAMERS",
-          "urlKo": "https://taiko.wiki/song/1397?diff=normal"
+          "level": 5,
+          "maxCombo": 215
         },
         "hard": {
-          "level": 5,
-          "maxCombo": 292,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/LIMIT%20BREAK%20DREAMERS",
-          "urlKo": "https://taiko.wiki/song/1397?diff=hard"
+          "level": 6,
+          "maxCombo": 361
         },
         "oni": {
-          "level": 7,
-          "maxCombo": 617,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/LIMIT%20BREAK%20DREAMERS",
-          "urlKo": "https://taiko.wiki/song/1397?diff=oni"
+          "level": 8,
+          "maxCombo": 594
         }
       },
       "bpm": {
-        "min": 198,
-        "max": 198
+        "min": 145,
+        "max": 170
       },
       "platforms": [
         "NAC"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 0,
-        "Oceania": 0,
-        "UnitedStates": 0,
-        "China": 0
-      }
+      ]
     },
     {
       "path": "01 Pop/SEVENTH HEAVEN/SEVENTH HEAVEN.tja",
@@ -10051,22 +10169,57 @@
     {
       "path": "01 Pop/Saraba, Itoshiki Kanashimi Tachi yo/Saraba, Itoshiki Kanashimi Tachi yo -ZZ Version-.tja",
       "type": "blob",
-      "sha": "ebf6fad1a2364ad6bafe1a3ca1bdfdf2ca68cdb6",
+      "sha": "e10917749e6add39203bacd846044dc8d2562c5a",
       "url": "ese/01 Pop/Saraba, Itoshiki Kanashimi Tachi yo/Saraba, Itoshiki Kanashimi Tachi yo -ZZ Version-.tja",
       "title": "Saraba, Itoshiki Kanashimi Tachi yo -ZZ Version-",
-      "titleJp": "サラバ、愛しき悲しみたちよ",
+      "titleJp": "サラバ、愛しき悲しみたちよ ‐ZZ ver.‐",
       "subtitle": "Momoiro Clover Z",
       "subtitleJp": "ももいろクローバーZ"
     },
     {
       "path": "01 Pop/Saraba, Itoshiki Kanashimi Tachi yo/Saraba, Itoshiki Kanashimi Tachi yo.tja",
       "type": "blob",
-      "sha": "00efcdccdfd92d412316b6541445a99d1810ddde",
+      "sha": "7bc3968e45cb699221121402f2fa9b6ca0259612",
       "url": "ese/01 Pop/Saraba, Itoshiki Kanashimi Tachi yo/Saraba, Itoshiki Kanashimi Tachi yo.tja",
       "title": "Saraba, Itoshiki Kanashimi Tachi yo",
       "titleJp": "サラバ、愛しき悲しみたちよ",
       "subtitle": "Momoiro Clover Z",
       "subtitleJp": "ももいろクローバーZ"
+    },
+    {
+      "path": "01 Pop/Saudade/Saudade.tja",
+      "type": "blob",
+      "sha": "1d25f489c657ac527591d7653b51fcabfc1a647a",
+      "url": "ese/01 Pop/Saudade/Saudade.tja",
+      "title": "Saudade",
+      "titleJp": "サウダージ",
+      "titleKo": "Saudade",
+      "artist": "ポルノグラフィティ, ak.homma",
+      "courses": {
+        "easy": {
+          "level": 2,
+          "maxCombo": 77
+        },
+        "normal": {
+          "level": 3,
+          "maxCombo": 117
+        },
+        "hard": {
+          "level": 5,
+          "maxCombo": 238
+        },
+        "oni": {
+          "level": 7,
+          "maxCombo": 334
+        }
+      },
+      "bpm": {
+        "min": 120,
+        "max": 120
+      },
+      "platforms": [
+        "NAC"
+      ]
     },
     {
       "path": "01 Pop/Savage Love/Savage Love.tja",
@@ -10634,6 +10787,42 @@
       "subtitle": "Shuchishin/Quiz! Hexagon Ⅱ"
     },
     {
+      "path": "01 Pop/Shugoi Suki!/Shugoi Suki!.tja",
+      "type": "blob",
+      "sha": "063e198c8a65014183df710ebdd196d6a10f8b82",
+      "url": "ese/01 Pop/Shugoi Suki!/Shugoi Suki!.tja",
+      "title": "Shugoi Suki!",
+      "titleJp": "守護いスキっ！",
+      "subtitle": "IRREGULAR DICE",
+      "subtitleJp": "いれいす",
+      "artist": "いれいす, 篠崎あやと, 橘亮祐",
+      "courses": {
+        "easy": {
+          "level": 3,
+          "maxCombo": 108
+        },
+        "normal": {
+          "level": 5,
+          "maxCombo": 216
+        },
+        "hard": {
+          "level": 6,
+          "maxCombo": 340
+        },
+        "oni": {
+          "level": 9,
+          "maxCombo": 504
+        }
+      },
+      "bpm": {
+        "min": 190,
+        "max": 190
+      },
+      "platforms": [
+        "NAC"
+      ]
+    },
+    {
       "path": "01 Pop/Shukumei/Shukumei.tja",
       "type": "blob",
       "sha": "1c71847d30d55bc53977fadfba19672bbd6115ba",
@@ -10864,19 +11053,27 @@
       "courses": {
         "easy": {
           "level": 2,
-          "maxCombo": 96
+          "maxCombo": 96,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/Smile%20%EF%BC%86%20Go%21%21",
+          "urlKo": "https://taiko.wiki/song/1152?diff=easy"
         },
         "normal": {
           "level": 4,
-          "maxCombo": 146
+          "maxCombo": 146,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/Smile%20%EF%BC%86%20Go%21%21",
+          "urlKo": "https://taiko.wiki/song/1152?diff=normal"
         },
         "hard": {
           "level": 4,
-          "maxCombo": 249
+          "maxCombo": 249,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/Smile%20%EF%BC%86%20Go%21%21",
+          "urlKo": "https://taiko.wiki/song/1152?diff=hard"
         },
         "oni": {
           "level": 7,
-          "maxCombo": 494
+          "maxCombo": 494,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/Smile%20%EF%BC%86%20Go%21%21",
+          "urlKo": "https://taiko.wiki/song/1152?diff=oni"
         }
       },
       "bpm": {
@@ -10885,7 +11082,14 @@
       },
       "platforms": [
         "NAC"
-      ]
+      ],
+      "region": {
+        "Japan": 1,
+        "Asia": 1,
+        "Oceania": 1,
+        "UnitedStates": 1,
+        "China": 1
+      }
     },
     {
       "path": "01 Pop/Soba ni Iru ne/Soba ni Iru ne.tja",
@@ -12308,6 +12512,41 @@
       "subtitle": "Michael Wong"
     },
     {
+      "path": "01 Pop/Tontsukatantan/Tontsukatantan.tja",
+      "type": "blob",
+      "sha": "a5d5d36e682e43f10ca74c768e60e7219f144aa3",
+      "url": "ese/01 Pop/Tontsukatantan/Tontsukatantan.tja",
+      "title": "Tontsukatantan",
+      "titleJp": "トンツカタンタン",
+      "titleKo": "Tontsukatantan",
+      "artist": "クレイジーウォウウォ!!",
+      "courses": {
+        "easy": {
+          "level": 3,
+          "maxCombo": 133
+        },
+        "normal": {
+          "level": 4,
+          "maxCombo": 220
+        },
+        "hard": {
+          "level": 5,
+          "maxCombo": 375
+        },
+        "oni": {
+          "level": 6,
+          "maxCombo": 564
+        }
+      },
+      "bpm": {
+        "min": 180,
+        "max": 180
+      },
+      "platforms": [
+        "NAC"
+      ]
+    },
+    {
       "path": "01 Pop/Tou Hao Tian Xing/Tou Hao Tian Xing.tja",
       "type": "blob",
       "sha": "cbb11104f85273d1fdd8368a41449930ddc38075",
@@ -12576,11 +12815,11 @@
     {
       "path": "01 Pop/Uma to Shika/Uma to Shika.tja",
       "type": "blob",
-      "sha": "1bacf1ef8af9f9756f53b5a8ebb08cca720509c7",
+      "sha": "5fabbba7454630e12c08cfda01291e361af35b20",
       "url": "ese/01 Pop/Uma to Shika/Uma to Shika.tja",
       "title": "Uma to Shika",
       "titleJp": "馬と鹿",
-      "subtitle": "Kenshi Yonezu/No Side Game",
+      "subtitle": "Kenshi Yonezu / No Side Game",
       "subtitleJp": "米津玄師 ／ TBS系 日曜劇場「ノーサイド・ゲーム」主題歌"
     },
     {
@@ -12863,11 +13102,10 @@
     {
       "path": "01 Pop/Walking with you/Walking with you.tja",
       "type": "blob",
-      "sha": "94769370f1741efc1d988993a5f49452d6f2103f",
+      "sha": "faddf3d6429baa7362a5d922372ce06df1555ca4",
       "url": "ese/01 Pop/Walking with you/Walking with you.tja",
       "title": "Walking with you",
       "titleJp": "Walking with you",
-      "subtitle": "Novelbright",
       "artist": "竹中雄大・勇太郎, Novelbright",
       "courses": {
         "easy": {
@@ -13181,11 +13419,10 @@
     {
       "path": "01 Pop/YES or YES/YES or YES.tja",
       "type": "blob",
-      "sha": "e43a0d2596c81d9950728de929fb7803bf6ff718",
+      "sha": "5186b2900020601cd8ab0c6330e4f45fabea67f2",
       "url": "ese/01 Pop/YES or YES/YES or YES.tja",
       "title": "YES or YES",
-      "titleJp": "YES or YES",
-      "subtitle": "TWICE"
+      "titleJp": "YES or YES"
     },
     {
       "path": "01 Pop/YIN XING DE CHI BANG/YIN XING DE CHI BANG.tja",
@@ -13461,23 +13698,21 @@
     {
       "path": "01 Pop/Yoru ni Kakeru/Yoru ni Kakeru -Cover Version-.tja",
       "type": "blob",
-      "sha": "69feb512c7bda0dd1b78a984e7543625f298ff77",
+      "sha": "ed7e13e5d503d10a285e81e63373708a2b5fbac8",
       "url": "ese/01 Pop/Yoru ni Kakeru/Yoru ni Kakeru -Cover Version-.tja",
-      "title": "Yoru ni Kakeru -Cover Version-",
-      "titleJp": "夜に駆ける -Cover Version-",
-      "subtitle": "YOASOBI",
-      "subtitleJp": "YOASOBI"
+      "title": "Yoru ni Kakeru -Cover Audio-",
+      "titleJp": "夜に駆ける",
+      "subtitleJp": "カバー音源"
     },
     {
       "path": "01 Pop/Yoru ni Kakeru/Yoru ni Kakeru -Original Version-.tja",
       "type": "blob",
-      "sha": "cce50410f641d68303a1e0a3e24732284fc1dc60",
+      "sha": "188cd90b623806ca739c1ad404ffd515a29b6735",
       "url": "ese/01 Pop/Yoru ni Kakeru/Yoru ni Kakeru -Original Version-.tja",
-      "title": "Yoru ni Kakeru -Original Version-",
-      "titleJp": "夜に駆ける -Original Version-",
+      "title": "Yoru ni Kakeru",
+      "titleJp": "夜に駆ける",
       "subtitle": "YOASOBI",
       "subtitleJp": "YOASOBI",
-      "titleOfficial": "夜に駆ける",
       "titleCn": "向夜晚奔去",
       "titleKo": "Yoru ni kakeru",
       "artist": "Ayase, YOASOBI",
@@ -13679,7 +13914,7 @@
     {
       "path": "01 Pop/Zassou/Zassou.tja",
       "type": "blob",
-      "sha": "7ac4c9014392454c23297ffc0846481c56a9f5dc",
+      "sha": "e5b4e5a016307b9492badbf075cbce65cb0b7511",
       "url": "ese/01 Pop/Zassou/Zassou.tja",
       "title": "Zassou",
       "titleJp": "雑草",
@@ -14060,11 +14295,12 @@
     {
       "path": "02 Anime/1・2・3/1 2 3.tja",
       "type": "blob",
-      "sha": "183eaad510e8c9e6c8f1ff5945cd81305c209df2",
+      "sha": "f7057ace1b61cdffa7efa0b0d29ae789e84c1007",
       "url": "ese/02 Anime/1・2・3/1 2 3.tja",
       "title": "1・2・3",
-      "subtitle": "After the Rain/Pokémon Journeys： The Series",
-      "titleOfficial": "１・２・３",
+      "titleJp": "１・２・３",
+      "subtitle": "After the Rain / Pokémon Journeys： The Series",
+      "subtitleJp": "After the Rain（そらる×まふまふ） 「ポケットモンスター」より",
       "titleCn": "１・２・３",
       "titleKo": "1·2·3",
       "artist": "まふまふ, サトシ&ゴウ(CV:松本梨香・山下大輝)",
@@ -14274,16 +14510,6 @@
       }
     },
     {
-      "path": "02 Anime/ALMIGHTY ～Kamen no Yakusoku～/ALMIGHTY Kamen no Yakusoku.tja",
-      "type": "blob",
-      "sha": "946aba35940410504d68e71a8da8442244a0739b",
-      "url": "ese/02 Anime/ALMIGHTY ～Kamen no Yakusoku～/ALMIGHTY Kamen no Yakusoku.tja",
-      "title": "ALMIGHTY ～Kamen no Yakusoku～",
-      "titleJp": "ALMIGHTY～仮面の約束",
-      "subtitle": "TOKYO SKA PARADISE ORCHESTRA/Kamen Rider Saber",
-      "subtitleJp": "feat.川上洋平"
-    },
-    {
       "path": "02 Anime/ALONES/ALONES.tja",
       "type": "blob",
       "sha": "f4003ea36d0894ec7947b8284f6ff68b71907fcb",
@@ -14389,11 +14615,11 @@
     {
       "path": "02 Anime/Ai ni Dekiru-koto wa Mada Aru Kai/Ai ni Dekiru-koto wa Mada Aru Kai.tja",
       "type": "blob",
-      "sha": "f9fe2bb959684a1095457b0527058b4f77912925",
+      "sha": "8911b6f5e8fe78b898ca2e4eb3335d1eb84525dd",
       "url": "ese/02 Anime/Ai ni Dekiru-koto wa Mada Aru Kai/Ai ni Dekiru-koto wa Mada Aru Kai.tja",
       "title": "Ai ni Dekiru-koto wa Mada Aru Kai",
       "titleJp": "愛にできることはまだあるかい",
-      "subtitle": "RADWIMPS/Weathering with You",
+      "subtitle": "Weathering with You",
       "subtitleJp": "「天気の子」より",
       "titleKo": "Is There Still Anything That Love Can Do?",
       "artist": "野田洋次郎, RADWIMPS",
@@ -14806,11 +15032,11 @@
     {
       "path": "02 Anime/BLUE SAPPHIRE/BLUE SAPPHIRE.tja",
       "type": "blob",
-      "sha": "b1d9cb28e5e8eb6a3a14263f9149b2e78db51874",
+      "sha": "f3b0f92c3de2010aeb47a5c69bf9d874d7a97009",
       "url": "ese/02 Anime/BLUE SAPPHIRE/BLUE SAPPHIRE.tja",
       "title": "BLUE SAPPHIRE",
       "titleJp": "BLUE SAPPHIRE",
-      "subtitle": "Hiroomi Tosaka/Detective Conan： The Fist of Blue Sapphire",
+      "subtitle": "Detective Conan： The Fist of Blue Sapphire",
       "subtitleJp": "「名探偵コナン 紺青の拳」より"
     },
     {
@@ -15287,11 +15513,11 @@
     {
       "path": "02 Anime/Checkmate!/Checkmate!.tja",
       "type": "blob",
-      "sha": "4bb2cfcf1e2f3dc80d20938efdc858e42f48364f",
+      "sha": "905ad17320048ce7132c64886ca1ef657244621e",
       "url": "ese/02 Anime/Checkmate!/Checkmate!.tja",
-      "title": "Checkmate⁉",
-      "titleJp": "Checkmate⁉",
-      "subtitle": "MICHI/Dagashi Kashi",
+      "title": "Checkmate!?",
+      "titleJp": "Checkmate!?",
+      "subtitle": "Dagashi Kashi",
       "subtitleJp": "「だがしかし」より"
     },
     {
@@ -15368,19 +15594,9 @@
       "subtitleJp": "「ドラゴンボール超」より"
     },
     {
-      "path": "02 Anime/Chuwapane!/Chuwapane!.tja",
-      "type": "blob",
-      "sha": "6ef1d4da3219916adc8b1668ce4f14261a862287",
-      "url": "ese/02 Anime/Chuwapane!/Chuwapane!.tja",
-      "title": "Chuwapane!",
-      "titleJp": "チュワパネ！",
-      "subtitle": "Girls²/Secret × Heroine Phantomirage!",
-      "subtitleJp": "「ひみつ×戦士 ファントミラージュ！」より"
-    },
-    {
       "path": "02 Anime/Circle of Seasons/Circle of Seasons.tja",
       "type": "blob",
-      "sha": "3377f321b028fc02529e91f7b796b5fbfa97f8f6",
+      "sha": "a4e436713e596cd307bc1ae36516f476d6d08181",
       "url": "ese/02 Anime/Circle of Seasons/Circle of Seasons.tja",
       "title": "Circle of Seasons",
       "titleJp": "Circle of Seasons",
@@ -15745,12 +15961,11 @@
     {
       "path": "02 Anime/Detective Conan Main Theme/Detective Conan Main Theme.tja",
       "type": "blob",
-      "sha": "8de14a20a322032b2996b84f4bc36d52e7e40e50",
+      "sha": "b32f9556f5bd6fdc83034807ca05a8892c702880",
       "url": "ese/02 Anime/Detective Conan Main Theme/Detective Conan Main Theme.tja",
       "title": "Detective Conan Main Theme",
       "titleJp": "名探偵コナン　メイン・テーマ",
       "subtitle": "Katsuo Oono/Detective Conan",
-      "subtitleJp": "アニメ映画「名探偵コナン」",
       "titleOfficial": "名探偵コナン メイン・テーマ",
       "titleCn": "名侦探柯南 主题音乐",
       "titleKo": "명탐정 코난・테마 곡",
@@ -15816,7 +16031,7 @@
     {
       "path": "02 Anime/DiSCOVER THE FUTURE/DiSCOVER THE FUTURE.tja",
       "type": "blob",
-      "sha": "3afafaab9eacf55f5790704c22f7dde702e67e5f",
+      "sha": "7c1bd61cfeb220568f0e6dea9d506968f9a93968",
       "url": "ese/02 Anime/DiSCOVER THE FUTURE/DiSCOVER THE FUTURE.tja",
       "title": "DiSCOVER THE FUTURE",
       "titleJp": "DiSCOVER THE FUTURE",
@@ -16383,7 +16598,7 @@
     {
       "path": "02 Anime/GO!!!/GO!!! -New Audio-.tja",
       "type": "blob",
-      "sha": "39abaa1e7f5209e5c8a3e23783d80cd1c97ec726",
+      "sha": "eb9b5d654c6359941b94fddfc862f3698b555c9d",
       "url": "ese/02 Anime/GO!!!/GO!!! -New Audio-.tja",
       "title": "GO‽ -New Audio-",
       "titleJp": "GO!!! -New Audio-",
@@ -16506,15 +16721,6 @@
         "UnitedStates": 1,
         "China": 1
       }
-    },
-    {
-      "path": "02 Anime/Gakuen Tengoku/Gakuen Tengoku.tja",
-      "type": "blob",
-      "sha": "cdb5d9cf3421f02b76e92fb0149681b58083a5bc",
-      "url": "ese/02 Anime/Gakuen Tengoku/Gakuen Tengoku.tja",
-      "title": "Gakuen Tengoku",
-      "titleJp": "学園天国",
-      "subtitle": "Kyoko Koizumi/Fushigiboshi no Futagohime Gyu!"
     },
     {
       "path": "02 Anime/Gatchaman no Uta/Gatchaman no Uta.tja",
@@ -16774,58 +16980,6 @@
       "subtitleJp": "「ポケットモンスター XY」より"
     },
     {
-      "path": "02 Anime/Gingira Ginga/Gingira Ginga.tja",
-      "type": "blob",
-      "sha": "9cc99ebd575efdcc41e564ceae319abdf71c7769",
-      "url": "ese/02 Anime/Gingira Ginga/Gingira Ginga.tja",
-      "title": "Gingira Ginga",
-      "titleJp": "ギンギラ銀河",
-      "subtitle": "Strawberry Prince & NayutalieN/Yo-kai Watch Jam",
-      "subtitleJp": "「妖怪学園Y 〜Nとの遭遇〜」より",
-      "titleCn": "闪亮亮银河",
-      "artist": "ナユタン星人, すとぷり",
-      "courses": {
-        "easy": {
-          "level": 2,
-          "maxCombo": 87,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/%E3%82%AE%E3%83%B3%E3%82%AE%E3%83%A9%E9%8A%80%E6%B2%B3",
-          "urlKo": "https://taiko.wiki/song/913?diff=easy"
-        },
-        "normal": {
-          "level": 3,
-          "maxCombo": 132,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/%E3%82%AE%E3%83%B3%E3%82%AE%E3%83%A9%E9%8A%80%E6%B2%B3",
-          "urlKo": "https://taiko.wiki/song/913?diff=normal"
-        },
-        "hard": {
-          "level": 4,
-          "maxCombo": 264,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/%E3%82%AE%E3%83%B3%E3%82%AE%E3%83%A9%E9%8A%80%E6%B2%B3",
-          "urlKo": "https://taiko.wiki/song/913?diff=hard"
-        },
-        "oni": {
-          "level": 6,
-          "maxCombo": 363,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/%E3%82%AE%E3%83%B3%E3%82%AE%E3%83%A9%E9%8A%80%E6%B2%B3",
-          "urlKo": "https://taiko.wiki/song/913?diff=oni"
-        }
-      },
-      "bpm": {
-        "min": 155,
-        "max": 155
-      },
-      "platforms": [
-        "NAC"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      }
-    },
-    {
       "path": "02 Anime/Giniro no Sora/Giniro no Sora.tja",
       "type": "blob",
       "sha": "5ed079af382a330ca4b2af8bcd3d92e4e7cb8344",
@@ -16857,13 +17011,12 @@
     {
       "path": "02 Anime/God knows/God knows....tja",
       "type": "blob",
-      "sha": "500ca05329872a5c20b3698c4ce0484ee216d09b",
+      "sha": "b8168274432cc6a6c308abba224d51bffc8568d2",
       "url": "ese/02 Anime/God knows/God knows....tja",
       "title": "God knows...",
-      "titleJp": "God knows…",
+      "titleJp": "God knows...",
       "subtitle": "Satoru Kousaki feat. Aya Hirano/The Melancholy of Haruhi Suzumiya",
       "subtitleJp": "「涼宮ハルヒの憂鬱」より",
-      "titleOfficial": "God knows...",
       "titleCn": "God knows...",
       "artist": "神前暁, 涼宮ハルヒ",
       "courses": {
@@ -16920,11 +17073,11 @@
     {
       "path": "02 Anime/Gomakashi/Gomakashi.tja",
       "type": "blob",
-      "sha": "fb2ea2a25878b0c0a0882c2d2fc28e7382c11c6f",
+      "sha": "c01858640904de1a6d9ea4dfe11e10625024908e",
       "url": "ese/02 Anime/Gomakashi/Gomakashi.tja",
       "title": "Gomakashi",
       "titleJp": "ごまかし",
-      "subtitle": "TrySail/Magia Record： Mahou Shoujo Madoka☆Magica Gaiden",
+      "subtitle": "Magia Record： Mahou Shoujo Madoka☆Magica Gaiden",
       "subtitleJp": "「マギアレコード 魔法少女まどか☆マギカ外伝」より"
     },
     {
@@ -16950,11 +17103,11 @@
     {
       "path": "02 Anime/Grand Escape/Grand Escape.tja",
       "type": "blob",
-      "sha": "d60397c065f0e0bda3e658485afb9d70bc8a3a44",
+      "sha": "d65b661484ce7ac2caa530145a5b00bb11ba0a55",
       "url": "ese/02 Anime/Grand Escape/Grand Escape.tja",
       "title": "Grand Escape",
       "titleJp": "グランドエスケープ",
-      "subtitle": "RADWIMPS/Weathering with You",
+      "subtitle": "Weathering with You",
       "subtitleJp": "「天気の子」より"
     },
     {
@@ -17135,11 +17288,11 @@
     {
       "path": "02 Anime/Gurenge/Gurenge.tja",
       "type": "blob",
-      "sha": "264665a77bb99525761633be1f2e72c6cca7128d",
+      "sha": "f00304dd06fb44c0cddf58a28dd9ef0ec22885ff",
       "url": "ese/02 Anime/Gurenge/Gurenge.tja",
       "title": "Gurenge",
       "titleJp": "紅蓮華",
-      "subtitle": "LiSA/Kimetsu no Yaiba",
+      "subtitle": "Kimetsu no Yaiba",
       "subtitleJp": "「鬼滅の刃」より",
       "titleCn": "红莲华",
       "titleKo": "Gurenge",
@@ -17700,12 +17853,10 @@
     {
       "path": "02 Anime/Homura/Homura.tja",
       "type": "blob",
-      "sha": "44be5b180c6b3644d6f904c46fceedae918536c2",
+      "sha": "fbe1429b631a1e4e795a2fed4b4d218dff8bd076",
       "url": "ese/02 Anime/Homura/Homura.tja",
       "title": "Homura",
       "titleJp": "炎",
-      "subtitle": "LiSA/Kimetsu no Yaiba： Mugen Ressha",
-      "subtitleJp": "「鬼滅の刃」より",
       "titleCn": "炎",
       "titleKo": "HOMURA",
       "artist": "LiSA",
@@ -17794,11 +17945,11 @@
     {
       "path": "02 Anime/Howling/Howling.tja",
       "type": "blob",
-      "sha": "1bcb26c6755723678fd744e8b39905f55b052bbe",
+      "sha": "e664f7730dae750a8b882da2d36c9c3ba7160cc2",
       "url": "ese/02 Anime/Howling/Howling.tja",
       "title": "Howling",
       "titleJp": "Howling",
-      "subtitle": "FLOW × GRANRODEO/The Seven Deadly Sins",
+      "subtitle": "The Seven Deadly Sins",
       "subtitleJp": "「七つの大罪 戒めの復活」より"
     },
     {
@@ -17847,6 +17998,7 @@
       "titleJp": "IRIS OUT",
       "subtitle": "Kenshi Yonezu / \"Chainsaw Man The Movie: Reze Arc\" Theme Song",
       "subtitleJp": "米津玄師 / 劇場版『チェンソーマン レゼ篇』主題歌",
+      "titleCn": "IRIS OUT",
       "artist": "米津玄師",
       "courses": {
         "easy": {
@@ -18039,11 +18191,11 @@
     {
       "path": "02 Anime/Into the Unknown/Into the Unknown.tja",
       "type": "blob",
-      "sha": "662baec318b22d3af8b132bba95e8d20f15c140f",
+      "sha": "ca0d989ce40a42a898560c68a985ef1332fc3bc3",
       "url": "ese/02 Anime/Into the Unknown/Into the Unknown.tja",
       "title": "Into the Unknown",
       "titleJp": "Into the Unknown",
-      "subtitle": "Panic! At The Disco/Frozen Ⅱ",
+      "subtitle": "Frozen Ⅱ",
       "subtitleJp": "「アナと雪の女王2」より"
     },
     {
@@ -18152,7 +18304,7 @@
     {
       "path": "02 Anime/Jinsei no Merry-go-round/Jinsei no Merry-go-round.tja",
       "type": "blob",
-      "sha": "be243ef7e992d00ee405e4af90f263d93e468879",
+      "sha": "2f794a73529a02a06ea183527fb232c3e8639163",
       "url": "ese/02 Anime/Jinsei no Merry-go-round/Jinsei no Merry-go-round.tja",
       "title": "Jinsei no Merry-go-round",
       "titleJp": "人生のメリーゴーランド",
@@ -18239,59 +18391,6 @@
       "subtitleJp": "「アイカツ！」より"
     },
     {
-      "path": "02 Anime/Ka! Ka! Ka! Kamizmode!/Ka! Ka! Ka! Kamizmode!.tja",
-      "type": "blob",
-      "sha": "75eefafcb1538a670e552fdeb6c7cbc9f779f09d",
-      "url": "ese/02 Anime/Ka! Ka! Ka! Kamizmode!/Ka! Ka! Ka! Kamizmode!.tja",
-      "title": "Ka! Ka! Ka! Kamizmode!",
-      "titleJp": "カ！カ！カ！カミズモード！",
-      "subtitle": "DJ KAMMY & Beat-tai/Saikyou Kamizmode!",
-      "subtitleJp": "「最響カミズモード！」より",
-      "titleCn": "KA! KA! KA! KAMIZMODE!",
-      "titleKo": "KA! KA! KA! KAMIZMODE!",
-      "artist": "DJ KAMMY, 株元英彰・堀越せな with DJ KAMMYと神音隊",
-      "courses": {
-        "easy": {
-          "level": 2,
-          "maxCombo": 88,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/%E3%82%AB%EF%BC%81%E3%82%AB%EF%BC%81%E3%82%AB%EF%BC%81%E3%82%AB%E3%83%9F%E3%82%BA%E3%83%A2%E3%83%BC%E3%83%89%EF%BC%81",
-          "urlKo": "https://taiko.wiki/song/984?diff=easy"
-        },
-        "normal": {
-          "level": 2,
-          "maxCombo": 126,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/%E3%82%AB%EF%BC%81%E3%82%AB%EF%BC%81%E3%82%AB%EF%BC%81%E3%82%AB%E3%83%9F%E3%82%BA%E3%83%A2%E3%83%BC%E3%83%89%EF%BC%81",
-          "urlKo": "https://taiko.wiki/song/984?diff=normal"
-        },
-        "hard": {
-          "level": 3,
-          "maxCombo": 261,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/%E3%82%AB%EF%BC%81%E3%82%AB%EF%BC%81%E3%82%AB%EF%BC%81%E3%82%AB%E3%83%9F%E3%82%BA%E3%83%A2%E3%83%BC%E3%83%89%EF%BC%81",
-          "urlKo": "https://taiko.wiki/song/984?diff=hard"
-        },
-        "oni": {
-          "level": 7,
-          "maxCombo": 446,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/%E3%82%AB%EF%BC%81%E3%82%AB%EF%BC%81%E3%82%AB%EF%BC%81%E3%82%AB%E3%83%9F%E3%82%BA%E3%83%A2%E3%83%BC%E3%83%89%EF%BC%81",
-          "urlKo": "https://taiko.wiki/song/984?diff=oni"
-        }
-      },
-      "bpm": {
-        "min": 155,
-        "max": 170
-      },
-      "platforms": [
-        "NAC"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      }
-    },
-    {
       "path": "02 Anime/Kagayaki/Kagayaki.tja",
       "type": "blob",
       "sha": "ce7f3b4e260e3482760b5a4515e1f973bc984de5",
@@ -18314,7 +18413,7 @@
     {
       "path": "02 Anime/Kaikai Kitan/Kaikai Kitan (Cover).tja",
       "type": "blob",
-      "sha": "2cbd849139b01e3d22a8bbbe0f05918abe8a12e6",
+      "sha": "6c7a5be72d35463e42bc5f13e0f73cdd9519f70a",
       "url": "ese/02 Anime/Kaikai Kitan/Kaikai Kitan (Cover).tja",
       "title": "Kaikai Kitan -Cover Audio-",
       "titleJp": "廻廻奇譚",
@@ -18501,7 +18600,7 @@
     {
       "path": "02 Anime/Kaze no Toori Michi/Kaze no Toori Michi.tja",
       "type": "blob",
-      "sha": "5c375e83ef203a67ce28dab8c0aec499ed532b60",
+      "sha": "1de6f5737f2e8475da7065b36932be270981bb49",
       "url": "ese/02 Anime/Kaze no Toori Michi/Kaze no Toori Michi.tja",
       "title": "Kaze no Toori Michi",
       "titleJp": "風のとおり道",
@@ -18521,11 +18620,11 @@
     {
       "path": "02 Anime/Kazetachi no Koe/Kazetachi no Koe.tja",
       "type": "blob",
-      "sha": "a8c0c14414ea1ce4fd640ba4b07530163f9074a8",
+      "sha": "d997cbc379ca9b0541bcb3a882982c0df05898e8",
       "url": "ese/02 Anime/Kazetachi no Koe/Kazetachi no Koe.tja",
       "title": "Kazetachi no Koe",
       "titleJp": "風たちの声",
-      "subtitle": "RADWIMPS/Weathering with You",
+      "subtitle": "Weathering with You",
       "subtitleJp": "「天気の子」より"
     },
     {
@@ -18910,6 +19009,16 @@
       "subtitleJp": "「アルスラーン戦記」より"
     },
     {
+      "path": "02 Anime/Last Dance Anata to/Last Dance Anata to.tja",
+      "type": "blob",
+      "sha": "98d4dddf4fe37aad78d831b0a1c298f243f5914c",
+      "url": "ese/02 Anime/Last Dance Anata to/Last Dance Anata to.tja",
+      "title": "Last Dance Anata to",
+      "titleJp": "ラストダンスあなたと",
+      "subtitle": "Detective Conan: Fallen Angel of the Highway",
+      "subtitleJp": "劇場版「名探偵コナン ハイウェイの堕天使」より"
+    },
+    {
       "path": "02 Anime/La♪La♪La♪ Suite Pretty Cure♪/La La La Suite Pretty Cure.tja",
       "type": "blob",
       "sha": "318f7b2c696391be3edaac0cb78b9d3eae4ed37d",
@@ -19027,7 +19136,7 @@
     {
       "path": "02 Anime/Let’s! Fresh Pretty Cure!/Lets! Fresh Pretty Cure!.tja",
       "type": "blob",
-      "sha": "dd70dc2c26ed940c56f2201b1a9b8fed00979dd4",
+      "sha": "90fd3f01077db51d24bf82a4416fef50ae582bbe",
       "url": "ese/02 Anime/Let’s! Fresh Pretty Cure!/Lets! Fresh Pretty Cure!.tja",
       "title": "Let’s! Fresh Pretty Cure!",
       "titleJp": "Let's!フレッシュプリキュア！",
@@ -19254,15 +19363,6 @@
       "subtitleJp": "TVアニメ『ウマ娘 プリティーダービー』OP主題歌より"
     },
     {
-      "path": "02 Anime/Mashin Sentai Kiramager/Mashin Sentai Kiramager.tja",
-      "type": "blob",
-      "sha": "14716819ec12a6c7799da7ece5f2da5af7a34671",
-      "url": "ese/02 Anime/Mashin Sentai Kiramager/Mashin Sentai Kiramager.tja",
-      "title": "Mashin Sentai Kiramager",
-      "titleJp": "魔進戦隊キラメイジャー",
-      "subtitle": "Yohei Onishi/Mashin Sentai Kiramager"
-    },
-    {
       "path": "02 Anime/Matsuribayashi de Geragerapo/Matsuribayashi de Geragerapo.tja",
       "type": "blob",
       "sha": "50353d0d7af4e635e492633958639dc8bcf8b283",
@@ -19349,33 +19449,23 @@
       "courses": {
         "easy": {
           "level": 2,
-          "maxCombo": 52,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/%E3%82%81%E3%81%96%E3%81%9B%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%83%9E%E3%82%B9%E3%82%BF%E3%83%BC%20-20th%20Anniversary-",
-          "urlKo": "https://taiko.wiki/song/256?diff=easy"
+          "maxCombo": 52
         },
         "normal": {
           "level": 4,
-          "maxCombo": 119,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/%E3%82%81%E3%81%96%E3%81%9B%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%83%9E%E3%82%B9%E3%82%BF%E3%83%BC%20-20th%20Anniversary-",
-          "urlKo": "https://taiko.wiki/song/256?diff=normal"
+          "maxCombo": 119
         },
         "hard": {
           "level": 6,
-          "maxCombo": 193,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/%E3%82%81%E3%81%96%E3%81%9B%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%83%9E%E3%82%B9%E3%82%BF%E3%83%BC%20-20th%20Anniversary-",
-          "urlKo": "https://taiko.wiki/song/256?diff=hard"
+          "maxCombo": 193
         },
         "oni": {
           "level": 8,
-          "maxCombo": 302,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/%E3%82%81%E3%81%96%E3%81%9B%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%83%9E%E3%82%B9%E3%82%BF%E3%83%BC%20-20th%20Anniversary-",
-          "urlKo": "https://taiko.wiki/song/256?diff=oni"
+          "maxCombo": 302
         },
         "ura": {
           "level": 8,
-          "maxCombo": 416,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/%E3%82%81%E3%81%96%E3%81%9B%E3%83%9D%E3%82%B1%E3%83%A2%E3%83%B3%E3%83%9E%E3%82%B9%E3%82%BF%E3%83%BC%20-20th%20Anniversary-%28%E8%A3%8F%E8%AD%9C%E9%9D%A2%29",
-          "urlKo": "https://taiko.wiki/song/256?diff=ura"
+          "maxCombo": 416
         }
       },
       "bpm": {
@@ -19388,14 +19478,7 @@
         "NS1",
         "PTB",
         "RC"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      }
+      ]
     },
     {
       "path": "02 Anime/Midnight Dekaranger/Midnight Dekaranger.tja",
@@ -19681,6 +19764,7 @@
       "titleJp": "無敵的ハピネス！(SOS団5人Ver.)",
       "subtitle": "The Haruhi Suzumiya Series",
       "subtitleJp": "The Haruhi Suzumiya Series",
+      "titleCn": "无敌的HAPPINESS!(SOS团5人Ver.)",
       "titleKo": "MUTEKI TEKI HAPPINESS!(SOS단 5인 Ver.)",
       "artist": "涼宮ハルヒ, 長門有希, 朝比奈みくる, キョン, 古泉一樹, 田代智一",
       "courses": {
@@ -19754,23 +19838,19 @@
       "courses": {
         "easy": {
           "level": 3,
-          "maxCombo": 88,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/My%20Soul%2CYour%20Beats%21"
+          "maxCombo": 88
         },
         "normal": {
           "level": 4,
-          "maxCombo": 122,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/My%20Soul%2CYour%20Beats%21"
+          "maxCombo": 122
         },
         "hard": {
           "level": 7,
-          "maxCombo": 237,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/My%20Soul%2CYour%20Beats%21"
+          "maxCombo": 237
         },
         "oni": {
           "level": 8,
-          "maxCombo": 444,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/My%20Soul%2CYour%20Beats%21"
+          "maxCombo": 444
         }
       },
       "bpm": {
@@ -19784,14 +19864,7 @@
         "PSPDX",
         "PLUS",
         "RC"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      }
+      ]
     },
     {
       "path": "02 Anime/NATSU☆Shiyouze!/NATSU Shiyouze!.tja",
@@ -20058,11 +20131,11 @@
     {
       "path": "02 Anime/OVER THE TOP/OVER THE TOP.tja",
       "type": "blob",
-      "sha": "1591dffe64217d3f2762f25029de37c9686cae3e",
+      "sha": "8bcaa198eb3eb59abe7f2e8be05f817e819076e2",
       "url": "ese/02 Anime/OVER THE TOP/OVER THE TOP.tja",
       "title": "OVER THE TOP",
       "titleJp": "OVER THE TOP",
-      "subtitle": "Hiroshi Kitadani/ONE PIECE",
+      "subtitle": "One Piece / LAND OF WANO, Theme Song",
       "subtitleJp": "ONE PIECEワノ国編主題歌"
     },
     {
@@ -20544,11 +20617,11 @@
     {
       "path": "02 Anime/PHOENIX/PHOENIX.tja",
       "type": "blob",
-      "sha": "b2bf30170e9be1dafcd3e803960d12a3553a4c30",
+      "sha": "2da13e0f1a3b66c49fc7d47c77325e62c2fcfe24",
       "url": "ese/02 Anime/PHOENIX/PHOENIX.tja",
       "title": "PHOENIX",
       "titleJp": "PHOENIX",
-      "subtitle": "BURNOUT SYNDROMES/Haikyuu‼ TO THE TOP",
+      "subtitle": "Haikyuu‼ TO THE TOP",
       "subtitleJp": "「ハイキュー!! TO THE TOP」より"
     },
     {
@@ -20692,7 +20765,33 @@
       "title": "Puputto Fumutto Kaiketsu Dance",
       "titleJp": "ププッとフムッとかいけつダンス",
       "subtitle": "Daiki Ise/Butt Detective",
-      "subtitleJp": "「おしりたんてい」より"
+      "subtitleJp": "「おしりたんてい」より",
+      "artist": "伊勢大貴, 小杉保夫",
+      "courses": {
+        "easy": {
+          "level": 1,
+          "maxCombo": 57
+        },
+        "normal": {
+          "level": 1,
+          "maxCombo": 105
+        },
+        "hard": {
+          "level": 3,
+          "maxCombo": 223
+        },
+        "oni": {
+          "level": 4,
+          "maxCombo": 382
+        }
+      },
+      "bpm": {
+        "min": 72,
+        "max": 165
+      },
+      "platforms": [
+        "NAC"
+      ]
     },
     {
       "path": "02 Anime/Purigorota March/Purigorota March.tja",
@@ -20893,27 +20992,19 @@
       "courses": {
         "easy": {
           "level": 2,
-          "maxCombo": 81,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/%E9%9B%B6%20-ZERO-",
-          "urlKo": "https://taiko.wiki/song/725?diff=easy"
+          "maxCombo": 81
         },
         "normal": {
           "level": 3,
-          "maxCombo": 128,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/%E9%9B%B6%20-ZERO-",
-          "urlKo": "https://taiko.wiki/song/725?diff=normal"
+          "maxCombo": 128
         },
         "hard": {
           "level": 5,
-          "maxCombo": 236,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/%E9%9B%B6%20-ZERO-",
-          "urlKo": "https://taiko.wiki/song/725?diff=hard"
+          "maxCombo": 236
         },
         "oni": {
           "level": 7,
-          "maxCombo": 498,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/%E9%9B%B6%20-ZERO-",
-          "urlKo": "https://taiko.wiki/song/725?diff=oni"
+          "maxCombo": 498
         }
       },
       "bpm": {
@@ -20922,14 +21013,7 @@
       },
       "platforms": [
         "NAC"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      }
+      ]
     },
     {
       "path": "02 Anime/Renancer Serenade/Renacer Serenade.tja",
@@ -21191,7 +21275,7 @@
     {
       "path": "02 Anime/Sacrifice/Sacrifice.tja",
       "type": "blob",
-      "sha": "4bdc8b29b79239918ccac7db6ac550ad5d18b008",
+      "sha": "605d2893a9d9ef40e92c82d4dcfab8a3b8a1b657",
       "url": "ese/02 Anime/Sacrifice/Sacrifice.tja",
       "title": "Sacrifice",
       "titleJp": "サクリファイス",
@@ -21587,11 +21671,11 @@
     {
       "path": "02 Anime/Shinkalion/Shinkalion.tja",
       "type": "blob",
-      "sha": "d4c51ab130e83f52ab6c46209d81091ddd649c80",
+      "sha": "40d78b4913416b33215f51541b219979868cc2b7",
       "url": "ese/02 Anime/Shinkalion/Shinkalion.tja",
       "title": "Shinkalion",
       "titleJp": "進化理論",
-      "subtitle": "BOYS AND MEN/Shinkansen Henkei Robo Shinkalion",
+      "subtitle": "Shinkansen Henkei Robo Shinkalion",
       "subtitleJp": "テレビアニメ「新幹線変形ロボ シンカリオン」より"
     },
     {
@@ -21736,47 +21820,6 @@
       "titleJp": "スキップ　ステップ　アイランド",
       "subtitle": "Nobuhiko Kashiwara feat. Omi Minami/Shima Shima Tora no Shimajiro",
       "subtitleJp": "「しましまとらのしまじろう」より"
-    },
-    {
-      "path": "02 Anime/Smile! Smile! Smile!/Smile! Smile! Smile!.tja",
-      "type": "blob",
-      "sha": "b105b7041f369420a2898ff8096ff2e9e8dd548b",
-      "url": "ese/02 Anime/Smile! Smile! Smile!/Smile! Smile! Smile!.tja",
-      "title": "Smile! Smile! Smile!",
-      "titleJp": "Smile! Smile! Smile!",
-      "subtitle": "Yuka Ozaki/Shounen Ashibe GO! GO! Goma-chan",
-      "subtitleJp": "「少年アシベ GO!GO!ゴマちゃん」より",
-      "titleOfficial": "Smile！ Smile！ Smile！",
-      "artist": "北川勝利(ROUND TABLE), 尾崎由香",
-      "courses": {
-        "easy": {
-          "level": 2,
-          "maxCombo": 41
-        },
-        "normal": {
-          "level": 2,
-          "maxCombo": 57
-        },
-        "hard": {
-          "level": 4,
-          "maxCombo": 115
-        },
-        "oni": {
-          "level": 5,
-          "maxCombo": 165
-        },
-        "ura": {
-          "level": 9,
-          "maxCombo": 298
-        }
-      },
-      "bpm": {
-        "min": 280,
-        "max": 280
-      },
-      "platforms": [
-        "NAC"
-      ]
     },
     {
       "path": "02 Anime/Snow halation/Snow halation.tja",
@@ -22073,6 +22116,7 @@
       "titleJp": "THE REVO",
       "subtitle": "My Hero Academia FINAL SEASON",
       "subtitleJp": "「僕のヒーローアカデミア FINAL SEASON」より",
+      "titleCn": "THE REVO",
       "artist": "ポルノグラフィティ, 岡野昭仁",
       "courses": {
         "easy": {
@@ -23278,6 +23322,47 @@
       "subtitleJp": "「銀魂」より"
     },
     {
+      "path": "02 Anime/World is Mine CPK! Remix (Kaguya & Lunami Yachiyo ver.)/World is Mine CPK! Remix (Kaguya & Lunami Yachiyo ver.).tja",
+      "type": "blob",
+      "sha": "2cfc76a78c48948e632d81152f2d063fbd243cc6",
+      "url": "ese/02 Anime/World is Mine CPK! Remix (Kaguya & Lunami Yachiyo ver.)/World is Mine CPK! Remix (Kaguya & Lunami Yachiyo ver.).tja",
+      "title": "World is Mine CPK! Remix (Kaguya & Lunami Yachiyo ver.)",
+      "titleJp": "ワールドイズマイン CPK! Remix (かぐや&月見ヤチヨ ver.)",
+      "subtitle": "ryo (supercell) / Cosmic Princess Kaguya!",
+      "subtitleJp": "ryo (supercell) 「超かぐや姫！」より",
+      "titleKo": "World Is Mine CPK! Remix (가구야&루나미 야치요 ver.)",
+      "artist": "かぐや, 夏吉ゆうこ, 月見ヤチヨ, 早見沙織, ryo",
+      "courses": {
+        "easy": {
+          "level": 2,
+          "maxCombo": 91
+        },
+        "normal": {
+          "level": 3,
+          "maxCombo": 168
+        },
+        "hard": {
+          "level": 4,
+          "maxCombo": 212
+        },
+        "oni": {
+          "level": 7,
+          "maxCombo": 348
+        },
+        "ura": {
+          "level": 8,
+          "maxCombo": 480
+        }
+      },
+      "bpm": {
+        "min": 118,
+        "max": 118
+      },
+      "platforms": [
+        "NAC"
+      ]
+    },
+    {
       "path": "02 Anime/XYandZ/XYandZ.tja",
       "type": "blob",
       "sha": "4ab45e60f0f2b3cee1a9ed446a52222d654fcad7",
@@ -23300,7 +23385,7 @@
     {
       "path": "02 Anime/Yasashisa ni Tsutsumareta Nara/Yasashisa ni Tsutsumareta Nara.tja",
       "type": "blob",
-      "sha": "1d785b48fa42abb3d160c76739c3e78a03a8fafe",
+      "sha": "9fd83621315c6ad806df2e62b05b80b0ca3a973e",
       "url": "ese/02 Anime/Yasashisa ni Tsutsumareta Nara/Yasashisa ni Tsutsumareta Nara.tja",
       "title": "Yasashisa ni Tsutsumareta Nara",
       "titleJp": "やさしさに包まれたなら",
@@ -23599,6 +23684,7 @@
       "titleJp": "残酷な夜に輝け",
       "subtitle": "Demon Slayer: Kimetsu no Yaiba the Movie: Infinity Castle Part 1 Akaza Returns",
       "subtitleJp": "「劇場版 「鬼滅の刃」無限城編 第一章 猗窩座再来」より",
+      "titleCn": "Shine in the Cruel Night",
       "titleKo": "Shine in the Cruel Night",
       "artist": "LiSA, 梶浦由記",
       "courses": {
@@ -23793,6 +23879,16 @@
         "PLUS",
         "RC"
       ]
+    },
+    {
+      "path": "02 Anime/Zoo/Zoo.tja",
+      "type": "blob",
+      "sha": "ee86904cf0a1dffe1e6912dbf4d98edaa58b7011",
+      "url": "ese/02 Anime/Zoo/Zoo.tja",
+      "title": "Zoo",
+      "titleJp": "Zoo",
+      "subtitle": "Zootopia 2",
+      "subtitleJp": "「ズートピア２」より"
     },
     {
       "path": "02 Anime/Zutto Zutto Tomodachi/Zutto Zutto Tomodachi.tja",
@@ -24480,7 +24576,7 @@
     {
       "path": "03 Vocaloid/Buriki no Dance/Buriki no Dance.tja",
       "type": "blob",
-      "sha": "9f85cb6555716ea2aeaa6feb44298281efdae274",
+      "sha": "cd3a53d75f565631a5329625cf03a077c4ff902c",
       "url": "ese/03 Vocaloid/Buriki no Dance/Buriki no Dance.tja",
       "title": "Buriki no Dance",
       "titleJp": "ブリキノダンス",
@@ -24904,11 +25000,11 @@
     {
       "path": "03 Vocaloid/Dareka no Shinzou ni Nareta Nara/Dareka no Shinzou ni Nareta Nara.tja",
       "type": "blob",
-      "sha": "503f6baa6ea3576dc0cfee2b659229c80ae6acca",
+      "sha": "49bfd6841c05fab4e1b3dad7bcac37b22923d8ae",
       "url": "ese/03 Vocaloid/Dareka no Shinzou ni Nareta Nara/Dareka no Shinzou ni Nareta Nara.tja",
       "title": "Dareka no Shinzou ni Nareta Nara",
       "titleJp": "だれかの心臓になれたなら",
-      "subtitle": "YurryCanon feat. GUMI",
+      "subtitle": "Yurry Canon feat. GUMI",
       "subtitleJp": "ユリイ・カノン feat.GUMI",
       "titleCn": "I want to be your heart",
       "artist": "ユリイ・カノン, GUMI",
@@ -25352,7 +25448,7 @@
     {
       "path": "03 Vocaloid/Future Melody -Kokoro Kara Mirai e-/Future Melody -Kokoro Kara Mirai e-.tja",
       "type": "blob",
-      "sha": "64e5e0552ce765315a4cc39c000f41ee03fa0979",
+      "sha": "ae352f36bcdb1997a95dba89972baa900efae0b9",
       "url": "ese/03 Vocaloid/Future Melody -Kokoro Kara Mirai e-/Future Melody -Kokoro Kara Mirai e-.tja",
       "title": "Future Melody -Kokoro Kara Mirai e-",
       "titleJp": "Future Melody -心から未来へ-",
@@ -25670,7 +25766,8 @@
         "max": 170
       },
       "platforms": [
-        "NAC"
+        "NAC",
+        "NS2"
       ],
       "region": {
         "Japan": 1,
@@ -26000,38 +26097,28 @@
       "subtitle": "cosMo@bousouP feat. Hatsune Miku",
       "titleOfficial": "初音ミクの消失-劇場版-",
       "titleCn": "初音未来的消失-剧场版-",
-      "titleKo": "하츠네 미쿠노 쇼우시츠-게키죠우방-",
+      "titleKo": "하츠네 미쿠의 소실-영화버전-",
       "artist": "cosMo＠暴走P, 初音ミク",
       "courses": {
         "easy": {
           "level": 5,
-          "maxCombo": 257,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/%E5%88%9D%E9%9F%B3%E3%83%9F%E3%82%AF%E3%81%AE%E6%B6%88%E5%A4%B1-%E5%8A%87%E5%A0%B4%E7%89%88-",
-          "urlKo": "https://taiko.wiki/song/283?diff=easy"
+          "maxCombo": 257
         },
         "normal": {
           "level": 7,
-          "maxCombo": 326,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/%E5%88%9D%E9%9F%B3%E3%83%9F%E3%82%AF%E3%81%AE%E6%B6%88%E5%A4%B1-%E5%8A%87%E5%A0%B4%E7%89%88-",
-          "urlKo": "https://taiko.wiki/song/283?diff=normal"
+          "maxCombo": 326
         },
         "hard": {
           "level": 8,
-          "maxCombo": 536,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/%E5%88%9D%E9%9F%B3%E3%83%9F%E3%82%AF%E3%81%AE%E6%B6%88%E5%A4%B1-%E5%8A%87%E5%A0%B4%E7%89%88-",
-          "urlKo": "https://taiko.wiki/song/283?diff=hard"
+          "maxCombo": 536
         },
         "oni": {
           "level": 9,
-          "maxCombo": 765,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/%E5%88%9D%E9%9F%B3%E3%83%9F%E3%82%AF%E3%81%AE%E6%B6%88%E5%A4%B1-%E5%8A%87%E5%A0%B4%E7%89%88-",
-          "urlKo": "https://taiko.wiki/song/283?diff=oni"
+          "maxCombo": 765
         },
         "ura": {
           "level": 10,
-          "maxCombo": 999,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/%E5%88%9D%E9%9F%B3%E3%83%9F%E3%82%AF%E3%81%AE%E6%B6%88%E5%A4%B1-%E5%8A%87%E5%A0%B4%E7%89%88-%28%E8%A3%8F%E8%AD%9C%E9%9D%A2%29",
-          "urlKo": "https://taiko.wiki/song/283?diff=ura"
+          "maxCombo": 999
         }
       },
       "bpm": {
@@ -26052,13 +26139,6 @@
         "3DS1",
         "PLUS"
       ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      },
       "dfcDifficulty": {
         "ura": "iS"
       }
@@ -26343,12 +26423,12 @@
     {
       "path": "03 Vocaloid/Inochi ni Kirawarete iru/Inochi ni Kirawarete iru..tja",
       "type": "blob",
-      "sha": "fa8c0acfc8693e967557753da5e39dacb28a181a",
+      "sha": "60aa69f165d1f3419f812bf6c24a6c2986295d74",
       "url": "ese/03 Vocaloid/Inochi ni Kirawarete iru/Inochi ni Kirawarete iru..tja",
       "title": "Inochi ni Kirawarete iru.",
       "titleJp": "命に嫌われている。",
       "subtitle": "Iori Kanzaki feat. Hatsune Miku",
-      "subtitleJp": "カンザキイオリ",
+      "subtitleJp": "カンザキイオリ feat.初音ミク",
       "titleCn": "Hated by Life",
       "titleKo": "Hated by life.",
       "artist": "カンザキイオリ, 初音ミク",
@@ -26798,7 +26878,7 @@
     {
       "path": "03 Vocaloid/Kibou no Tsuki/Kibou no Tsuki.tja",
       "type": "blob",
-      "sha": "6ce2e8e5611db332fac689f5c0fb7a8f534d5df7",
+      "sha": "01be205226e77309f50e94ab261b3214db4fa019",
       "url": "ese/03 Vocaloid/Kibou no Tsuki/Kibou no Tsuki.tja",
       "title": "Kibou no Tsuki",
       "titleJp": "幾望の月",
@@ -26850,7 +26930,7 @@
     {
       "path": "03 Vocaloid/Kill Carry On/Kill Carry On.tja",
       "type": "blob",
-      "sha": "53aea00d238ae40c9aeb22c523cbf52858bc7d75",
+      "sha": "3aa52416272ee2d61076e03c1b46dd88494f2c83",
       "url": "ese/03 Vocaloid/Kill Carry On/Kill Carry On.tja",
       "title": "Kill Carry On",
       "titleJp": "キレキャリオン",
@@ -27380,12 +27460,12 @@
     {
       "path": "03 Vocaloid/Mirai/Mirai.tja",
       "type": "blob",
-      "sha": "92becc28a83f1f59745a1c2bfce5f4d856c60e2a",
+      "sha": "80c7c4c31507584b3cb3291d654e5631241aeaaf",
       "url": "ese/03 Vocaloid/Mirai/Mirai.tja",
       "title": "Mirai",
       "titleJp": "ミライ",
       "subtitle": "Takafumi Sato feat. Mirai Komachi",
-      "subtitleJp": "feat.マモル(nhhmbase)"
+      "subtitleJp": "feat.ミライ小町"
     },
     {
       "path": "03 Vocaloid/Monitoring/Monitoring.tja",
@@ -27747,7 +27827,7 @@
     {
       "path": "03 Vocaloid/Otome Kaibou/Otome Kaibou.tja",
       "type": "blob",
-      "sha": "01748c632e41533a81e427abeb9dd5c495b4ee3f",
+      "sha": "8a006d441db9f0de091dd34c3521c48d87797b2b",
       "url": "ese/03 Vocaloid/Otome Kaibou/Otome Kaibou.tja",
       "title": "Otome Kaibou",
       "titleJp": "乙女解剖",
@@ -27822,23 +27902,33 @@
       "courses": {
         "easy": {
           "level": 4,
-          "maxCombo": 239
+          "maxCombo": 239,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/%EF%BC%8B%E2%99%82%28%E3%83%97%E3%83%A9%E3%82%B9%E7%94%B7%E5%AD%90%29",
+          "urlKo": "https://taiko.wiki/song/140?diff=easy"
         },
         "normal": {
           "level": 5,
-          "maxCombo": 326
+          "maxCombo": 326,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/%EF%BC%8B%E2%99%82%28%E3%83%97%E3%83%A9%E3%82%B9%E7%94%B7%E5%AD%90%29",
+          "urlKo": "https://taiko.wiki/song/140?diff=normal"
         },
         "hard": {
           "level": 6,
-          "maxCombo": 479
+          "maxCombo": 479,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/%EF%BC%8B%E2%99%82%28%E3%83%97%E3%83%A9%E3%82%B9%E7%94%B7%E5%AD%90%29",
+          "urlKo": "https://taiko.wiki/song/140?diff=hard"
         },
         "oni": {
           "level": 7,
-          "maxCombo": 583
+          "maxCombo": 583,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/%EF%BC%8B%E2%99%82%28%E3%83%97%E3%83%A9%E3%82%B9%E7%94%B7%E5%AD%90%29",
+          "urlKo": "https://taiko.wiki/song/140?diff=oni"
         },
         "ura": {
           "level": 9,
-          "maxCombo": 900
+          "maxCombo": 900,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/%EF%BC%8B%E2%99%82%28%E3%83%97%E3%83%A9%E3%82%B9%E7%94%B7%E5%AD%90%29%28%E8%A3%8F%E8%AD%9C%E9%9D%A2%29",
+          "urlKo": "https://taiko.wiki/song/140?diff=ura"
         }
       },
       "bpm": {
@@ -27848,7 +27938,14 @@
       "platforms": [
         "NAC",
         "V"
-      ]
+      ],
+      "region": {
+        "Japan": 1,
+        "Asia": 1,
+        "Oceania": 1,
+        "UnitedStates": 1,
+        "China": 1
+      }
     },
     {
       "path": "03 Vocaloid/Rabbit Hole/Rabbit Hole.tja",
@@ -27971,7 +28068,7 @@
     {
       "path": "03 Vocaloid/Retro Mania Rhapsody/Retro Mania Rhapsody.tja",
       "type": "blob",
-      "sha": "eaba3f588eae70cc50679c82cfae8bab12580e84",
+      "sha": "610bd114767063d2282f6f70a7ef8f4fc2827554",
       "url": "ese/03 Vocaloid/Retro Mania Rhapsody/Retro Mania Rhapsody.tja",
       "title": "Retro Mania Rhapsody",
       "titleJp": "レトロマニア狂想曲",
@@ -29091,7 +29188,7 @@
     {
       "path": "03 Vocaloid/future beat/future beat.tja",
       "type": "blob",
-      "sha": "229b30a9c1721b5c3c6de6d2f487cc6c15175646",
+      "sha": "a629f82931dae4b92b81f53dddb22225e6088396",
       "url": "ese/03 Vocaloid/future beat/future beat.tja",
       "title": "future beat",
       "titleJp": "future beat",
@@ -29105,6 +29202,16 @@
       "url": "ese/04 Children and Folk/10 Little Indians/10 Little Indians.tja",
       "title": "10 Little Indians",
       "titleJp": "10にんのインディアン"
+    },
+    {
+      "path": "04 Children and Folk/ALMIGHTY ～Kamen no Yakusoku～/ALMIGHTY Kamen no Yakusoku.tja",
+      "type": "blob",
+      "sha": "471ef0bf82416d9a9ae0832e44ddd3d12dfe7b06",
+      "url": "ese/04 Children and Folk/ALMIGHTY ～Kamen no Yakusoku～/ALMIGHTY Kamen no Yakusoku.tja",
+      "title": "ALMIGHTY ～Kamen no Yakusoku～",
+      "titleJp": "ALMIGHTY～仮面の約束",
+      "subtitle": "Kamen Rider Saber",
+      "subtitleJp": "「仮面ライダーセイバー」より"
     },
     {
       "path": "04 Children and Folk/Aiai/Aiai.tja",
@@ -29414,6 +29521,16 @@
       "titleJp": "ちょうちょう"
     },
     {
+      "path": "04 Children and Folk/Chuwapane!/Chuwapane!.tja",
+      "type": "blob",
+      "sha": "7716c45294a7098d5ecb9b7f4e925fc8140e75b4",
+      "url": "ese/04 Children and Folk/Chuwapane!/Chuwapane!.tja",
+      "title": "Chuwapane!",
+      "titleJp": "チュワパネ！",
+      "subtitle": "Secret × Heroine Phantomirage!",
+      "subtitleJp": "「ひみつ×戦士 ファントミラージュ！」より"
+    },
+    {
       "path": "04 Children and Folk/Clarinet o Kowashichata/Clarinet o Kowashichata.tja",
       "type": "blob",
       "sha": "ca5ef2f635b18f122d71f993c8f0128a8e95840f",
@@ -29627,6 +29744,7 @@
       "titleJp": "GET BACK",
       "subtitle": "Pokemon Horizons: The Series",
       "subtitleJp": "アニメ「ポケットモンスター（2023）」より",
+      "titleCn": "GET BACK",
       "artist": "ゆず, 北川悠仁, TeddyLoid",
       "courses": {
         "easy": {
@@ -29676,6 +29794,58 @@
       "url": "ese/04 Children and Folk/Genkotsuyama no Tanukisan/Genkotsuyama no Tanukisan.tja",
       "title": "Genkotsuyama no Tanukisan",
       "titleJp": "げんこつやまのたぬきさん"
+    },
+    {
+      "path": "04 Children and Folk/Gingira Ginga/Gingira Ginga.tja",
+      "type": "blob",
+      "sha": "ab3e29d542bdd3eaa5b54f875af40aaa3b1509cb",
+      "url": "ese/04 Children and Folk/Gingira Ginga/Gingira Ginga.tja",
+      "title": "Gingira Ginga",
+      "titleJp": "ギンギラ銀河",
+      "subtitle": "Strawberry Prince & NayutalieN/Yo-kai Watch Jam",
+      "subtitleJp": "「妖怪学園Y 〜Nとの遭遇〜」より",
+      "titleCn": "闪亮亮银河",
+      "artist": "ナユタン星人, すとぷり",
+      "courses": {
+        "easy": {
+          "level": 2,
+          "maxCombo": 87,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/%E3%82%AE%E3%83%B3%E3%82%AE%E3%83%A9%E9%8A%80%E6%B2%B3",
+          "urlKo": "https://taiko.wiki/song/913?diff=easy"
+        },
+        "normal": {
+          "level": 3,
+          "maxCombo": 132,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/%E3%82%AE%E3%83%B3%E3%82%AE%E3%83%A9%E9%8A%80%E6%B2%B3",
+          "urlKo": "https://taiko.wiki/song/913?diff=normal"
+        },
+        "hard": {
+          "level": 4,
+          "maxCombo": 264,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/%E3%82%AE%E3%83%B3%E3%82%AE%E3%83%A9%E9%8A%80%E6%B2%B3",
+          "urlKo": "https://taiko.wiki/song/913?diff=hard"
+        },
+        "oni": {
+          "level": 6,
+          "maxCombo": 363,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/%E3%82%AE%E3%83%B3%E3%82%AE%E3%83%A9%E9%8A%80%E6%B2%B3",
+          "urlKo": "https://taiko.wiki/song/913?diff=oni"
+        }
+      },
+      "bpm": {
+        "min": 155,
+        "max": 155
+      },
+      "platforms": [
+        "NAC"
+      ],
+      "region": {
+        "Japan": 1,
+        "Asia": 1,
+        "Oceania": 1,
+        "UnitedStates": 1,
+        "China": 1
+      }
     },
     {
       "path": "04 Children and Folk/Got Boost/Got Boost.tja",
@@ -29733,7 +29903,7 @@
     {
       "path": "04 Children and Folk/HIMAWARI HAPPY/HIMAWARI HAPPY.tja",
       "type": "blob",
-      "sha": "869156c2692df80f614afce7f0c69dd448c11789",
+      "sha": "34f889b9b695d78263f254c2762f81e37d80586b",
       "url": "ese/04 Children and Folk/HIMAWARI HAPPY/HIMAWARI HAPPY.tja",
       "title": "HIMAWARI HAPPY",
       "titleJp": "HIMAWARI HAPPY",
@@ -29881,9 +30051,9 @@
     {
       "path": "04 Children and Folk/Healin’ Good Pretty Cure Touch!!/Healin Good Pretty Cure Touch!!.tja",
       "type": "blob",
-      "sha": "d3ef0e51cff9cf7d82a3bd1e6fd538212cde32f7",
+      "sha": "53866c9502317fae5375a2810a5f9086aa45a02b",
       "url": "ese/04 Children and Folk/Healin’ Good Pretty Cure Touch!!/Healin Good Pretty Cure Touch!!.tja",
-      "title": "Healin’ Good♥Pretty Cure Touch‼",
+      "title": "Healin’ Good♥Pretty Cure Touch!!",
       "titleJp": "ヒーリングっど♥プリキュア Touch!!",
       "subtitle": "Rie Kitagawa/Healin’ Good♥Pretty Cure"
     },
@@ -29923,6 +30093,58 @@
       ]
     },
     {
+      "path": "04 Children and Folk/Himitsuki-tuber/Himitsuki-tuber.tja",
+      "type": "blob",
+      "sha": "d128d46242819d7ea1375538b22c9e4ce60d2f8c",
+      "url": "ese/04 Children and Folk/Himitsuki-tuber/Himitsuki-tuber.tja",
+      "title": "Himitsuki-tuber",
+      "titleJp": "ヒミツキチューバー",
+      "subtitle": "Hidekazu Tanaka/Ninja Box",
+      "subtitleJp": "「ニンジャボックス」より",
+      "titleKo": "HimitsuKiTuber",
+      "artist": "田中秀和, トンカチ(加藤英美里)&ヒロト(潘めぐみ)&メガホン(中村悠一)&ポンプ(村瀬歩)",
+      "courses": {
+        "easy": {
+          "level": 3,
+          "maxCombo": 99,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/%E3%83%92%E3%83%9F%E3%83%84%E3%82%AD%E3%83%81%E3%83%A5%E3%83%BC%E3%83%90%E3%83%BC",
+          "urlKo": "https://taiko.wiki/song/897?diff=easy"
+        },
+        "normal": {
+          "level": 4,
+          "maxCombo": 154,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/%E3%83%92%E3%83%9F%E3%83%84%E3%82%AD%E3%83%81%E3%83%A5%E3%83%BC%E3%83%90%E3%83%BC",
+          "urlKo": "https://taiko.wiki/song/897?diff=normal"
+        },
+        "hard": {
+          "level": 6,
+          "maxCombo": 260,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/%E3%83%92%E3%83%9F%E3%83%84%E3%82%AD%E3%83%81%E3%83%A5%E3%83%BC%E3%83%90%E3%83%BC",
+          "urlKo": "https://taiko.wiki/song/897?diff=hard"
+        },
+        "oni": {
+          "level": 8,
+          "maxCombo": 393,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/%E3%83%92%E3%83%9F%E3%83%84%E3%82%AD%E3%83%81%E3%83%A5%E3%83%BC%E3%83%90%E3%83%BC",
+          "urlKo": "https://taiko.wiki/song/897?diff=oni"
+        }
+      },
+      "bpm": {
+        "min": 140,
+        "max": 140
+      },
+      "platforms": [
+        "NAC"
+      ],
+      "region": {
+        "Japan": 1,
+        "Asia": 1,
+        "Oceania": 0,
+        "UnitedStates": 0,
+        "China": 0
+      }
+    },
+    {
       "path": "04 Children and Folk/Hirogaru Sky! Precure ~Hero Girls~/Hirogaru Sky! Precure Hero Girls.tja",
       "type": "blob",
       "sha": "1f0ec0fff5507b53e0db80bce9adfadf6518fa48",
@@ -29960,7 +30182,7 @@
     {
       "path": "04 Children and Folk/Hitorigotsu Band Ver/Hitorigotsu Band Ver.tja",
       "type": "blob",
-      "sha": "39ec78cff5c17d9a836302d1872d50e9428e7f3c",
+      "sha": "fcb413912d5463831d781ca29adf4e8c1354ea7b",
       "url": "ese/04 Children and Folk/Hitorigotsu Band Ver/Hitorigotsu Band Ver.tja",
       "title": "Hitorigotsu～Band Ver.～",
       "titleJp": "ひとりごつ～バンドVer.～",
@@ -30142,6 +30364,59 @@
       "title": "Joy to the World",
       "titleJp": "もろびとこぞりて",
       "subtitle": "George Frideric Handel"
+    },
+    {
+      "path": "04 Children and Folk/Ka! Ka! Ka! Kamizmode!/Ka! Ka! Ka! Kamizmode!.tja",
+      "type": "blob",
+      "sha": "87be34516a4c02d2b225f2289af28bb311ee1d48",
+      "url": "ese/04 Children and Folk/Ka! Ka! Ka! Kamizmode!/Ka! Ka! Ka! Kamizmode!.tja",
+      "title": "Ka! Ka! Ka! Kamizmode!",
+      "titleJp": "カ！カ！カ！カミズモード！",
+      "subtitle": "DJ KAMMY & Beat-tai/Saikyou Kamizmode!",
+      "subtitleJp": "「最響カミズモード！」より",
+      "titleCn": "KA! KA! KA! KAMIZMODE!",
+      "titleKo": "KA! KA! KA! KAMIZMODE!",
+      "artist": "DJ KAMMY, 株元英彰・堀越せな with DJ KAMMYと神音隊",
+      "courses": {
+        "easy": {
+          "level": 2,
+          "maxCombo": 88,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/%E3%82%AB%EF%BC%81%E3%82%AB%EF%BC%81%E3%82%AB%EF%BC%81%E3%82%AB%E3%83%9F%E3%82%BA%E3%83%A2%E3%83%BC%E3%83%89%EF%BC%81",
+          "urlKo": "https://taiko.wiki/song/984?diff=easy"
+        },
+        "normal": {
+          "level": 2,
+          "maxCombo": 126,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/%E3%82%AB%EF%BC%81%E3%82%AB%EF%BC%81%E3%82%AB%EF%BC%81%E3%82%AB%E3%83%9F%E3%82%BA%E3%83%A2%E3%83%BC%E3%83%89%EF%BC%81",
+          "urlKo": "https://taiko.wiki/song/984?diff=normal"
+        },
+        "hard": {
+          "level": 3,
+          "maxCombo": 261,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/%E3%82%AB%EF%BC%81%E3%82%AB%EF%BC%81%E3%82%AB%EF%BC%81%E3%82%AB%E3%83%9F%E3%82%BA%E3%83%A2%E3%83%BC%E3%83%89%EF%BC%81",
+          "urlKo": "https://taiko.wiki/song/984?diff=hard"
+        },
+        "oni": {
+          "level": 7,
+          "maxCombo": 446,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/%E3%82%AB%EF%BC%81%E3%82%AB%EF%BC%81%E3%82%AB%EF%BC%81%E3%82%AB%E3%83%9F%E3%82%BA%E3%83%A2%E3%83%BC%E3%83%89%EF%BC%81",
+          "urlKo": "https://taiko.wiki/song/984?diff=oni"
+        }
+      },
+      "bpm": {
+        "min": 155,
+        "max": 170
+      },
+      "platforms": [
+        "NAC"
+      ],
+      "region": {
+        "Japan": 1,
+        "Asia": 1,
+        "Oceania": 1,
+        "UnitedStates": 1,
+        "China": 1
+      }
     },
     {
       "path": "04 Children and Folk/Kaeru no Gajjou/Kaeru no Gajjou.tja",
@@ -30476,6 +30751,14 @@
       "url": "ese/04 Children and Folk/Mary Had a Little Lamb/Mary Had a Little Lamb.tja",
       "title": "Mary Had a Little Lamb",
       "titleJp": "メリーのひつじ"
+    },
+    {
+      "path": "04 Children and Folk/Mashin Sentai Kiramager/Mashin Sentai Kiramager.tja",
+      "type": "blob",
+      "sha": "3014b8b9cfa7f894a4396ceb68a21829c942076a",
+      "url": "ese/04 Children and Folk/Mashin Sentai Kiramager/Mashin Sentai Kiramager.tja",
+      "title": "Mashin Sentai Kiramager",
+      "titleJp": "魔進戦隊キラメイジャー"
     },
     {
       "path": "04 Children and Folk/Medaka no Kyoudai/Medaka no Kyoudai.tja",
@@ -31265,6 +31548,47 @@
       "titleJp": "きよしこのよる"
     },
     {
+      "path": "04 Children and Folk/Smile! Smile! Smile!/Smile! Smile! Smile!.tja",
+      "type": "blob",
+      "sha": "4c49969620d15cbf4957d334117eb40941d19d94",
+      "url": "ese/04 Children and Folk/Smile! Smile! Smile!/Smile! Smile! Smile!.tja",
+      "title": "Smile! Smile! Smile!",
+      "titleJp": "Smile! Smile! Smile!",
+      "subtitle": "Shounen Ashibe GO! GO! Goma-chan",
+      "subtitleJp": "「少年アシベ GO!GO!ゴマちゃん」より",
+      "titleOfficial": "Smile！ Smile！ Smile！",
+      "artist": "北川勝利(ROUND TABLE), 尾崎由香",
+      "courses": {
+        "easy": {
+          "level": 2,
+          "maxCombo": 41
+        },
+        "normal": {
+          "level": 2,
+          "maxCombo": 57
+        },
+        "hard": {
+          "level": 4,
+          "maxCombo": 115
+        },
+        "oni": {
+          "level": 5,
+          "maxCombo": 165
+        },
+        "ura": {
+          "level": 9,
+          "maxCombo": 298
+        }
+      },
+      "bpm": {
+        "min": 280,
+        "max": 280
+      },
+      "platforms": [
+        "NAC"
+      ]
+    },
+    {
       "path": "04 Children and Folk/Souran Bushi -RT Version-/Souran Bushi -RT Version-.tja",
       "type": "blob",
       "sha": "bde38c6c4d25ca7b5c967d59f0ba02716a08a079",
@@ -31836,7 +32160,7 @@
     {
       "path": "05 Variety/ALiVE/ALiVE.tja",
       "type": "blob",
-      "sha": "aecef60c457631d55a75cd09f54eb01aada689ac",
+      "sha": "40011124f8caa9959c42fdd324d606808c577abb",
       "url": "ese/05 Variety/ALiVE/ALiVE.tja",
       "title": "ALiVE",
       "titleJp": "ALiVE",
@@ -31944,11 +32268,11 @@
     {
       "path": "05 Variety/Akiba 20XX/Akiba 20XX.tja",
       "type": "blob",
-      "sha": "5e809688061706c811fb45cd1bfa60be90c942bf",
+      "sha": "4126c36997a32f9fc1bd56671276213c60f02588",
       "url": "ese/05 Variety/Akiba 20XX/Akiba 20XX.tja",
       "title": "Akiba 20XX",
       "titleJp": "アキバ20XX",
-      "subtitle": "Sotokanda Literature High School Den'onbu / Den'onbu",
+      "subtitle": "Sotokanda Bungei High School DEN-ON-BU / DEN-ON-BU",
       "subtitleJp": "外神田文芸高校電音部 「電音部」より",
       "titleCn": "AKIBA 20XX",
       "titleKo": "AKIBA 20XX",
@@ -32420,11 +32744,11 @@
     {
       "path": "05 Variety/Bakuretsu Thaumazein (Prod. Chibanyan)/Bakuretsu Thaumazein (Prod. Chibanyan).tja",
       "type": "blob",
-      "sha": "c37f897bfc1fa9851e9f6929912ab187e2ba4ff3",
+      "sha": "87bedb1cfff21be5d9814438a7eb46dfe8e3efbb",
       "url": "ese/05 Variety/Bakuretsu Thaumazein (Prod. Chibanyan)/Bakuretsu Thaumazein (Prod. Chibanyan).tja",
-      "title": "Bakuretsu Thaumazein (Prod. Chibanyan)",
+      "title": "Bakuretsu Thaumazein (Prod. ChibaNyan)",
       "titleJp": "爆裂タウマゼイン (Prod. チバニャン)",
-      "subtitle": "Teion International High School Den'onbu / Den'onbu",
+      "subtitle": "Teion International High School DEN-ON-BU / DEN-ON-BU",
       "subtitleJp": "帝音国際学院電音部 「電音部」より",
       "titleCn": "爆裂Thaumazein (Prod. ChibaNyan)",
       "titleKo": "Bakuretsu Thaumazein (Prod. ChibaNyan)",
@@ -32469,6 +32793,16 @@
         "UnitedStates": 1,
         "China": 1
       }
+    },
+    {
+      "path": "05 Variety/Battle Without Honor or Humanity/Battle Without Honor or Humanity.tja",
+      "type": "blob",
+      "sha": "5afb974e8dd3405685d0695b554f4043fb6a1311",
+      "url": "ese/05 Variety/Battle Without Honor or Humanity/Battle Without Honor or Humanity.tja",
+      "title": "Battle Without Honor or Humanity",
+      "titleJp": "Battle Without Honor or Humanity",
+      "subtitle": "Kill Bill",
+      "subtitleJp": "新・仁義なき戦いのテーマ 「キル・ビル」より"
     },
     {
       "path": "05 Variety/Brain Power/Brain Power.tja",
@@ -32905,12 +33239,12 @@
     {
       "path": "05 Variety/Crush (Prod. SHOW)/Crush (Prod. SHOW).tja",
       "type": "blob",
-      "sha": "f8fe645609d8bb5af0d81defd7e59404b1e29139",
+      "sha": "3e57b04238b75b4c1abb5b7f11a53b062c4195fd",
       "url": "ese/05 Variety/Crush (Prod. SHOW)/Crush (Prod. SHOW).tja",
       "title": "Crush (Prod. SHOW)",
       "titleJp": "Crush (Prod. SHOW)",
-      "subtitle": "Shin-shinjuku GR School Den'onbu / Den'onbu",
-      "subtitleJp": "真新宿GR学園 「電音部」より",
+      "subtitle": "Shin-Shinjuku GR School DEN-ON-BU / DEN-ON-BU",
+      "subtitleJp": "真新宿GR学園電音部 「電音部」より",
       "titleCn": "Crush (Prod. SHOW)",
       "artist": "SHOW, 真新宿GR学園電音部",
       "courses": {
@@ -33055,7 +33389,7 @@
     {
       "path": "05 Variety/Dogbite/Dogbite.tja",
       "type": "blob",
-      "sha": "b292814dd1a8683f24c2160a8c83845e23af9ea3",
+      "sha": "01f535aa7d7b16d3bc282a7633b0e19dbf4e8d49",
       "url": "ese/05 Variety/Dogbite/Dogbite.tja",
       "title": "Dogbite",
       "titleJp": "Dogbite",
@@ -33141,33 +33475,23 @@
       "courses": {
         "easy": {
           "level": 4,
-          "maxCombo": 136,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/Doppelgangers",
-          "urlKo": "https://taiko.wiki/song/1133?diff=easy"
+          "maxCombo": 136
         },
         "normal": {
           "level": 6,
-          "maxCombo": 253,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/Doppelgangers",
-          "urlKo": "https://taiko.wiki/song/1133?diff=normal"
+          "maxCombo": 253
         },
         "hard": {
           "level": 6,
-          "maxCombo": 368,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/Doppelgangers",
-          "urlKo": "https://taiko.wiki/song/1133?diff=hard"
+          "maxCombo": 368
         },
         "oni": {
           "level": 8,
-          "maxCombo": 634,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/Doppelgangers",
-          "urlKo": "https://taiko.wiki/song/1133?diff=oni"
+          "maxCombo": 634
         },
         "ura": {
           "level": 10,
-          "maxCombo": 929,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/Doppelgangers%28%E8%A3%8F%E8%AD%9C%E9%9D%A2%29",
-          "urlKo": "https://taiko.wiki/song/1133?diff=ura"
+          "maxCombo": 929
         }
       },
       "bpm": {
@@ -33177,13 +33501,6 @@
       "platforms": [
         "NAC"
       ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      },
       "dfcDifficulty": {
         "ura": "iC"
       }
@@ -33440,12 +33757,12 @@
     {
       "path": "05 Variety/Favorite Days/Favorite Days.tja",
       "type": "blob",
-      "sha": "47489f5b887908a2e2eb6f4e9a6b1f8a87df12ef",
+      "sha": "18d2c9a2e66582bec653f9568dbc059fb6431274",
       "url": "ese/05 Variety/Favorite Days/Favorite Days.tja",
       "title": "Favorite Days",
       "titleJp": "Favorite Days",
-      "subtitle": "Yuuka Shidomi/DEN-ON-BU",
-      "subtitleJp": "日高零奈(CV:蔀 祐佳)  「電音部」より",
+      "subtitle": "Reina Hidaka (CV: Yuuka Shidomi) / DEN-ON-BU",
+      "subtitleJp": "日高零奈(CV:蔀 祐佳) 「電音部」より",
       "titleCn": "Favorite Days",
       "artist": "kz, 日高零奈",
       "courses": {
@@ -33830,11 +34147,11 @@
     {
       "path": "05 Variety/Hand Over/Hand Over.tja",
       "type": "blob",
-      "sha": "3c4b5afe5a57877164ba154f6fff7fb9db90b565",
+      "sha": "4507a008bff2cdf748c87d9ecbbf18ec27138e0c",
       "url": "ese/05 Variety/Hand Over/Hand Over.tja",
-      "title": "Hand Over",
+      "title": "Hand Over (Prod. TEMPLIME)",
       "titleJp": "Hand Over (Prod. TEMPLIME)",
-      "subtitle": "TEMPLIME & Sotokanda Bungei Koukou/DEN-ON-BU",
+      "subtitle": "Sotokanda Bungei High School DEN-ON-BU / DEN-ON-BU",
       "subtitleJp": "外神田文芸高校電音部 「電音部」より",
       "titleCn": "Hand Over (Prod. TEMPLIME)",
       "artist": "KBSNK(TEMPLIME), 外神田文芸高校電音部",
@@ -33955,9 +34272,9 @@
     {
       "path": "05 Variety/Help me, ERINNNNNN!! -Cranky Remix-/Help me, ERINNNNNN!! -Cranky Remix-.tja",
       "type": "blob",
-      "sha": "0be90ea91b9b8456f0aba29314ccb4069eaa33e9",
+      "sha": "7ac27b7b8f1aa0b97b4cc381e3f78bac25815a57",
       "url": "ese/05 Variety/Help me, ERINNNNNN!! -Cranky Remix-/Help me, ERINNNNNN!! -Cranky Remix-.tja",
-      "title": "Help me, ERINNNNNN‼ -Cranky remix-",
+      "title": "Help me, ERINNNNNN!! -Cranky remix-",
       "titleJp": "Help me, ERINNNNNN!! -Cranky remix-",
       "subtitle": "beatMARIO × Cranky/Touhou Project",
       "subtitleJp": "東方Projectアレンジ ビートまりお×Cranky"
@@ -33975,13 +34292,12 @@
     {
       "path": "05 Variety/Help me, ERINNNNNN!!/Help me, ERINNNNNN!!.tja",
       "type": "blob",
-      "sha": "048763f2d621b7bb410f3c1ffdf9da2425037fc3",
+      "sha": "45fa752eda8e79ee50ca60bc98f2d76189781549",
       "url": "ese/05 Variety/Help me, ERINNNNNN!!/Help me, ERINNNNNN!!.tja",
-      "title": "Help me, ERINNNNNN‼",
-      "titleJp": "Help me, ERINNNNNN‼",
+      "title": "Help me, ERINNNNNN!!",
+      "titleJp": "Help me, ERINNNNNN!!",
       "subtitle": "beatMARIO (COOL&CREATE)/Touhou Project",
       "subtitleJp": "東方Projectアレンジ ビートまりお",
-      "titleOfficial": "Help me, ERINNNNNN!!",
       "titleCn": "Help me, ERINNNNNN!!",
       "artist": "ビートまりお",
       "courses": {
@@ -34031,12 +34347,12 @@
       }
     },
     {
-      "path": "05 Variety/He’s a Pirate/Hes a Pirate.tja",
+      "path": "05 Variety/He’s A Pirate/Hes A Pirate.tja",
       "type": "blob",
-      "sha": "40631d7b1c9df45c8483760e5d86b35d225daf20",
-      "url": "ese/05 Variety/He’s a Pirate/Hes a Pirate.tja",
-      "title": "He’s a Pirate",
-      "titleJp": "He's a Pirate",
+      "sha": "340213ac35ed63a73ea85dffe5e053f868012bd6",
+      "url": "ese/05 Variety/He’s A Pirate/Hes A Pirate.tja",
+      "title": "He's A Pirate",
+      "titleJp": "He's A Pirate",
       "subtitle": "Klaus Badelt/Pirates of the Caribbean",
       "subtitleJp": "「パイレーツ・オブ・カリビアン」より"
     },
@@ -34118,11 +34434,11 @@
     {
       "path": "05 Variety/Hyper Bass/Hyper Bass.tja",
       "type": "blob",
-      "sha": "455e387e50688b073b18ae6c9132070f3b695427",
+      "sha": "ad3bf6586b49ac59f06edc959f1c30c4d92c49ea",
       "url": "ese/05 Variety/Hyper Bass/Hyper Bass.tja",
-      "title": "Hyper Bass",
+      "title": "Hyper Bass (feat. Yunomi)",
       "titleJp": "Hyper Bass (feat. Yunomi)",
-      "subtitle": "Jingumae Sando Gakuen feat. Yunomi/DEN-ON-BU",
+      "subtitle": "Jingumae Sando High School DEN-ON-BU / DEN-ON-BU",
       "subtitleJp": "神宮前参道學園電音部 「電音部」より",
       "titleCn": "Hyper Bass (feat. Yunomi)",
       "artist": "Yunomi, 神宮前参道學園電音部",
@@ -34168,6 +34484,16 @@
       }
     },
     {
+      "path": "05 Variety/Hypnosis Mic -Division Battle Anthem-/Hypnosis Mic -Division Battle Anthem-.tja",
+      "type": "blob",
+      "sha": "4043d51e563c09e804718821243c51c02f03b385",
+      "url": "ese/05 Variety/Hypnosis Mic -Division Battle Anthem-/Hypnosis Mic -Division Battle Anthem-.tja",
+      "title": "Hypnosis Mic -Division Battle Anthem-",
+      "titleJp": "ヒプノシスマイク -Division Battle Anthem-",
+      "subtitle": "Division All Stars",
+      "subtitleJp": "Division All Stars"
+    },
+    {
       "path": "05 Variety/I Was Born to Love You/I Was Born to Love You.tja",
       "type": "blob",
       "sha": "c470a1a5a8453c74f98363f9e364c358c70f4fae",
@@ -34179,11 +34505,11 @@
     {
       "path": "05 Variety/IAM (feat. Shogo, Tsubasa)/IAM (feat. Shogo, Tsubasa).tja",
       "type": "blob",
-      "sha": "6de5ee02d1a92faeeac0d8466f68ef93980ede43",
+      "sha": "4c2a83e7637574399a230e7ac3123db68e5acaa2",
       "url": "ese/05 Variety/IAM (feat. Shogo, Tsubasa)/IAM (feat. Shogo, Tsubasa).tja",
       "title": "IAM (feat. Shogo, Tsubasa)",
       "titleJp": "IAM (feat. Shogo, Tsubasa)",
-      "subtitle": "Minato Shirokane Girls' High School Den'onbu / Den'onbu",
+      "subtitle": "Minato Shirokane Girls High School DEN-ON-BU / DEN-ON-BU",
       "subtitleJp": "港白金女学院電音部 「電音部」より",
       "artist": "Shogo、早川博隆、Tsubasa, 港白金女学院電音部",
       "courses": {
@@ -34286,11 +34612,11 @@
     {
       "path": "05 Variety/Idol Berserker/Idol Berserker.tja",
       "type": "blob",
-      "sha": "f65fccb090efa54ba8bc8203a6fc6ab628a4d7dc",
+      "sha": "b1649ed268177d155fa539afa5e82f158f6c3060",
       "url": "ese/05 Variety/Idol Berserker/Idol Berserker.tja",
-      "title": "Idol Berserker",
+      "title": "Idol Berserker (feat.Takafumi Sato)",
       "titleJp": "アイドル狂戦士(feat.佐藤貴文)",
-      "subtitle": "Sena Horikoshi feat. Takafumi Sato/DEN-ON-BU",
+      "subtitle": "Futaba Kayano (CV: Sena Horikoshi) / DEN-ON-BU",
       "subtitleJp": "茅野ふたば(CV:堀越せな) 「電音部」より",
       "titleCn": "Idol狂战士(feat.佐藤贵文)",
       "titleKo": "Idol Berserker (feat.Takafumi Sato)",
@@ -34348,7 +34674,7 @@
     {
       "path": "05 Variety/Indiana Jones Theme/Indiana Jones Theme.tja",
       "type": "blob",
-      "sha": "688bd4eec103aef71295a9185ae2bffe1ca4a722",
+      "sha": "3a6ba4a990d2bf40b3e7349304e0ab4d26810662",
       "url": "ese/05 Variety/Indiana Jones Theme/Indiana Jones Theme.tja",
       "title": "Indiana Jones Theme",
       "titleJp": "インディ・ジョーンズのテーマ",
@@ -34425,11 +34751,11 @@
     {
       "path": "05 Variety/Itadaki Babel/Itadaki Babel.tja",
       "type": "blob",
-      "sha": "7687f5749f0f1352dadbaea3bcf151628fd7fc2f",
+      "sha": "06e1c3436ec3688746331f763ff6369116c559a8",
       "url": "ese/05 Variety/Itadaki Babel/Itadaki Babel.tja",
-      "title": "Itadaki Babel",
+      "title": "Itadaki Babel (Prod. Kenmochi Hidefumi)",
       "titleJp": "いただきバベル (Prod. ケンモチヒデフミ)",
-      "subtitle": "Kenmochi Hidefumi feat. Akina/DEN-ON-BU",
+      "subtitle": "Tama Kurogane (CV: Akina) / DEN-ON-BU",
       "subtitleJp": "黒鉄たま(CV:秋奈) 「電音部」より",
       "titleCn": "Itadaki Babel (Prod. Kenmochi Hidefumi)",
       "titleKo": "ITADAKI BABEL(Prod. Kenmochi Hidefumi)",
@@ -34768,11 +35094,11 @@
     {
       "path": "05 Variety/LONELY ROLLING STAR[picco Remix]/LONELY ROLLING STAR[picco Remix].tja",
       "type": "blob",
-      "sha": "8c0ff3b7dbe5b3c80b853bd31ee978ed547a22bc",
+      "sha": "4a79b81b6df6a53852f07d74ed4ebed4d3f7f363",
       "url": "ese/05 Variety/LONELY ROLLING STAR[picco Remix]/LONELY ROLLING STAR[picco Remix].tja",
       "title": "LONELY ROLLING STAR[picco Remix]",
       "titleJp": "LONELY ROLLING STAR[picco Remix]",
-      "subtitle": "Inubousaki Shian (CV:Hasegawa Rena) / Den'onbu x Katamari Damacy",
+      "subtitle": "Shian Inubousaki (CV: Rena Hasegawa) / DEN-ON-BU x Katamari Damacy",
       "subtitleJp": "犬吠埼紫杏(CV:長谷川玲奈) / 電音部 × 塊魂"
     },
     {
@@ -35024,11 +35350,11 @@
     {
       "path": "05 Variety/Mani Mani/Mani Mani.tja",
       "type": "blob",
-      "sha": "46d59ba1a3110374717e46403a4773dedf559789",
+      "sha": "af70d200e9782a6344017d9d7965fc92bf9d9b2a",
       "url": "ese/05 Variety/Mani Mani/Mani Mani.tja",
-      "title": "Mani Mani",
+      "title": "Mani Mani(Prod.TAKU INOUE)",
       "titleJp": "Mani Mani(Prod.TAKU INOUE)",
-      "subtitle": "Taku Inoue feat. Miho Amane/DEN-ON-BU",
+      "subtitle": "Kazune Shinonome (CV: Miho Amane) / DEN-ON-BU",
       "subtitleJp": "東雲和音(CV:天音みほ) 「電音部」より",
       "titleOfficial": "Mani Mani(Prod. TAKU INOUE)",
       "titleCn": "Mani Mani(Prod. TAKU INOUE)",
@@ -35202,11 +35528,11 @@
     {
       "path": "05 Variety/Moon and Prince [Tatsunoshin Remix]/Moon and Prince [Tatsunoshin Remix].tja",
       "type": "blob",
-      "sha": "121562122decb1787c654a17bb964a13b4ce3166",
+      "sha": "092a2836602215900053c3f6014aaa9fbcc9ea34",
       "url": "ese/05 Variety/Moon and Prince [Tatsunoshin Remix]/Moon and Prince [Tatsunoshin Remix].tja",
       "title": "Moon and Prince [Tatsunoshin Remix]",
       "titleJp": "月と王子[Tatsunoshin Remix]",
-      "subtitle": "Seto Mitsuki (CV: SisterClaire) / Den'onbu x Katamari Damacy",
+      "subtitle": "Mitsuki Seto (CV: SisterClaire) / DEN-ON-BU x Katamari Damacy",
       "subtitleJp": "瀬戸海月(CV:シスター・クレア) / 電音部 × 塊魂"
     },
     {
@@ -35531,6 +35857,16 @@
       "subtitleJp": "映画「ニンジャバットマン」より"
     },
     {
+      "path": "05 Variety/Omae Butamen!/Omae Butamen!.tja",
+      "type": "blob",
+      "sha": "0d96d6a4c873444f2f52d4d3b3aa2167bb4ccda4",
+      "url": "ese/05 Variety/Omae Butamen!/Omae Butamen!.tja",
+      "title": "Omae Butamen!",
+      "titleJp": "おまえブタメン！",
+      "subtitle": "Oyatsu Company & The Puh",
+      "subtitleJp": "おやつカンパニー ＆ ザ・ぷー"
+    },
+    {
       "path": "05 Variety/Ookami Shounen Ken no Theme/Ookami Shounen Ken no Theme.tja",
       "type": "blob",
       "sha": "95d13b5ff489eeab05145f20cefda219fe3245a9",
@@ -35593,7 +35929,7 @@
     {
       "path": "05 Variety/Parousia/Parousia.tja",
       "type": "blob",
-      "sha": "554db8c7d17b4ddc4b7f77dd5ca0accf640e4271",
+      "sha": "547ee5b8b5d52db38938aa769d45e3e4afdf72c3",
       "url": "ese/05 Variety/Parousia/Parousia.tja",
       "title": "Parousia",
       "titleJp": "Parousia",
@@ -36097,33 +36433,23 @@
       "courses": {
         "easy": {
           "level": 3,
-          "maxCombo": 181,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/Scream%20out%EF%BC%81%20-%E9%81%94%E4%BA%BAEdit.-",
-          "urlKo": "https://taiko.wiki/song/539?diff=easy"
+          "maxCombo": 181
         },
         "normal": {
           "level": 5,
-          "maxCombo": 297,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/Scream%20out%EF%BC%81%20-%E9%81%94%E4%BA%BAEdit.-",
-          "urlKo": "https://taiko.wiki/song/539?diff=normal"
+          "maxCombo": 297
         },
         "hard": {
           "level": 6,
-          "maxCombo": 545,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/Scream%20out%EF%BC%81%20-%E9%81%94%E4%BA%BAEdit.-",
-          "urlKo": "https://taiko.wiki/song/539?diff=hard"
+          "maxCombo": 545
         },
         "oni": {
           "level": 8,
-          "maxCombo": 792,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/Scream%20out%EF%BC%81%20-%E9%81%94%E4%BA%BAEdit.-",
-          "urlKo": "https://taiko.wiki/song/539?diff=oni"
+          "maxCombo": 792
         },
         "ura": {
           "level": 9,
-          "maxCombo": 999,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/Scream%20out%EF%BC%81%20-%E9%81%94%E4%BA%BAEdit.-%28%E8%A3%8F%E8%AD%9C%E9%9D%A2%29",
-          "urlKo": "https://taiko.wiki/song/539?diff=ura"
+          "maxCombo": 999
         }
       },
       "bpm": {
@@ -36133,14 +36459,7 @@
       "platforms": [
         "NAC",
         "PLUS"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      }
+      ]
     },
     {
       "path": "05 Variety/Seibu Keisatsu PART II Theme/Seibu Keisatsu PART II Theme.tja",
@@ -36242,11 +36561,11 @@
     {
       "path": "05 Variety/Shining Lights/Shining Lights.tja",
       "type": "blob",
-      "sha": "fcfc8c9bf6788fc91d35abb756c97016968b2516",
+      "sha": "d64925e1a355f175a2ed5763ee9ed01e51b7158e",
       "url": "ese/05 Variety/Shining Lights/Shining Lights.tja",
-      "title": "Shining Lights",
+      "title": "Shining Lights (feat. PSYQUI)",
       "titleJp": "Shining Lights (feat. PSYQUI)",
-      "subtitle": "Kana Sukoya feat. PSYQUI/DEN-ON-BU",
+      "subtitle": "Karin Houou (CV: Kana Sukoya) / DEN-ON-BU",
       "subtitleJp": "鳳凰火凛(CV: 健屋花那) 「電音部」より",
       "titleCn": "Shining Lights (feat. PSYQUI)",
       "artist": "PSYQUI, 鳳凰火凛",
@@ -36304,13 +36623,14 @@
       "subtitle": "Hachidai Nakamura/Shouten"
     },
     {
-      "path": "05 Variety/Star Wars Title Theme/Star Wars Title Theme.tja",
+      "path": "05 Variety/Star Wars Main Title/Star Wars Main Title.tja",
       "type": "blob",
-      "sha": "4acd77df32cce46bc839d0dce96ac782425708dd",
-      "url": "ese/05 Variety/Star Wars Title Theme/Star Wars Title Theme.tja",
-      "title": "Star Wars Title Theme",
-      "titleJp": "Star Wars： Main Title",
-      "subtitle": "John Williams/Star Wars"
+      "sha": "c8b9b6f620fe4c68408f0a1cb732905a31d9c3a9",
+      "url": "ese/05 Variety/Star Wars Main Title/Star Wars Main Title.tja",
+      "title": "Star Wars: Main Title",
+      "titleJp": "Star Wars: Main Title",
+      "subtitle": "John Williams/Star Wars",
+      "subtitleJp": "「スター・ウォーズ」より"
     },
     {
       "path": "05 Variety/TRUTH/TRUTH.tja",
@@ -36735,11 +37055,11 @@
     {
       "path": "05 Variety/good night baby (feat. Moe Shop)/good night baby (feat. Moe Shop).tja",
       "type": "blob",
-      "sha": "35b777ebcfd3498fcd81dcf16e57c38437a0ca3b",
+      "sha": "ba6e9e40ac66359543d95261ed295d776764d5c8",
       "url": "ese/05 Variety/good night baby (feat. Moe Shop)/good night baby (feat. Moe Shop).tja",
       "title": "good night baby (feat. Moe Shop)",
       "titleJp": "good night baby (feat. Moe Shop)",
-      "subtitle": "Inubousaki Shian (CV:Hasegawa Rena) / Den'onbu",
+      "subtitle": "Shian Inubousaki (CV: Rena Hasegawa) / DEN-ON-BU",
       "subtitleJp": "犬吠埼紫杏(CV:長谷川玲奈) 「電音部」より",
       "titleCn": "good night baby (feat. Moe Shop)",
       "artist": "Moe Shop & SEIJ, 犬吠埼紫杏",
@@ -36855,7 +37175,7 @@
     {
       "path": "05 Variety/waitin’ for u/waitin for u.tja",
       "type": "blob",
-      "sha": "edb995a3487f7f157bb8796f0e6830ed5da3581c",
+      "sha": "126a1238074c0f1f530cce66ec3f1c9e0af86b47",
       "url": "ese/05 Variety/waitin’ for u/waitin for u.tja",
       "title": "waitin’ for u",
       "titleJp": "waitin' for u",
@@ -37334,7 +37654,7 @@
     {
       "path": "06 Classical/Clapolpolska/Clapolpolska.tja",
       "type": "blob",
-      "sha": "7714e09e53ccd0390e8e4b0d735c874f4309c14a",
+      "sha": "41f6613ec9aefb5e62e917dbd81d92d917f75ba5",
       "url": "ese/06 Classical/Clapolpolska/Clapolpolska.tja",
       "title": "Clapolpolska",
       "titleJp": "クラポルポルスカ",
@@ -38439,7 +38759,7 @@
     {
       "path": "06 Classical/Mars/Mars.tja",
       "type": "blob",
-      "sha": "7031d65686639cf90a4bd54619dc227f09cb5f5f",
+      "sha": "6485cfb72c16f119a6c2d15723e59d50f1a58ce7",
       "url": "ese/06 Classical/Mars/Mars.tja",
       "title": "Mars",
       "titleJp": "火星",
@@ -38622,27 +38942,19 @@
       "courses": {
         "easy": {
           "level": 4,
-          "maxCombo": 143,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/%E5%A4%9C%E6%83%B3%E6%9B%B2Op.9-2",
-          "urlKo": "https://taiko.wiki/song/213?diff=easy"
+          "maxCombo": 143
         },
         "normal": {
           "level": 6,
-          "maxCombo": 221,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/%E5%A4%9C%E6%83%B3%E6%9B%B2Op.9-2",
-          "urlKo": "https://taiko.wiki/song/213?diff=normal"
+          "maxCombo": 221
         },
         "hard": {
           "level": 7,
-          "maxCombo": 379,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/%E5%A4%9C%E6%83%B3%E6%9B%B2Op.9-2",
-          "urlKo": "https://taiko.wiki/song/213?diff=hard"
+          "maxCombo": 379
         },
         "oni": {
           "level": 8,
-          "maxCombo": 500,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/%E5%A4%9C%E6%83%B3%E6%9B%B2Op.9-2",
-          "urlKo": "https://taiko.wiki/song/213?diff=oni"
+          "maxCombo": 500
         }
       },
       "bpm": {
@@ -38659,14 +38971,7 @@
         "PLUS",
         "PTB",
         "RC"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      }
+      ]
     },
     {
       "path": "06 Classical/O Sole Mio/‘O Sole Mio.tja",
@@ -39053,11 +39358,11 @@
     {
       "path": "06 Classical/Sonata, Gekkou/Sonata, Gekkou.tja",
       "type": "blob",
-      "sha": "34407dc29d7e992ba55bc186de06e286bbf1c325",
+      "sha": "8200410c06c6858b677d4f5807dec808bd61c193",
       "url": "ese/06 Classical/Sonata, Gekkou/Sonata, Gekkou.tja",
       "title": "Sonata, Gekkou",
       "titleJp": "其方、激昂",
-      "subtitle": "Katsuro Tajima",
+      "subtitle": "Katsuro Tajima (BNSI)",
       "titleCn": "其方，激昂",
       "titleKo": "소나타, 겟코우",
       "artist": "Ludwig van Beethoven, 田島勝朗",
@@ -39440,7 +39745,7 @@
     {
       "path": "06 Classical/Toccata and Fugue and Rock/Toccata and Fugue and Rock.tja",
       "type": "blob",
-      "sha": "946f3b8fe126b02602ec03ebc924e31e6fc97a2c",
+      "sha": "d4385050ca21d8a39ba21f0618cbc9a445a1cae8",
       "url": "ese/06 Classical/Toccata and Fugue and Rock/Toccata and Fugue and Rock.tja",
       "title": "Toccata and Fugue and Rock",
       "titleJp": "トッカータとフーガとロック",
@@ -39827,11 +40132,11 @@
     {
       "path": "07 Game Music/ANiMA/ANiMA.tja",
       "type": "blob",
-      "sha": "61cdbc919cb39385d83e81f37d1e354b40e90137",
+      "sha": "ff606ba88b131e545601d7450dad7deb3597ab9b",
       "url": "ese/07 Game Music/ANiMA/ANiMA.tja",
       "title": "ANiMA",
       "titleJp": "ANiMA",
-      "subtitle": "xi/DEEMO",
+      "subtitle": "xi / DEEMO",
       "subtitleJp": "xi 「DEEMO」より",
       "titleCn": "ANiMA",
       "artist": "xi",
@@ -40381,7 +40686,7 @@
     {
       "path": "07 Game Music/Assault BGM1/Assault BGM1.tja",
       "type": "blob",
-      "sha": "1079407b5abec778542f4fb8fb14cfbc93e6b89f",
+      "sha": "1b671aac8dbdaa0ef804ef8cde90f35fa0b54c0d",
       "url": "ese/07 Game Music/Assault BGM1/Assault BGM1.tja",
       "title": "Assault BGM1",
       "titleJp": "アサルト BGM1",
@@ -40615,11 +40920,12 @@
     {
       "path": "07 Game Music/BORN ON DREAM! ～HANABI☆NIGHT～/BORN ON DREAM! HANABI NIGHT.tja",
       "type": "blob",
-      "sha": "874990e13c708b10e7f2ffa337326518b7b82b53",
+      "sha": "cbca4e3c873571264082ddc2e5abb19f3cc04497",
       "url": "ese/07 Game Music/BORN ON DREAM! ～HANABI☆NIGHT～/BORN ON DREAM! HANABI NIGHT.tja",
       "title": "BORN ON DREAM! ～HANABI☆NIGHT～",
       "titleJp": "BORN ON DREAM! ～HANABI☆NIGHT～",
-      "subtitle": "Senkou☆HANABI Dan/THE iDOLM@STER Million Live! Theater Days"
+      "subtitle": "Senkou☆HANABI Dan/THE iDOLM@STER Million Live! Theater Days",
+      "subtitleJp": "「アイドルマスター ミリオンライブ！ シアターデイズ」より"
     },
     {
       "path": "07 Game Music/Back to Life/Back to Life.tja",
@@ -42539,27 +42845,19 @@
       "courses": {
         "easy": {
           "level": 4,
-          "maxCombo": 159,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/%E3%83%95%E3%82%A1%E3%83%B3%E3%82%BF%E3%82%B8%E3%83%BC%E3%82%BE%E3%83%BC%E3%83%B3%20OPA-OPA%21%20-%20GMT%20remix%20-",
-          "urlKo": "https://taiko.wiki/song/151?diff=easy"
+          "maxCombo": 159
         },
         "normal": {
           "level": 6,
-          "maxCombo": 226,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/%E3%83%95%E3%82%A1%E3%83%B3%E3%82%BF%E3%82%B8%E3%83%BC%E3%82%BE%E3%83%BC%E3%83%B3%20OPA-OPA%21%20-%20GMT%20remix%20-",
-          "urlKo": "https://taiko.wiki/song/151?diff=normal"
+          "maxCombo": 226
         },
         "hard": {
           "level": 7,
-          "maxCombo": 378,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/%E3%83%95%E3%82%A1%E3%83%B3%E3%82%BF%E3%82%B8%E3%83%BC%E3%82%BE%E3%83%BC%E3%83%B3%20OPA-OPA%21%20-%20GMT%20remix%20-",
-          "urlKo": "https://taiko.wiki/song/151?diff=hard"
+          "maxCombo": 378
         },
         "oni": {
           "level": 7,
-          "maxCombo": 537,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/%E3%83%95%E3%82%A1%E3%83%B3%E3%82%BF%E3%82%B8%E3%83%BC%E3%82%BE%E3%83%BC%E3%83%B3%20OPA-OPA%21%20-%20GMT%20remix%20-",
-          "urlKo": "https://taiko.wiki/song/151?diff=oni"
+          "maxCombo": 537
         }
       },
       "bpm": {
@@ -42569,14 +42867,7 @@
       "platforms": [
         "NAC",
         "V"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      }
+      ]
     },
     {
       "path": "07 Game Music/Fight the Fanatics/Fight the Fanatics.tja",
@@ -42606,6 +42897,40 @@
       "titleJp": "Fighting My Way",
       "subtitle": "Gakuen iDOLM@STER",
       "subtitleJp": "「学園アイドルマスター」より"
+    },
+    {
+      "path": "07 Game Music/Fishing Spirits Wonder Medley/Fishing Spirits Wonder Medley.tja",
+      "type": "blob",
+      "sha": "ccd5955e90ed8873f46db086deb9aadf0405f931",
+      "url": "ese/07 Game Music/Fishing Spirits Wonder Medley/Fishing Spirits Wonder Medley.tja",
+      "title": "Fishing Spirits Wonder Medley",
+      "titleJp": "釣りスピリッツ ワンダー メドレー",
+      "titleKo": "Ace Angler 메들리 ~Wonder Ver.~",
+      "courses": {
+        "easy": {
+          "level": 2,
+          "maxCombo": 47
+        },
+        "normal": {
+          "level": 4,
+          "maxCombo": 92
+        },
+        "hard": {
+          "level": 6,
+          "maxCombo": 232
+        },
+        "oni": {
+          "level": 7,
+          "maxCombo": 434
+        }
+      },
+      "bpm": {
+        "min": 115,
+        "max": 194
+      },
+      "platforms": [
+        "NAC"
+      ]
     },
     {
       "path": "07 Game Music/Flower Girl/Flower Girl.tja",
@@ -43513,7 +43838,7 @@
     {
       "path": "07 Game Music/Heartache/Heartache.tja",
       "type": "blob",
-      "sha": "622acf2a4bcb10e9139a7ccc1e1c8362237aec49",
+      "sha": "6946236aa9b656d286aaf1c9db4898127de95fc4",
       "url": "ese/07 Game Music/Heartache/Heartache.tja",
       "title": "Heartache",
       "titleJp": "心の痛み",
@@ -43680,58 +44005,6 @@
       }
     },
     {
-      "path": "07 Game Music/Himitsuki-tuber/Himitsuki-tuber.tja",
-      "type": "blob",
-      "sha": "7f97ff46130d51dccb9b0d1c2b2147dc2707ebb2",
-      "url": "ese/07 Game Music/Himitsuki-tuber/Himitsuki-tuber.tja",
-      "title": "Himitsuki-tuber",
-      "titleJp": "ヒミツキチューバー",
-      "subtitle": "Hidekazu Tanaka/Ninja Box",
-      "subtitleJp": "「ニンジャボックス」より",
-      "titleKo": "HimitsuKiTuber",
-      "artist": "田中秀和, トンカチ(加藤英美里)&ヒロト(潘めぐみ)&メガホン(中村悠一)&ポンプ(村瀬歩)",
-      "courses": {
-        "easy": {
-          "level": 3,
-          "maxCombo": 99,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/%E3%83%92%E3%83%9F%E3%83%84%E3%82%AD%E3%83%81%E3%83%A5%E3%83%BC%E3%83%90%E3%83%BC",
-          "urlKo": "https://taiko.wiki/song/897?diff=easy"
-        },
-        "normal": {
-          "level": 4,
-          "maxCombo": 154,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/%E3%83%92%E3%83%9F%E3%83%84%E3%82%AD%E3%83%81%E3%83%A5%E3%83%BC%E3%83%90%E3%83%BC",
-          "urlKo": "https://taiko.wiki/song/897?diff=normal"
-        },
-        "hard": {
-          "level": 6,
-          "maxCombo": 260,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/%E3%83%92%E3%83%9F%E3%83%84%E3%82%AD%E3%83%81%E3%83%A5%E3%83%BC%E3%83%90%E3%83%BC",
-          "urlKo": "https://taiko.wiki/song/897?diff=hard"
-        },
-        "oni": {
-          "level": 8,
-          "maxCombo": 393,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/%E3%83%92%E3%83%9F%E3%83%84%E3%82%AD%E3%83%81%E3%83%A5%E3%83%BC%E3%83%90%E3%83%BC",
-          "urlKo": "https://taiko.wiki/song/897?diff=oni"
-        }
-      },
-      "bpm": {
-        "min": 140,
-        "max": 140
-      },
-      "platforms": [
-        "NAC"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 0,
-        "UnitedStates": 0,
-        "China": 0
-      }
-    },
-    {
       "path": "07 Game Music/Hippare! Monster Strike/Hippare! Monster Strike.tja",
       "type": "blob",
       "sha": "e729bcb7569353a2e1ca91c55811b4e075e94522",
@@ -43880,16 +44153,17 @@
     {
       "path": "07 Game Music/Honwaka Kazoku ～Neko Tomo Theme Song～/Honwaka Kazoku Neko Tomo Theme Song.tja",
       "type": "blob",
-      "sha": "486bebd9c6d9649af55cd267d3840cdfd9c01e61",
+      "sha": "ee37c4d8db69b2f8960a6636d01e9518370f9da4",
       "url": "ese/07 Game Music/Honwaka Kazoku ～Neko Tomo Theme Song～/Honwaka Kazoku Neko Tomo Theme Song.tja",
       "title": "Honwaka Kazoku ～Neko Tomo Theme Song～",
       "titleJp": "ほんわか家族～ネコトモのうた～",
-      "subtitle": "Misaki Machiya/Neko Tomo"
+      "subtitle": "Misaki Machiya/Neko Tomo",
+      "subtitleJp": "「ネコ・トモ」テーマ曲"
     },
     {
       "path": "07 Game Music/Hopes and Dreams/Hopes and Dreams.tja",
       "type": "blob",
-      "sha": "a12262af75a72a23c80da943c9bc41ccdbc88cce",
+      "sha": "b33fda714ae690f5c9f793473e62b640816fd6fe",
       "url": "ese/07 Game Music/Hopes and Dreams/Hopes and Dreams.tja",
       "title": "Hopes and Dreams",
       "titleJp": "夢と希望",
@@ -44160,7 +44434,7 @@
     {
       "path": "07 Game Music/JOIN THE PAC -Tatsujin Version-/JOIN THE PAC -Tatsujin Version-.tja",
       "type": "blob",
-      "sha": "32ed7fa01e0ce921d4d63e690cdf69abae8518f7",
+      "sha": "93d19009e8f4a96fdf6f95d540ab604bb9547a05",
       "url": "ese/07 Game Music/JOIN THE PAC -Tatsujin Version-/JOIN THE PAC -Tatsujin Version-.tja",
       "title": "JOIN THE PAC -Tatsujin Version-",
       "titleJp": "JOIN THE PAC -太鼓の達人 Ver.-",
@@ -44499,27 +44773,19 @@
       "courses": {
         "easy": {
           "level": 4,
-          "maxCombo": 157,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/KARMA%28Tatsujin%20Mix%29",
-          "urlKo": "https://taiko.wiki/song/739?diff=easy"
+          "maxCombo": 157
         },
         "normal": {
           "level": 6,
-          "maxCombo": 245,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/KARMA%28Tatsujin%20Mix%29",
-          "urlKo": "https://taiko.wiki/song/739?diff=normal"
+          "maxCombo": 245
         },
         "hard": {
           "level": 7,
-          "maxCombo": 472,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/KARMA%28Tatsujin%20Mix%29",
-          "urlKo": "https://taiko.wiki/song/739?diff=hard"
+          "maxCombo": 472
         },
         "oni": {
           "level": 9,
-          "maxCombo": 876,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/KARMA%28Tatsujin%20Mix%29",
-          "urlKo": "https://taiko.wiki/song/739?diff=oni"
+          "maxCombo": 876
         }
       },
       "bpm": {
@@ -44528,14 +44794,7 @@
       },
       "platforms": [
         "NAC"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 0,
-        "UnitedStates": 0,
-        "China": 0
-      }
+      ]
     },
     {
       "path": "07 Game Music/Kakenukete-yuku/Kakenukete-yuku.tja",
@@ -45488,7 +45747,7 @@
     {
       "path": "07 Game Music/Leviathan/Leviathan.tja",
       "type": "blob",
-      "sha": "ecdd661e11d8676b0c91e7d2a8f1d8716851e3d8",
+      "sha": "50407c2cc986bba2b4535b58c35403286d6d48f6",
       "url": "ese/07 Game Music/Leviathan/Leviathan.tja",
       "title": "Leviathan",
       "titleJp": "Leviathan",
@@ -46028,7 +46287,7 @@
     {
       "path": "07 Game Music/MagiCatz/MagiCatz.tja",
       "type": "blob",
-      "sha": "7709bcd2e01a9a6863f17678f0cecaeb3b3cf7f5",
+      "sha": "8763287ce5f370b381fc540c12f1d99cfa8d56a1",
       "url": "ese/07 Game Music/MagiCatz/MagiCatz.tja",
       "title": "MagiCatz",
       "titleJp": "MagiCatz",
@@ -46177,7 +46436,7 @@
     {
       "path": "07 Game Music/Maji de...!/Maji de...!.tja",
       "type": "blob",
-      "sha": "6892ed105b09a7e8d6b1681af75656616d2e0a03",
+      "sha": "51654af9470a7277b1f5b226cccfc341b0c4efb1",
       "url": "ese/07 Game Music/Maji de...!/Maji de...!.tja",
       "title": "Maji de...⁉",
       "titleJp": "マジで…！？",
@@ -46414,6 +46673,7 @@
       "titleJp": "みんなのうた",
       "subtitle": "Taku Inoue feat. SaChi (harineko) / Synchronica",
       "subtitleJp": "Taku Inoue feat. SaChi (harineko)「シンクロニカ」より",
+      "titleCn": "大家的歌",
       "titleKo": "Minna no Uta",
       "artist": "Taku Inoue, SaChi (harineko)",
       "courses": {
@@ -46805,9 +47065,19 @@
       }
     },
     {
+      "path": "07 Game Music/Music Revolver/Music Revolver (Sou-uchi).tja",
+      "type": "blob",
+      "sha": "72fe0f8c71f70802cdbc82ef3a45d8268dc63264",
+      "url": "ese/07 Game Music/Music Revolver/Music Revolver (Sou-uchi).tja",
+      "title": "[Sou-uchi] Music Revolver",
+      "titleJp": "【双打】 ミュージック・リボルバー",
+      "subtitle": "Tatsh a.k.a. Zeami/Music GunGun! 2",
+      "subtitleJp": "「ミュージックガンガン！2」より"
+    },
+    {
       "path": "07 Game Music/Music Revolver/Music Revolver.tja",
       "type": "blob",
-      "sha": "a16ba53b0220d2c1b7ac61bea11db3eec8c8114f",
+      "sha": "b83d3f23d649f58f2948db9000412deb9e2dc740",
       "url": "ese/07 Game Music/Music Revolver/Music Revolver.tja",
       "title": "Music Revolver",
       "titleJp": "ミュージック・リボルバー",
@@ -47344,11 +47614,11 @@
     {
       "path": "07 Game Music/Nihiki wa Neko Tomo!/Nihiki wa Neko Tomo!.tja",
       "type": "blob",
-      "sha": "3d41f8055ef9ffe2f5d05744d3781fcac4026ede",
+      "sha": "a8a862c687993060a5debe38405a15c88e21f89e",
       "url": "ese/07 Game Music/Nihiki wa Neko Tomo!/Nihiki wa Neko Tomo!.tja",
       "title": "Nihiki wa Neko Tomo!",
       "titleJp": "にひきはネコトモ！",
-      "subtitle": "Keiki Kobayashi feat. Misaki Machiya/Neko Tomo",
+      "subtitle": "Keiki Kobayashi feat. Misaki Machiya / Neko Tomo",
       "subtitleJp": "「ネコ・トモ」エンディング曲"
     },
     {
@@ -47938,7 +48208,7 @@
     {
       "path": "07 Game Music/PAC TOY-BOX/PAC TOY-BOX.tja",
       "type": "blob",
-      "sha": "7ffeaba4ee5320e31505abb9dcd674a3af1f4c4a",
+      "sha": "79628a6fef846186c2f4644c7765b7c22b88d369",
       "url": "ese/07 Game Music/PAC TOY-BOX/PAC TOY-BOX.tja",
       "title": "PAC TOY-BOX",
       "titleJp": "PAC‐MAN CHAMPIONSHIP EDITION 2",
@@ -48174,7 +48444,7 @@
     {
       "path": "07 Game Music/Pokemon Let’s Go! Pikachu and Let’s Go! Eevee Medley/Pokemon Lets Go! Pikachu and Lets Go! Eevee Medley.tja",
       "type": "blob",
-      "sha": "ea155b7d652e949c7ab9929607e62b5be5fdee06",
+      "sha": "d90c4746693df8ea7a67f58650925486aa81786d",
       "url": "ese/07 Game Music/Pokemon Let’s Go! Pikachu and Let’s Go! Eevee Medley/Pokemon Lets Go! Pikachu and Lets Go! Eevee Medley.tja",
       "title": "Pokémon Let’s Go! Pikachu & Let’s Go! Eevee Medley",
       "titleJp": "ポケットモンスター Let's Go! ピカチュウ・Let's Go! イーブイ",
@@ -48456,7 +48726,7 @@
     {
       "path": "07 Game Music/Racing the Storm/Racing the Storm.tja",
       "type": "blob",
-      "sha": "004b11e4ab9094234089a9ad83d5283924be0c26",
+      "sha": "d17cdea40c9d4d04f868a693d0d7e897b140b5ae",
       "url": "ese/07 Game Music/Racing the Storm/Racing the Storm.tja",
       "title": "Racing the Storm",
       "titleJp": "Racing the Storm",
@@ -48676,6 +48946,42 @@
       "title": "Reimei Starline",
       "titleJp": "黎明スターライン",
       "subtitle": "Yuuji Masubuchi feat. Asami Shimoda/THE iDOLM@STER MUST SONGS： Red Album"
+    },
+    {
+      "path": "07 Game Music/Remnath/Remnath.tja",
+      "type": "blob",
+      "sha": "87b66e202870db9480cd0c58fc6735bfec052dc2",
+      "url": "ese/07 Game Music/Remnath/Remnath.tja",
+      "title": "Remnath",
+      "titleJp": "Remnath",
+      "subtitle": "penoreri From \"WAHLAP Esports WEC2025\"",
+      "subtitleJp": "ぺのれり 「WAHLAP eスポーツWEC2025」より",
+      "artist": "ぺのれり",
+      "courses": {
+        "easy": {
+          "level": 3,
+          "maxCombo": 121
+        },
+        "normal": {
+          "level": 6,
+          "maxCombo": 331
+        },
+        "hard": {
+          "level": 8,
+          "maxCombo": 557
+        },
+        "oni": {
+          "level": 10,
+          "maxCombo": 1103
+        }
+      },
+      "bpm": {
+        "min": 187,
+        "max": 210.5
+      },
+      "platforms": [
+        "NAC"
+      ]
     },
     {
       "path": "07 Game Music/Revenge of Meta Knight Medley/Revenge of Meta Knight Medley.tja",
@@ -49435,7 +49741,7 @@
     {
       "path": "07 Game Music/Sonic the Hedgehog Medley/Sonic the Hedgehog Medley.tja",
       "type": "blob",
-      "sha": "080aa2f6201a371143d4473605f521940cecb48a",
+      "sha": "de96d60be2434069e9dfc1df9eceec0ea855d6d1",
       "url": "ese/07 Game Music/Sonic the Hedgehog Medley/Sonic the Hedgehog Medley.tja",
       "title": "Sonic the Hedgehog Medley",
       "titleJp": "ソニック・ザ・ヘッジホッグ メドレー",
@@ -49534,7 +49840,7 @@
     {
       "path": "07 Game Music/Splatoon 2 Medley/Splatoon 2 Medley.tja",
       "type": "blob",
-      "sha": "e93779df5685a00d43c3a68d066eafcb202290d7",
+      "sha": "6737a336c4a756d1f58cdab83be3e64b49709b0f",
       "url": "ese/07 Game Music/Splatoon 2 Medley/Splatoon 2 Medley.tja",
       "title": "Splatoon 2 Medley",
       "titleJp": "スプラトゥーン2 メドレー",
@@ -50023,6 +50329,7 @@
       "titleJp": "Sync Your World",
       "subtitle": "Mifumei/Synchronica",
       "subtitleJp": "ミフメイ 「シンクロニカ」より",
+      "titleCn": "Sync Your World",
       "artist": "ミフメイ",
       "courses": {
         "easy": {
@@ -50066,14 +50373,14 @@
       }
     },
     {
-      "path": "07 Game Music/Synchronica Airlines/Synchronica Airlines.tja",
+      "path": "07 Game Music/Synchronica Airline/Synchronica Airline.tja",
       "type": "blob",
-      "sha": "022a45fc9390bc485c4a879b5d3b71d43b45ab97",
-      "url": "ese/07 Game Music/Synchronica Airlines/Synchronica Airlines.tja",
-      "title": "Synchronica Airlines",
+      "sha": "6d999694f4f22ecca84ba499113777d78d77b212",
+      "url": "ese/07 Game Music/Synchronica Airline/Synchronica Airline.tja",
+      "title": "Synchronica Airline",
       "titleJp": "シンクロニカ・エアライン",
-      "subtitle": "Taku Inoue/Synchronica",
-      "subtitleJp": "Taku Inoue 「シンクロニカ」より",
+      "subtitle": "Taku Inoue (BNSI) / Synchronica",
+      "subtitleJp": "Taku Inoue(BNSI) 「シンクロニカ」より",
       "titleCn": "Synchronica Airline",
       "titleKo": "Synchronica Airline",
       "artist": "Taku Inoue",
@@ -50236,11 +50543,12 @@
     {
       "path": "07 Game Music/TD -28619029byte remix-/TD -28619029byte remix-.tja",
       "type": "blob",
-      "sha": "0057e19db01033e6dc9fdb4329548791d07fd931",
+      "sha": "fb8c2a050eae7c2deac36ed5779084b1fefbbb6f",
       "url": "ese/07 Game Music/TD -28619029byte remix-/TD -28619029byte remix-.tja",
       "title": "TD -28619029byte remix-",
       "titleJp": "TD - 28619029byte remix -",
       "subtitle": "Yuuji Masubuchi/Techno Drive",
+      "subtitleJp": "「テクノドライブ」より",
       "artist": "中川浩二",
       "courses": {
         "easy": {
@@ -50613,13 +50921,24 @@
       "subtitle": "Eiki Abe/Puyo Puyo Fever"
     },
     {
+      "path": "07 Game Music/Tanoshii Taiko Dojo/Tanoshii Taiko Dojo -Old Chart-.tja",
+      "type": "blob",
+      "sha": "b1fdc77df7d2733f792dbe3d67b3a11fd3b2ba62",
+      "url": "ese/07 Game Music/Tanoshii Taiko Dojo/Tanoshii Taiko Dojo -Old Chart-.tja",
+      "title": "Tanoshii Taiko Dojo -Old Chart-",
+      "titleJp": "たのしい太鼓道場",
+      "subtitle": "Jesahm feat. Fushigi Yamada/Namco Games",
+      "subtitleJp": "旧譜面"
+    },
+    {
       "path": "07 Game Music/Tanoshii Taiko Dojo/Tanoshii Taiko Dojo.tja",
       "type": "blob",
-      "sha": "ef60f13b858e4d53d8b04a049c1e5c24b875d2b1",
+      "sha": "4e9c0cdb282b55ac5d8eec6a13d72b52740d4d22",
       "url": "ese/07 Game Music/Tanoshii Taiko Dojo/Tanoshii Taiko Dojo.tja",
-      "title": "Tanoshii Taiko Dojo",
+      "title": "Tanoshii Taiko Dojo -New Chart-",
       "titleJp": "たのしい太鼓道場",
-      "subtitle": "Jesahm feat. Fushigi Yamada/Namco Games"
+      "subtitle": "Jesahm feat. Fushigi Yamada/Namco Games",
+      "subtitleJp": "新譜面"
     },
     {
       "path": "07 Game Music/Tatakae! T3 Boueitai ～GDI Mix～/Tatakae! T3 Boueitai GDI Mix.tja",
@@ -50786,6 +51105,42 @@
       "titleJp": "The Dragon Knights",
       "subtitle": "Nobuo Uematsu feat. Yuki Ono/Granblue Fantasy",
       "subtitleJp": "オイラ"
+    },
+    {
+      "path": "07 Game Music/The Encounter Code/The Encounter Code.tja",
+      "type": "blob",
+      "sha": "856ee57e69381cd1c7ef82cd65b68ec18f0f5479",
+      "url": "ese/07 Game Music/The Encounter Code/The Encounter Code.tja",
+      "title": "The Encounter Code",
+      "titleJp": "The Encounter Code",
+      "subtitle": "technoplanet From \"WAHLAP Esports WEC2025\"",
+      "subtitleJp": "technoplanet 「WAHLAP eスポーツWEC2025」より",
+      "artist": "technoplanet",
+      "courses": {
+        "easy": {
+          "level": 4,
+          "maxCombo": 194
+        },
+        "normal": {
+          "level": 6,
+          "maxCombo": 416
+        },
+        "hard": {
+          "level": 6,
+          "maxCombo": 626
+        },
+        "oni": {
+          "level": 9,
+          "maxCombo": 910
+        }
+      },
+      "bpm": {
+        "min": 212,
+        "max": 212
+      },
+      "platforms": [
+        "NAC"
+      ]
     },
     {
       "path": "07 Game Music/The Invincible Blade/The Invincible Blade.tja",
@@ -51986,6 +52341,46 @@
       "subtitleJp": "PAC-MAN Official Theme Song"
     },
     {
+      "path": "07 Game Music/When Enemies Collapse/When Enemies Collapse.tja",
+      "type": "blob",
+      "sha": "f848c52e74d168c4fdf35b18b01d5d707d1bf68a",
+      "url": "ese/07 Game Music/When Enemies Collapse/When Enemies Collapse.tja",
+      "title": "When Enemies Collapse",
+      "titleJp": "When Enemies Collapse",
+      "subtitle": "Daisuke Kurosawa From \"WAHLAP Esports WEC2025\"",
+      "subtitleJp": "黒沢ダイスケ 「WAHLAP eスポーツWEC2025」より",
+      "artist": "黒沢ダイスケ",
+      "courses": {
+        "easy": {
+          "level": 4,
+          "maxCombo": 166
+        },
+        "normal": {
+          "level": 6,
+          "maxCombo": 318
+        },
+        "hard": {
+          "level": 6,
+          "maxCombo": 445
+        },
+        "oni": {
+          "level": 8,
+          "maxCombo": 701
+        },
+        "ura": {
+          "level": 10,
+          "maxCombo": 982
+        }
+      },
+      "bpm": {
+        "min": 158,
+        "max": 158
+      },
+      "platforms": [
+        "NAC"
+      ]
+    },
+    {
       "path": "07 Game Music/Where is the Target/Where is the Target.tja",
       "type": "blob",
       "sha": "43dc8673d05f2e06608c64b4b2966757604113be",
@@ -52033,32 +52428,24 @@
       "subtitle": "Go Shiina/GOD EATER 2 RAGE BURST",
       "titleOfficial": "Wings of Tomorrow（Tatsujin Mix）",
       "titleCn": "Wings of Tomorrow(Tatsujin Mix)",
-      "titleKo": "Wings of Tomorrow (Tatsujin Mix)",
+      "titleKo": "Wings of Tomorrow(Tatsujin Mix)",
       "artist": "マッケンジー・グリーン, 椎名豪",
       "courses": {
         "easy": {
           "level": 4,
-          "maxCombo": 213,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/Wings%20of%20Tomorrow%28Tatsujin%20Mix%29",
-          "urlKo": "https://taiko.wiki/song/159?diff=easy"
+          "maxCombo": 213
         },
         "normal": {
           "level": 6,
-          "maxCombo": 299,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/Wings%20of%20Tomorrow%28Tatsujin%20Mix%29",
-          "urlKo": "https://taiko.wiki/song/159?diff=normal"
+          "maxCombo": 299
         },
         "hard": {
           "level": 6,
-          "maxCombo": 505,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/Wings%20of%20Tomorrow%28Tatsujin%20Mix%29",
-          "urlKo": "https://taiko.wiki/song/159?diff=hard"
+          "maxCombo": 505
         },
         "oni": {
           "level": 9,
-          "maxCombo": 765,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/Wings%20of%20Tomorrow%28Tatsujin%20Mix%29",
-          "urlKo": "https://taiko.wiki/song/159?diff=oni"
+          "maxCombo": 765
         }
       },
       "bpm": {
@@ -52073,19 +52460,12 @@
         "WiiU2",
         "3DS3",
         "PLUS"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      }
+      ]
     },
     {
       "path": "07 Game Music/Wish upon a shooting star/Wish upon a shooting star.tja",
       "type": "blob",
-      "sha": "f68607d2522484787a95364a42a55c3355e87454",
+      "sha": "543518a10b60accb58832f001cf8cbc1f1dd6caa",
       "url": "ese/07 Game Music/Wish upon a shooting star/Wish upon a shooting star.tja",
       "title": "Wish upon a shooting star",
       "titleJp": "Wish upon a shooting star",
@@ -52146,7 +52526,7 @@
     {
       "path": "07 Game Music/Wonder Momoi/Wonder Momoi.tja",
       "type": "blob",
-      "sha": "9becee65681751c7313b5663b7b49decbbce396d",
+      "sha": "397fa01e916f117d98c51930e1383f3bba8968d3",
       "url": "ese/07 Game Music/Wonder Momoi/Wonder Momoi.tja",
       "title": "Wonder Momoi",
       "titleJp": "ワンダーモモーイ",
@@ -52565,6 +52945,43 @@
       "title": "livE",
       "titleJp": "livE",
       "subtitle": "Yukari Hashimoto feat. Naomi Wakabayashi/THE iDOLM@STER MUST SONGS： Red Album"
+    },
+    {
+      "path": "07 Game Music/ln(guis·tics)/ln(guis·tics).tja",
+      "type": "blob",
+      "sha": "4f567a7f94120178881fdf8746604cbde8199e90",
+      "url": "ese/07 Game Music/ln(guis·tics)/ln(guis·tics).tja",
+      "title": "ln(guis·tics)",
+      "titleJp": "ln(guis·tics)",
+      "subtitle": "Sephid From \"WAHLAP Esports WEC2025\"",
+      "subtitleJp": "Sephid 「WAHLAP eスポーツWEC2025」より",
+      "titleOfficial": "ln(guis・tics)",
+      "artist": "Sephid, AnthV",
+      "courses": {
+        "easy": {
+          "level": 5,
+          "maxCombo": 299
+        },
+        "normal": {
+          "level": 6,
+          "maxCombo": 363
+        },
+        "hard": {
+          "level": 7,
+          "maxCombo": 602
+        },
+        "oni": {
+          "level": 10,
+          "maxCombo": 1076
+        }
+      },
+      "bpm": {
+        "min": 175,
+        "max": 175
+      },
+      "platforms": [
+        "NAC"
+      ]
     },
     {
       "path": "07 Game Music/my song/my song -765PRO ALLSTARS Version-.tja",
@@ -53407,27 +53824,19 @@
       "courses": {
         "easy": {
           "level": 3,
-          "maxCombo": 138,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/3Q-4U-AC00",
-          "urlKo": "https://taiko.wiki/song/315?diff=easy"
+          "maxCombo": 138
         },
         "normal": {
           "level": 6,
-          "maxCombo": 202,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/3Q-4U-AC00",
-          "urlKo": "https://taiko.wiki/song/315?diff=normal"
+          "maxCombo": 202
         },
         "hard": {
           "level": 4,
-          "maxCombo": 276,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/3Q-4U-AC00",
-          "urlKo": "https://taiko.wiki/song/315?diff=hard"
+          "maxCombo": 276
         },
         "oni": {
           "level": 7,
-          "maxCombo": 539,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/3Q-4U-AC00",
-          "urlKo": "https://taiko.wiki/song/315?diff=oni"
+          "maxCombo": 539
         }
       },
       "bpm": {
@@ -53442,14 +53851,7 @@
         "Wii5",
         "PLUS",
         "RC"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      }
+      ]
     },
     {
       "path": "09 Namco Original/3piece-JazzParty!/3piece-JazzParty!.tja",
@@ -53465,27 +53867,19 @@
       "courses": {
         "easy": {
           "level": 4,
-          "maxCombo": 118,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/3piece-JazzParty%21",
-          "urlKo": "https://taiko.wiki/song/10?diff=easy"
+          "maxCombo": 118
         },
         "normal": {
           "level": 5,
-          "maxCombo": 145,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/3piece-JazzParty%21",
-          "urlKo": "https://taiko.wiki/song/10?diff=normal"
+          "maxCombo": 145
         },
         "hard": {
           "level": 7,
-          "maxCombo": 289,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/3piece-JazzParty%21",
-          "urlKo": "https://taiko.wiki/song/10?diff=hard"
+          "maxCombo": 289
         },
         "oni": {
           "level": 9,
-          "maxCombo": 552,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/3piece-JazzParty%21",
-          "urlKo": "https://taiko.wiki/song/10?diff=oni"
+          "maxCombo": 552
         }
       },
       "bpm": {
@@ -53499,14 +53893,7 @@
         "PSPDX",
         "PLUS",
         "RC"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      }
+      ]
     },
     {
       "path": "09 Namco Original/8OROCHI/8OROCHI.tja",
@@ -53701,11 +54088,12 @@
     {
       "path": "09 Namco Original/Ai Nandaze/Ai Nandaze.tja",
       "type": "blob",
-      "sha": "8439d83cd395c9df167d67e451e874d1d6ddba9e",
+      "sha": "0e084a1a045a66d7f03536f739bc9a3ad5c5baf2",
       "url": "ese/09 Namco Original/Ai Nandaze/Ai Nandaze.tja",
       "title": "Ai Nandaze",
       "titleJp": "愛なんだぜ",
-      "subtitle": "Taku Inoue",
+      "subtitle": "Taku Inoue(BNSI)",
+      "subtitleJp": "Taku Inoue(BNSI)",
       "titleCn": "这就是爱",
       "titleKo": "아이난다제",
       "artist": "Taku Inoue",
@@ -55339,7 +55727,7 @@
     {
       "path": "09 Namco Original/BE THE ACE/BE THE ACE.tja",
       "type": "blob",
-      "sha": "831ac2faeba2ec29ce329644d2c9f9d3e48c33cf",
+      "sha": "30a9596844d3c3b3481ebfd6f0ffd4846f3b81fc",
       "url": "ese/09 Namco Original/BE THE ACE/BE THE ACE.tja",
       "title": "BE THE ACE",
       "titleJp": "BE THE ACE",
@@ -55463,7 +55851,7 @@
     {
       "path": "09 Namco Original/Bakumatsu Ishintan/Bakumatsu Ishintan.tja",
       "type": "blob",
-      "sha": "88df918ca704946eab6e08e299dbdeb3b62701d6",
+      "sha": "93c40af63eeac31b4b7282302d81fbcd02790689",
       "url": "ese/09 Namco Original/Bakumatsu Ishintan/Bakumatsu Ishintan.tja",
       "title": "Bakumatsu Ishintan",
       "titleJp": "幕末維新譚",
@@ -55870,7 +56258,7 @@
     {
       "path": "09 Namco Original/Bokura no Mae ni Michi wa Aru/Bokura no Mae ni Michi wa Aru.tja",
       "type": "blob",
-      "sha": "9ba13f2e9f9b4bda0d7b1b5612ee93c30a7bed78",
+      "sha": "3619f4d27e4671320062988ffe623bccf5a323cf",
       "url": "ese/09 Namco Original/Bokura no Mae ni Michi wa Aru/Bokura no Mae ni Michi wa Aru.tja",
       "title": "Bokura no Mae ni Michi wa Aru",
       "titleJp": "ボクらのまえに道はある",
@@ -56122,7 +56510,7 @@
     {
       "path": "09 Namco Original/Buru-chan no Oya2/Buru-chan no Oya2.tja",
       "type": "blob",
-      "sha": "119a3fbdb98894c9c95156b6c3e92dafec279e54",
+      "sha": "6dd673b655c64b16b86c5d3b4b4c11d3fb0b6faf",
       "url": "ese/09 Namco Original/Buru-chan no Oya2/Buru-chan no Oya2.tja",
       "title": "Buru-chan no Oya2",
       "titleJp": "ブルちゃんのおや2",
@@ -56807,9 +57195,9 @@
     {
       "path": "09 Namco Original/Central Dogma Part 1/Central Dogma Part 1.tja",
       "type": "blob",
-      "sha": "cc77e045b42806cd6745a715039d1ed56e1c7e5c",
+      "sha": "d96bac78eeb59164df223264dbbaf8b7e489c811",
       "url": "ese/09 Namco Original/Central Dogma Part 1/Central Dogma Part 1.tja",
-      "title": "Central Dogma Part 1",
+      "title": "Central Dogma Pt.1",
       "titleJp": "Central Dogma Pt.1",
       "subtitle": "Daisuke Kurosawa",
       "subtitleJp": "黒沢ダイスケ",
@@ -57103,7 +57491,7 @@
     {
       "path": "09 Namco Original/Chicken Game/Chicken Game.tja",
       "type": "blob",
-      "sha": "06049618ab8c82023a2023b8e53a94e49feeeb8d",
+      "sha": "1a487b038fc71667e8503914183e9046bbeae538",
       "url": "ese/09 Namco Original/Chicken Game/Chicken Game.tja",
       "title": "Chicken Game",
       "titleJp": "チキンレース",
@@ -58061,7 +58449,37 @@
       "url": "ese/09 Namco Original/Cycle of Rebirth/Cycle of Rebirth.tja",
       "title": "Cycle of Rebirth",
       "titleJp": "サイクル・オブ・リバース",
-      "subtitle": "Takafumi Sato"
+      "subtitle": "Takafumi Sato",
+      "titleKo": "Cycle of Rebirth",
+      "artist": "佐藤たかふみ, 蟹プリンス",
+      "courses": {
+        "easy": {
+          "level": 4,
+          "maxCombo": 161
+        },
+        "normal": {
+          "level": 6,
+          "maxCombo": 272
+        },
+        "hard": {
+          "level": 7,
+          "maxCombo": 413
+        },
+        "oni": {
+          "level": 9,
+          "maxCombo": 765
+        }
+      },
+      "bpm": {
+        "min": 96,
+        "max": 161
+      },
+      "platforms": [
+        "NAC",
+        "WiiU1",
+        "PSPDX",
+        "RC"
+      ]
     },
     {
       "path": "09 Namco Original/DEBSTEP!/DEBSTEP!.tja",
@@ -58218,33 +58636,23 @@
       "courses": {
         "easy": {
           "level": 4,
-          "maxCombo": 195,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/DON%27T%20CUT",
-          "urlKo": "https://taiko.wiki/song/163?diff=easy"
+          "maxCombo": 195
         },
         "normal": {
           "level": 7,
-          "maxCombo": 277,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/DON%27T%20CUT",
-          "urlKo": "https://taiko.wiki/song/163?diff=normal"
+          "maxCombo": 277
         },
         "hard": {
           "level": 8,
-          "maxCombo": 531,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/DON%27T%20CUT",
-          "urlKo": "https://taiko.wiki/song/163?diff=hard"
+          "maxCombo": 531
         },
         "oni": {
           "level": 8,
-          "maxCombo": 704,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/DON%27T%20CUT",
-          "urlKo": "https://taiko.wiki/song/163?diff=oni"
+          "maxCombo": 704
         },
         "ura": {
           "level": 9,
-          "maxCombo": 754,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/DON%27T%20CUT%28%E8%A3%8F%E8%AD%9C%E9%9D%A2%29",
-          "urlKo": "https://taiko.wiki/song/163?diff=ura"
+          "maxCombo": 754
         }
       },
       "bpm": {
@@ -58268,14 +58676,7 @@
         "PLUS",
         "PTB",
         "RC"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      }
+      ]
     },
     {
       "path": "09 Namco Original/DOQLOCANDy/DOQLOCANDy.tja",
@@ -59484,6 +59885,7 @@
       "titleJp": "でぃんぴーでぃんぱー！",
       "subtitle": "Omiko Sisters feat. EDOGA-SULLIVAN / WADIVE RECORD",
       "subtitleJp": "オミコシスターズ feat. エドガー・サリヴァン / WADIVE RECORD",
+      "titleCn": "Dimpy Dimper",
       "titleKo": "Dimpy Dimper",
       "artist": "オミコシスターズ, レミ, フア, 佐々木萌",
       "courses": {
@@ -59587,7 +59989,7 @@
     {
       "path": "09 Namco Original/Dodododo-Donderful!/Dodododo-donderful!.tja",
       "type": "blob",
-      "sha": "76055ca554e17a5e5263b5c46a01852f23dc15ba",
+      "sha": "76fe27a00ba477042bd31434bde3677841d1798e",
       "url": "ese/09 Namco Original/Dodododo-Donderful!/Dodododo-donderful!.tja",
       "title": "Dodododo-donderful!",
       "titleJp": "ドドドドドンだフル！",
@@ -60226,27 +60628,19 @@
       "courses": {
         "easy": {
           "level": 5,
-          "maxCombo": 218,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/Don%27t%20Stop%20the%20Game",
-          "urlKo": "https://taiko.wiki/song/818?diff=easy"
+          "maxCombo": 218
         },
         "normal": {
           "level": 7,
-          "maxCombo": 326,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/Don%27t%20Stop%20the%20Game",
-          "urlKo": "https://taiko.wiki/song/818?diff=normal"
+          "maxCombo": 326
         },
         "hard": {
           "level": 8,
-          "maxCombo": 499,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/Don%27t%20Stop%20the%20Game",
-          "urlKo": "https://taiko.wiki/song/818?diff=hard"
+          "maxCombo": 499
         },
         "oni": {
           "level": 10,
-          "maxCombo": 846,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/Don%27t%20Stop%20the%20Game",
-          "urlKo": "https://taiko.wiki/song/818?diff=oni"
+          "maxCombo": 846
         }
       },
       "bpm": {
@@ -60260,13 +60654,6 @@
         "PTB",
         "RC"
       ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      },
       "dfcDifficulty": {
         "oni": "iA+"
       }
@@ -60794,14 +61181,14 @@
       }
     },
     {
-      "path": "09 Namco Original/Drawin’☆Dream!/Drawin Dream!.tja",
+      "path": "09 Namco Original/Drawing☆Dream!/Drawing Dream!.tja",
       "type": "blob",
-      "sha": "be452dab9c05c3341ae944272f2bbd466d85388b",
-      "url": "ese/09 Namco Original/Drawin’☆Dream!/Drawin Dream!.tja",
-      "title": "Drawin’☆Dream!",
+      "sha": "0aae358a320bf4251388d0fbcd1c1db7673ee315",
+      "url": "ese/09 Namco Original/Drawing☆Dream!/Drawing Dream!.tja",
+      "title": "Drawing☆Dream!",
       "titleJp": "ドローイン☆ドリーム！",
       "subtitle": "Versus feat. Ayame Shirakura (NoWorld)",
-      "subtitleJp": "Versus feat.白黒黒白(NoWorld)",
+      "subtitleJp": "Versus feat. 白黒黒白(NoWorld)",
       "titleCn": "Drawing☆Dream!",
       "titleKo": "Drawing☆Dream!",
       "artist": "Versus, 白黒黒白",
@@ -60926,23 +61313,19 @@
       "courses": {
         "easy": {
           "level": 5,
-          "maxCombo": 272,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/D%27s%20Adventure%20Note"
+          "maxCombo": 272
         },
         "normal": {
           "level": 7,
-          "maxCombo": 356,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/D%27s%20Adventure%20Note"
+          "maxCombo": 356
         },
         "hard": {
           "level": 8,
-          "maxCombo": 648,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/D%27s%20Adventure%20Note"
+          "maxCombo": 648
         },
         "oni": {
           "level": 10,
-          "maxCombo": 872,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/D%27s%20Adventure%20Note"
+          "maxCombo": 872
         }
       },
       "bpm": {
@@ -60961,13 +61344,6 @@
         "PLUS",
         "RC"
       ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      },
       "dfcDifficulty": {
         "oni": "iC"
       }
@@ -60975,11 +61351,12 @@
     {
       "path": "09 Namco Original/Dun Aonghasa no Fuefuki/Dun Aonghasa no Fuefuki.tja",
       "type": "blob",
-      "sha": "71149a46a2247ec89e80874aa7ff48207de8f0bf",
+      "sha": "6403dc9a537bc9c8c1547f6c5ff493b03778f3e0",
       "url": "ese/09 Namco Original/Dun Aonghasa no Fuefuki/Dun Aonghasa no Fuefuki.tja",
       "title": "Dun Aonghasa no Fuefuki",
       "titleJp": "ドン・エンガスの笛吹き",
-      "subtitle": "YMY",
+      "subtitle": "Yukiko Yamamoto (BNSI)",
+      "subtitleJp": "山本由貴子(BNSI)",
       "titleCn": "Dun Aonghasa的吹笛手",
       "titleKo": "DUN AONGHASA NO FUEFUKI",
       "artist": "山本由貴子",
@@ -61096,11 +61473,11 @@
     {
       "path": "09 Namco Original/Ecran le Blanc/Ecran le Blanc.tja",
       "type": "blob",
-      "sha": "9b2d1069d28931b6672d68ee120b3838d566755b",
+      "sha": "fd9f601e00452a5d49756637ae4a48ffc1de4b7b",
       "url": "ese/09 Namco Original/Ecran le Blanc/Ecran le Blanc.tja",
       "title": "Écran le Blanc",
       "titleJp": "エクラン ルブラン",
-      "subtitle": "Takuro Go feat. Miho Tsujibayashi",
+      "subtitle": "Miho Tsujibayashi",
       "subtitleJp": "辻林美穂"
     },
     {
@@ -61627,12 +62004,12 @@
     {
       "path": "09 Namco Original/Fly again!/Fly again!.tja",
       "type": "blob",
-      "sha": "fbb008f0639cdf04a402825fddd743224556c270",
+      "sha": "998205e4ec2b1e73d2488fe77544d9ebc24cc1be",
       "url": "ese/09 Namco Original/Fly again!/Fly again!.tja",
       "title": "Fly again!",
       "titleJp": "Fly again!",
-      "subtitle": "Yoshihito Yano feat. Takayoshi Tanimoto",
-      "subtitleJp": "feat.谷本貴義",
+      "subtitle": "Yoshihito Yano (BNSI) feat. Takayoshi Tanimoto",
+      "subtitleJp": "矢野義人(BNSI) feat. 谷本貴義",
       "titleOfficial": "Fly again！",
       "titleCn": "Fly again!",
       "titleKo": "Fly again!",
@@ -61640,27 +62017,19 @@
       "courses": {
         "easy": {
           "level": 2,
-          "maxCombo": 114,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/Fly%20again%21",
-          "urlKo": "https://taiko.wiki/song/941?diff=easy"
+          "maxCombo": 114
         },
         "normal": {
           "level": 3,
-          "maxCombo": 155,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/Fly%20again%21",
-          "urlKo": "https://taiko.wiki/song/941?diff=normal"
+          "maxCombo": 155
         },
         "hard": {
           "level": 4,
-          "maxCombo": 334,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/Fly%20again%21",
-          "urlKo": "https://taiko.wiki/song/941?diff=hard"
+          "maxCombo": 334
         },
         "oni": {
           "level": 7,
-          "maxCombo": 551,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/Fly%20again%21",
-          "urlKo": "https://taiko.wiki/song/941?diff=oni"
+          "maxCombo": 551
         }
       },
       "bpm": {
@@ -61669,14 +62038,7 @@
       },
       "platforms": [
         "NAC"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      }
+      ]
     },
     {
       "path": "09 Namco Original/Fly away/Fly away (Nijisanji).tja",
@@ -61888,14 +62250,14 @@
       "subtitle": "Ikebukuro Gyouza Stadium"
     },
     {
-      "path": "09 Namco Original/Furi-furi♪ Nori-nori♪/Furi-furi  Nori-nori.tja",
+      "path": "09 Namco Original/Furi-furi♪ Nori-nori♪/Furi-furi Nori-nori.tja",
       "type": "blob",
-      "sha": "7c1e2d79cfd10a5251506ce21d9841fd6692fac8",
-      "url": "ese/09 Namco Original/Furi-furi♪ Nori-nori♪/Furi-furi  Nori-nori.tja",
+      "sha": "b615b4149483214601380db51b5858ee8cd0bd14",
+      "url": "ese/09 Namco Original/Furi-furi♪ Nori-nori♪/Furi-furi Nori-nori.tja",
       "title": "Furi-furi♪ Nori-nori♪",
       "titleJp": "フリフリ♪ノリノリ♪",
-      "subtitle": "Toaki Usami feat. MANA",
-      "subtitleJp": "「太鼓の達人 Nintendo Switch ば〜じょん！」テーマソング",
+      "subtitle": "\"Taiko No Tatsujin Nintendo Switch Version!\" Theme Song",
+      "subtitleJp": "「太鼓の達人 Nintendo Switchば〜じょん！」テーマソング",
       "titleCn": "摇摇♪晃晃♪",
       "titleKo": "후리후리♪노리노리♪",
       "artist": "TOAKI USAMI, MANA",
@@ -62258,11 +62620,12 @@
     {
       "path": "09 Namco Original/GERMINATION/GERMINATION.tja",
       "type": "blob",
-      "sha": "a76a265b5202d42ca05db26b3277413f348c77f9",
+      "sha": "e12650b484e2a3f2046b18109c778ed441c58007",
       "url": "ese/09 Namco Original/GERMINATION/GERMINATION.tja",
       "title": "GERMINATION",
       "titleJp": "GERMINATION",
-      "subtitle": "Katsuro Tajima & Masanobu Murakami",
+      "subtitle": "Katsuro Tajima (BNSI)",
+      "subtitleJp": "田島勝朗(BNSI)",
       "titleCn": "GERMINATION",
       "artist": "田島勝朗",
       "courses": {
@@ -62388,33 +62751,23 @@
       "courses": {
         "easy": {
           "level": 4,
-          "maxCombo": 131,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/GO%20GET%27EM%21",
-          "urlKo": "https://taiko.wiki/song/776?diff=easy"
+          "maxCombo": 131
         },
         "normal": {
           "level": 7,
-          "maxCombo": 234,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/GO%20GET%27EM%21",
-          "urlKo": "https://taiko.wiki/song/776?diff=normal"
+          "maxCombo": 234
         },
         "hard": {
           "level": 8,
-          "maxCombo": 384,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/GO%20GET%27EM%21",
-          "urlKo": "https://taiko.wiki/song/776?diff=hard"
+          "maxCombo": 384
         },
         "oni": {
           "level": 9,
-          "maxCombo": 555,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/GO%20GET%27EM%21",
-          "urlKo": "https://taiko.wiki/song/776?diff=oni"
+          "maxCombo": 555
         },
         "ura": {
           "level": 9,
-          "maxCombo": 648,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/GO%20GET%27EM%21%28%E8%A3%8F%E8%AD%9C%E9%9D%A2%29",
-          "urlKo": "https://taiko.wiki/song/776?diff=ura"
+          "maxCombo": 648
         }
       },
       "bpm": {
@@ -62425,14 +62778,7 @@
         "NAC",
         "NS2",
         "RC"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      }
+      ]
     },
     {
       "path": "09 Namco Original/GO ON Mirai e/GO ON Mirai e.tja",
@@ -62856,11 +63202,12 @@
     {
       "path": "09 Namco Original/Genkai Creator Ouenka/Genkai Creator Ouenka.tja",
       "type": "blob",
-      "sha": "3694d50881c6f802c17b126f1956e8ababd83c50",
+      "sha": "660b815d4282ea5837c3625fa5b8886c1e5f9778",
       "url": "ese/09 Namco Original/Genkai Creator Ouenka/Genkai Creator Ouenka.tja",
       "title": "Genkai Creator Ouenka",
       "titleJp": "限界クリエイター応援歌",
-      "subtitle": "Yukiko Miyage feat. Suzune",
+      "subtitle": "Yukiko Miyagi(BNSI) feat. suzune & Kiyohito Kawase",
+      "subtitleJp": "宮城裕紀子(BNSI) feat.涼音・川瀬清人",
       "titleCn": "极限创作者加油歌",
       "titleKo": "한계 크리에이터 응원가",
       "artist": "宮城裕紀子",
@@ -63035,11 +63382,11 @@
     {
       "path": "09 Namco Original/Gold Armor/Gold Armor.tja",
       "type": "blob",
-      "sha": "fbeac29342e4ed86f2518d9d0501b17ed41e0793",
+      "sha": "b4beaffb624aaa73cceaf380fe2df944f1c2e9ce",
       "url": "ese/09 Namco Original/Gold Armor/Gold Armor.tja",
       "title": "Gold Armor",
       "titleJp": "Gold Armor",
-      "subtitle": "Katsuaki Hirai",
+      "subtitle": "\"Don Katsu Fight\" Theme Song",
       "subtitleJp": "「ドンカツファイト」テーマソング"
     },
     {
@@ -63285,6 +63632,42 @@
       "dfcDifficulty": {
         "oni": "iA+"
       }
+    },
+    {
+      "path": "09 Namco Original/HYPERNOVA/HYPERNOVA.tja",
+      "type": "blob",
+      "sha": "c1f71de129e15270f399cd2a78b5782fd843f2e9",
+      "url": "ese/09 Namco Original/HYPERNOVA/HYPERNOVA.tja",
+      "title": "HYPERNOVA",
+      "titleJp": "HYPERNOVA",
+      "subtitle": "\"SUPERNOVA\" Remixed by Morimori Atsushi",
+      "subtitleJp": "「SUPERNOVA」 Remixed by モリモリあつし",
+      "artist": "USAO, モリモリあつし",
+      "courses": {
+        "easy": {
+          "level": 5,
+          "maxCombo": 222
+        },
+        "normal": {
+          "level": 6,
+          "maxCombo": 451
+        },
+        "hard": {
+          "level": 8,
+          "maxCombo": 780
+        },
+        "oni": {
+          "level": 10,
+          "maxCombo": 1096
+        }
+      },
+      "bpm": {
+        "min": 212,
+        "max": 212
+      },
+      "platforms": [
+        "NAC"
+      ]
     },
     {
       "path": "09 Namco Original/Haikei, Gakkou ni te... -Long Version-/Haikei, Gakkou ni te... -Long Version-.tja",
@@ -63802,27 +64185,19 @@
       "courses": {
         "easy": {
           "level": 5,
-          "maxCombo": 163,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/Heaven%27s%20Rider",
-          "urlKo": "https://taiko.wiki/song/526?diff=easy"
+          "maxCombo": 163
         },
         "normal": {
           "level": 6,
-          "maxCombo": 212,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/Heaven%27s%20Rider",
-          "urlKo": "https://taiko.wiki/song/526?diff=normal"
+          "maxCombo": 212
         },
         "hard": {
           "level": 8,
-          "maxCombo": 465,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/Heaven%27s%20Rider",
-          "urlKo": "https://taiko.wiki/song/526?diff=hard"
+          "maxCombo": 465
         },
         "oni": {
           "level": 9,
-          "maxCombo": 714,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/Heaven%27s%20Rider",
-          "urlKo": "https://taiko.wiki/song/526?diff=oni"
+          "maxCombo": 714
         }
       },
       "bpm": {
@@ -63838,14 +64213,7 @@
         "PLUS",
         "PTB",
         "RC"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      }
+      ]
     },
     {
       "path": "09 Namco Original/Heisei Taiko Kaidou Bachi no Onna/Heisei Taiko Kaidou Bachi no Onna.tja",
@@ -65668,7 +66036,7 @@
     {
       "path": "09 Namco Original/Inu no Norimono/Inu no Norimono.tja",
       "type": "blob",
-      "sha": "6de6d5daea097b89ab30b6c42c13a49e44be4f9a",
+      "sha": "ddec5e1c79f966c7e8e8c59bb08593e2973b13a5",
       "url": "ese/09 Namco Original/Inu no Norimono/Inu no Norimono.tja",
       "title": "Inu no Norimono",
       "titleJp": "イヌノノリモノ",
@@ -66500,23 +66868,33 @@
       "courses": {
         "easy": {
           "level": 4,
-          "maxCombo": 169
+          "maxCombo": 169,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/Ka.Ma.Se",
+          "urlKo": "https://taiko.wiki/song/1393?diff=easy"
         },
         "normal": {
           "level": 6,
-          "maxCombo": 240
+          "maxCombo": 240,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/Ka.Ma.Se",
+          "urlKo": "https://taiko.wiki/song/1393?diff=normal"
         },
         "hard": {
           "level": 7,
-          "maxCombo": 402
+          "maxCombo": 402,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/Ka.Ma.Se",
+          "urlKo": "https://taiko.wiki/song/1393?diff=hard"
         },
         "oni": {
           "level": 8,
-          "maxCombo": 527
+          "maxCombo": 527,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/Ka.Ma.Se",
+          "urlKo": "https://taiko.wiki/song/1393?diff=oni"
         },
         "ura": {
           "level": 10,
-          "maxCombo": 694
+          "maxCombo": 694,
+          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/Ka.Ma.Se%28%E8%A3%8F%E8%AD%9C%E9%9D%A2%29",
+          "urlKo": "https://taiko.wiki/song/1393?diff=ura"
         }
       },
       "bpm": {
@@ -66526,6 +66904,13 @@
       "platforms": [
         "NAC"
       ],
+      "region": {
+        "Japan": 1,
+        "Asia": 1,
+        "Oceania": 1,
+        "UnitedStates": 1,
+        "China": 0
+      },
       "dfcDifficulty": {
         "ura": "iE"
       }
@@ -67045,7 +67430,7 @@
     {
       "path": "09 Namco Original/Karakuri Kairou/Karakuri Kairou.tja",
       "type": "blob",
-      "sha": "fdcf2c66b359912c7b3f5b0135b11cba497cb6c8",
+      "sha": "35189604744909f20c2a3e8762fba91815c512f0",
       "url": "ese/09 Namco Original/Karakuri Kairou/Karakuri Kairou.tja",
       "title": "Karakuri Kairou",
       "titleJp": "絡繰廻廊",
@@ -70432,11 +70817,12 @@
     {
       "path": "09 Namco Original/Lisdoonvarna no Tasogare/Lisdoonvarna no Tasogare.tja",
       "type": "blob",
-      "sha": "9a885069003c33a03b1c10e0bde58a7b71f82da1",
+      "sha": "e575b1dcd15c694b6771b71611a71cf0040dec3b",
       "url": "ese/09 Namco Original/Lisdoonvarna no Tasogare/Lisdoonvarna no Tasogare.tja",
       "title": "Lisdoonvarna no Tasogare",
       "titleJp": "リスドンヴァルナの黄昏",
-      "subtitle": "YMY",
+      "subtitle": "Yukiko Yamamoto (BNSI)",
+      "subtitleJp": "山本由貴子(BNSI)",
       "titleCn": "利敦瓦纳的黄昏",
       "titleKo": "리스돈바루나노 타소가레",
       "artist": "山本由貴子",
@@ -70935,11 +71321,12 @@
     {
       "path": "09 Namco Original/Madou Gensoukyoku/Madou Gensoukyoku.tja",
       "type": "blob",
-      "sha": "f0e327786023ebf326ddca066634c49d2f96127c",
+      "sha": "a59a3b1d872c74d0157106ba210a31e02caee50c",
       "url": "ese/09 Namco Original/Madou Gensoukyoku/Madou Gensoukyoku.tja",
       "title": "Madou Gensoukyoku",
       "titleJp": "魔導幻想曲",
-      "subtitle": "Katsuro Tajima",
+      "subtitle": "Katsuro Tajima (BNSI)",
+      "subtitleJp": "田島勝朗(BNSI)",
       "titleCn": "魔导幻想曲",
       "titleKo": "마도우겐소우쿄쿠",
       "artist": "田島勝朗",
@@ -71169,11 +71556,12 @@
     {
       "path": "09 Namco Original/Mahoushiki Tousou Kitan ☆ミ/Mahoushiki Tousou Kitan.tja",
       "type": "blob",
-      "sha": "4dcadbd64a2ce96acf1afcb5075305b42eebb471",
+      "sha": "02f9b1b7d6e2f832221bd95e4bec88e70d6281a5",
       "url": "ese/09 Namco Original/Mahoushiki Tousou Kitan ☆ミ/Mahoushiki Tousou Kitan.tja",
       "title": "Mahoushiki Tousou Kitan ☄",
       "titleJp": "魔法式逃走奇譚☆ミ",
-      "subtitle": "MOES feat. Kaiho Erika",
+      "subtitle": "MOES feat. Erika Kaiho",
+      "subtitleJp": "MOES feat. 海保えりか",
       "titleCn": "魔法式逃走奇谭☆ミ",
       "titleKo": "마호우시키 토우소우키탄☆ミ",
       "artist": "MOES, 海保えりか, 相楽つき",
@@ -71907,11 +72295,10 @@
     {
       "path": "09 Namco Original/Mekadesu/Mekadesu. -New Chart-.tja",
       "type": "blob",
-      "sha": "e445d05e805c9cc82844c3041719bd136d4ddfc4",
+      "sha": "7360a5152b0b68122eef2e1160e61f86993f9fa7",
       "url": "ese/09 Namco Original/Mekadesu/Mekadesu. -New Chart-.tja",
       "title": "Mekadesu. -New Chart-",
       "titleJp": "メカデス。",
-      "subtitle": "Yuuji Masubuchi",
       "subtitleJp": "新譜面",
       "titleCn": "Mecha DESU.",
       "titleKo": "Mecha DESU.",
@@ -71989,11 +72376,10 @@
     {
       "path": "09 Namco Original/Mekadesu/Mekadesu. -Old Chart-.tja",
       "type": "blob",
-      "sha": "6583becd71210e537acf01d92ad18ee320846f7b",
+      "sha": "d7edb85f3b66047a8442e0481001d88026cc25d8",
       "url": "ese/09 Namco Original/Mekadesu/Mekadesu. -Old Chart-.tja",
       "title": "Mekadesu. -Old Chart-",
       "titleJp": "メカデス。",
-      "subtitle": "Yuuji Masubuchi",
       "subtitleJp": "旧譜面"
     },
     {
@@ -72563,11 +72949,11 @@
     {
       "path": "09 Namco Original/Mr. Runner/Mr. Runner.tja",
       "type": "blob",
-      "sha": "b2282961e5483e9a628ee95ad3263274985bee97",
+      "sha": "874769ea892eea4d06c64f7970c88dee34259480",
       "url": "ese/09 Namco Original/Mr. Runner/Mr. Runner.tja",
       "title": "Mr. Runner",
       "titleJp": "Mr.ランナー",
-      "subtitle": "MOES feat. Singman",
+      "subtitle": "MOES feat. singman",
       "subtitleJp": "MOES feat. singman"
     },
     {
@@ -72914,12 +73300,12 @@
     {
       "path": "09 Namco Original/Namahage no Uta/Namahage no Uta.tja",
       "type": "blob",
-      "sha": "8795ff2e31bff580e4cf60ca20628bdba5dbc38c",
+      "sha": "4a3eb5d52b64ff00f3606ee7dd6a288f1db782c1",
       "url": "ese/09 Namco Original/Namahage no Uta/Namahage no Uta.tja",
       "title": "Namahage no Uta",
       "titleJp": "ナマハゲノウタ",
       "subtitle": "Yusuke Takahama feat. DAIKI",
-      "subtitleJp": "feat.DAIKI",
+      "subtitleJp": "feat. DAIKI",
       "titleCn": "NAMAHAGE NO UTA",
       "titleKo": "나마하게노 우타",
       "artist": "高濱祐輔, DAIKI",
@@ -73988,23 +74374,19 @@
       "courses": {
         "easy": {
           "level": 4,
-          "maxCombo": 115,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/OK%20I%27m%20blue%20rat"
+          "maxCombo": 115
         },
         "normal": {
           "level": 6,
-          "maxCombo": 192,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/OK%20I%27m%20blue%20rat"
+          "maxCombo": 192
         },
         "hard": {
           "level": 8,
-          "maxCombo": 411,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/OK%20I%27m%20blue%20rat"
+          "maxCombo": 411
         },
         "oni": {
           "level": 10,
-          "maxCombo": 816,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/OK%20I%27m%20blue%20rat"
+          "maxCombo": 816
         }
       },
       "bpm": {
@@ -74014,13 +74396,6 @@
       "platforms": [
         "NAC"
       ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      },
       "dfcDifficulty": {
         "oni": "iB"
       }
@@ -74028,11 +74403,11 @@
     {
       "path": "09 Namco Original/ON SAY GO SAY/ON SAY GO SAY.tja",
       "type": "blob",
-      "sha": "f94b3802d406cea6ac9270e18461d8a2e0a549a1",
+      "sha": "3904c21b657936c4a01c061a375a71ba28cd946b",
       "url": "ese/09 Namco Original/ON SAY GO SAY/ON SAY GO SAY.tja",
       "title": "ON SAY GO SAY",
       "titleJp": "ON SAY GO SAY",
-      "subtitle": "AZUpubschool feat. Sho-kun",
+      "subtitle": "AZUpubschool feat. SHOW",
       "subtitleJp": "ショウ君",
       "titleCn": "ON SAY GO SAY",
       "artist": "ショウ君",
@@ -74155,7 +74530,7 @@
     {
       "path": "09 Namco Original/Off Rock/Off Rock.tja",
       "type": "blob",
-      "sha": "4903ed619e78a8eb3a3464fb99e80b20c395eed9",
+      "sha": "705646672f66bac581a20e7e6f6ea7a2aac0f30c",
       "url": "ese/09 Namco Original/Off Rock/Off Rock.tja",
       "title": "Off♨Rock",
       "titleJp": "オフ♨ロック",
@@ -74507,7 +74882,7 @@
     {
       "path": "09 Namco Original/Operate Me/Operate Me.tja",
       "type": "blob",
-      "sha": "736e2e5bf5dcd65f664581b90b0a6a853e997cfc",
+      "sha": "a4152100d867cd7d625f1a845f8cbd1bb49f176e",
       "url": "ese/09 Namco Original/Operate Me/Operate Me.tja",
       "title": "Operate Me",
       "titleJp": "オペレート・ミー",
@@ -74757,6 +75132,16 @@
       }
     },
     {
+      "path": "09 Namco Original/Out of Sight/Out of Sight.tja",
+      "type": "blob",
+      "sha": "e5d66cf39f37dd91eddddf60d29167be2a0d2295",
+      "url": "ese/09 Namco Original/Out of Sight/Out of Sight.tja",
+      "title": "Out of Sight",
+      "titleJp": "Out of Sight",
+      "subtitle": "Hiroshi Okubo(BNRI)",
+      "subtitleJp": "Hiroshi Okubo(BNRI)"
+    },
+    {
       "path": "09 Namco Original/POLARiSNAUT/POLARiSNAUT.tja",
       "type": "blob",
       "sha": "2d91b3d3a243053e12ca1a485dbf8f181f72fae8",
@@ -74853,7 +75238,8 @@
         "max": 170
       },
       "platforms": [
-        "NAC"
+        "NAC",
+        "NS2"
       ],
       "region": {
         "Japan": 1,
@@ -75050,7 +75436,7 @@
     {
       "path": "09 Namco Original/Petshop Taisen/Petshop Taisen.tja",
       "type": "blob",
-      "sha": "e37c51c99c7b0430d816f5d7a91438ba0eeab028",
+      "sha": "d7f4365836e0a9402ac9d412b818066bb7720264",
       "url": "ese/09 Namco Original/Petshop Taisen/Petshop Taisen.tja",
       "title": "Petshop Taisen",
       "titleJp": "ペットショップ大戦",
@@ -76167,7 +76553,7 @@
     {
       "path": "09 Namco Original/Rei Wadaiko/Rei Wadaiko.tja",
       "type": "blob",
-      "sha": "b0706a12307d5605b09f5c7e82f22f3b97935960",
+      "sha": "786f5b75913e85925811d53b6b62e5333155d034",
       "url": "ese/09 Namco Original/Rei Wadaiko/Rei Wadaiko.tja",
       "title": "Rei Wadaiko",
       "titleJp": "令・和太鼓",
@@ -77303,27 +77689,19 @@
       "courses": {
         "easy": {
           "level": 4,
-          "maxCombo": 153,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/SORA-III%20%E3%83%98%E3%83%AA%E3%82%AA%E3%83%9D%E3%83%BC%E3%82%BA",
-          "urlKo": "https://taiko.wiki/song/1422?diff=easy"
+          "maxCombo": 153
         },
         "normal": {
           "level": 6,
-          "maxCombo": 203,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/SORA-III%20%E3%83%98%E3%83%AA%E3%82%AA%E3%83%9D%E3%83%BC%E3%82%BA",
-          "urlKo": "https://taiko.wiki/song/1422?diff=normal"
+          "maxCombo": 203
         },
         "hard": {
           "level": 7,
-          "maxCombo": 379,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/SORA-III%20%E3%83%98%E3%83%AA%E3%82%AA%E3%83%9D%E3%83%BC%E3%82%BA",
-          "urlKo": "https://taiko.wiki/song/1422?diff=hard"
+          "maxCombo": 379
         },
         "oni": {
           "level": 8,
-          "maxCombo": 537,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/SORA-III%20%E3%83%98%E3%83%AA%E3%82%AA%E3%83%9D%E3%83%BC%E3%82%BA",
-          "urlKo": "https://taiko.wiki/song/1422?diff=oni"
+          "maxCombo": 537
         }
       },
       "bpm": {
@@ -77338,14 +77716,7 @@
         "Wii5",
         "3DS3",
         "RC"
-      ],
-      "region": {
-        "Japan": 4,
-        "Asia": 4,
-        "Oceania": 4,
-        "UnitedStates": 4,
-        "China": 4
-      }
+      ]
     },
     {
       "path": "09 Namco Original/SORA-IV Bunpasong/SORA-IV Bunpasong.tja",
@@ -77581,6 +77952,7 @@
       "titleJp": "SORA-VIII ネビュラトレイル",
       "subtitle": "Shin Sazaki(BNSI)",
       "subtitleJp": "Shin Sazaki(BNSI)",
+      "titleCn": "SORA-VIII Nebula Trail",
       "titleKo": "SORA-VIII Nebula Trail",
       "artist": "Shin Sazaki",
       "courses": {
@@ -78910,6 +79282,16 @@
         "oni": "iF",
         "ura": "iF"
       }
+    },
+    {
+      "path": "09 Namco Original/Shanimuni Hanabi/Shanimuni Hanabi.tja",
+      "type": "blob",
+      "sha": "1afd46e71e7844c1151514b42cc01829cd6b99e1",
+      "url": "ese/09 Namco Original/Shanimuni Hanabi/Shanimuni Hanabi.tja",
+      "title": "Shanimuni Hanabi",
+      "titleJp": "シャニムニ花火",
+      "subtitle": "PinocchioP feat. Hatsune Miku",
+      "subtitleJp": "ピノキオピー feat. 初音ミク"
     },
     {
       "path": "09 Namco Original/Shikou no Ran/Shikou no Ran.tja",
@@ -80518,9 +80900,29 @@
       }
     },
     {
+      "path": "09 Namco Original/Souryuu no Ran/Souryuu no Ran (Sou-uchi) (Anomaly).tja",
+      "type": "blob",
+      "sha": "6638e32ae324bd48cec9da2e9b391c1fa61b73e6",
+      "url": "ese/09 Namco Original/Souryuu no Ran/Souryuu no Ran (Sou-uchi) (Anomaly).tja",
+      "title": "[Sou-uchi] Souryuu no Ran -Anomalous Chart-",
+      "titleJp": "【双打】 双竜ノ乱",
+      "subtitle": "Tatsh a.k.a. Zeami",
+      "subtitleJp": "「挑戦！闇のドンチャレ」異変譜面 世阿弥"
+    },
+    {
+      "path": "09 Namco Original/Souryuu no Ran/Souryuu no Ran (Sou-uchi).tja",
+      "type": "blob",
+      "sha": "2ced3e24019d771990af680469c08284ba514f1e",
+      "url": "ese/09 Namco Original/Souryuu no Ran/Souryuu no Ran (Sou-uchi).tja",
+      "title": "[Sou-uchi] Souryuu no Ran",
+      "titleJp": "【双打】 双竜ノ乱",
+      "subtitle": "Tatsh a.k.a. Zeami",
+      "subtitleJp": "世阿弥"
+    },
+    {
       "path": "09 Namco Original/Souryuu no Ran/Souryuu no Ran.tja",
       "type": "blob",
-      "sha": "571c7b4204765ed98e648af46c74f9ba54f2494b",
+      "sha": "4f79d0d2f688fb07aee0052665714ffbdcaf4c73",
       "url": "ese/09 Namco Original/Souryuu no Ran/Souryuu no Ran.tja",
       "title": "Souryuu no Ran",
       "titleJp": "双竜ノ乱",
@@ -81132,7 +81534,7 @@
     {
       "path": "09 Namco Original/TOKIMEKI Destroyer!!/TOKIMEKI Destroyer!!.tja",
       "type": "blob",
-      "sha": "ced07b60cb8e70b2780753e8e878290a0799732d",
+      "sha": "7dc8485b4201a8c488c0cab02875f9a15223757c",
       "url": "ese/09 Namco Original/TOKIMEKI Destroyer!!/TOKIMEKI Destroyer!!.tja",
       "title": "TOKIMEKI♡Destroyer‼",
       "titleJp": "TOKIMEKI♡ですとろいやー！！",
@@ -81314,11 +81716,11 @@
     {
       "path": "09 Namco Original/Tabetemo Tabetemo/Tabetemo Tabetemo.tja",
       "type": "blob",
-      "sha": "04247831bf0b9f1b9663eb038b604a3d3a05bd8b",
+      "sha": "de56ef7def5de31a0ca15455806422b0b9c19e83",
       "url": "ese/09 Namco Original/Tabetemo Tabetemo/Tabetemo Tabetemo.tja",
       "title": "Tabetemo Tabetemo",
       "titleJp": "タベテモタベテモ",
-      "subtitle": "☆Shoji☆ feat. Honoka♡Erika",
+      "subtitle": "☆syoji☆ feat.Honoka♡Erika",
       "subtitleJp": "☆しょーじ☆ feat.ほのか♡えりか",
       "titleCn": "再怎么吃再怎么吃",
       "titleKo": "타베테모 타베테모",
@@ -82452,12 +82854,12 @@
     {
       "path": "09 Namco Original/Tetrarhythmosphobia/Tetrarhythmosphobia.tja",
       "type": "blob",
-      "sha": "f74e89c1c93f63d699bad689ae48948b6eadcf0a",
+      "sha": "73f52f6b33f01b1f5551f3d9eadb28084e3c4a0b",
       "url": "ese/09 Namco Original/Tetrarhythmosphobia/Tetrarhythmosphobia.tja",
       "title": "Tetrarhythmosphobia",
       "titleJp": "テトラリュトモスフォビア",
-      "subtitle": "Mitsuhiro Kitatani feat. Luschka",
-      "subtitleJp": "feat.ルシュカ",
+      "subtitle": "Mitsuhiro Kitatani (BNSI) feat. Luschka",
+      "subtitleJp": "北谷光浩(BNSI) feat. ルシュカ",
       "titleCn": "Tetra-rhythmos phobia",
       "artist": "北谷光浩",
       "courses": {
@@ -82712,27 +83114,19 @@
       "courses": {
         "easy": {
           "level": 4,
-          "maxCombo": 156,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/The%20Magician%27s%20Dream",
-          "urlKo": "https://taiko.wiki/song/259?diff=easy"
+          "maxCombo": 156
         },
         "normal": {
           "level": 6,
-          "maxCombo": 219,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/The%20Magician%27s%20Dream",
-          "urlKo": "https://taiko.wiki/song/259?diff=normal"
+          "maxCombo": 219
         },
         "hard": {
           "level": 7,
-          "maxCombo": 459,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/The%20Magician%27s%20Dream",
-          "urlKo": "https://taiko.wiki/song/259?diff=hard"
+          "maxCombo": 459
         },
         "oni": {
           "level": 8,
-          "maxCombo": 724,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/The%20Magician%27s%20Dream",
-          "urlKo": "https://taiko.wiki/song/259?diff=oni"
+          "maxCombo": 724
         }
       },
       "bpm": {
@@ -82745,14 +83139,7 @@
         "WiiU2",
         "3DS1",
         "RC"
-      ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      }
+      ]
     },
     {
       "path": "09 Namco Original/Theremin Rhapsody/Theremin Rhapsody.tja",
@@ -82901,12 +83288,12 @@
     {
       "path": "09 Namco Original/Todoroke! Taiko no Tatsujin/Todoroke! Taiko no Tatsujin.tja",
       "type": "blob",
-      "sha": "84b99d5e1dabb13cafcd1747bf90b20ecda7d962",
+      "sha": "3c58fee2502261e415cd2cc81bb4ee34d070f368",
       "url": "ese/09 Namco Original/Todoroke! Taiko no Tatsujin/Todoroke! Taiko no Tatsujin.tja",
       "title": "Todoroke! Taiko no Tatsujin",
       "titleJp": "轟け！太鼓の達人",
-      "subtitle": "steμ × Yuuji Masubuchi feat. Takayoshi Tanimoto",
-      "subtitleJp": "steμ×マスブチ×ササオカ feat. 谷本貴義＆たかはし智秋",
+      "subtitle": "Taiko de Time Travel 20's / steμ×Masubuchi×Sasaoka feat. Takayoshi Tanimoto & Chiaki Takahashi",
+      "subtitleJp": "太鼓 de タイムトラベル20's / steμ×マスブチ×ササオカ feat. 谷本貴義＆たかはし智秋",
       "titleCn": "震天动地！太鼓之达人",
       "titleKo": "토도로케! 태고의 달인",
       "artist": "steμ, マスブチ, 谷本貴義, たかはし智秋",
@@ -83141,11 +83528,11 @@
     {
       "path": "09 Namco Original/Tonde Mite/Tonde Mite.tja",
       "type": "blob",
-      "sha": "779c00b393bc4d63dd2f965ea27890d309996fe0",
+      "sha": "2d43ab34d083d9a6de066dba46550ddacce5ccc2",
       "url": "ese/09 Namco Original/Tonde Mite/Tonde Mite.tja",
       "title": "Tonde Mite",
       "titleJp": "トンデ・ミテ",
-      "subtitle": "Tadahiko Yokogawa feat. Yako (Danchinomiya)",
+      "subtitle": "Tadahiko Yokogawa feat.Yako from Danchinomiya",
       "subtitleJp": "横川理彦 feat.団地ノ宮弥子",
       "titleCn": "试着・飞翔",
       "titleKo": "톤데·미테",
@@ -83259,27 +83646,19 @@
       "courses": {
         "easy": {
           "level": 4,
-          "maxCombo": 119,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/Toon%20Town%27s%20Toys%27%20Tune",
-          "urlKo": "https://taiko.wiki/song/762?diff=easy"
+          "maxCombo": 119
         },
         "normal": {
           "level": 5,
-          "maxCombo": 184,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/Toon%20Town%27s%20Toys%27%20Tune",
-          "urlKo": "https://taiko.wiki/song/762?diff=normal"
+          "maxCombo": 184
         },
         "hard": {
           "level": 6,
-          "maxCombo": 315,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/Toon%20Town%27s%20Toys%27%20Tune",
-          "urlKo": "https://taiko.wiki/song/762?diff=hard"
+          "maxCombo": 315
         },
         "oni": {
           "level": 10,
-          "maxCombo": 659,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/Toon%20Town%27s%20Toys%27%20Tune",
-          "urlKo": "https://taiko.wiki/song/762?diff=oni"
+          "maxCombo": 659
         }
       },
       "bpm": {
@@ -83289,13 +83668,6 @@
       "platforms": [
         "NAC"
       ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      },
       "dfcDifficulty": {
         "oni": "iA"
       }
@@ -83884,27 +84256,19 @@
       "courses": {
         "easy": {
           "level": 5,
-          "maxCombo": 113,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8B%E3%82%93%E3%81%9F%E3%82%93/UFO%20Swingin%27",
-          "urlKo": "https://taiko.wiki/song/858?diff=easy"
+          "maxCombo": 113
         },
         "normal": {
           "level": 7,
-          "maxCombo": 146,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%B5%E3%81%A4%E3%81%86/UFO%20Swingin%27",
-          "urlKo": "https://taiko.wiki/song/858?diff=normal"
+          "maxCombo": 146
         },
         "hard": {
           "level": 8,
-          "maxCombo": 331,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%82%80%E3%81%9A%E3%81%8B%E3%81%97%E3%81%84/UFO%20Swingin%27",
-          "urlKo": "https://taiko.wiki/song/858?diff=hard"
+          "maxCombo": 331
         },
         "oni": {
           "level": 10,
-          "maxCombo": 756,
-          "url": "https://wikiwiki.jp/taiko-fumen/%E5%8F%8E%E9%8C%B2%E6%9B%B2/%E3%81%8A%E3%81%AB/UFO%20Swingin%27",
-          "urlKo": "https://taiko.wiki/song/858?diff=oni"
+          "maxCombo": 756
         }
       },
       "bpm": {
@@ -83916,13 +84280,6 @@
         "PLUS",
         "RC"
       ],
-      "region": {
-        "Japan": 1,
-        "Asia": 1,
-        "Oceania": 1,
-        "UnitedStates": 1,
-        "China": 1
-      },
       "dfcDifficulty": {
         "oni": "pS"
       }
@@ -83936,6 +84293,7 @@
       "titleJp": "UMAのフォーストレーニ千グ 【BPM150編】",
       "subtitle": "LindaAI-CUE × Masubuchi prod. Licht Tsuboi × Kawagen Kollagen (BNSI)",
       "subtitleJp": "LindaAI-CUE × マスブチ prod. 坪井リヒト × Kawagen Kollagen (BNSI)",
+      "titleCn": "午马的二千锤百炼 【BPM150篇】",
       "titleKo": "UMA의 FORCE TRAINnisenING【BPM150편】",
       "artist": "LindaAI-CUE, マスブチ, 坪井リヒト, Kawagen Kollagen",
       "courses": {
@@ -83997,6 +84355,7 @@
       "titleJp": "UMAのフォーストレーニ千グ 【BPM180編】",
       "subtitle": "LindaAI-CUE × Masubuchi prod. Licht Tsuboi × Kawagen Kollagen (BNSI)",
       "subtitleJp": "LindaAI-CUE × マスブチ prod. 坪井リヒト × Kawagen Kollagen (BNSI)",
+      "titleCn": "午马的二千锤百炼 【BPM180篇】",
       "titleKo": "UMA의 FORCE TRAINnisenING【BPM180편】",
       "artist": "LindaAI-CUE, マスブチ, 坪井リヒト, Kawagen Kollagen",
       "courses": {
@@ -84055,6 +84414,7 @@
       "titleJp": "UMAのフォーストレーニ千グ 【BPM240編】",
       "subtitle": "LindaAI-CUE × Masubuchi prod. Licht Tsuboi × Kawagen Kollagen (BNSI)",
       "subtitleJp": "LindaAI-CUE × マスブチ prod. 坪井リヒト × Kawagen Kollagen (BNSI)",
+      "titleCn": "午马的二千锤百炼 【BPM240篇】",
       "titleKo": "UMA의 FORCE TRAINnisenING【BPM240편】",
       "artist": "LindaAI-CUE, マスブチ, 坪井リヒト, Kawagen Kollagen",
       "courses": {
@@ -84225,7 +84585,7 @@
     {
       "path": "09 Namco Original/Uchuu SAMURAI/Uchuu SAMURAI.tja",
       "type": "blob",
-      "sha": "daf2c548a21ece0a1c20f90948549bdc0bcdf635",
+      "sha": "6ca921862d0b3ba7b0ca2a1e07df83ba2c5b842d",
       "url": "ese/09 Namco Original/Uchuu SAMURAI/Uchuu SAMURAI.tja",
       "title": "Uchuu SAMURAI",
       "titleJp": "宇宙SAMURAI",
@@ -84805,11 +85165,11 @@
     {
       "path": "09 Namco Original/Wa Arudo Herite Iji-jo/Wa Arudo Herite Iji-jo.tja",
       "type": "blob",
-      "sha": "f8a6c228ab1e8e0e61a6934802f5ae69d7af66c2",
+      "sha": "17aa1b8f146086026822f45d5f8d621e330a34d0",
       "url": "ese/09 Namco Original/Wa Arudo Herite Iji-jo/Wa Arudo Herite Iji-jo.tja",
-      "title": "Wa Arudo Herite Iji-jo",
+      "title": "Wa Arudo Herite Iji - Jo",
       "titleJp": "和有るど経りて維持・序",
-      "subtitle": "Masako Oogami feat. Yako (Danchinomiya)",
+      "subtitle": "Masako Oogami feat.Yako from Danchinomiya",
       "subtitleJp": "feat.団地ノ宮弥子",
       "titleCn": "WA ARUDO HERITE IJI - JO",
       "titleKo": "와 아루도 헤리테 이지·죠",
@@ -85083,7 +85443,7 @@
     {
       "path": "09 Namco Original/Wavy Baby/Wavy Baby.tja",
       "type": "blob",
-      "sha": "db5aa6d8711c1efe209ebe8d126d60dd410fed80",
+      "sha": "e8f9490ebf8d0cabee69f0d2bd637bfa193a4353",
       "url": "ese/09 Namco Original/Wavy Baby/Wavy Baby.tja",
       "title": "Wavy Baby",
       "titleJp": "Wavy Baby",
@@ -85093,9 +85453,10 @@
     {
       "path": "09 Namco Original/Welcome to the Taiko Stadium!/Welcome to the Taiko Stadium!.tja",
       "type": "blob",
-      "sha": "3898964a671dfa167d3f1b4e90f09e6092847c9b",
+      "sha": "05ae257922a88a227d42742256f74e0bf3510125",
       "url": "ese/09 Namco Original/Welcome to the Taiko Stadium!/Welcome to the Taiko Stadium!.tja",
       "title": "Welcome to the Taiko Stadium!",
+      "titleJp": "Welcome to the Taiko Stadium!",
       "subtitle": "Kokoro Sagara × Daiki Ohara",
       "subtitleJp": "相良心 × 大原大輝"
     },
@@ -85738,7 +86099,7 @@
     {
       "path": "09 Namco Original/Yami no Tamashii/Yami no Tamashii.tja",
       "type": "blob",
-      "sha": "6c66e06c0a473b8f17693902df6468cc42c3ee52",
+      "sha": "79a7a67570aafdf4c73a08463cc823363535ce88",
       "url": "ese/09 Namco Original/Yami no Tamashii/Yami no Tamashii.tja",
       "title": "Yami no Tamashii",
       "titleJp": "闇の魂",
@@ -85776,6 +86137,42 @@
         "DS2",
         "PLUS",
         "RC"
+      ]
+    },
+    {
+      "path": "09 Namco Original/Yaren no ka Summer Asobi Tiger/Yaren no ka Summer Asobi Tiger.tja",
+      "type": "blob",
+      "sha": "7bc3748aab4aa375431453d17879b5b0bc4358ac",
+      "url": "ese/09 Namco Original/Yaren no ka Summer Asobi Tiger/Yaren no ka Summer Asobi Tiger.tja",
+      "title": "Yaren no ka Summer!? Asobi Tiger!",
+      "titleJp": "やれんのか夏！？アソビタイガー！",
+      "subtitle": "MARON feat. Mustard",
+      "subtitleJp": "まろん feat. マスタード",
+      "artist": "まろん, マスタード",
+      "courses": {
+        "easy": {
+          "level": 3,
+          "maxCombo": 181
+        },
+        "normal": {
+          "level": 5,
+          "maxCombo": 370
+        },
+        "hard": {
+          "level": 7,
+          "maxCombo": 522
+        },
+        "oni": {
+          "level": 9,
+          "maxCombo": 876
+        }
+      },
+      "bpm": {
+        "min": 19,
+        "max": 190
+      },
+      "platforms": [
+        "NAC"
       ]
     },
     {
@@ -86324,7 +86721,7 @@
     {
       "path": "09 Namco Original/Yo～i-don!/Yoi-don!.tja",
       "type": "blob",
-      "sha": "e9ca2d5e6460fbe82fa95235b694e65be2383ea6",
+      "sha": "13f0736a056621a452031bb64c148f8d12b197de",
       "url": "ese/09 Namco Original/Yo～i-don!/Yoi-don!.tja",
       "title": "Yo～i-don!",
       "titleJp": "よーいドン！",
@@ -86946,11 +87343,12 @@
     {
       "path": "09 Namco Original/Zero no Nocturne/Zero no Nocturne.tja",
       "type": "blob",
-      "sha": "b62235857f30d57132b680a4a86786256d350e61",
+      "sha": "355306a8e2e758ee962ad6e780a70d48853a89c1",
       "url": "ese/09 Namco Original/Zero no Nocturne/Zero no Nocturne.tja",
       "title": "Zero no Nocturne",
       "titleJp": "零の夜想曲",
-      "subtitle": "Kyo feat. Sariyajin",
+      "subtitle": "kyo(BNSI) feat. Sariyajin",
+      "subtitleJp": "kyo(BNSI) feat. サリヤ人",
       "titleCn": "ZERO NO NOCTURNE",
       "titleKo": "ZERO NO NOCTURNE",
       "artist": "kyo, サリヤ人",
@@ -87066,12 +87464,12 @@
     {
       "path": "09 Namco Original/Zero no Symphony/Zero no Symphony.tja",
       "type": "blob",
-      "sha": "899bc580dc776cdc3048ff053db901676356da09",
+      "sha": "e15681fb90898a373b15460531c88221000e7f5c",
       "url": "ese/09 Namco Original/Zero no Symphony/Zero no Symphony.tja",
       "title": "Zero no Symphony",
       "titleJp": "零の交響曲",
-      "subtitle": "Kyo feat. Sariyajin",
-      "subtitleJp": "feat.サリヤ人",
+      "subtitle": "kyo(BNSI) feat. Sariyajin",
+      "subtitleJp": "kyo(BNSI) feat. サリヤ人",
       "titleCn": "零之交响曲",
       "titleKo": "ZERO NO SYMPHONY",
       "artist": "サリヤ人, kyo",
@@ -87113,6 +87511,7 @@
       },
       "platforms": [
         "NAC",
+        "DF",
         "NS2",
         "RC"
       ],
@@ -87444,7 +87843,7 @@
     {
       "path": "09 Namco Original/integral/∫ -integral-.tja",
       "type": "blob",
-      "sha": "b716955c5b07a37a849fb05f59f1b4f6691d6a0b",
+      "sha": "2bdc97fd1a2103b1123e2796473bb4a64664ff87",
       "url": "ese/09 Namco Original/integral/∫ -integral-.tja",
       "title": "∫ -integral-",
       "titleJp": "∫ -integral-",
@@ -87511,7 +87910,7 @@
     {
       "path": "09 Namco Original/memoria ficta/memoria ficta.tja",
       "type": "blob",
-      "sha": "2acef37eae9bd9e2fc62efa3ee1b603aebcca9fc",
+      "sha": "d3708b76bdb3168bba21e8c9fcf642e42ec0f189",
       "url": "ese/09 Namco Original/memoria ficta/memoria ficta.tja",
       "title": "memoria ficta",
       "titleJp": "memoria ficta",
@@ -87771,11 +88170,12 @@
     {
       "path": "09 Namco Original/poxei DOON/poxei DOON.tja",
       "type": "blob",
-      "sha": "93b4de2e7009d64fcb3701fd840ab8776bce9693",
+      "sha": "98b180440142848ba3b6f11b8e242f6e58b5eeae",
       "url": "ese/09 Namco Original/poxei DOON/poxei DOON.tja",
-      "title": "poxei♢DOON",
+      "title": "poxei♦DOON",
       "titleJp": "poxei♦DOON",
-      "subtitle": "Kaneko Chiharu",
+      "subtitle": "Chiharu Kaneko",
+      "subtitleJp": "かねこちはる",
       "titleCn": "poxei◆DOON",
       "artist": "かねこちはる",
       "courses": {
@@ -88042,7 +88442,7 @@
     {
       "path": "09 Namco Original/void setup/void setup.tja",
       "type": "blob",
-      "sha": "9b3a4d97f5e4106eb0d3e7a9cb9ceac0f5846e61",
+      "sha": "8b9db94d74d8dec2245d1661add22dd4932d1a62",
       "url": "ese/09 Namco Original/void setup/void setup.tja",
       "title": "void setup",
       "titleJp": "void setup",
@@ -88174,11 +88574,12 @@
     {
       "path": "09 Namco Original/wonderful ROUTINE/wonderful ROUTINE.tja",
       "type": "blob",
-      "sha": "1c53b6a901cc2e72473ee9aebd4df7318a5c6083",
+      "sha": "be49bf737c839249cb90ff77af2cfbbd46a5a271",
       "url": "ese/09 Namco Original/wonderful ROUTINE/wonderful ROUTINE.tja",
       "title": "wonderful ROUTINE",
       "titleJp": "wonderful ROUTINE",
-      "subtitle": "Yusuke Kudo",
+      "subtitle": "Yusuke Kudo (BNSI)",
+      "subtitleJp": "工藤祐介(BNSI)",
       "titleCn": "wonderful ROUTINE",
       "artist": "工藤祐介",
       "courses": {

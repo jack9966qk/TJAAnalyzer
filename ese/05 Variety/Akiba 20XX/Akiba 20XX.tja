@@ -3,7 +3,7 @@ TITLE:Akiba 20XX
 TITLEJA:アキバ20XX
 TITLEZH:AKIBA 20XX
 TITLEKO:AKIBA 20XX
-SUBTITLE:--Sotokanda Literature High School Den'onbu / Den'onbu
+SUBTITLE:--Sotokanda Bungei High School DEN-ON-BU / DEN-ON-BU
 SUBTITLEJA:外神田文芸高校電音部 「電音部」より
 SUBTITLEZH:外神田文艺高校电音部 出自"电音部"
 BPM:210
@@ -11,7 +11,8 @@ WAVE:Akiba 20XX.ogg
 OFFSET:-1.443
 DEMOSTART:73.444
 
-//NS2 shinuchi score: 3440/2230/1660/1110
+//SONG_ID:dobakb
+//Shinuchi: 3440/2230/1660/1110
 
 COURSE:Oni
 LEVEL:10

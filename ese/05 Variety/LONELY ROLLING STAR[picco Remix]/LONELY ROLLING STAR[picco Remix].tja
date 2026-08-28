@@ -1,12 +1,14 @@
 //TJADB Project
 TITLE:LONELY ROLLING STAR[picco Remix]
 TITLEJA:LONELY ROLLING STAR[picco Remix]
-SUBTITLE:--Inubousaki Shian (CV:Hasegawa Rena) / Den'onbu x Katamari Damacy
+SUBTITLE:--Shian Inubousaki (CV: Rena Hasegawa) / DEN-ON-BU x Katamari Damacy
 SUBTITLEJA:犬吠埼紫杏(CV:長谷川玲奈) / 電音部 × 塊魂
 BPM:176
 WAVE:LONELY ROLLING STAR[picco Remix].ogg
 OFFSET:-0.937
 DEMOSTART:60.939
+
+//SONG_ID:katars
 
 COURSE:Oni
 LEVEL:9

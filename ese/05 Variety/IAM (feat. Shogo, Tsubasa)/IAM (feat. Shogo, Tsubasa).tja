@@ -1,13 +1,16 @@
 //TJADB Project
 TITLE:IAM (feat. Shogo, Tsubasa)
 TITLEJA:IAM (feat. Shogo, Tsubasa)
-SUBTITLE:--Minato Shirokane Girls' High School Den'onbu / Den'onbu
+TITLEZH:IAM (feat. Shogo, Tsubasa)
+SUBTITLE:--Minato Shirokane Girls High School DEN-ON-BU / DEN-ON-BU
 SUBTITLEJA:港白金女学院電音部 「電音部」より
+SUBTITLEZH:港白金女学院电音部 出自"电音部"
 BPM:138
 WAVE:IAM (feat. Shogo, Tsubasa).ogg
 OFFSET:-1.145
 DEMOSTART:42.345
 
+//SONG_ID:dobiam
 //shinuchi score: 6080/4240/2590/1610
 
 COURSE:Oni

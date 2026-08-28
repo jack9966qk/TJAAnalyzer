@@ -1,502 +1,502 @@
 [
   {
-    "hash": "b90b6d1",
+    "hash": "d4764cd5",
+    "message": "Update version to 0.12.5.",
+    "date": "2026-08-29"
+  },
+  {
+    "hash": "17433d2e",
+    "message": "Update song_mapping.json.",
+    "date": "2026-08-29"
+  },
+  {
+    "hash": "23397209",
+    "message": "Open the app window before copying the HTML in the import bookmarklet, and show a spinner while the import is waiting on it.",
+    "date": "2026-08-29"
+  },
+  {
+    "hash": "b6612233",
+    "message": "Add the 10 star difficulty chart view.",
+    "date": "2026-08-22"
+  },
+  {
+    "hash": "63b21310",
+    "message": "Disable hit testing for hidden vertical floating actions.",
+    "date": "2026-08-13"
+  },
+  {
+    "hash": "c62cfb00",
+    "message": "Fix iOS bookmark import clipboard copying.",
+    "date": "2026-08-13"
+  },
+  {
+    "hash": "3348078f",
+    "message": "Merge pull request #2 from OurTaiko/main",
+    "date": "2026-06-29"
+  },
+  {
+    "hash": "b48faf37",
+    "message": "Flatten player side style json",
+    "date": "2026-06-29"
+  },
+  {
+    "hash": "22db36e6",
+    "message": "Fix comment",
+    "date": "2026-06-28"
+  },
+  {
+    "hash": "d8ddf22d",
+    "message": "完整的解析输出形式",
+    "date": "2026-06-27"
+  },
+  {
+    "hash": "dc573e91",
+    "message": "Update version to 0.12.4.",
+    "date": "2026-06-27"
+  },
+  {
+    "hash": "b90b6d12",
     "message": "Add an \"∞\" BPM option to the roll gap-threshold stepper that disables auto rolling annotation, and make it the default.",
     "date": "2026-06-27"
   },
   {
-    "hash": "9048496",
+    "hash": "9048496e",
     "message": "Make the vertical modal fill the bottom safe-area strip like the chart-options sheet: anchor its content with position:fixed bottom:0 (only a bottom-anchored fixed element paints into the home-indicator strip iOS keeps below the layout viewport) and keep the off-screen sheet visibility:hidden behind it.",
     "date": "2026-05-31"
   },
   {
-    "hash": "87183de",
+    "hash": "87183de0",
     "message": "Log vertical modal and bottom-sheet geometry to the Settings debug log to diagnose the on-device sheet-peek.",
     "date": "2026-05-31"
   },
   {
-    "hash": "c447c06",
+    "hash": "c447c061",
     "message": "Block native touch-pan on the vertical modal so dragging it no longer rubber-bands the fixed layer (which briefly revealed the bottom sheet on iOS).",
     "date": "2026-05-31"
   },
   {
-    "hash": "b0c57c3",
+    "hash": "b0c57c3e",
     "message": "Fill the vertical modal's bottom safe-area band with scrollable content padding instead of a dead strip.",
     "date": "2026-05-31"
   },
   {
-    "hash": "53693a8",
+    "hash": "53693a81",
     "message": "Add rolling manual annotation mode.",
     "date": "2026-05-31"
   },
   {
-    "hash": "9f49cae",
+    "hash": "9f49cae9",
     "message": "Support 2-2 rolling in auto annotation and hand inference.",
     "date": "2026-05-31"
   },
   {
-    "hash": "4244089",
+    "hash": "4244089a",
     "message": "Update version to 0.12.3.",
     "date": "2026-05-31"
   },
   {
-    "hash": "8a88932",
+    "hash": "8a889320",
     "message": "Mock version.json in changelog panel visual test to keep its snapshot stable across version bumps.",
     "date": "2026-05-31"
   },
   {
-    "hash": "1091f75",
+    "hash": "1091f75b",
     "message": "Make auto zoom the default and drop the now-redundant auto-zoom setup from the README screenshot script.",
     "date": "2026-05-31"
   },
   {
-    "hash": "163aecb",
+    "hash": "163aecb4",
     "message": "Lock base page scroll when presenting modal.",
     "date": "2026-05-31"
   },
   {
-    "hash": "ec50905",
+    "hash": "ec509050",
     "message": "Inset the vertical-layout bottom sheet by the left/right safe areas so its width stays out of them.",
     "date": "2026-05-31"
   },
   {
-    "hash": "edb2fe3",
+    "hash": "edb2fe33",
     "message": "Hide the vertical-layout bottom sheet and floating actions while a modal page is presenting.",
     "date": "2026-05-31"
   },
   {
-    "hash": "659ae7d",
+    "hash": "659ae7d8",
     "message": "Clear all advanced search params on reset so stars range no longer persists in saved URL state.",
     "date": "2026-05-31"
   },
   {
-    "hash": "75fa2c4",
+    "hash": "75fa2c4f",
     "message": "Prevent OS mouse hovering popover for modal page title.",
     "date": "2026-05-31"
   },
   {
-    "hash": "5daa3b1",
+    "hash": "5daa3b12",
     "message": "Rename \"download .tja file\" action to \"export .tja file\".",
     "date": "2026-05-31"
   },
   {
-    "hash": "4355ba1",
+    "hash": "4355ba12",
     "message": "Remove file title from iOS image sharing so that destination apps perceive it better.",
     "date": "2026-05-31"
   },
   {
-    "hash": "f95e7bb",
+    "hash": "f95e7bbe",
     "message": "Add a web service for note gaps calculation.",
     "date": "2026-06-24"
   },
   {
-    "hash": "c897a6f",
+    "hash": "c897a6fa",
     "message": "Add a Python wrapper for the note gaps analysis.",
     "date": "2026-06-23"
   },
   {
-    "hash": "5c3e09b",
+    "hash": "5c3e09b9",
     "message": "Update version to 0.12.2.",
     "date": "2026-05-31"
   },
   {
-    "hash": "79d966f",
+    "hash": "79d966f3",
     "message": "Clean up artifacts after npm run release.",
     "date": "2026-05-31"
   },
   {
-    "hash": "079c35b",
+    "hash": "079c35b7",
     "message": "Avoid the transient expanded state when switching bottom sheet tabs while collapsed.",
     "date": "2026-05-31"
   },
   {
-    "hash": "e8acbd7",
+    "hash": "e8acbd73",
     "message": "Dismiss the Wiki dropdown when the bottom sheet is dragged.",
     "date": "2026-05-31"
   },
   {
-    "hash": "e96ff84",
+    "hash": "e96ff848",
     "message": "Stop the floating action pill overlapping the note stats panel in vertical layout.",
     "date": "2026-05-31"
   },
   {
-    "hash": "ba11921",
+    "hash": "ba11921d",
     "message": "Add a script to generate a composed screenshot with device bezels, and add the image to README.",
     "date": "2026-05-30"
   },
   {
-    "hash": "8474b80",
+    "hash": "8474b804",
     "message": "Reduce `Any` usages in tests.",
     "date": "2026-05-30"
   },
   {
-    "hash": "4eb81cd",
+    "hash": "4eb81cdb",
     "message": "Attempt to fix a flaky test.",
     "date": "2026-05-30"
   },
   {
-    "hash": "44f34f6",
+    "hash": "44f34f6e",
     "message": "Allow customizing starting hand for annotations.",
     "date": "2026-05-30"
   },
   {
-    "hash": "87e955c",
+    "hash": "87e955cd",
     "message": "Update version to 0.12.1.",
     "date": "2026-05-30"
   },
   {
-    "hash": "9bdbec2",
+    "hash": "9bdbec28",
     "message": "Hide the bottom sheet if there is no chart loaded.",
     "date": "2026-05-30"
   },
   {
-    "hash": "169c8f4",
+    "hash": "169c8f4d",
     "message": "Fix the issue where the wiki dropdown does not disappear when interacting with the bottom sheet.",
     "date": "2026-05-30"
   },
   {
-    "hash": "9867596",
+    "hash": "9867596c",
     "message": "Fix missing animation when exiting from full screen on some environments such as iOS.",
     "date": "2026-05-29"
   },
   {
-    "hash": "212d900",
+    "hash": "212d9008",
     "message": "A few optimizations on data source and chat option panel animation performance.",
     "date": "2026-05-29"
   },
   {
-    "hash": "c26ef08",
+    "hash": "c26ef08e",
     "message": "Update version to 0.12.0.",
     "date": "2026-05-29"
   },
   {
-    "hash": "11e4843",
+    "hash": "11e48434",
     "message": "Avoid bottom sheet expansion if tab switch is triggered programmatically.",
     "date": "2026-05-29"
   },
   {
-    "hash": "e37ef1b",
+    "hash": "e37ef1b8",
     "message": "Move the exit full screen button to the bottom of the screen.",
     "date": "2026-05-29"
   },
   {
-    "hash": "d725b31",
+    "hash": "d725b310",
     "message": "Auto-hide the floating chart action buttons (with fade) when they would extend outside the chart's visible region; show again when fully inside.",
     "date": "2026-05-29"
   },
   {
-    "hash": "7d65e26",
+    "hash": "7d65e269",
     "message": "Add vertical layout test cases: mutually exclusive panel expansion logic and mobile-sized snapshot regressions.",
     "date": "2026-05-29"
   },
   {
-    "hash": "3ed2d2e",
+    "hash": "3ed2d2e4",
     "message": "Update floating buttons styling.",
     "date": "2026-05-28"
   },
   {
-    "hash": "5d72036",
+    "hash": "5d720367",
     "message": "Moved full screen, image share and wiki buttons as floating buttons above bottom sheet in vertical layout. Added smooth position transition; disabled transition during drag.",
     "date": "2026-05-26"
   },
   {
-    "hash": "cc2cb50",
+    "hash": "cc2cb504",
     "message": "Revamp the chart options layout in vertical mode as a bottom sheet. Make sure only one of data source and chart options panels can be expanded.",
     "date": "2026-05-23"
   },
   {
-    "hash": "4789cbb",
+    "hash": "4789cbb6",
     "message": "Update version to 0.11.7.",
     "date": "2026-05-25"
   },
   {
-    "hash": "cb0b176",
+    "hash": "cb0b176e",
     "message": "Update data.",
     "date": "2026-05-25"
   },
   {
-    "hash": "6845316",
+    "hash": "6845316b",
     "message": "Merge pull request #1 from OurTaiko/dev",
     "date": "2026-04-09"
   },
   {
-    "hash": "656fb4c",
+    "hash": "656fb4c8",
     "message": "Expand note gap calculation to support a few different modes when handling long notes.",
     "date": "2026-04-09"
   },
   {
-    "hash": "9ce63f9",
+    "hash": "9ce63f9c",
     "message": "Ignore 风船&连打",
     "date": "2026-04-07"
   },
   {
-    "hash": "04de254",
+    "hash": "04de2543",
     "message": "Update version to 0.11.6.",
     "date": "2026-03-31"
   },
   {
-    "hash": "014b177",
+    "hash": "014b1773",
     "message": "Replace the temporary local getEffectiveBpm solution with the new utility function from the renderer package. Also update usages of a renamed symbol.",
     "date": "2026-03-21"
   },
   {
-    "hash": "8d0c15f",
+    "hash": "8d0c15ff",
     "message": "Apply a quick fix to BPM calculation during note gap calculation.",
     "date": "2026-03-20"
   },
   {
-    "hash": "2f05733",
+    "hash": "2f057333",
     "message": "Update TJARenderer submodule version.",
     "date": "2026-03-20"
   },
   {
-    "hash": "199fe21",
+    "hash": "199fe21e",
     "message": "Update README.md.",
     "date": "2026-03-16"
   },
   {
-    "hash": "4eea016",
+    "hash": "4eea0163",
     "message": "Update version to 0.11.5.",
     "date": "2026-03-16"
   },
   {
-    "hash": "30169dc",
+    "hash": "30169dcc",
     "message": "Hide the full screen chart graident overlay if no safe area in the top.",
     "date": "2026-03-16"
   },
   {
-    "hash": "4bd4e26",
+    "hash": "4bd4e26b",
     "message": "Disable PWA capability when app run in npm dev mode due to known issue.",
     "date": "2026-03-16"
   },
   {
-    "hash": "6e90e07",
+    "hash": "6e90e079",
     "message": "Reintroduce renderer package as a git submodule.",
     "date": "2026-03-15"
   },
   {
-    "hash": "f59b5d9",
+    "hash": "f59b5d9b",
     "message": "Disable page zoom on mobile platforms.",
     "date": "2026-03-15"
   },
   {
-    "hash": "43e5bfd",
+    "hash": "43e5bfd1",
     "message": "Add missing data for a test case.",
     "date": "2026-03-15"
   },
   {
-    "hash": "b877fde",
+    "hash": "b877fde2",
     "message": "Refine the UI in advanced search. Allow selecting multiple difficulties and a range of stars.",
     "date": "2026-03-15"
   },
   {
-    "hash": "c7e91cb",
+    "hash": "c7e91cba",
     "message": "Add a gradient overlay to the top safe area of the fullscreen chart.",
     "date": "2026-03-15"
   },
   {
-    "hash": "8dd2f3f",
+    "hash": "8dd2f3f7",
     "message": "Share note gap calculation logic between offline analysis and note stats panel. Fix the duration calculation with changing BPM in the note stats panel.",
     "date": "2026-03-15"
   },
   {
-    "hash": "c641ae9",
+    "hash": "c641ae9f",
     "message": "Update analyze-ese script to accept a unit parameter, supporting gaps output in ms.",
     "date": "2026-03-15"
   },
   {
-    "hash": "a5e26cf",
+    "hash": "a5e26cfa",
     "message": "Avoid the flash of modal pages when app opens.",
     "date": "2026-03-15"
   },
   {
-    "hash": "ae1e393",
+    "hash": "ae1e393c",
     "message": "Update package scripts to adapt to the separation of the renderer package. Move some tests out of this (app) repository.",
     "date": "2026-03-15"
   },
   {
-    "hash": "e6f2cec",
+    "hash": "e6f2cec0",
     "message": "Remove the renderer package for it to become a separate repository.",
     "date": "2026-03-14"
   },
   {
-    "hash": "3810c45",
+    "hash": "3810c459",
     "message": "Make note hover and click handling API public, along with helper functions for annotations.",
     "date": "2026-03-14"
   },
   {
-    "hash": "ddaf773",
+    "hash": "ddaf7739",
     "message": "Move some chart annotation interaction logic from the app to the renderer package.",
     "date": "2026-03-14"
   },
   {
-    "hash": "188365b",
+    "hash": "188365b9",
     "message": "Include branch name in note location object. Update HitInfo to use note location. Remove some usages of optional branch name. For now, use normal branch name to express charts/sections with no branching.",
     "date": "2026-03-14"
   },
   {
-    "hash": "6edc615",
+    "hash": "6edc6158",
     "message": "Enable the hover style in the renderer package when only click handlers are configured.",
     "date": "2026-03-14"
   },
   {
-    "hash": "fed9b4d",
+    "hash": "fed9b4d8",
     "message": "Move hovered note style updates from the app to the renderer package.",
     "date": "2026-03-14"
   },
   {
-    "hash": "a5cb9fc",
+    "hash": "a5cb9fca",
     "message": "Extend renderer internal API for hover/click event handler registration.",
     "date": "2026-03-14"
   },
   {
-    "hash": "bc2c7d9",
+    "hash": "bc2c7d99",
     "message": "Minor refactoring in tja-chart to make calculateDirtyRowY a separate function.",
     "date": "2026-03-14"
   },
   {
-    "hash": "9cce2be",
+    "hash": "9cce2be6",
     "message": "Move image export implementation to the renderer. Eliminate usages of renderChart from the app.",
     "date": "2026-03-14"
   },
   {
-    "hash": "d2cc84f",
+    "hash": "d2cc84fa",
     "message": "Address some flaky tests.",
     "date": "2026-03-14"
   },
   {
-    "hash": "48f1a5a",
+    "hash": "48f1a5a7",
     "message": "Reduce browser environment dependency in layout.ts, add basic test cases.",
     "date": "2026-03-14"
   },
   {
-    "hash": "15eb714",
+    "hash": "15eb7149",
     "message": "Set up tests within the renderer package.",
     "date": "2026-03-14"
   },
   {
-    "hash": "67ed3cc",
+    "hash": "67ed3cc6",
     "message": "Add README to the TJA renderer package.",
     "date": "2026-03-14"
   },
   {
-    "hash": "222d1f8",
+    "hash": "222d1f85",
     "message": "Define an internal/private version of ChartView API allowing easier migration of functionalities from the app package to the renderer package.",
     "date": "2026-03-14"
   },
   {
-    "hash": "c54a5b9",
+    "hash": "c54a5b95",
     "message": "Rename renderer ViewOptions as RenderOptions to disambiguate from ChartViewOptions and the app ViewOptions.",
     "date": "2026-03-14"
   },
   {
-    "hash": "410c501",
+    "hash": "410c5011",
     "message": "Rename chart as chart view in public renderer API.",
     "date": "2026-03-14"
   },
   {
-    "hash": "0afda8b",
+    "hash": "0afda8b1",
     "message": "Remove the previously defined public API. Also make default chart options public.",
     "date": "2026-03-14"
   },
   {
-    "hash": "9f1827d",
+    "hash": "9f1827d4",
     "message": "Update the new public API. Migrate renderer example package to the new API.",
     "date": "2026-03-14"
   },
   {
-    "hash": "15f0bd9",
+    "hash": "15f0bd94",
     "message": "Extend renderer public API and mark previous ones as deprecated.",
     "date": "2026-03-13"
   },
   {
-    "hash": "4b5858d",
+    "hash": "4b5858da",
     "message": "Update version to 0.11.4.",
     "date": "2026-03-13"
   },
   {
-    "hash": "949bf72",
+    "hash": "949bf72d",
     "message": "Update TJA parser to calculate gaps that exceed 1 measure. Remove gap value when the previous note is not don/ka.",
     "date": "2026-03-13"
   },
   {
-    "hash": "cbb251d",
+    "hash": "cbb251da",
     "message": "Add a script to apply analysis to all ESE charts that have a corresponding song mapping. Currently this contains only the note gaps.",
     "date": "2026-03-13"
   },
   {
-    "hash": "eb2e1d7",
+    "hash": "eb2e1d76",
     "message": "Fix parameter propagation for prepare-data.",
     "date": "2026-03-13"
   },
   {
-    "hash": "ea3aec1",
+    "hash": "ea3aec13",
     "message": "Update the data fetching script to use the taiko.wiki API instead of GitHub raw content address.",
     "date": "2026-03-13"
   },
   {
-    "hash": "9beb20f",
+    "hash": "9beb20f4",
     "message": "Update prepare-data script to invoke build-data in the end.",
     "date": "2026-03-13"
   },
   {
-    "hash": "9e764c1",
+    "hash": "9e764c18",
     "message": "Update song_mapping.json.",
     "date": "2026-03-13"
-  },
-  {
-    "hash": "4c40f9e",
-    "message": "Update prepare-data script to handle previously resolved ESE paths that no longer exist.",
-    "date": "2026-03-13"
-  },
-  {
-    "hash": "37ceac2",
-    "message": "Update prepare-data script to replacet the deprecated version of TaikoRatingAnalyzer file with links to its CDN. Update parsing logic to adapt to the new format.",
-    "date": "2026-03-13"
-  },
-  {
-    "hash": "1eae956",
-    "message": "Update the importing process to allow storing unmatched entires.",
-    "date": "2026-03-13"
-  },
-  {
-    "hash": "087faf4",
-    "message": "Move the HTML importer function from settings-panel to a new file.",
-    "date": "2026-03-10"
-  },
-  {
-    "hash": "a63000b",
-    "message": "(Maybe failed) attempt to fix the gap between long note segments across bars.",
-    "date": "2026-03-10"
-  },
-  {
-    "hash": "056e99a",
-    "message": "Add debug logging for app startup performance.",
-    "date": "2026-03-10"
-  },
-  {
-    "hash": "a50c61f",
-    "message": "Fix the issue where vertical inset is applied between the bars and the attribution text.",
-    "date": "2026-03-09"
-  },
-  {
-    "hash": "f42ff46",
-    "message": "Add a script to package ESE data and upload to GitHub release, for potential offline support in the future.",
-    "date": "2026-03-08"
-  },
-  {
-    "hash": "b326553",
-    "message": "Update version to 0.11.3.",
-    "date": "2026-03-08"
-  },
-  {
-    "hash": "3f86cad",
-    "message": "Fix missing spacing between rendered chart header and the first bar.",
-    "date": "2026-03-08"
-  },
-  {
-    "hash": "c386be9",
-    "message": "Impove import process to skip the manual paste of HTML when importing to the web version of the app.",
-    "date": "2026-03-08"
   }
 ]

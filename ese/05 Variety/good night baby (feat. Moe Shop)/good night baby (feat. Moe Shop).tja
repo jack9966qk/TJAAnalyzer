@@ -2,7 +2,7 @@
 TITLE:good night baby (feat. Moe Shop)
 TITLEJA:good night baby (feat. Moe Shop)
 TITLEZH:good night baby (feat. Moe Shop)
-SUBTITLE:--Inubousaki Shian (CV:Hasegawa Rena) / Den'onbu
+SUBTITLE:--Shian Inubousaki (CV: Rena Hasegawa) / DEN-ON-BU
 SUBTITLEJA:犬吠埼紫杏(CV:長谷川玲奈) 「電音部」より
 SUBTITLEZH:Shian Inubousaki (CV: Rena Hasegawa) 出自"电音部"
 BPM:125
@@ -10,6 +10,7 @@ WAVE:good night baby (feat. Moe Shop).ogg
 OFFSET:-2.096
 DEMOSTART:15.288
 
+//SONG_ID:dobgnb
 //Shinuchi: 8450/5270/4500/2360
 
 COURSE:Oni
