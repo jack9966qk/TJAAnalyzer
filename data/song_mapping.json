@@ -2857,8 +2857,6 @@
     "esePath": "05 Variety/Help me, ERINNNNNN!!/Help me, ERINNNNNN!!.tja",
     "defaultTitle": "Help me, ERINNNNNN!!",
     "candidates": [
-      "05 Variety/Help me, ERINNNNNN!! -Cranky Remix-/Help me, ERINNNNNN!! -Cranky Remix-.tja",
-      "05 Variety/Help me, ERINNNNNN!! Sachiko Kobayashi Ver/Help me, ERINNNNNN!! Sachiko Kobayashi Ver.tja",
       "05 Variety/Help me, ERINNNNNN!!/Help me, ERINNNNNN!!.tja"
     ],
     "matchType": "fuzzy + llm"
@@ -5019,10 +5017,10 @@
     "matchType": "exact"
   },
   "741": {
-    "esePath": "09 Namco Original/Furi-furi♪ Nori-nori♪/Furi-furi  Nori-nori.tja",
+    "esePath": "09 Namco Original/Furi-furi♪ Nori-nori♪/Furi-furi Nori-nori.tja",
     "defaultTitle": "フリフリ♪ノリノリ♪",
     "candidates": [
-      "09 Namco Original/Furi-furi♪ Nori-nori♪/Furi-furi  Nori-nori.tja"
+      "09 Namco Original/Furi-furi♪ Nori-nori♪/Furi-furi Nori-nori.tja"
     ],
     "matchType": "exact"
   },
@@ -5714,6 +5712,14 @@
     ],
     "matchType": "exact"
   },
+  "853": {
+    "esePath": "02 Anime/Puputto Fumutto Kaiketsu Dance/Puputto Fumutto Kaiketsu Dance.tja",
+    "defaultTitle": "ププッとフムッとかいけつダンス",
+    "candidates": [
+      "02 Anime/Puputto Fumutto Kaiketsu Dance/Puputto Fumutto Kaiketsu Dance.tja"
+    ],
+    "matchType": "exact"
+  },
   "855": {
     "esePath": "09 Namco Original/Tabetemo Tabetemo/Tabetemo Tabetemo.tja",
     "defaultTitle": "タベテモタベテモ",
@@ -5973,10 +5979,10 @@
     "matchType": "exact"
   },
   "897": {
-    "esePath": "07 Game Music/Himitsuki-tuber/Himitsuki-tuber.tja",
+    "esePath": "04 Children and Folk/Himitsuki-tuber/Himitsuki-tuber.tja",
     "defaultTitle": "ヒミツキチューバー",
     "candidates": [
-      "07 Game Music/Himitsuki-tuber/Himitsuki-tuber.tja"
+      "04 Children and Folk/Himitsuki-tuber/Himitsuki-tuber.tja"
     ],
     "matchType": "exact"
   },
@@ -6000,7 +6006,8 @@
     "esePath": "09 Namco Original/Souryuu no Ran/Souryuu no Ran.tja",
     "defaultTitle": "【双打】 双竜ノ乱",
     "candidates": [
-      "09 Namco Original/Souryuu no Ran/Souryuu no Ran.tja"
+      "09 Namco Original/Souryuu no Ran/Souryuu no Ran (Sou-uchi) (Anomaly).tja",
+      "09 Namco Original/Souryuu no Ran/Souryuu no Ran (Sou-uchi).tja"
     ],
     "matchType": "fuzzy"
   },
@@ -6016,7 +6023,7 @@
     "esePath": "07 Game Music/Music Revolver/Music Revolver.tja",
     "defaultTitle": "【双打】 ミュージック・リボルバー",
     "candidates": [
-      "07 Game Music/Music Revolver/Music Revolver.tja"
+      "07 Game Music/Music Revolver/Music Revolver (Sou-uchi).tja"
     ],
     "matchType": "fuzzy"
   },
@@ -6085,18 +6092,18 @@
     "matchType": "exact"
   },
   "913": {
-    "esePath": "02 Anime/Gingira Ginga/Gingira Ginga.tja",
+    "esePath": "04 Children and Folk/Gingira Ginga/Gingira Ginga.tja",
     "defaultTitle": "ギンギラ銀河",
     "candidates": [
-      "02 Anime/Gingira Ginga/Gingira Ginga.tja"
+      "04 Children and Folk/Gingira Ginga/Gingira Ginga.tja"
     ],
     "matchType": "exact"
   },
   "914": {
-    "esePath": "07 Game Music/Synchronica Airlines/Synchronica Airlines.tja",
+    "esePath": "07 Game Music/Synchronica Airline/Synchronica Airline.tja",
     "defaultTitle": "シンクロニカ・エアライン",
     "candidates": [
-      "07 Game Music/Synchronica Airlines/Synchronica Airlines.tja"
+      "07 Game Music/Synchronica Airline/Synchronica Airline.tja"
     ],
     "matchType": "exact"
   },
@@ -6253,22 +6260,20 @@
     "matchType": "exact"
   },
   "936": {
-    "esePath": "02 Anime/Smile! Smile! Smile!/Smile! Smile! Smile!.tja",
+    "esePath": "04 Children and Folk/Smile! Smile! Smile!/Smile! Smile! Smile!.tja",
     "defaultTitle": "Smile！ Smile！ Smile！",
     "candidates": [
       "01 Pop/S/S.tja",
-      "02 Anime/Smile! Smile! Smile!/Smile! Smile! Smile!.tja"
+      "04 Children and Folk/Smile! Smile! Smile!/Smile! Smile! Smile!.tja"
     ],
-    "matchType": "exact"
+    "matchType": "fuzzy + llm"
   },
   "937": {
     "esePath": "01 Pop/Yoru ni Kakeru/Yoru ni Kakeru -Original Version-.tja",
     "defaultTitle": "夜に駆ける",
     "candidates": [
       "01 Pop/Yoru ni Kakeru/Yoru ni Kakeru -Cover Version-.tja",
-      "01 Pop/Yoru ni Kakeru/Yoru ni Kakeru -Original Version-.tja",
-      "02 Anime/Kaze ni Naru/Kaze ni Naru.tja",
-      "09 Namco Original/Tokeru/Tokeru.tja"
+      "01 Pop/Yoru ni Kakeru/Yoru ni Kakeru -Original Version-.tja"
     ],
     "matchType": "fuzzy + llm"
   },
@@ -6613,10 +6618,10 @@
     "matchType": "exact"
   },
   "984": {
-    "esePath": "02 Anime/Ka! Ka! Ka! Kamizmode!/Ka! Ka! Ka! Kamizmode!.tja",
+    "esePath": "04 Children and Folk/Ka! Ka! Ka! Kamizmode!/Ka! Ka! Ka! Kamizmode!.tja",
     "defaultTitle": "カ！カ！カ！カミズモード！",
     "candidates": [
-      "02 Anime/Ka! Ka! Ka! Kamizmode!/Ka! Ka! Ka! Kamizmode!.tja"
+      "04 Children and Folk/Ka! Ka! Ka! Kamizmode!/Ka! Ka! Ka! Kamizmode!.tja"
     ],
     "matchType": "exact"
   },
@@ -7626,7 +7631,8 @@
     "esePath": "02 Anime/1・2・3/1 2 3.tja",
     "defaultTitle": "１・２・３",
     "candidates": [
-      "02 Anime/1・2・3 (2019)/1 2 3 (2019).tja"
+      "02 Anime/1・2・3 (2019)/1 2 3 (2019).tja",
+      "02 Anime/1・2・3/1 2 3.tja"
     ],
     "matchType": "fuzzy + llm"
   },
@@ -8142,10 +8148,10 @@
     "matchType": "exact"
   },
   "1183": {
-    "esePath": "09 Namco Original/Drawin’☆Dream!/Drawin Dream!.tja",
+    "esePath": "09 Namco Original/Drawing☆Dream!/Drawing Dream!.tja",
     "defaultTitle": "ドローイン☆ドリーム！",
     "candidates": [
-      "09 Namco Original/Drawin’☆Dream!/Drawin Dream!.tja"
+      "09 Namco Original/Drawing☆Dream!/Drawing Dream!.tja"
     ],
     "matchType": "exact"
   },
@@ -10562,6 +10568,38 @@
     ],
     "matchType": "exact"
   },
+  "1496": {
+    "esePath": "07 Game Music/The Encounter Code/The Encounter Code.tja",
+    "defaultTitle": "The Encounter Code",
+    "candidates": [
+      "07 Game Music/The Encounter Code/The Encounter Code.tja"
+    ],
+    "matchType": "exact"
+  },
+  "1497": {
+    "esePath": "07 Game Music/ln(guis·tics)/ln(guis·tics).tja",
+    "defaultTitle": "ln(guis・tics)",
+    "candidates": [
+      "07 Game Music/ln(guis·tics)/ln(guis·tics).tja"
+    ],
+    "matchType": "fuzzy"
+  },
+  "1498": {
+    "esePath": "07 Game Music/Remnath/Remnath.tja",
+    "defaultTitle": "Remnath",
+    "candidates": [
+      "07 Game Music/Remnath/Remnath.tja"
+    ],
+    "matchType": "exact"
+  },
+  "1499": {
+    "esePath": "07 Game Music/When Enemies Collapse/When Enemies Collapse.tja",
+    "defaultTitle": "When Enemies Collapse",
+    "candidates": [
+      "07 Game Music/When Enemies Collapse/When Enemies Collapse.tja"
+    ],
+    "matchType": "exact"
+  },
   "1502": {
     "esePath": "09 Namco Original/DONKYO Likelihood/DONKYO Likelihood.tja",
     "defaultTitle": "鈍響ライクリフド",
@@ -10594,6 +10632,14 @@
     ],
     "matchType": "exact"
   },
+  "1506": {
+    "esePath": "01 Pop/Tontsukatantan/Tontsukatantan.tja",
+    "defaultTitle": "トンツカタンタン",
+    "candidates": [
+      "01 Pop/Tontsukatantan/Tontsukatantan.tja"
+    ],
+    "matchType": "exact"
+  },
   "1507": {
     "esePath": "07 Game Music/I am not Alice/I am not Alice.tja",
     "defaultTitle": "I am not Alice.",
@@ -10610,6 +10656,14 @@
     ],
     "matchType": "exact"
   },
+  "1509": {
+    "esePath": "09 Namco Original/Cycle of Rebirth/Cycle of Rebirth.tja",
+    "defaultTitle": "サイクル・オブ・リバース",
+    "candidates": [
+      "09 Namco Original/Cycle of Rebirth/Cycle of Rebirth.tja"
+    ],
+    "matchType": "exact"
+  },
   "1510": {
     "esePath": "09 Namco Original/Kappa no Sara wa Konna ni mo/Kappa no Sara wa Konna ni mo.tja",
     "defaultTitle": "河童の皿はこんなにも",
@@ -10622,8 +10676,96 @@
     "esePath": "01 Pop/Hana/Hana.tja",
     "defaultTitle": "シャニムニ花火",
     "candidates": [
-      "01 Pop/Hana/Hana.tja"
+      "09 Namco Original/Shanimuni Hanabi/Shanimuni Hanabi.tja"
     ],
     "matchType": "fuzzy"
+  },
+  "1512": {
+    "esePath": "01 Pop/Koi no Yakusoku -2025ver.-/Koi no Yakusoku -2025ver.-.tja",
+    "defaultTitle": "恋の約束 -2025ver.-",
+    "candidates": [
+      "01 Pop/Koi no Yakusoku -2025ver.-/Koi no Yakusoku -2025ver.-.tja"
+    ],
+    "matchType": "exact"
+  },
+  "1513": {
+    "esePath": "01 Pop/Shugoi Suki!/Shugoi Suki!.tja",
+    "defaultTitle": "守護いスキっ！",
+    "candidates": [
+      "01 Pop/Shugoi Suki!/Shugoi Suki!.tja"
+    ],
+    "matchType": "exact"
+  },
+  "1514": {
+    "esePath": "09 Namco Original/Yaren no ka Summer Asobi Tiger/Yaren no ka Summer Asobi Tiger.tja",
+    "defaultTitle": "やれんのか夏！？アソビタイガー！",
+    "candidates": [
+      "09 Namco Original/Yaren no ka Summer Asobi Tiger/Yaren no ka Summer Asobi Tiger.tja"
+    ],
+    "matchType": "exact"
+  },
+  "1515": {
+    "esePath": "01 Pop/CHARISMAX/CHARISMAX.tja",
+    "defaultTitle": "カリスマックス",
+    "candidates": [
+      "01 Pop/CHARISMAX/CHARISMAX.tja"
+    ],
+    "matchType": "exact"
+  },
+  "1516": {
+    "esePath": "01 Pop/Honmayade Nandeyanen Shirankedo/Honmayade Nandeyanen Shirankedo.tja",
+    "defaultTitle": "ほんまやで☆なんでやねん☆しらんけど",
+    "candidates": [
+      "01 Pop/Honmayade Nandeyanen Shirankedo/Honmayade Nandeyanen Shirankedo.tja"
+    ],
+    "matchType": "exact"
+  },
+  "1517": {
+    "esePath": "01 Pop/Saudade/Saudade.tja",
+    "defaultTitle": "サウダージ",
+    "candidates": [
+      "01 Pop/Saudade/Saudade.tja"
+    ],
+    "matchType": "exact"
+  },
+  "1518": {
+    "esePath": "02 Anime/World is Mine CPK! Remix (Kaguya & Lunami Yachiyo ver.)/World is Mine CPK! Remix (Kaguya & Lunami Yachiyo ver.).tja",
+    "defaultTitle": "ワールドイズマイン CPK! Remix (かぐや&月見ヤチヨ ver.)",
+    "candidates": [
+      "02 Anime/World is Mine CPK! Remix (Kaguya & Lunami Yachiyo ver.)/World is Mine CPK! Remix (Kaguya & Lunami Yachiyo ver.).tja"
+    ],
+    "matchType": "exact"
+  },
+  "1519": {
+    "esePath": "01 Pop/Hacha Mecha Wacha Life!/Hacha Mecha Wacha Life!.tja",
+    "defaultTitle": "はちゃめちゃわちゃライフ！",
+    "candidates": [
+      "01 Pop/Hacha Mecha Wacha Life!/Hacha Mecha Wacha Life!.tja"
+    ],
+    "matchType": "exact"
+  },
+  "1520": {
+    "esePath": "07 Game Music/Fishing Spirits Wonder Medley/Fishing Spirits Wonder Medley.tja",
+    "defaultTitle": "釣りスピリッツ ワンダー メドレー",
+    "candidates": [
+      "07 Game Music/Fishing Spirits Wonder Medley/Fishing Spirits Wonder Medley.tja"
+    ],
+    "matchType": "exact"
+  },
+  "1521": {
+    "esePath": "01 Pop/S/S.tja",
+    "defaultTitle": "湾岸ミッドナイト マキシマムチューン 6RR PLUS メドレー Vol.1",
+    "candidates": [
+      "01 Pop/S/S.tja"
+    ],
+    "matchType": "fuzzy"
+  },
+  "1522": {
+    "esePath": "09 Namco Original/HYPERNOVA/HYPERNOVA.tja",
+    "defaultTitle": "HYPERNOVA",
+    "candidates": [
+      "09 Namco Original/HYPERNOVA/HYPERNOVA.tja"
+    ],
+    "matchType": "exact"
   }
 }
