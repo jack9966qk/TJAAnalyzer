@@ -3,7 +3,7 @@ import { getGapMeasures, getGapMs, LongNoteHandling } from "../src/utils/note-ga
 
 export { LongNoteHandling } from "../src/utils/note-gap.js";
 
-const { parseTJA, RENDERABLE_NOTES, NoteType } = Renderer.Private;
+const { parseTJA, NoteType } = Renderer.Private;
 type ParsedChart = Renderer.Private.ParsedChart;
 
 export type GapUnit = "measures" | "ms";
@@ -86,7 +86,11 @@ function computeNoteGaps(chart: ParsedChart, unit: GapUnit, longNoteHandling: Lo
   return gaps;
 }
 
-function analyzeLeafChart(chart: ParsedChart, unit: GapUnit, longNoteHandling: LongNoteHandling): { gaps: ChartGaps; noteTypes: ChartNoteTypes } {
+function analyzeLeafChart(
+  chart: ParsedChart,
+  unit: GapUnit,
+  longNoteHandling: LongNoteHandling,
+): { gaps: ChartGaps; noteTypes: ChartNoteTypes } {
   if (!chart.branches) {
     return {
       gaps: { unbranched: computeNoteGaps(chart, unit, longNoteHandling) },
@@ -105,7 +109,11 @@ function analyzeLeafChart(chart: ParsedChart, unit: GapUnit, longNoteHandling: L
   return { gaps, noteTypes };
 }
 
-function analyzeChart(chart: ParsedChart, unit: GapUnit, longNoteHandling: LongNoteHandling): { gaps: CourseGaps; noteTypes: CourseNoteTypes } {
+function analyzeChart(
+  chart: ParsedChart,
+  unit: GapUnit,
+  longNoteHandling: LongNoteHandling,
+): { gaps: CourseGaps; noteTypes: CourseNoteTypes } {
   if (chart.playerSides) {
     const gaps: Record<string, ChartGaps> = {};
     const noteTypes: Record<string, ChartNoteTypes> = {};
