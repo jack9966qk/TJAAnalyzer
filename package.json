@@ -15,7 +15,7 @@
     "dev:vite": "vite",
     "start": "vite preview --port 8080",
     "test:renderer": "npm run test --prefix TJARenderer",
-    "test:app": "npm run build:app && node --loader ts-node/esm tests/test-parser.ts && node --loader ts-node/esm tests/test-exporter.ts && playwright test",
+    "test:app": "npm run build:app && node --loader ts-node/esm tests/test-parser.ts && node --loader ts-node/esm tests/test-exporter.ts && node --loader ts-node/esm tests/test-chart-image-decoder.ts && playwright test",
     "test": "npm run test:renderer && npm run test:app",
     "build:exe": "npm run build && node build-exe.js",
     "start:exe": "npm run build && neu update && neu run",
