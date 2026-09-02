@@ -22,6 +22,7 @@ import {
   updateParsedCharts,
 } from "../controllers/chart-controller.js";
 import { appState } from "../state/app-state.js";
+import { shareFile } from "../utils/file-share.js";
 import { i18n } from "../utils/i18n.js";
 import {
   buildSongIdToEntriesCache,
@@ -595,6 +596,14 @@ export class ChartListPanel extends HTMLElement {
       });
     }
 
+    if (appState.currentEsePath) {
+      items.push({
+        label: i18n.t("ui.ese.downloadTja"),
+        successLabel: i18n.t("ui.ese.downloadTjaSuccess"),
+        action: () => this.handleDownloadTja(),
+      });
+    }
+
     return items;
   }
 
@@ -617,6 +626,20 @@ export class ChartListPanel extends HTMLElement {
       await navigator.clipboard.writeText(name);
     } catch (e) {
       console.error("Failed to copy song name:", e);
+      throw e;
+    }
+  }
+
+  /** Saves the loaded chart under its original file name. */
+  private async handleDownloadTja() {
+    const path = appState.currentEsePath;
+    if (!path) return;
+
+    const fileName = path.split("/").pop() || "chart.tja";
+    try {
+      await shareFile(fileName, appState.loadedTJAContent, "text/plain", i18n.t("ui.ese.downloadTja"));
+    } catch (e) {
+      console.error("Failed to download TJA:", e);
       throw e;
     }
   }

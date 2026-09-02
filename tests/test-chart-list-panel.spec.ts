@@ -672,4 +672,48 @@ test.describe("Chart List Panel Component", () => {
     await shareBtn.locator(".split-dropdown-option", { hasText: "曲名をコピー" }).click();
     await expect.poll(() => page.evaluate(() => sessionStorage.getItem("copied-text"))).toBe("曲１");
   });
+
+  test("Download the loaded TJA from the share dropdown", async ({ page }) => {
+    const tja = "TITLE:Song One\nBPM:120\nWAVE:song.ogg\nCOURSE:Oni\nLEVEL:8\n#START\n10101010,\n#END";
+    const mockData = [
+      { path: "cat1/song1.tja", title: "Song One", titleJp: "曲１", url: "ese/cat1/song1.tja", type: "blob" },
+    ];
+    await page.route("**/ese_index.json", (route) =>
+      route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(mockData) }),
+    );
+    await page.route("**/ese/cat1/song1.tja", (route) =>
+      route.fulfill({ status: 200, contentType: "text/plain", body: tja }),
+    );
+
+    await page.goto("/");
+    // Force the download fallback, so the run does not depend on share sheet support.
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, "share", { configurable: true, value: undefined });
+      Object.defineProperty(navigator, "canShare", { configurable: true, value: undefined });
+    });
+
+    await page.locator('button[data-mode="list"]').click();
+    await page.locator(".ese-result-item").first().click();
+
+    const shareBtn = page.locator("#ese-share-btn");
+    await expect(shareBtn).not.toBeDisabled();
+
+    await shareBtn.locator(".split-btn-dropdown").click();
+    const downloadOption = shareBtn.locator(".split-dropdown-option", { hasText: "Download .tja File" });
+    await expect(downloadOption).toBeVisible();
+
+    const downloadPromise = page.waitForEvent("download");
+    await downloadOption.click();
+    const download = await downloadPromise;
+
+    // The chart keeps its original file name and content.
+    expect(download.suggestedFilename()).toBe("song1.tja");
+    const stream = await download.createReadStream();
+    const chunks: Buffer[] = [];
+    for await (const chunk of stream) chunks.push(chunk as Buffer);
+    expect(Buffer.concat(chunks).toString("utf8")).toBe(tja);
+
+    // The item overrides the button success label, which otherwise reports a copied link.
+    await expect(shareBtn).toContainText("Saved File");
+  });
 });
