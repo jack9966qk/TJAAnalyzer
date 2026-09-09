@@ -230,7 +230,7 @@ const resources: Resources = {
     "ui.playdata.goToImport": "Import Playdata",
 
     "ui.viewDefaults.title": "Default View Options",
-    "ui.viewDefaults.desc": "Save current zoom level and note stats visibility as defaults for new charts.",
+    "ui.viewDefaults.desc": "Save the current view options as defaults for new charts.",
     "ui.viewDefaults.save": "Save Current as Default",
     "ui.viewDefaults.clear": "Clear Defaults",
     "ui.viewDefaults.current": "Current defaults",
@@ -544,7 +544,7 @@ const resources: Resources = {
     "ui.playdata.goToImport": "导入成绩数据",
 
     "ui.viewDefaults.title": "默认视图选项",
-    "ui.viewDefaults.desc": "将当前缩放级别和音符数值显示设置保存为新谱面的默认值。",
+    "ui.viewDefaults.desc": "将当前视图选项保存为新谱面的默认值。",
     "ui.viewDefaults.save": "保存当前设置为默认值",
     "ui.viewDefaults.clear": "清除默认值",
     "ui.viewDefaults.current": "当前默认值",
@@ -859,7 +859,7 @@ const resources: Resources = {
     "ui.playdata.goToImport": "プレイデータをインポート",
 
     "ui.viewDefaults.title": "デフォルト表示オプション",
-    "ui.viewDefaults.desc": "現在のズームレベルと音符情報表示を新しい譜面のデフォルトとして保存します。",
+    "ui.viewDefaults.desc": "現在の表示オプションを新しい譜面のデフォルトとして保存します。",
     "ui.viewDefaults.save": "現在の設定をデフォルトとして保存",
     "ui.viewDefaults.clear": "デフォルトをクリア",
     "ui.viewDefaults.current": "現在のデフォルト",

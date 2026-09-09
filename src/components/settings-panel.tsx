@@ -183,12 +183,25 @@ export class SettingsPanel extends HTMLElement {
     const defaults: DefaultViewOptions = {
       zoom: renderOptions.autoZoom ? "auto" : renderOptions.beatsPerLine,
       showNoteStats: viewOptionsEl?.statsVisible ?? true,
+      scrollSpacing: !!renderOptions.scrollSpacing,
+      showBarLabels: !!renderOptions.showTextInAnnotationMode,
+      alwaysShowAnnotations: !!renderOptions.alwaysShowAnnotations,
     };
 
     this.defaultViewOptions = defaults;
     saveUserProfile({ defaultViewOptions: defaults });
     // Status handled by button
     this.render();
+  }
+
+  /** One saved toggle row, omitted for profiles saved before the toggle existed. */
+  private renderSavedToggle(labelKey: string, value: boolean | undefined) {
+    if (value === undefined) return null;
+    return (
+      <div>
+        {i18n.t(labelKey)}: <strong>{value ? i18n.t("ui.viewDefaults.on") : i18n.t("ui.viewDefaults.off")}</strong>
+      </div>
+    );
   }
 
   private async handleClearViewDefaults() {
@@ -859,6 +872,9 @@ export class SettingsPanel extends HTMLElement {
                   {this.defaultViewOptions.showNoteStats ? i18n.t("ui.viewDefaults.on") : i18n.t("ui.viewDefaults.off")}
                 </strong>
               </div>
+              {this.renderSavedToggle("ui.scrollSpacing", this.defaultViewOptions.scrollSpacing)}
+              {this.renderSavedToggle("ui.showTextInAnnotationMode", this.defaultViewOptions.showBarLabels)}
+              {this.renderSavedToggle("ui.alwaysShowAnnotations", this.defaultViewOptions.alwaysShowAnnotations)}
             </div>
           </div>
         ) : (

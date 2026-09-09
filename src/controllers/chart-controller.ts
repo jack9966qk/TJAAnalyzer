@@ -243,8 +243,20 @@ export function updateParsedCharts(content: string, fromStream = false) {
       if (viewOptionsEl) {
         viewOptionsEl.statsVisible = defaults.showNoteStats;
       }
-      // Notify view-options component to re-render
+      // Toggles absent from profiles saved before they existed are left alone.
+      if (defaults.scrollSpacing !== undefined) {
+        appState.renderOptions.scrollSpacing = defaults.scrollSpacing;
+      }
+      if (defaults.showBarLabels !== undefined) {
+        appState.renderOptions.showTextInAnnotationMode = defaults.showBarLabels;
+      }
+      if (defaults.alwaysShowAnnotations !== undefined) {
+        appState.renderOptions.alwaysShowAnnotations = defaults.alwaysShowAnnotations;
+      }
+      // Notify the option panels to re-render, then redraw with the restored
+      // options, which the chart was already laid out without.
       document.dispatchEvent(new Event("view-options-update"));
+      refreshChart();
     }
 
     // Auto-annotate on load (only if enabled and not from stream)

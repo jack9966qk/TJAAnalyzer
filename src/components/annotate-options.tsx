@@ -42,18 +42,22 @@ export class AnnotateOptions extends HTMLElement {
 
   private handleAnnotationsChange = () => setTimeout(() => this.render(), 0);
 
+  private handleViewOptionsUpdate = () => this.render();
+
   connectedCallback() {
     this.style.display = "block";
     this.render();
     document.body.appendChild(this._modalContainer);
     // Listen for language changes
     i18n.onLanguageChange(() => this.render());
+    document.addEventListener("view-options-update", this.handleViewOptionsUpdate);
     if (tjaChart) {
       tjaChart.addEventListener("annotations-change", this.handleAnnotationsChange);
     }
   }
 
   disconnectedCallback() {
+    document.removeEventListener("view-options-update", this.handleViewOptionsUpdate);
     if (tjaChart) {
       tjaChart.removeEventListener("annotations-change", this.handleAnnotationsChange);
     }

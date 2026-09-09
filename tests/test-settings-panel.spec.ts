@@ -139,4 +139,89 @@ test.describe("Settings Panel", () => {
     // The plain instruction line is replaced by the progress block, not shown alongside it.
     await expect(page.locator("#settings-modal")).not.toContainText("Paste HTML content from fumen-database below");
   });
+
+  test("saves and restores the display toggles with the view defaults", async ({ page }) => {
+    const tja =
+      "TITLE:S\nBPM:120\nCOURSE:Oni\nLEVEL:8\n#START\n1111222211112222,\n#SCROLL 0.5\n1111222211112222,\n#END";
+    await page.route("**/ese_index.json", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([{ path: "c/s.tja", title: "S", url: "ese/c/s.tja", type: "blob" }]),
+      }),
+    );
+    await page.route("**/ese/c/s.tja", (route) => route.fulfill({ status: 200, contentType: "text/plain", body: tja }));
+
+    await page.goto("/");
+    await page.locator('button[data-mode="list"]').click();
+    await page.locator(".ese-result-item").first().click();
+
+    const scrollSpacing = page
+      .locator("view-options label", { hasText: "Scroll Speed Spacing" })
+      .locator("input[type=checkbox]");
+    await scrollSpacing.check();
+
+    await page.click("button[data-do-tab='annotation']", { force: true });
+    const barLabels = page
+      .locator("annotate-options label", { hasText: "Show Bar Labels" })
+      .locator("input[type=checkbox]");
+    const alwaysShow = page
+      .locator("annotate-options label", { hasText: "Always Show Annotations" })
+      .locator("input[type=checkbox]");
+    await barLabels.check();
+    await alwaysShow.check();
+
+    await page.locator("settings-panel").evaluate((panel) => {
+      (panel as unknown as { handleOpen: () => void }).handleOpen();
+    });
+    const saveBtn = page.locator("#settings-modal action-button", { hasText: "Save Current as Default" });
+    await saveBtn.locator("button").click();
+    await expect(page.locator("#settings-modal")).toContainText("View defaults saved");
+
+    const saved = await page.evaluate(() => {
+      const raw = localStorage.getItem("tja_analyzer_profile");
+      return raw ? JSON.parse(raw).defaultViewOptions : null;
+    });
+    expect(saved).toMatchObject({ scrollSpacing: true, showBarLabels: true, alwaysShowAnnotations: true });
+    await expect(page.locator("#settings-modal")).toContainText("Scroll Speed Spacing: On");
+
+    // A fresh load restores all three onto the chart, not just into the profile.
+    await page.reload();
+    await page.locator('button[data-mode="list"]').click();
+    await page.locator(".ese-result-item").first().click();
+    await expect(scrollSpacing).toBeChecked();
+    await page.click("button[data-do-tab='annotation']", { force: true });
+    await expect(barLabels).toBeChecked();
+    await expect(alwaysShow).toBeChecked();
+  });
+
+  test("leaves the toggles alone for profiles saved before they existed", async ({ page }) => {
+    const tja = "TITLE:S\nBPM:120\nCOURSE:Oni\nLEVEL:8\n#START\n1111222211112222,\n#END";
+    await page.route("**/ese_index.json", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify([{ path: "c/s.tja", title: "S", url: "ese/c/s.tja", type: "blob" }]),
+      }),
+    );
+    await page.route("**/ese/c/s.tja", (route) => route.fulfill({ status: 200, contentType: "text/plain", body: tja }));
+    await page.addInitScript(() => {
+      localStorage.setItem(
+        "tja_analyzer_profile",
+        JSON.stringify({ isTesterMode: false, defaultViewOptions: { zoom: "auto", showNoteStats: true } }),
+      );
+    });
+
+    await page.goto("/");
+    await page.locator('button[data-mode="list"]').click();
+    await page.locator(".ese-result-item").first().click();
+
+    await expect(
+      page.locator("view-options label", { hasText: "Scroll Speed Spacing" }).locator("input[type=checkbox]"),
+    ).not.toBeChecked();
+    await page.locator("settings-panel").evaluate((panel) => {
+      (panel as unknown as { handleOpen: () => void }).handleOpen();
+    });
+    await expect(page.locator("#settings-modal")).not.toContainText("Scroll Speed Spacing:");
+  });
 });

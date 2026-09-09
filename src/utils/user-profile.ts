@@ -15,6 +15,13 @@ export interface DefaultViewOptions {
   zoom?: number | "auto";
   /** Whether note stats panel is visible */
   showNoteStats: boolean;
+  /** Whether note spacing follows the scroll speed. Profiles saved before this
+   *  option existed omit it, and chart load then leaves the toggle alone. */
+  scrollSpacing?: boolean;
+  /** Whether bar labels are drawn in annotation mode */
+  showBarLabels?: boolean;
+  /** Whether annotations stay visible outside annotation mode */
+  alwaysShowAnnotations?: boolean;
 }
 
 export interface UserProfile {
