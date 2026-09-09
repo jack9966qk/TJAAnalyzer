@@ -1,4 +1,5 @@
 .pi/
+.env
 AGENTS.md
 .agents/
 .gemini/
