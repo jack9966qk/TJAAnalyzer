@@ -7,6 +7,7 @@ BPM:166
 WAVE:Jitensha.ogg
 OFFSET:-1.718
 DEMOSTART:81.754
+SCENEPRESET:IMAS
 
 //All chart #76 tweaked to recreate the HS2 drumroll tail behaviour on Vita. The extra HS2 and HS1 in #76 is not in the original chart.
 

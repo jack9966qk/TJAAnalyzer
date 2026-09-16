@@ -8,6 +8,7 @@ BPM:146
 WAVE:Holding Hands.ogg
 OFFSET:-1.805
 DEMOSTART:60.988
+SCENEPRESET:PZD
 
 //Ignored 3 hidden barlines at the end.
 

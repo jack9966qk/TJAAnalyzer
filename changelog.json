@@ -1,5 +1,85 @@
 [
   {
+    "hash": "ecd3e7b4",
+    "message": "Update version to 0.12.6.",
+    "date": "2026-09-16"
+  },
+  {
+    "hash": "2c5a7d85",
+    "message": "Apply automatic annotations after difficulty changes.",
+    "date": "2026-09-16"
+  },
+  {
+    "hash": "48a7a582",
+    "message": "Link the local renderer package in pnpm workspaces.",
+    "date": "2026-09-16"
+  },
+  {
+    "hash": "a24abd8f",
+    "message": "Update song_mapping.",
+    "date": "2026-09-16"
+  },
+  {
+    "hash": "db3afb24",
+    "message": "Add Claude and Codex resolution to data preparation.",
+    "date": "2026-09-16"
+  },
+  {
+    "hash": "f3c8d590",
+    "message": "Make pnpm builds and TypeScript tests work.",
+    "date": "2026-09-16"
+  },
+  {
+    "hash": "a9ed08ae",
+    "message": "Add lock files for pnpm.",
+    "date": "2026-09-16"
+  },
+  {
+    "hash": "eed238cc",
+    "message": "Ignore the local env file holding service tokens.",
+    "date": "2026-09-10"
+  },
+  {
+    "hash": "916bb61f",
+    "message": "Persist the scroll spacing and annotation display toggles with saved view defaults.",
+    "date": "2026-09-09"
+  },
+  {
+    "hash": "43430f05",
+    "message": "Add a download TJA file item to the chart list share dropdown.",
+    "date": "2026-09-02"
+  },
+  {
+    "hash": "0f752e14",
+    "message": "Add a command line tool that converts a rendered chart image to a TJA file.",
+    "date": "2026-08-29"
+  },
+  {
+    "hash": "75162a8a",
+    "message": "Add a decoder that reads a rendered chart image back into chart data.",
+    "date": "2026-08-29"
+  },
+  {
+    "hash": "355b714b",
+    "message": "Remove an unused import binding in the offline gap analysis.",
+    "date": "2026-08-29"
+  },
+  {
+    "hash": "7dca5f4d",
+    "message": "Fix the vertical layout bottom sheet rendering empty when the startup panel heuristic collapses the chart options panel.",
+    "date": "2026-08-29"
+  },
+  {
+    "hash": "0722bdf2",
+    "message": "Add a scroll speed spacing toggle for the rendered chart.",
+    "date": "2026-08-29"
+  },
+  {
+    "hash": "bf3a4f31",
+    "message": "Add a copy song name item to the chart list share dropdown.",
+    "date": "2026-08-29"
+  },
+  {
     "hash": "d4764cd5",
     "message": "Update version to 0.12.5.",
     "date": "2026-08-29"
@@ -418,85 +498,5 @@
     "hash": "d2cc84fa",
     "message": "Address some flaky tests.",
     "date": "2026-03-14"
-  },
-  {
-    "hash": "48f1a5a7",
-    "message": "Reduce browser environment dependency in layout.ts, add basic test cases.",
-    "date": "2026-03-14"
-  },
-  {
-    "hash": "15eb7149",
-    "message": "Set up tests within the renderer package.",
-    "date": "2026-03-14"
-  },
-  {
-    "hash": "67ed3cc6",
-    "message": "Add README to the TJA renderer package.",
-    "date": "2026-03-14"
-  },
-  {
-    "hash": "222d1f85",
-    "message": "Define an internal/private version of ChartView API allowing easier migration of functionalities from the app package to the renderer package.",
-    "date": "2026-03-14"
-  },
-  {
-    "hash": "c54a5b95",
-    "message": "Rename renderer ViewOptions as RenderOptions to disambiguate from ChartViewOptions and the app ViewOptions.",
-    "date": "2026-03-14"
-  },
-  {
-    "hash": "410c5011",
-    "message": "Rename chart as chart view in public renderer API.",
-    "date": "2026-03-14"
-  },
-  {
-    "hash": "0afda8b1",
-    "message": "Remove the previously defined public API. Also make default chart options public.",
-    "date": "2026-03-14"
-  },
-  {
-    "hash": "9f1827d4",
-    "message": "Update the new public API. Migrate renderer example package to the new API.",
-    "date": "2026-03-14"
-  },
-  {
-    "hash": "15f0bd94",
-    "message": "Extend renderer public API and mark previous ones as deprecated.",
-    "date": "2026-03-13"
-  },
-  {
-    "hash": "4b5858da",
-    "message": "Update version to 0.11.4.",
-    "date": "2026-03-13"
-  },
-  {
-    "hash": "949bf72d",
-    "message": "Update TJA parser to calculate gaps that exceed 1 measure. Remove gap value when the previous note is not don/ka.",
-    "date": "2026-03-13"
-  },
-  {
-    "hash": "cbb251da",
-    "message": "Add a script to apply analysis to all ESE charts that have a corresponding song mapping. Currently this contains only the note gaps.",
-    "date": "2026-03-13"
-  },
-  {
-    "hash": "eb2e1d76",
-    "message": "Fix parameter propagation for prepare-data.",
-    "date": "2026-03-13"
-  },
-  {
-    "hash": "ea3aec13",
-    "message": "Update the data fetching script to use the taiko.wiki API instead of GitHub raw content address.",
-    "date": "2026-03-13"
-  },
-  {
-    "hash": "9beb20f4",
-    "message": "Update prepare-data script to invoke build-data in the end.",
-    "date": "2026-03-13"
-  },
-  {
-    "hash": "9e764c18",
-    "message": "Update song_mapping.json.",
-    "date": "2026-03-13"
   }
 ]

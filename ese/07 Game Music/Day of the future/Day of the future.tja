@@ -7,6 +7,7 @@ BPM:158
 WAVE:Day of the future.ogg
 OFFSET:-2.391
 DEMOSTART:64.334 
+SCENEPRESET:IMAS
 
 //Chart tweaked to recreate HS2 drumroll over HS1 barline (KFM #42-43, 50-51)
 
